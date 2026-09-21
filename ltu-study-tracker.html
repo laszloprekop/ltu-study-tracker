@@ -147,6 +147,12 @@ section{margin-bottom:34px}
 .panel{padding:16px 18px}
 .panel h3{font-size:14px; margin-bottom:8px}
 .panel h3 .dot{display:inline-block; width:8px; height:8px; border-radius:99px; margin-right:7px; background:var(--cc)}
+.teachers{display:flex; flex-wrap:wrap; gap:8px 16px; margin:2px 0 12px}
+.teacher{display:flex; align-items:center; gap:8px; text-decoration:none; color:var(--ink); font-size:13px; line-height:1.25}
+.teacher img{width:32px; height:32px; border-radius:50%; object-fit:cover; flex:0 0 auto; box-shadow:0 0 0 2px var(--cc-soft)}
+.teacher small{display:block; color:var(--muted); font-size:11.5px}
+.teacher:hover span{text-decoration:underline}
+.teacher:focus-visible{outline:2px solid var(--now); outline-offset:2px; border-radius:4px}
 .panel ul{margin:0; padding-left:18px}
 .panel li{margin:4px 0}
 .panel p{margin:6px 0 0; color:var(--muted); font-size:13px}
@@ -210,10 +216,22 @@ const N = function(id){ return C614 + "/assignments/" + id; };
 const I613 = function(id){ return C613 + "/modules/items/" + id; };
 const I614 = function(id){ return C614 + "/modules/items/" + id; };
 
-// color: which --cN slot the course uses
+// Photos come from the teachers' public LTU staff pages. Sources, cropped to 96px: assets/teachers/
+const TEACHERS = {
+  "josef-hallberg": {
+    name: "Josef Hallberg", title: "Associate Professor", url: "https://www.ltu.se/personal/q/josef-hallberg",
+    photo: "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAASABIAAD/4QBMRXhpZgAATU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAYKADAAQAAAABAAAAYAAAAAD/wAARCABgAGADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9sAQwACAgICAgIDAgIDBQMDAwUGBQUFBQYIBgYGBgYICggICAgICAoKCgoKCgoKDAwMDAwMDg4ODg4PDw8PDw8PDw8P/9sAQwECAgIEBAQHBAQHEAsJCxAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQ/90ABAAG/9oADAMBAAIRAxEAPwD9Lo18PycRWRDvyTt/rWZJdR6Xdl3ZkhPCg84qvrera4mnzTaTEsWAdu7g14b/AMJLqCWl1qvim6KGHO1AMA49DW7n0IUD0/UPE+n6xerp9vbmeSEhicHbx0611FjdancSidfLtoYhyvc/WvFtA1GLxJaNd6JIba5cckjlvz61neNPFk3hDRvPuZmW9k/dpHn7z/3tvcDrWcqnKuZmkafM+VI73xNepMJL43iWrRuMMzYzjriuz0j4geG4LSOW5nw0QwzHHOB2wa/PGbxprviDWGsII2uWm+9IzZK+h2gY49MV6nZeENQfTjC88jySr1JPBAxgY9q8n+07Sbij2I5Q5KzZ9vWXxZ8H395FYw6pCskpCqGJGSegyRjJ7V7fa/NArL1r8V/GGn+K/DIIt9OmmghO/IBP5kfrmvXPgF+0rc6TqCxeJ9UmudEkHkywyAs9rIDw6ZJOB0Ze45HI56KGaqUuWascmKyaUY80WfrDHMoTJ4p0cglbIPFck+qx3VvC9k4lilUOrqchlYZBB9xW/p2Fi+brXtJng2NbpTScmm7qaWpgf//Q/SG5mSaZhqMZjIXIVc4IrklsPCOvC4jmgLIpwwIOMiqniG4vprSO4aQx7eMjriqGlzpYWaFJN6yHcT65610OWtiFHQ6HRfC/hsThdKl8hYhwO/618b/tV62bfxpp3h6zbzGtrUSEjkl5Sc8eygfnX1tf61pDfv7FGKjq6AkZHuK+NvG5sfEf7RWn2yDz454bdiTzyq8/liuHMn+6dj0MrX71NnpvwV+HFr4c0tda1aLztRu1DOW52552j6V7tILZZleOIAD0FZV7q+iaMFglnRNoHylgAPzrDbxjoV2oeGdWA5BVhg185sfcUqEpK6R190yXETI8IYMOcgdK+LPjV8JE0+5fxr4WUW/m8XUS/KrEfdfA7+te+ar8VNI02f7OW3A8DGDz9MinX2uaH420K60R5FgmuomVN/y5Yj5SM+9JNk18O4xdz0v9lbX9Rv8A4Z2n9qS7xbSvEmWyQowcH068e1fYdpfq8YKD5RX58/sw3mo6b8Nrizu4THOuozhQQVLINqg89RkHB6GvsbS/ERSOOB1yxHOK+vwb/do/O8dD95I9Uim3jPSpi1Ytld+eg28GtZVPU11nBY//0fuJpNTutOmaVUbg4XNcbZX6Qafew3+2C4jVtoJ49sV17eKPh94wtZYLLVltb2MHCLIFbI9u9fDvj/UPEmoazdwW18dtiSpYcblHI3VFSulqnc66WEk3Zqx9zeD7dLPwTBBGqyvPkknvk5P868R8ReAPt3jCPxNps32DU9Oik2tAF3uhICqVbIG4FwWxkcYIpPA/xi0vTvClqb5hI8agMByenUivQNO1rRvEAuNb0hgZHRUfB7DJUfqa5cZUU4Raex6WU0eWrKE1o+vzR4X4w03xLdrcP4ct9NiL8h7xnnlJPXK/w49yT61xHgbwJrms6olrrU8CWsKStcPZ5UM5wI03IcZAySB04z1Fe869f6baQTXN7awzFTxvRXJPbqK84i8fy6PN9klgMZn3t5gIEMY/hRVFeRUqq9j72jld1dyPNdT8G+KIJY9MGrHTJrWSSNZkj5mjz+7cMeHIH3gTnPUdz6Zo/hnU7uwbQ9U1V9Zt7lVSYXUCqpXI3cjjBHGMH8BWPofjHVNa1mS+ktzbJEzKwLh1mjz8rYwMHv8ApzXrR1OOTyzGoB9hzip9rfc1llUVpc734a6ZomlazeWFrGbdbeBJBCoxGqykcKBxgFOB2Fe3waxb+eIoE/E15P4Ud1ae4VNymNFJA5OCTjNdPpl5b/byzZ3dga9/Lk1SXmfm2eOLxDS2SSPorRLlWjXNdajhhXgX/CbW+mTQwzLtDHFet6Vq8N/arPEcgjNerFo+dqRsf//S9e8N/s76DpWox63BeO067wcuTnP1rlfE/wANptIu9SvobjdBeMAQev3cda9l0HUJRqMNpPOWYswxmsb4ifvBFZqT88i8DPPNeJiYqndx8z6bC4qpW92o77HyhHo1hoWp/wBntPlHwSGOQCa+h/h/ZSaLqSSrkWWoRtF1+Xd1U/pj8a8M8XeBfGOp+KvO0vSLmaEBQHVDt/Wve7+x1jTfBsFhcQSW1zEoIOw5DL0x+NedhsRUqQi5rU9HE04U6klCStYseLtJuby2/wBFZRPvO3cCVBIIBK8Zx6Zry/WNF8RQWoF/PZKoGci3JUkdCd0mR+tem2uvqbcSai4eSBlS4wMFJWQOAw7blYEUaj4l0Fk+d1HGRuHB9ueKJRake/l2aqNnI8osdH8S3qYstQgWMYwXthjA9MPn9RXq0DCOyiD48xeCR0461ysnizRLJmEUinfyQozz7Y6Vnx+JI9WuVtrQGOIfNI7cKijqc/SpV76muNzKM53ifR2iay+macGMZKP83PII6VrXniSwhEN3HjexHArxf4eaxq3xW0BNc8HMklpE8lpj0aFiFJ/3l2t+NdvafDrxtbXq2mvwGQzHCPHnaufUetfXYNNxUbH5fmEkqkm31Om1q6bWEjlDiPbg9a+h/BV7ZW+jwCS4HC+teCn4EeL5mXbqLCBx0xgj2Nct4o0/x14CH2NrZrq0AyZQSNoHrXZyWkeXGanHU//T/SzQvgvomlyLdbjLKnILHPWuZ8U+GNLj8b6JZrCHZ2ZiPZa774k/GD4d/CHSl1bx9rUWmpICYYQDJcTkdRFCmXb64wO5Ffl18W/2/wA3+uJf/Czw6lrJbhliv9VO9yD3W3jO1f8AgTt7itasYLc3wlGtUd4LQ/XebT9M0m2N3dRQW1vEAXllKoij1LNgD8TXwF8df2y/gl4IupNMsJU8W38TbBBp+DBvHZrg/IAO5TdX5IfFD46fFD4rXTXfj/xRdavsJ2Qs3l20X/XOFMRr9QufevAtXkZmijAyWIx/Ws54hbRR6FPKOT3qkrvsfY8H7UOrj4l6t441WwRNG8S+ULuwgJKxJEoSJ4t3V0Uc5xuyenGPtLRbnw/4u0WDXPC99He2E4yrJzg/3WXqrDoQeRX49XEqtbq7NhQOSeABTfCnxX8S+BNSN14NvXjVz+9XP7iT6r3+tebiMNz6rc9SVVQSj0P1o1XTra0Wa+1OdLa3hUlnZgqgDqST6Cvh/wCLXx5j1WGfwh8P2aHTZMpdXg4e4HQpH3EZ7nq30rxbx38bvF/xBiWx8Q3aw2ynJhiDIjH/AGjk5/HivP7cq4DIcg9CORWVLBpPmkN4h/Cj6G+Gfx/+JPwfjhu/AGtSaezTDz4dqywTKf78ThlJHY4yPWv0W+DP/BTCa71uDQPjno1ubORDt1PTYysqOOnmW5YqynuUKkf3TX48KfKMWD0cMTV+VIRKz7BkdMV6UKso7GFbDU6nxo/qu8B/H34O/EcRweCvF2nahcuMrbecIrn6eTLtkz9Aa7fxFpcOq20tvdRAhlIORX8mUN75YRlkKSLyDwcH1GRmvp/4cftf/H/4cJBaaT4ok1HT4eBaaiPtUO0fwjzMuo/3WWuhYm+559XI0tacvvP/1Pz0+JXxS8VfEbxHeeK/FuoPqGpXuSzscKij7sca9EReiqOB9cmvNXvXkUgHI6isF7pri8WM+h/QGn27/J7qa5pN7n2UZJaR2Jw5kjce+aS6iP7mQjOzr+NNGVnwOjcirkpDYHahBa6OZ1PTbi/WOKSc/Z1/gHAPufWsxtIe3YRwEYI449K7PGBVK4LKxx0xRc5JYdXuc4+lM8ZM7AkYyBTLXRHjbzYJngJ/un+nSutu7O3huWit5vtEa4+YoUJyOhB6Ypyx4/8A1U0xzwijJqS1RVgglRcSv5rcDJAH8q0pAcqCe9RhefxqZm7+lBvGC2ELcgdaf9pdC3PIqBjhhULth1PY8UFban//2Q=="
+  },
+  "chen-wei-yang": {
+    name: "Chen-Wei Yang", title: "Senior Lecturer", url: "https://www.ltu.se/en/staff/c/chen-wei-yang",
+    photo: "data:image/jpeg;base64,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"
+  }
+};
+
+// color: which --cN slot the course uses. teachers: keys of TEACHERS, as listed in Canvas.
 const COURSES = {
   Z7005E: {
-    name: "Programvaruteknik", color: 1, canvas: C613,
+    name: "Programvaruteknik", color: 1, canvas: C613, teachers: ["josef-hallberg", "chen-wei-yang"],
     quick: [["Schema", C613 + "/pages/schema"], ["Zoom room", ZOOM_SE], ["Interview booking", BOOKING], ["Assignments", C613 + "/assignments"]],
     rules: [
       "Seven group labs, one shared project portfolio, deadlines at 17:00",
@@ -223,7 +241,7 @@ const COURSES = {
     note: "Almost everything is group work. The group moves at the pace of its slowest hand-off, so agree early who owns which diagram."
   },
   Z0025E: {
-    name: "Computer Networks", color: 2, canvas: C614,
+    name: "Computer Networks", color: 2, canvas: C614, teachers: ["josef-hallberg", "chen-wei-yang"],
     quick: [["Course home", C614], ["Zoom room", ZOOM_NET], ["Lab sign-up sheet", SIGNUP], ["Assessment rules", C614 + "/pages/assessments-and-examination"]],
     rules: [
       "Continuous assessment, pass or fail, no final exam",
@@ -455,11 +473,22 @@ function renderRules(t){
     t.courses.map(function(c){
       var k = COURSES[c];
       return '<div class="card panel" data-course="' + c + '" style="' + colorVars(c) + '">' +
-        '<h3><span class="dot"></span>' + esc(k.name) + ' ' + esc(c) + '</h3>' +
+        '<h3><span class="dot"></span>' + esc(k.name) + ' ' + esc(c) + '</h3>' + teachers(k.teachers) +
         (k.rules && k.rules.length ? '<ul>' + k.rules.map(function(r){ return '<li>' + esc(r) + '</li>'; }).join("") + '</ul>' : '') +
         (k.note ? '<p>' + esc(k.note) + '</p>' : '') +
         (k.canvas ? '' : '<p>Not in Canvas yet.</p>') + '</div>';
     }).join("") + '</div></section>';
+}
+
+function teachers(keys){
+  if (!keys || !keys.length) return "";
+  return '<div class="teachers">' + keys.map(function(key){
+    var p = TEACHERS[key];
+    if (!p) return "";
+    return '<a class="teacher" href="' + esc(p.url) + '" target="_blank" rel="noopener">' +
+      (p.photo ? '<img src="' + p.photo + '" alt="" width="32" height="32">' : '') +
+      '<span>' + esc(p.name) + '<small>' + esc(p.title) + '</small></span></a>';
+  }).join("") + '</div>';
 }
 
 function renderRhythm(t){
