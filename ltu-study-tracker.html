@@ -1,0 +1,583 @@
+<title>LTU Study Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Course colours are slots (--c1 to --c5), assigned per course in COURSES below. */
+:root{
+  --bg:#eef1f4; --surface:#ffffff; --surface-2:#f7f9fb;
+  --ink:#131820; --muted:#5b6876; --line:#dde3e9;
+  --c1:#a8471a; --c1-soft:#f5e6dd;
+  --c2:#0d6b74; --c2-soft:#ddeeef;
+  --c3:#6a4aa3; --c3-soft:#ebe5f5;
+  --c4:#7a6410; --c4-soft:#f3edd6;
+  --c5:#3d5f8c; --c5-soft:#e2e9f3;
+  --alert:#a5231d; --alert-soft:#f7e2e0;
+  --ok:#2f6b3f; --now:#2b5fb4; --now-soft:#e3ebf8;
+  --shadow:0 1px 2px rgba(19,24,32,.06);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f1319; --surface:#161d25; --surface-2:#1b232c;
+    --ink:#e6edf4; --muted:#95a3b2; --line:#27313c;
+    --c1:#ef9a68; --c1-soft:#33231a;
+    --c2:#57c7cc; --c2-soft:#122b2d;
+    --c3:#b9a2ec; --c3-soft:#261e38;
+    --c4:#dcc261; --c4-soft:#2d2710;
+    --c5:#93b3e0; --c5-soft:#18233a;
+    --alert:#f19089; --alert-soft:#33191a;
+    --ok:#7fc492; --now:#8fb4f2; --now-soft:#18253a;
+    --shadow:0 1px 2px rgba(0,0,0,.4);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0f1319; --surface:#161d25; --surface-2:#1b232c;
+  --ink:#e6edf4; --muted:#95a3b2; --line:#27313c;
+  --c1:#ef9a68; --c1-soft:#33231a;
+  --c2:#57c7cc; --c2-soft:#122b2d;
+  --c3:#b9a2ec; --c3-soft:#261e38;
+  --c4:#dcc261; --c4-soft:#2d2710;
+  --c5:#93b3e0; --c5-soft:#18233a;
+  --alert:#f19089; --alert-soft:#33191a;
+  --ok:#7fc492; --now:#8fb4f2; --now-soft:#18253a;
+  --shadow:0 1px 2px rgba(0,0,0,.4);
+}
+*{box-sizing:border-box}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:"Public Sans","Helvetica Neue",Arial,sans-serif;
+  font-size:15px; line-height:1.55;
+}
+.wrap{max-width:1000px; margin:0 auto; padding-inline:16px; padding-block:0 56px}
+h1,h2,h3{font-family:Archivo,"Helvetica Neue",Arial,sans-serif; text-wrap:balance; margin:0}
+.mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace; font-variant-numeric:tabular-nums}
+
+header.top{
+  position:sticky; top:env(safe-area-inset-top,0px); z-index:20;
+  background:var(--bg); border-bottom:1px solid var(--line);
+  padding-block:14px 12px; margin-bottom:26px;
+}
+.topgrid{display:flex; flex-wrap:wrap; gap:12px 20px; align-items:center; justify-content:space-between}
+h1{font-size:23px; letter-spacing:-.015em}
+.sub{color:var(--muted); font-size:13px; margin-top:2px}
+.controls{display:flex; flex-wrap:wrap; gap:10px 16px; align-items:center}
+.terms{display:flex; flex-wrap:wrap; gap:4px 18px; margin-top:12px}
+.terms button{
+  font:inherit; font-size:13.5px; font-weight:600; color:var(--muted); background:none; border:0;
+  padding:4px 0; cursor:pointer; border-bottom:2px solid transparent;
+}
+.terms button[aria-selected="true"]{color:var(--ink); border-bottom-color:var(--ink)}
+.terms button .soon{font-weight:500; font-size:11.5px; color:var(--muted); margin-left:5px}
+.meter{display:flex; align-items:center; gap:10px; font-size:12.5px; color:var(--muted)}
+.bar{width:110px; height:6px; border-radius:99px; background:var(--line); overflow:hidden}
+.bar span{display:block; height:100%; width:0; background:var(--ok); transition:width .25s ease}
+@media (prefers-reduced-motion:reduce){ .bar span{transition:none} }
+
+.seg{display:inline-flex; flex-wrap:wrap; border:1px solid var(--line); border-radius:7px; overflow:hidden; background:var(--surface)}
+.seg button{
+  font:inherit; font-size:12.5px; font-weight:600; color:var(--muted); background:transparent;
+  border:0; border-left:1px solid var(--line); padding:5px 10px; cursor:pointer;
+}
+.seg button:first-child{border-left:0}
+.seg button[aria-pressed="true"]{color:var(--ink); background:var(--surface-2); box-shadow:inset 0 -2px 0 var(--ink)}
+.seg button:focus-visible,.jump:focus-visible,.terms button:focus-visible{outline:2px solid var(--now); outline-offset:1px}
+.jump{font-size:12.5px; font-weight:600; color:var(--now); text-decoration:none}
+.jump:hover{text-decoration:underline}
+
+section{margin-bottom:34px}
+.sechead{display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; margin-bottom:14px}
+.sechead h2{font-size:17px; letter-spacing:-.01em}
+.sechead .note{color:var(--muted); font-size:13px}
+
+.card{background:var(--surface); border:1px solid var(--line); border-radius:10px; box-shadow:var(--shadow)}
+.intro{padding:14px 18px; color:var(--muted); font-size:14px}
+.intro p{margin:0; max-width:70ch}
+.intro p + p{margin-top:6px}
+.empty{padding:22px 18px; color:var(--muted)}
+.empty h3{color:var(--ink); font-size:15px; margin-bottom:6px}
+.empty p{margin:0; max-width:62ch}
+
+.weeks{display:flex; flex-direction:column; gap:14px}
+.week{display:grid; grid-template-columns:104px 1fr; gap:0; scroll-margin-top:150px}
+.week.now{border-color:var(--now); box-shadow:0 0 0 1px var(--now)}
+.week .rail{padding:16px 12px 16px 16px; border-right:1px solid var(--line)}
+.week .rail .wk{font-size:17px; font-family:Archivo,sans-serif; font-weight:700; letter-spacing:-.01em}
+.week .rail .dates{font-size:11.5px; color:var(--muted); margin-top:2px}
+.week .rail .flag{
+  display:inline-block; margin-top:8px; font-size:10.5px; letter-spacing:.07em; text-transform:uppercase;
+  color:var(--alert); background:var(--alert-soft); border-radius:4px; padding:2px 6px; font-weight:600;
+}
+.week .rail .flag.nowflag{color:var(--now); background:var(--now-soft)}
+.rows{padding:6px 16px 10px}
+.row{display:flex; gap:11px; align-items:flex-start; padding:9px 0; border-top:1px solid var(--line)}
+.rows .row.first{border-top:0}
+.row .when{flex:0 0 74px; font-size:12.5px; color:var(--muted); padding-top:1px}
+.row .body{flex:1 1 auto; min-width:0}
+.row .body label,.row .body .block{display:block}
+.row .body label{cursor:pointer}
+.row .body .t{display:block}
+.row .why{display:block; color:var(--muted); font-size:12.5px; margin-top:1px}
+.row.deadline .body .t{font-weight:600}
+.row.deadline{border-left:3px solid var(--alert); margin-left:-16px; padding-left:13px}
+.row input[type=checkbox]{margin:3px 0 0; width:15px; height:15px; accent-color:var(--ok); flex:0 0 auto}
+.row.done .body .t{text-decoration:line-through; color:var(--muted)}
+
+.chip{
+  display:inline-block; font-size:10.5px; font-weight:600; letter-spacing:.05em; text-transform:uppercase;
+  padding:1px 6px; border-radius:4px; margin-right:7px; vertical-align:1px; white-space:nowrap;
+  color:var(--cc); background:var(--cc-soft);
+}
+.links{display:flex; flex-wrap:wrap; gap:6px; margin-top:5px}
+.links a{
+  font-size:11.5px; line-height:1.4; text-decoration:none; color:var(--ink);
+  background:var(--surface-2); border:1px solid var(--line); border-radius:5px; padding:2px 7px;
+}
+.links a:hover{border-color:var(--ink)}
+.links a:focus-visible,.quick a:focus-visible{outline:2px solid var(--ok); outline-offset:1px}
+.links a::after{content:" \2197"; color:var(--muted); font-size:10px}
+.quick{display:flex; flex-wrap:wrap; gap:8px}
+.quick a{
+  font-size:13px; text-decoration:none; color:var(--ink);
+  background:var(--surface-2); border:1px solid var(--line); border-radius:6px; padding:6px 10px;
+}
+.quick a:hover{border-color:var(--ink)}
+.quick a .k{display:block; font-size:10.5px; letter-spacing:.05em; text-transform:uppercase; color:var(--cc)}
+
+.grid2{display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:14px}
+.panel{padding:16px 18px}
+.panel h3{font-size:14px; margin-bottom:8px}
+.panel h3 .dot{display:inline-block; width:8px; height:8px; border-radius:99px; margin-right:7px; background:var(--cc)}
+.panel ul{margin:0; padding-left:18px}
+.panel li{margin:4px 0}
+.panel p{margin:6px 0 0; color:var(--muted); font-size:13px}
+.rhythm li{margin:6px 0}
+footer{color:var(--muted); font-size:12.5px; border-top:1px solid var(--line); padding-top:14px}
+footer p{margin:0 0 6px}
+@media (max-width:620px){
+  .week{grid-template-columns:1fr}
+  .week .rail{border-right:0; border-bottom:1px solid var(--line); display:flex; flex-wrap:wrap; gap:4px 10px; align-items:baseline; padding:12px 16px}
+  .week .rail .dates{margin-top:0}
+  .week .rail .flag{margin-top:0}
+  .row .when{flex-basis:64px}
+}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="topgrid">
+      <div>
+        <h1>LTU Study Tracker</h1>
+        <div class="sub" id="termsub"></div>
+      </div>
+      <div class="controls">
+        <div class="seg" role="group" aria-label="Show courses" id="filter"></div>
+        <a class="jump" id="jump" href="#" hidden>This week &darr;</a>
+        <div class="meter"><span id="pcount">0 of 0 done</span><span class="bar"><span id="pbar"></span></span></div>
+      </div>
+    </div>
+    <div class="terms" role="tablist" aria-label="Study period" id="terms"></div>
+  </header>
+
+  <section>
+    <div class="card intro">
+      <p>A week-by-week view of the courses in each study period, built from the Canvas schedule pages and assignment due dates. Choose the study period with the tabs above and your courses with the buttons. Courses you don't pick are hidden.</p>
+      <p>The tick boxes are your own. Nobody else sees what you tick. On claude.ai your ticks follow your account. Otherwise they stay in this browser.</p>
+    </div>
+  </section>
+
+  <div id="termbody"></div>
+
+  <footer>
+    <p>Unofficial, made by a student. <span id="asof"></span> Canvas is always right when the two disagree.</p>
+    <p>Times are Stockholm time.</p>
+  </footer>
+</div>
+
+<script>
+/* ---------- Data ----------
+   To add a study period: append to TERMS. To add a course: add it to COURSES, then list its code in the term.
+   A course without a Canvas page yet sets canvas: null, and its links and weeks can come later. */
+
+const CANVAS = "https://ltuedu.instructure.com/courses/";
+const C613 = CANVAS + "613";
+const C614 = CANVAS + "614";
+const ZOOM_SE = "https://ltu-se.zoom.us/j/3024506121";
+const ZOOM_NET = "https://ltu-se.zoom.us/j/66123226809";
+const BOOKING = "https://doodle.com/sign-up-sheet/participate/b49a3fa3-19ad-4030-92d4-04c1ccfd2767/select";
+const SIGNUP = C614 + "/modules/items/19985";
+const A = function(id){ return C613 + "/assignments/" + id; };
+const N = function(id){ return C614 + "/assignments/" + id; };
+const I613 = function(id){ return C613 + "/modules/items/" + id; };
+const I614 = function(id){ return C614 + "/modules/items/" + id; };
+
+// color: which --cN slot the course uses
+const COURSES = {
+  Z7005E: {
+    name: "Programvaruteknik", color: 1, canvas: C613,
+    quick: [["Schema", C613 + "/pages/schema"], ["Zoom room", ZOOM_SE], ["Interview booking", BOOKING], ["Assignments", C613 + "/assignments"]],
+    rules: [
+      "Seven group labs, one shared project portfolio, deadlines at 17:00",
+      "Individual home exam, Boomerang Australia, 25 Nov",
+      "Oral examination in week 49, booking link appears after 25 Nov"
+    ],
+    note: "Almost everything is group work. The group moves at the pace of its slowest hand-off, so agree early who owns which diagram."
+  },
+  Z0025E: {
+    name: "Computer Networks", color: 2, canvas: C614,
+    quick: [["Course home", C614], ["Zoom room", ZOOM_NET], ["Lab sign-up sheet", SIGNUP], ["Assessment rules", C614 + "/pages/assessments-and-examination"]],
+    rules: [
+      "Continuous assessment, pass or fail, no final exam",
+      "Eight module quizzes: at least 150 of 300 points, all close 2 Dec",
+      "Two midterms: at least 150 of 300 combined, minimum 75 on each",
+      "Six labs: report plus a booked assessment session, groups of 3 to 4"
+    ],
+    note: "The quizzes are the easy points. Take each one in the week its module is covered and the 2 Dec closing date stops mattering."
+  }
+};
+
+const TERMS = [
+  {
+    id: "ht26-lp2", label: "LP2", period: "Autumn 2026, week 38 to week 49",
+    asof: "Checked against Canvas on 18 September 2026.",
+    extra: "Z0025E lab deadlines fall at 23:59, Z7005E deadlines at 17:00.",
+    courses: ["Z7005E", "Z0025E"],
+    rhythm: [
+      {html: "<strong>Mornings follow the schedule.</strong> Both courses teach in the morning and rarely collide, so keep 09:00 to 12:00 free for whichever has a session."},
+      {c: "Z7005E", html: "<strong>Tuesday and Wednesday are Z7005E group days.</strong> The lectures and workshops sit there, so hold the group meeting straight after."},
+      {c: "Z0025E", html: "<strong>Watch one Z0025E self-paced lecture and take its quiz in the same sitting.</strong> Never watch without taking the quiz."},
+      {html: "<strong>Friday is report day</strong> in whichever course has one due."},
+      {c: "Z7005E", html: "<strong>Two hours of exercise a week.</strong> The Z7005E course page puts it in the schedule, so treat it as scheduled."},
+      {html: "<strong>Check the Canvas calendar every Monday.</strong> Z7005E lists weeks 44, 46 and 47 as empty and Z0025E says to expect changes, so sessions can appear in either course."}
+    ],
+    // start: the Monday of the first week in the block, used to find the current week
+    weeks: [
+        {wk:"v38", dates:"14 to 20 Sep", start:"2026-09-14", flag:"set up", rows:[
+          {d:"Setup", c:"Z0025E", t:"Install Wireshark and Cisco Packet Tracer 8.0", why:"About 30 min. Packet Tracer versions 6.3, 7.2 and 8.0 are the confirmed ones, newer builds have broken the lab files before. Packet Tracer is needed from Lab 2 on 2 Oct.", task:"t-tools",
+            links:[["Wireshark","https://www.wireshark.org/"],["Packet Tracer versions","https://www.computernetworkingnotes.com/ccna-study-guide/download-packet-tracer-for-windows-and-linux.html"],["Lab instructions 9.1", I614(19984)]]},
+          {d:"Setup", c:"Z0025E", t:"Form a lab group of 3 to 4 and sign up on sheet 9.2", why:"Lab 1 may be done alone, Labs 2 to 6 may not, so form the group once.", task:"t-group", links:[["Lab sign-up sheet", SIGNUP]]},
+          {d:"Setup", c:"Z0025E", t:"Run the pre-knowledge checks 0.1 to 0.8", why:"About 30 min, ungraded, a couple of minutes each. They show which of the eight modules will cost you time.", task:"t-pre",
+            links:[["Pre-knowledge overview", I614(19893)],["Check 0.2", I614(19895)],["Check 0.5", I614(19898)],["Check 0.8", I614(19901)]]},
+          {d:"Fri 18", c:"Z0025E", t:"Start Lab 1: capture and analyse HTTP traffic in Wireshark", why:"Doing the capture before the weekend leaves the weekend for the write-up.", task:"t-lab1", links:[["Lab 1 assignment", N(3041)]]},
+          {d:"Fri 18", c:"Z7005E", t:"Re-read Lectures 3 and 4, kravspecifikation and teknisk specifikation", why:"About 45 min. This is exactly what the Maze Runner portfolio asks you to produce.", task:"t-notes",
+            links:[["Lecture 3, kravspec", I613(19674)],["Lecture 4, teknisk spec", I613(19675)]]},
+          {d:"Setup", c:"Z7005E", t:"Agree a fixed group meeting slot, and who books the system expert on Monday", why:"The booking page holds three groups per session, so Monday morning matters.", task:"t-msg",
+            links:[["Booking page", BOOKING],["Lab 1 brief", A(3013)]]}
+        ]},
+        {wk:"v39", dates:"21 to 27 Sep", start:"2026-09-21", rows:[
+          {d:"Mon 21", c:"Z7005E", t:"Book the system expert slot (Josef Hallberg)", why:"Booking page, three groups per session. The session itself is Wednesday.", task:"w39-book", links:[["Booking page", BOOKING]]},
+          {d:"Mon 21", c:"Z7005E", t:"Start looking for a GitHub project for Lab 4", why:"Lab 4 is due 15 Oct. Easy now, painful later.", task:"w39-gh", links:[["Lab 4 brief", A(3020)]]},
+          {d:"Mon 21", c:"Z7005E", t:"Draft interview questions and set up the portfolio skeleton", why:"Use the appendix structure, so interview answers land in the right section.", task:"w39-prep", links:[["Lab 1 brief and appendix", A(3013)]]},
+          {d:"Tue 22", c:"Z7005E", t:"09:15 Lecture 5, 10:30 Lecture 6, 13:00 to 16:00 Workshop 1", why:"Treat the workshop as portfolio working time, with the interview questions already final.", links:[["Zoom", ZOOM_SE],["Lecture 5", I613(19676)],["Lecture 6", I613(19677)]]},
+          {d:"Wed 23", c:"Z7005E", t:"09:15 Lecture 7, then the interview 10:30 to 12:00", why:"45 minutes, shared with two other groups. Record it, or have one person do nothing but take notes.", task:"w39-int", links:[["Zoom", ZOOM_SE],["Booking page", BOOKING]]},
+          {d:"Wed 23", c:"Z7005E", t:"Write up the interview findings the same afternoon", why:"Actors, user requirements, anything the expert ruled out.", task:"w39-writeup", links:[["Lab 1 brief", A(3013)]]},
+          {d:"Thu 24", c:"Z7005E", t:"Portfolio build day", why:"Use cases and diagrams, cost/value/risk table with IDs and dependencies, storyboards, UI proposal, activity, module, class, sequence and state diagrams, a test plan covering white box and black box.", task:"w39-build", links:[["Lab 1 brief", A(3013)],["Course modules", C613 + "/modules"]]},
+          {d:"Fri 25", c:"Z0025E", t:"Lab 1 report due 23:59", deadline:true, task:"w39-lab1", links:[["Submit Lab 1", N(3041)]]},
+          {d:"Fri 25", c:"Z0025E", t:"Book the Lab 1 assessment session", why:"Sign-up sheet 9.2. Every lab needs a booked session, not only a report.", task:"w39-book1", links:[["Sign-up sheet", SIGNUP]]}
+        ]},
+        {wk:"v40", dates:"28 Sep to 4 Oct", start:"2026-09-28", rows:[
+          {d:"Mon 28", c:"Z0025E", t:"Lecture, 09:00 to 10:30", links:[["Zoom", ZOOM_NET]]},
+          {d:"Mon 28", c:"Z7005E", t:"Lab 1 Maze Runner portfolio due 17:00", deadline:true, why:"Keep the afternoon as buffer. Do not plan new writing for that day.", task:"w40-lab1", links:[["Submit Lab 1", A(3013)]]},
+          {d:"Tue 29", c:"Z7005E", t:"09:15 Lecture 8, 10:30 to 12:00 Lecture 10 plus parts of 9 and 12", links:[["Zoom", ZOOM_SE]]},
+          {d:"Wed 30", c:"Z7005E", t:"09:15 Workshop 3, 10:30 to 11:45 Workshop 4", why:"Prepare module 2.3 for the first and modules 3.4 to 3.6 for the second.", links:[["Zoom", ZOOM_SE],["Module 2.3", I613(19683)],["Module 3.4", I613(19688)]]},
+          {d:"Wed 30", c:"Z0025E", t:"Lecture, 13:00 to 14:30", links:[["Zoom", ZOOM_NET]]},
+          {d:"Fri 2 Oct", c:"Z0025E", t:"Lab 2 session 13:00 to 15:00, report due 23:59", deadline:true, why:"Packet Tracer starts here. Session and deadline fall on the same day, so write as you go.", task:"w40-lab2", links:[["Submit Lab 2", N(3042)],["Zoom", ZOOM_NET]]}
+        ]},
+        {wk:"v41", dates:"5 to 11 Oct", start:"2026-10-05", flag:"tight", rows:[
+          {d:"Mon 5", c:"Z0025E", t:"Lecture, 09:00 to 10:30", links:[["Zoom", ZOOM_NET]]},
+          {d:"Mon 5", c:"Z7005E", t:"Lab 2 due 17:00, SOLID and Booch metrics", deadline:true, task:"w41-lab2", links:[["Submit Lab 2", A(3015)]]},
+          {d:"Tue 6", c:"Z0025E", t:"Lecture, 09:00 to 10:30", links:[["Zoom", ZOOM_NET]]},
+          {d:"Thu 8", c:"Z7005E", t:"Lab 3 due 17:00, design patterns in real projects", deadline:true, why:"Three days after Lab 2. Split the group so Lab 3 starts before Lab 2 is submitted.", task:"w41-lab3", links:[["Submit Lab 3", A(3019)],["Pattern quizzes 3.6.1 to 3.6.3", A(3016)]]},
+          {d:"This week", c:"Z0025E", t:"Take the module 1 and module 2 quizzes", task:"w41-quiz", links:[["Module 1 quiz", N(3028)],["Module 2 quiz", N(3032)]]}
+        ]},
+        {wk:"v42", dates:"12 to 18 Oct", start:"2026-10-12", rows:[
+          {d:"Mon 12", c:"Z0025E", t:"Lecture, 09:00 to 10:30", links:[["Zoom", ZOOM_NET]]},
+          {d:"Tue 13", c:"Z0025E", t:"Lecture, 09:00 to 10:30", links:[["Zoom", ZOOM_NET]]},
+          {d:"Thu 15", c:"Z7005E", t:"Lab 4 due 17:00, understanding software design", deadline:true, why:"This is the GitHub project picked in week 39.", task:"w42-lab4", links:[["Submit Lab 4", A(3020)]]},
+          {d:"Fri 16", c:"Z7005E", t:"Lecture 14, 09:15 to 10:30", links:[["Zoom", ZOOM_SE]]},
+          {d:"Fri 16", c:"Z0025E", t:"Lab 3 session 13:00 to 15:00, report due 23:59", deadline:true, task:"w42-lab3", links:[["Submit Lab 3", N(3043)],["Lab instructions", I614(19984)]]},
+          {d:"Self-study", c:"Z7005E", t:"Modules 2.3 and 3.4 to 3.6", why:"The course marks these as this week's self-study.", task:"w42-self", links:[["2.3", I613(19683)],["3.4", I613(19688)],["3.5", I613(19691)],["3.6", I613(19701)]]}
+        ]},
+        {wk:"v43", dates:"19 to 25 Oct", start:"2026-10-19", flag:"crunch", rows:[
+          {d:"Wed 21", c:"Z7005E", t:"Lab 5 due 17:00, automated unit tests", deadline:true, task:"w43-lab5", links:[["Submit Lab 5", A(3021)]]},
+          {d:"Thu 22", c:"Z7005E", t:"09:15 Lecture 11, 10:30 to 12:00 Workshop 2", links:[["Zoom", ZOOM_SE]]},
+          {d:"Fri 23", c:"Z7005E", t:"09:15 Lecture 13, 10:15 to 12:00 Workshop 5", links:[["Zoom", ZOOM_SE]]},
+          {d:"Fri 23", c:"Z0025E", t:"Midterm 1, open all day", deadline:true, why:"At least 75 points needed here. If you also take Z7005E, sit it in the afternoon once the workshop ends.", task:"w43-mid1", links:[["Midterm 1", N(3030)],["Assessment rules", C614 + "/pages/assessments-and-examination"]]},
+          {d:"Revision", c:"Z0025E", t:"Use the quizzes already taken as the revision material", task:"w43-rev", links:[["All quizzes", C614 + "/assignments"]]}
+        ]},
+        {wk:"v44", dates:"26 Oct to 1 Nov", start:"2026-10-26", rows:[
+          {d:"Mon 26", c:"Z0025E", t:"Lecture, 09:00 to 10:30", links:[["Zoom", ZOOM_NET]]},
+          {d:"Tue 27", c:"Z0025E", t:"Lecture, 09:00 to 10:30", links:[["Zoom", ZOOM_NET]]},
+          {d:"Fri 30", c:"Z0025E", t:"Lab 4 session 10:00 to 12:00, report due 23:59", deadline:true, task:"w44-lab4", links:[["Submit Lab 4", N(3044)],["Zoom", ZOOM_NET]]},
+          {d:"Free week", c:"Z7005E", t:"Nothing scheduled: pull Lab 6 and Lab 7 forward", why:"Week 45 is the worst week of the course. Work done here is work you will not do then.", task:"w44-pull", links:[["Lab 6 brief", A(3022)],["Lab 7 brief", A(3023)]]},
+          {d:"Self-study", c:"Z7005E", t:"Module 4.3", task:"w44-self", links:[["4.3", I613(19731)]]}
+        ]},
+        {wk:"v45", dates:"2 to 8 Nov", start:"2026-11-02", flag:"worst week", rows:[
+          {d:"Mon 2", c:"Z0025E", t:"Lecture, 09:00 to 10:30", links:[["Zoom", ZOOM_NET]]},
+          {d:"Tue 3", c:"Z0025E", t:"Lecture, 09:00 to 10:30", links:[["Zoom", ZOOM_NET]]},
+          {d:"Wed 4", c:"Z7005E", t:"Lab 6 due 17:00, change or feature request", deadline:true, task:"w45-lab6", links:[["Submit Lab 6", A(3022)]]},
+          {d:"Thu 5", c:"Z7005E", t:"Lab 7 due 09:00, then final seminars 09:15 to 12:00", deadline:true, why:"Each group presents and demos. Lectures 17 and 18 follow, 13:15 to 16:00.", task:"w45-lab7", links:[["Submit Lab 7", A(3023)],["Zoom", ZOOM_SE]]},
+          {d:"Fri 6", c:"Z7005E", t:"Workshop 6, 09:15 to 11:00", links:[["Zoom", ZOOM_SE]]},
+          {d:"Fri 6", c:"Z0025E", t:"Lab 5 session 13:00 to 15:00, report due 23:59", deadline:true, task:"w45-lab5", links:[["Submit Lab 5", N(3045)],["Zoom", ZOOM_NET]]}
+        ]},
+        {wk:"v46 to v47", dates:"9 to 22 Nov", start:"2026-11-09", rows:[
+          {d:"Mon 9", c:"Z0025E", t:"Lecture, 09:00 to 10:30", links:[["Zoom", ZOOM_NET]]},
+          {d:"Tue 10", c:"Z0025E", t:"Lecture, 09:00 to 10:30", links:[["Zoom", ZOOM_NET]]},
+          {d:"Fri 13", c:"Z0025E", t:"Lab 6 session 13:00 to 15:00, report due 23:59", deadline:true, why:"Last lab. After this, only quizzes and the second midterm remain in Z0025E.", task:"w46-lab6", links:[["Submit Lab 6", N(3040)],["Zoom", ZOOM_NET]]},
+          {d:"Fri 20", c:"Z0025E", t:"Midterm 2, open all day", deadline:true, why:"Again a 75 point minimum, and the combined 150 has to be there.", task:"w47-mid2", links:[["Midterm 2", N(3031)]]},
+          {d:"Free weeks", c:"Z7005E", t:"Nothing scheduled: start the home exam", why:"Watch videos 5.3 and 5.4 on large language models and AI tools in development first. The course asks for that before the exam.", task:"w46-exam", links:[["Home exam", A(3024)],["Video 5.3", I613(19735)],["Video 5.4", I613(19736)]]}
+        ]},
+        {wk:"v48", dates:"23 to 29 Nov", start:"2026-11-23", rows:[
+          {d:"Wed 25", c:"Z7005E", t:"Home exam due 17:00, Boomerang Australia", deadline:true, why:"Individual work, the only individual grade in this course before the oral.", task:"w48-exam", links:[["Submit home exam", A(3024)]]},
+          {d:"After 25", c:"Z7005E", t:"Book the oral examination slot", why:"The booking link is published after the home exam deadline.", task:"w48-book", links:[["Schema page", C613 + "/pages/schema"]]}
+        ]},
+        {wk:"v49", dates:"30 Nov to 6 Dec", start:"2026-11-30", rows:[
+          {d:"This week", c:"Z7005E", t:"Oral examination", deadline:true, task:"w49-oral", links:[["Zoom", ZOOM_SE]]},
+          {d:"Wed 2 Dec", c:"Z0025E", t:"All eight module quizzes close 23:59", deadline:true, why:"150 of 300 points needed. With the weekly rhythm, these points are already in the bag.", task:"w49-quiz", links:[["All quizzes", C614 + "/assignments"]]}
+        ]}
+    ]
+  },
+  {
+    id: "vt27-lp3", label: "LP3", period: "Spring 2027",
+    asof: "", extra: "",
+    upcoming: "The courses for this study period are not in Canvas yet. They will be added here once their schedules are published.",
+    courses: [], rhythm: [], weeks: []
+  }
+];
+
+/* ---------- Page ---------- */
+
+const LS_TICKS = "ltu-plan-ticks", LS_FILTER = "ltu-plan-filter", LS_TERM = "ltu-plan-term";
+const state = {checked:{}, filter:"all", term:null};
+let store = null, saveTimer = null;
+
+function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+function lsGet(k){ try { return localStorage.getItem(k); } catch (e) { return null; } }
+function lsSet(k, v){ try { localStorage.setItem(k, v); } catch (e) {} }
+function colorVars(code){
+  var n = (COURSES[code] && COURSES[code].color) || 5;
+  return '--cc:var(--c' + n + ');--cc-soft:var(--c' + n + '-soft)';
+}
+function chip(code){ return '<span class="chip" style="' + colorVars(code) + '">' + esc(code) + '</span>'; }
+function term(){ return TERMS.find(function(t){ return t.id === state.term; }) || TERMS[0]; }
+function day(iso){ return new Date(iso + "T00:00:00").getTime(); }
+
+function links(list){
+  if (!list || !list.length) return "";
+  return '<span class="links">' + list.map(function(l){
+    return '<a href="' + esc(l[1]) + '" target="_blank" rel="noopener">' + esc(l[0]) + '</a>';
+  }).join("") + '</span>';
+}
+
+// The term whose weeks contain today; otherwise the next one to start; otherwise the last one.
+function defaultTerm(){
+  var now = Date.now();
+  var withWeeks = TERMS.filter(function(t){ return t.weeks.length; });
+  for (var i = 0; i < withWeeks.length; i++) {
+    var w = withWeeks[i].weeks;
+    if (now >= day(w[0].start) && now < day(w[w.length - 1].start) + 7 * 864e5) return withWeeks[i].id;
+  }
+  var next = withWeeks.find(function(t){ return day(t.weeks[0].start) > now; });
+  return (next || withWeeks[withWeeks.length - 1] || TERMS[0]).id;
+}
+
+function currentWeekIndex(weeks){
+  var now = Date.now();
+  for (var i = weeks.length - 1; i >= 0; i--) {
+    var start = day(weeks[i].start);
+    var end = i + 1 < weeks.length ? day(weeks[i + 1].start) : start + 7 * 864e5;
+    if (now >= start && now < end) return i;
+  }
+  return -1;
+}
+
+function renderTabs(){
+  document.getElementById("terms").innerHTML = TERMS.map(function(t){
+    return '<button type="button" role="tab" id="tab-' + t.id + '" data-term="' + t.id + '" aria-selected="' + (t.id === state.term) + '">' +
+      esc(t.label) + ' <span class="soon">' + esc(t.period.split(",")[0]) + '</span></button>';
+  }).join("");
+}
+
+function renderFilter(t){
+  var el = document.getElementById("filter");
+  el.hidden = t.courses.length < 2;
+  el.innerHTML = '<button type="button" id="f-all" data-filter="all">All</button>' +
+    t.courses.map(function(c){
+      return '<button type="button" id="f-' + c + '" data-filter="' + c + '">' + esc(c) + '</button>';
+    }).join("");
+  if (state.filter !== "all" && t.courses.indexOf(state.filter) < 0) state.filter = "all";
+}
+
+function renderQuick(t){
+  var items = [];
+  t.courses.forEach(function(c){
+    (COURSES[c].quick || []).forEach(function(q){ items.push([c, q[0], q[1]]); });
+  });
+  if (!items.length) return "";
+  return '<section><div class="sechead"><h2>Straight to Canvas</h2><span class="note">the pages you open most</span></div>' +
+    '<div class="quick">' + items.map(function(q){
+      return '<a href="' + esc(q[2]) + '" target="_blank" rel="noopener" data-course="' + q[0] + '" style="' + colorVars(q[0]) + '">' +
+        '<span class="k">' + esc(q[0]) + '</span>' + esc(q[1]) + '</a>';
+    }).join("") + '</div></section>';
+}
+
+function renderWeeks(t){
+  var cur = currentWeekIndex(t.weeks);
+  var html = t.weeks.map(function(w, i){
+    var rows = w.rows.map(function(r){
+      var box = r.task ? '<input type="checkbox" id="' + r.task + '">' : '';
+      var text = '<span class="t">' + chip(r.c) + esc(r.t) + '</span>' +
+                 (r.why ? '<span class="why">' + esc(r.why) + '</span>' : '');
+      var inner = r.task
+        ? '<label for="' + r.task + '">' + text + '</label>'
+        : '<span class="block">' + text + '</span>';
+      var body = '<span class="body">' + inner + links(r.links) + '</span>';
+      return '<div class="row' + (r.deadline ? ' deadline' : '') + '" data-course="' + r.c + '">' +
+        '<span class="when mono">' + esc(r.d) + '</span>' + box + body + '</div>';
+    }).join("");
+    var isNow = i === cur;
+    return '<div class="card week' + (isNow ? ' now' : '') + '" id="week-' + t.id + '-' + i + '">' +
+      '<div class="rail"><div class="wk mono">' + esc(w.wk) + '</div>' +
+      '<div class="dates">' + esc(w.dates) + '</div>' +
+      (isNow ? '<div class="flag nowflag">this week</div>' : '') +
+      (w.flag ? '<div class="flag">' + esc(w.flag) + '</div>' : '') + '</div>' +
+      '<div class="rows">' + rows + '</div></div>';
+  }).join("");
+  var jump = document.getElementById("jump");
+  jump.hidden = cur < 0;
+  if (cur >= 0) jump.href = "#week-" + t.id + "-" + cur;
+  return '<section><div class="sechead"><h2>Week by week</h2><span class="note">Deadlines carry a red stripe. The current week has a blue outline.</span></div>' +
+    '<div class="weeks">' + html + '</div></section>';
+}
+
+function renderRules(t){
+  if (!t.courses.length) return "";
+  return '<section><div class="sechead"><h2>How each course is passed</h2></div><div class="grid2">' +
+    t.courses.map(function(c){
+      var k = COURSES[c];
+      return '<div class="card panel" data-course="' + c + '" style="' + colorVars(c) + '">' +
+        '<h3><span class="dot"></span>' + esc(k.name) + ' ' + esc(c) + '</h3>' +
+        (k.rules && k.rules.length ? '<ul>' + k.rules.map(function(r){ return '<li>' + esc(r) + '</li>'; }).join("") + '</ul>' : '') +
+        (k.note ? '<p>' + esc(k.note) + '</p>' : '') +
+        (k.canvas ? '' : '<p>Not in Canvas yet.</p>') + '</div>';
+    }).join("") + '</div></section>';
+}
+
+function renderRhythm(t){
+  if (!t.rhythm.length) return "";
+  return '<section><div class="sechead"><h2>Weekly rhythm</h2><span class="note">a default for weeks that are not on fire</span></div>' +
+    '<div class="card panel rhythm"><ul>' + t.rhythm.map(function(r){
+      return '<li' + (r.c ? ' data-course="' + r.c + '"' : '') + '>' + r.html + '</li>';
+    }).join("") + '</ul></div></section>';
+}
+
+function renderTerm(){
+  var t = term();
+  document.getElementById("termsub").textContent =
+    t.courses.length ? t.courses.map(function(c){ return COURSES[c].name + " " + c; }).join(" and ") + ", " + t.period.toLowerCase().replace(/^./, function(m){ return m.toUpperCase(); }) : t.period;
+  document.getElementById("asof").textContent = t.asof || "";
+  renderTabs();
+  renderFilter(t);
+  var body = t.upcoming && !t.weeks.length
+    ? '<section><div class="card empty"><h3>' + esc(t.label + ", " + t.period) + '</h3><p>' + esc(t.upcoming) + '</p></div></section>'
+    : renderQuick(t) + renderWeeks(t) + renderRules(t) + renderRhythm(t);
+  if (t.extra) document.getElementById("asof").textContent += " " + t.extra;
+  if (!t.weeks.length) document.getElementById("jump").hidden = true;
+  document.getElementById("termbody").innerHTML = body;
+  applyFilter();
+}
+
+function applyFilter(){
+  var f = state.filter;
+  document.querySelectorAll("#filter button").forEach(function(b){
+    b.setAttribute("aria-pressed", String(b.dataset.filter === f));
+  });
+  document.querySelectorAll("#termbody [data-course]").forEach(function(el){
+    el.hidden = f !== "all" && el.dataset.course !== f;
+  });
+  // hide weeks left empty by the filter, and keep the top border off the first visible row
+  document.querySelectorAll(".week").forEach(function(w){
+    var visible = Array.prototype.filter.call(w.querySelectorAll(".row"), function(r){ return !r.hidden; });
+    w.hidden = visible.length === 0;
+    w.querySelectorAll(".row").forEach(function(r){ r.classList.remove("first"); });
+    if (visible.length) visible[0].classList.add("first");
+  });
+  applyState();
+}
+
+function applyState(){
+  var all = document.querySelectorAll('.row input[type=checkbox]');
+  all.forEach(function(b){
+    b.checked = !!state.checked[b.id];
+    b.closest(".row").classList.toggle("done", b.checked);
+  });
+  var boxes = Array.prototype.filter.call(all, function(b){ return !b.closest(".row").hidden; });
+  var done = boxes.filter(function(b){ return b.checked; }).length;
+  var meter = document.querySelector(".meter");
+  meter.hidden = boxes.length === 0;
+  document.getElementById("pcount").textContent = done + " of " + boxes.length + " done";
+  document.getElementById("pbar").style.width = (boxes.length ? (done / boxes.length * 100) : 0) + "%";
+}
+
+function save(){
+  lsSet(LS_TICKS, JSON.stringify(state.checked));
+  if (!store) return;
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(function(){
+    store.set({checked: state.checked, updated: new Date().toISOString()}).catch(function(){ store = null; });
+  }, 400);
+}
+
+document.addEventListener("change", function(e){
+  var b = e.target;
+  if (!b || b.type !== "checkbox") return;
+  if (b.checked) state.checked[b.id] = true; else delete state.checked[b.id];
+  applyState();
+  save();
+});
+
+document.getElementById("filter").addEventListener("click", function(e){
+  var b = e.target.closest("button");
+  if (!b) return;
+  state.filter = b.dataset.filter;
+  lsSet(LS_FILTER, state.filter);
+  applyFilter();
+});
+
+document.getElementById("terms").addEventListener("click", function(e){
+  var b = e.target.closest("button");
+  if (!b || b.dataset.term === state.term) return;
+  state.term = b.dataset.term;
+  lsSet(LS_TERM, state.term);
+  renderTerm();
+});
+
+try {
+  var local = lsGet(LS_TICKS) || lsGet("lp2-shared-ticks");
+  if (local) state.checked = JSON.parse(local) || {};
+} catch (e) {}
+state.filter = lsGet(LS_FILTER) || "all";
+var savedTerm = lsGet(LS_TERM);
+state.term = TERMS.some(function(t){ return t.id === savedTerm; }) ? savedTerm : defaultTerm();
+renderTerm();
+
+// Each viewer's ticks live in their own private subtree, data/users/<id>/, which nobody else can read.
+// Viewers without an id (outside the author's organisation, or signed out) keep ticks in this browser only.
+(async function(){
+  try {
+    if (!window.claude || !window.claude.use) return;
+    var db = await window.claude.use("db");
+    var user = await window.claude.use("user");
+    if (!db || !user) return;
+    var uid = await user.id();
+    if (!uid) return;
+    var ref = db.doc("data/users/" + uid + "/progress");
+    var snap = await ref.get();
+    if (snap && snap.data && snap.data.checked) {
+      Object.keys(snap.data.checked).forEach(function(k){ state.checked[k] = true; });
+      lsSet(LS_TICKS, JSON.stringify(state.checked));
+      applyState();
+    }
+    store = ref;
+  } catch (e) {}
+})();
+</script>
