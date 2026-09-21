@@ -125,8 +125,9 @@ async function check() {
           if (row.c !== code || !row.deadline) continue;
           const date = rowDate(row.d, week.start);
           const time = rowTime(row.t);
+          // Only the first assignment link is the deadline; later ones are supporting material.
           const ids = (row.links || [])
-            .map(l => new RegExp(`/courses/${id}/assignments/(\\d+)$`).exec(l[1])?.[1]).filter(Boolean);
+            .map(l => new RegExp(`/courses/${id}/assignments/(\\d+)$`).exec(l[1])?.[1]).filter(Boolean).slice(0, 1);
           // A row linking to the whole assignments list covers everything due at its date and time.
           const coversList = (row.links || []).some(l => l[1] === `${canvas}/assignments`);
           const targets = ids.length ? ids.map(i => byId.get(i) || { id: i, missing: true })
