@@ -148,7 +148,9 @@ section{margin-bottom:34px}
   background:var(--surface-2); border:1px solid var(--line); border-radius:6px; padding:6px 10px;
 }
 .quick a:hover{border-color:var(--ink)}
-.quick a .k{display:block; font-size:10.5px; letter-spacing:.05em; text-transform:uppercase; color:var(--cc)}
+.quick a .k{display:flex; align-items:center; font-size:10.5px; letter-spacing:.05em; text-transform:uppercase; color:var(--cc); margin-bottom:2px}
+.quick .faces{vertical-align:0}
+.quick .faces .ph{width:16px; height:16px}
 
 .grid2{display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:14px}
 .panel{padding:16px 18px}
@@ -390,10 +392,14 @@ function faces(code){
   return '<span class="faces" style="' + colorVars(code) + '" title="' + esc(people.map(function(p){ return p.name; }).join(", ")) + '">' +
     people.map(function(p){ return '<span class="ph"><img src="' + p.photo + '" alt="" width="18" height="18"></span>'; }).join("") + '</span>';
 }
+function label(code){
+  var k = COURSES[code] || {};
+  return (k.prefix ? k.prefix + "-" : "") + code;
+}
 function chip(code){
   var k = COURSES[code] || {};
   return faces(code) + '<span class="chip" style="' + colorVars(code) + '"' + (k.name ? ' title="' + esc(k.name + " " + code) + '"' : '') + '>' +
-    esc((k.prefix ? k.prefix + "-" : "") + code) + '</span>';
+    esc(label(code)) + '</span>';
 }
 function term(){ return TERMS.find(function(t){ return t.id === state.term; }) || TERMS[0]; }
 function day(iso){ return new Date(iso + "T00:00:00").getTime(); }
@@ -453,7 +459,7 @@ function renderQuick(t){
   return '<section><div class="sechead"><h2>Straight to Canvas</h2><span class="note">the pages you open most</span></div>' +
     '<div class="quick">' + items.map(function(q){
       return '<a href="' + esc(q[2]) + '" target="_blank" rel="noopener" data-course="' + q[0] + '" style="' + colorVars(q[0]) + '">' +
-        '<span class="k">' + esc(q[0]) + '</span>' + esc(q[1]) + '</a>';
+        '<span class="k" title="' + esc(COURSES[q[0]].name + " " + q[0]) + '">' + faces(q[0]) + esc(label(q[0])) + '</span>' + esc(q[1]) + '</a>';
     }).join("") + '</div></section>';
 }
 
