@@ -5,7 +5,7 @@ tick boxes for each viewer. It is a single HTML page published as a claude.ai ar
 
 https://claude.ai/artifact/Tkm4xHdppNkcTGJ3xsrgoU
 
-The artifact is private until shared from its Share menu.
+Sharing is set from the artifact's Share menu (currently: anyone with the link).
 
 ## Files
 
