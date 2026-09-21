@@ -127,6 +127,9 @@ section{margin-bottom:34px}
   padding:1px 6px; border-radius:4px; margin-right:7px; vertical-align:1px; white-space:nowrap;
   color:var(--cc); background:var(--cc-soft);
 }
+.faces{display:inline-flex; vertical-align:-4px; margin-right:5px}
+.faces img{width:18px; height:18px; border-radius:50%; object-fit:cover; border:1.5px solid var(--surface); margin-left:-6px}
+.faces img:first-child{margin-left:0}
 .links{display:flex; flex-wrap:wrap; gap:6px; margin-top:5px}
 .links a{
   font-size:11.5px; line-height:1.4; text-decoration:none; color:var(--ink);
@@ -228,10 +231,11 @@ const TEACHERS = {
   }
 };
 
-// color: which --cN slot the course uses. teachers: keys of TEACHERS, as listed in Canvas.
+// color: which --cN slot the course uses. teachers: keys of TEACHERS, the people who run the course
+// (Canvas enrols both teachers in both LP2 courses, so this is set by hand).
 const COURSES = {
   Z7005E: {
-    name: "Programvaruteknik", color: 1, canvas: C613, teachers: ["josef-hallberg", "chen-wei-yang"],
+    name: "Programvaruteknik", color: 1, canvas: C613, teachers: ["josef-hallberg"],
     quick: [["Schema", C613 + "/pages/schema"], ["Zoom room", ZOOM_SE], ["Interview booking", BOOKING], ["Assignments", C613 + "/assignments"]],
     rules: [
       "Seven group labs, one shared project portfolio, deadlines at 17:00",
@@ -241,7 +245,7 @@ const COURSES = {
     note: "Almost everything is group work. The group moves at the pace of its slowest hand-off, so agree early who owns which diagram."
   },
   Z0025E: {
-    name: "Computer Networks", color: 2, canvas: C614, teachers: ["josef-hallberg", "chen-wei-yang"],
+    name: "Computer Networks", color: 2, canvas: C614, teachers: ["chen-wei-yang"],
     quick: [["Course home", C614], ["Zoom room", ZOOM_NET], ["Lab sign-up sheet", SIGNUP], ["Assessment rules", C614 + "/pages/assessments-and-examination"]],
     rules: [
       "Continuous assessment, pass or fail, no final exam",
@@ -375,7 +379,14 @@ function colorVars(code){
   var n = (COURSES[code] && COURSES[code].color) || 5;
   return '--cc:var(--c' + n + ');--cc-soft:var(--c' + n + '-soft)';
 }
-function chip(code){ return '<span class="chip" style="' + colorVars(code) + '">' + esc(code) + '</span>'; }
+function faces(code){
+  var keys = (COURSES[code] && COURSES[code].teachers) || [];
+  var people = keys.map(function(k){ return TEACHERS[k]; }).filter(function(p){ return p && p.photo; });
+  if (!people.length) return "";
+  return '<span class="faces" title="' + esc(people.map(function(p){ return p.name; }).join(", ")) + '">' +
+    people.map(function(p){ return '<img src="' + p.photo + '" alt="" width="18" height="18">'; }).join("") + '</span>';
+}
+function chip(code){ return faces(code) + '<span class="chip" style="' + colorVars(code) + '">' + esc(code) + '</span>'; }
 function term(){ return TERMS.find(function(t){ return t.id === state.term; }) || TERMS[0]; }
 function day(iso){ return new Date(iso + "T00:00:00").getTime(); }
 
