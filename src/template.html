@@ -114,6 +114,9 @@ body.noping .box .ring{display:none}
 .tag{display:inline-block; font-size:10.5px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:var(--muted); background:var(--surface-2); border:1px solid var(--line); border-radius:4px; padding:0 5px; margin-left:6px; vertical-align:1px; white-space:nowrap}
 .tag.expected{color:var(--now); border-color:transparent; background:var(--now-soft)}
 .tag.pts{color:var(--ink)}
+a.tag.feeds{text-decoration:none; color:var(--alert); border-color:var(--alert-soft); background:var(--alert-soft)}
+a.tag.feeds:hover{border-color:var(--alert)}
+a.tag.feeds::after{content:" \2197"; font-size:9px}
 .lvl{display:inline-block; font-size:9.5px; font-weight:700; letter-spacing:.08em; border-radius:3px; padding:0 4px; margin-right:7px; vertical-align:1px; line-height:1.5}
 .lvl.must{color:var(--alert); border:1px solid var(--alert)}
 .lvl.nice{color:var(--muted); border:1px dashed var(--muted); opacity:.75}
@@ -324,6 +327,8 @@ const KIND = { lecture: "Lecture page", selfpaced: "Self-paced, post required", 
 const SESSION_KIND = { lecture: "Lecture", workshop: "Workshop", lab: "Lab session", interview: "Interview", seminar: "Seminar", exam: "Exam" };
 const REQ = { must_view: "view", must_mark_done: "mark done", must_contribute: "post", must_submit: "submit", min_score: "reach a score" };
 const SOON_DAYS = 7;
+// Canvas titles, shortened for the page: "Laboration 1 - Projektportfolio" -> "Lab 1, Projektportfolio".
+function shortTitle(s){ return String(s).replace(/\bLaboration\b/g, "Lab").replace(/\s*\(submit your report\)/i, " report").replace(/\s+-\s+/g, ", "); }
 
 /* ---------- Inventory access ---------- */
 function items(code){ var c = INV.courses[code]; return c ? c.modules.reduce(function(a, m){ return a.concat(m.items); }, []) : []; }
@@ -373,9 +378,8 @@ function deadlineRows(t){
     assignments(code).forEach(function(a){
       if (!a.due) return;
       if (a.kind === "quiz") { var g = code + ":quizzes:" + a.due; (groups[g] = groups[g] || { code: code, due: a.due, dueTime: a.dueTime, list: [] }).list.push(a); return; }
-      var title = a.title.replace(/\s*\(submit your report\)/i, " report");
       rows.push({ kind: "deadline", level: "must", id: "d:" + code + ":" + a.id, code: code, date: a.due, time: a.dueTime,
-        title: title + " due " + a.dueTime, pts: a.points ? a.points + " p" : "", why: t.notes[code + ":" + a.id] || "", akind: a.kind,
+        title: shortTitle(a.title) + " due " + a.dueTime, pts: a.points ? a.points + " p" : "", why: t.notes[code + ":" + a.id] || "", akind: a.kind,
         est: (itemByNumber(code, a.number) || {}).statedMinutes || null,
         links: [["Submit", a.url]].concat(a.moduleItemUrl ? [["In the module", a.moduleItemUrl]] : []) });
     });
@@ -407,7 +411,7 @@ function taskRows(t){
     if (x.for) { var parts = x.for.split(":"); target = assignments(parts[0]).find(function(a){ return String(a.id) === parts[1]; }); }
     // a task that feeds a deadline is as important as the deadline
     var level = x.level === "must" || target ? "must" : "nice";
-    var feeds = target ? { title: target.title.replace(/\s*\(submit your report\)/i, " report"), date: target.due, url: target.url } : null;
+    var feeds = target ? { title: shortTitle(target.title).split(",")[0], date: target.due, url: target.url } : null;
     return { kind: "task", level: level, id: "t:" + x.id, code: x.course, date: x.date, title: x.title, why: x.why || "", links: x.links || [], feeds: feeds };
   });
 }
@@ -458,7 +462,7 @@ function row(r, opts){
   if (r.status === "expected") tags += '<span class="tag expected">expected</span>';
   if (r.kind === "session" && r.skind && r.skind !== "lecture") tags += '<span class="tag">' + esc(SESSION_KIND[r.skind] || r.skind) + '</span>';
   if (r.pts) tags += '<span class="tag pts">' + esc(r.pts) + '</span>';
-  if (r.feeds) tags += '<span class="tag" title="This task feeds a deadline">for ' + esc(r.feeds.title.slice(0, 40)) + (r.feeds.date ? ", " + esc(dayLabel(r.feeds.date)) : "") + '</span>';
+  if (r.feeds) tags += '<a class="tag feeds" href="' + esc(r.feeds.url) + '" target="_blank" rel="noopener" title="This task feeds this deadline, open it in Canvas">for ' + esc(r.feeds.title) + (r.feeds.date ? ", " + esc(dayLabel(r.feeds.date)) : "") + '</a>';
   var est = r.est ? ' <span class="est">' + fmtMin(r.est) + ' of work</span>' : '';
   var text = '<span class="t">' + chip(r.code) + lvl(r.level) + esc(r.title) + tags + est + '</span>' + (r.why ? '<span class="why">' + esc(r.why) + '</span>' : '');
   var prep = r.prep && r.prep.length ? '<span class="why">Before it: ' + esc(r.prep.map(function(i){ return (i.number || "") + " " + i.title; }).join(", ").slice(0, 160)) + '</span>' : '';
