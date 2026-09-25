@@ -79,8 +79,9 @@ so they live in the plan.
 
 ## Pulse, mute, folding
 
-- **Pulse:** an unfinished MUST or dated item pulses when it is due within 7 days or belongs to a
-  week that has started. The header button turns it off; the choice is remembered.
+- **Pulse:** an unfinished deadline or task pulses when it is overdue or due within the coming
+  seven days (today plus six); unfinished MUST material pulses in the current week and earlier ones.
+  Nothing further ahead pulses. The header button turns it off; the choice is remembered.
 - **Mute:** the circle-slash button on any item marks it "not for me". It stays visible, stops
   pulsing and leaves the counts. Muting is per viewer and stored with the ticks.
 - **Folding:** week cards fold from the chevron by the week number, material blocks fold from

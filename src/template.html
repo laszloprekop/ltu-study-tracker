@@ -258,7 +258,7 @@ footer p{margin:0 0 6px}
         <div class="seg tools" role="group" aria-label="Display">
           <button type="button" id="size-down" title="Smaller text" aria-label="Smaller text">A&minus;</button>
           <button type="button" id="size-up" title="Larger text" aria-label="Larger text">A+</button>
-          <button type="button" id="ping-toggle" title="Pulse unfinished items that are due soon" aria-pressed="true">&#9673; Pulse</button>
+          <button type="button" id="ping-toggle" title="Pulse unfinished MUST items due within the coming week, never further ahead" aria-pressed="true">&#9673; Pulse</button>
         </div>
         <a class="jump" id="jump" href="#" hidden>This week &darr;</a>
       </div>
@@ -429,8 +429,9 @@ function timeline(t){
   rows.sort(function(a, b){ return a.date.localeCompare(b.date) || String(a.time || "").localeCompare(String(b.time || "")) || (a.kind === "session" ? -1 : 1); });
   return rows;
 }
-// Endangered: unfinished, not muted, and either due within a week or belonging to a week that has started.
-function endangeredRow(r){ return !!r.id && r.date <= addDays(todayIso(), SOON_DAYS); }
+// Endangered: unfinished, not muted, and due today or in the next six days (overdue counts too),
+// or material of the current week or an earlier one. Nothing further ahead pulses.
+function endangeredRow(r){ return !!r.id && r.date < addDays(todayIso(), SOON_DAYS); }
 function endangeredItem(week){ return week <= monday(todayIso()); }
 
 /* ---------- Rendering pieces ---------- */
