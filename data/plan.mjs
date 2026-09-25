@@ -163,6 +163,13 @@ const TASKS_LP2 = [
   T("w48-book", "Z7005E", "2026-11-26", "Book the oral examination slot", "The booking link is published after the home exam deadline.", [["Schema page", "https://ltuedu.instructure.com/courses/613/pages/schema"]], "must")
 ];
 
+// Which deadline a task feeds, keyed by task id. A task that feeds a deadline inherits MUST.
+const TASK_FOR = {
+  "t-msg": "Z7005E:3013", "w39-prep": "Z7005E:3013", "w39-writeup": "Z7005E:3013", "w39-build": "Z7005E:3013",
+  "w39-gh": "Z7005E:3020", "w43-rev": "Z0025E:3030", "w44-pull": "Z7005E:3022", "w46-exam": "Z7005E:3024"
+};
+TASKS_LP2.forEach(t => { if (TASK_FOR[t.id]) t.for = TASK_FOR[t.id]; });
+
 // Advice attached to Canvas deadlines, keyed "course:assignmentId".
 const NOTES_LP2 = {
   "Z7005E:3013": "Keep the afternoon as buffer. Do not plan new writing for that day.",

@@ -38,7 +38,10 @@ for (const term of TERMS) {
     if (id !== "quizzes" && !(inventory.courses[code]?.assignments || []).some(a => String(a.id) === id)) problems.push(`${term.id} note ${key} names no Canvas assignment`);
   }
   const ids = new Set();
-  for (const t of term.tasks) { if (ids.has(t.id)) problems.push(`duplicate task id ${t.id}`); ids.add(t.id); }
+  for (const t of term.tasks) {
+    if (ids.has(t.id)) problems.push(`duplicate task id ${t.id}`); ids.add(t.id);
+    if (t.for) { const [code, id] = t.for.split(":"); if (!(inventory.courses[code]?.assignments || []).some(a => String(a.id) === id)) problems.push(`task ${t.id} is for ${t.for}, which is no Canvas assignment`); }
+  }
 }
 for (const [code, c] of Object.entries(COURSES)) for (const o of c.optional || []) for (const r of o.refs) if (!refMatches(code, r).length) problems.push(`${code} optional ref "${r}" matches nothing`);
 if (problems.length) { console.error("Build stopped:\n  " + problems.join("\n  ")); process.exit(1); }

@@ -274,7 +274,7 @@ footer p{margin:0 0 6px}
       <p>Every course in one place: sessions to attend, deadlines from Canvas, and the material buried in the Canvas modules, each with a link. Pick the study period and your courses at the top. <strong>Day</strong> shows one day with what is due soon, <strong>All deadlines</strong> is the flat list.</p>
       <p>Tick boxes are yours alone. On claude.ai they follow your account, otherwise they stay in this browser. Green counts deadlines and tasks, blue counts material. The <span class="mute" style="display:inline-block;vertical-align:middle;opacity:1">&#8856;</span> button mutes an item that is not for you: it stays visible, stops pulsing and leaves the counts.</p>
       <div class="legend">
-        <span><span class="lvl must">MUST</span>graded, required, or a session you cannot miss</span>
+        <span><span class="lvl must">MUST</span>graded, required, a session you cannot miss, or what one of those depends on</span>
         <span><span class="lvl nice">NICE</span>readings, videos, recordings: helps, not required</span>
         <span><span class="creq" style="display:inline">&#9744;</span> a Canvas requirement (view, post, mark done, submit)</span>
       </div>
@@ -342,10 +342,17 @@ function itemByNumber(code, num){ return items(code).find(function(i){ return i.
 function assignments(code){ var c = INV.courses[code]; return c ? c.assignments : []; }
 function announcements(code){ var c = INV.courses[code]; return c ? c.announcements : []; }
 function inList(code, listName, item){ var k = COURSES[code]; return (k && k[listName] || []).some(function(r){ return expand(code, r).some(function(x){ return x.id === item.id; }); }); }
-// MUST: graded work, required posts or submissions, and the sessions you cannot miss. NICE: the rest. Plan lists override.
+// MUST: graded work, required posts or submissions, the sessions you cannot miss, and whatever a MUST
+// session or deadline depends on. NICE: the rest. Plan lists override.
+var prepMust = {};
+function computePrepMust(t){
+  prepMust = {};
+  t.sessions.forEach(function(s){ if (sessionLevel(s) !== "must") return; (s.prep || []).forEach(function(r){ expand(s.course, r).forEach(function(i){ prepMust[s.course + ":" + i.id] = true; }); }); });
+}
 function itemLevel(code, item){
   if (inList(code, "must", item)) return "must";
   if (inList(code, "nice", item)) return "nice";
+  if (prepMust[code + ":" + item.id]) return "must";
   if (item.kind === "handin" || item.kind === "quiz" || item.kind === "exam") return "must";
   if (item.req === "must_submit" || item.req === "must_contribute") return "must";
   return "nice";
@@ -396,7 +403,12 @@ function sessionRows(t){
 }
 function taskRows(t){
   return t.tasks.filter(function(x){ return t.courses.indexOf(x.course) >= 0; }).map(function(x){
-    return { kind: "task", level: x.level || "nice", id: "t:" + x.id, code: x.course, date: x.date, title: x.title, why: x.why || "", links: x.links || [] };
+    var target = null;
+    if (x.for) { var parts = x.for.split(":"); target = assignments(parts[0]).find(function(a){ return String(a.id) === parts[1]; }); }
+    // a task that feeds a deadline is as important as the deadline
+    var level = x.level === "must" || target ? "must" : "nice";
+    var feeds = target ? { title: target.title.replace(/\s*\(submit your report\)/i, " report"), date: target.due, url: target.url } : null;
+    return { kind: "task", level: level, id: "t:" + x.id, code: x.course, date: x.date, title: x.title, why: x.why || "", links: x.links || [], feeds: feeds };
   });
 }
 function studyBlocks(t){
@@ -446,6 +458,7 @@ function row(r, opts){
   if (r.status === "expected") tags += '<span class="tag expected">expected</span>';
   if (r.kind === "session" && r.skind && r.skind !== "lecture") tags += '<span class="tag">' + esc(SESSION_KIND[r.skind] || r.skind) + '</span>';
   if (r.pts) tags += '<span class="tag pts">' + esc(r.pts) + '</span>';
+  if (r.feeds) tags += '<span class="tag" title="This task feeds a deadline">for ' + esc(r.feeds.title.slice(0, 40)) + (r.feeds.date ? ", " + esc(dayLabel(r.feeds.date)) : "") + '</span>';
   var est = r.est ? ' <span class="est">' + fmtMin(r.est) + ' of work</span>' : '';
   var text = '<span class="t">' + chip(r.code) + lvl(r.level) + esc(r.title) + tags + est + '</span>' + (r.why ? '<span class="why">' + esc(r.why) + '</span>' : '');
   var prep = r.prep && r.prep.length ? '<span class="why">Before it: ' + esc(r.prep.map(function(i){ return (i.number || "") + " " + i.title; }).join(", ").slice(0, 160)) + '</span>' : '';
@@ -597,6 +610,7 @@ function renderFilter(t){
 }
 function renderTerm(){
   var t = term();
+  computePrepMust(t);
   document.getElementById("termsub").textContent = t.courses.length ? t.courses.map(function(c){ return COURSES[c].name + " " + c; }).join(" and ") + ", " + t.period.charAt(0).toLowerCase() + t.period.slice(1) : t.period;
   var asof = "Deadlines and module items read from Canvas on " + longDay(INV.generatedAt.slice(0, 10)) + " " + INV.generatedAt.slice(0, 4) + "." + (t.extra ? " " + t.extra : "") + (PROGRESS ? " This is a private build: the Canvas marks are your own account's." : "");
   document.getElementById("asof").textContent = asof;
