@@ -4,9 +4,15 @@
   "private": true,
   "description": "Week-by-week study tracker for LTU courses, published as a claude.ai artifact, with a read-only Canvas check.",
   "type": "module",
-  "engines": { "node": ">=20" },
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
+    "inventory": "node tools/canvas-sync.mjs inventory",
     "check": "node tools/canvas-sync.mjs check",
-    "courses": "node tools/canvas-sync.mjs courses"
+    "courses": "node tools/canvas-sync.mjs courses",
+    "announcements": "node tools/canvas-sync.mjs announcements",
+    "build": "node tools/build.mjs",
+    "update": "node tools/canvas-sync.mjs inventory && node tools/build.mjs"
   }
 }

@@ -1,41 +1,68 @@
 # LTU Study Tracker
 
-A week-by-week plan for LTU courses, one tab per study period, with a course filter and private
-tick boxes for each viewer. It is a single HTML page published as a claude.ai artifact:
+A week-by-week tracker for LTU courses: sessions to attend, deadlines from Canvas, and the
+material buried in the Canvas modules, each with a link. One tab per study period, a course
+filter, a day planner, a flat deadline list, and private tick boxes for each viewer. It is a
+single HTML page published as a claude.ai artifact:
 
 https://claude.ai/artifact/Tkm4xHdppNkcTGJ3xsrgoU
 
 Sharing is set from the artifact's Share menu (currently: anyone with the link).
 
-## Files
+## How the page is made
 
-| Path | What it is |
-|---|---|
-| `ltu-study-tracker.html` | The page. All schedule data lives in its `COURSES` and `TERMS` blocks. |
-| `tools/canvas-sync.mjs` | Read-only check of the page against Canvas. |
-| `.env.example` | Template for the Canvas token. Copy to `.env`, which git ignores. |
+```
+data/plan.mjs                 hand-written: study periods, courses, sessions, study weeks, tasks, advice
+data/canvas-inventory.json    generated: every module item, deadline and announcement from Canvas
+src/template.html             the page's markup, styles and rendering code
+        |
+   tools/build.mjs  ->  ltu-study-tracker.html   (generated, do not edit, publish this)
+```
 
-## Adding a course or study period
+The page never calls Canvas itself. Viewers outside the author's claude.ai organisation have no
+Canvas access from the page, so all data is baked in at build time.
 
-1. Add the course to `COURSES`: name, colour slot (`1` to `5`), Canvas URL (or `null` if the
-   course is not in Canvas yet), quick links, pass rules.
-2. List its code in the study period's `courses` in `TERMS`, and add rows to that period's `weeks`.
-   Each week needs `start`, the ISO date of its Monday. Rows with a `task` id get a tick box, so
-   task ids must be unique across all periods.
-3. Republish the artifact to the same URL (see `CLAUDE.md`).
-
-The schedule stays inside the page, not in the artifact database, because viewers outside the
-author's claude.ai organisation cannot read the database.
-
-## Checking against Canvas
+## Commands
 
 Needs Node 20 or newer and a Canvas personal access token (Canvas: Account > Settings > New Access
-Token), taken from `CANVAS_TOKEN`, then `.env`, then the macOS Keychain item `ltu-canvas-token`.
+Token), read from `CANVAS_TOKEN`, then `.env` (copy `.env.example`), then the macOS Keychain item
+`ltu-canvas-token`. The tools only ever read from Canvas.
 
 ```
-npm run courses   # list your Canvas courses and their ids
-npm run check     # compare every deadline row with Canvas
+npm run update          # inventory + build, the usual refresh
+npm run inventory       # rewrite data/canvas-inventory.json from Canvas
+npm run build           # rebuild ltu-study-tracker.html; fails on any ref that matches nothing
+npm run check           # diff the committed inventory against live Canvas (dates, points, new items, announcements)
+npm run announcements   # print the announcements per course
+npm run courses         # list your Canvas courses with ids
 ```
 
-`check` marks rows `ok`, `X` (date or time differs, or the assignment is gone), `+` (due in Canvas
-but missing from the page) or `?` (no Canvas assignment linked, not checked).
+After `npm run update`, publish `ltu-study-tracker.html` to the artifact URL above and commit.
+
+## Editing the plan (`data/plan.mjs`)
+
+- **Course:** name, `prefix` (chip label), colour slot 1 to 5, `canvasId` (or `null` before the
+  course exists in Canvas), teachers, quick links, pass rules, optional material blocks.
+- **Session:** course, date, start, end, kind (`lecture`, `workshop`, `lab`, `interview`,
+  `seminar`, `exam`), title, `ref` to its Canvas page, `prep` refs, `status` (`expected` when the
+  lecture number is predicted from module order, `confirmed` once an announcement names it).
+- **Study week:** the Monday, the course, refs to the material for that week, and why.
+- **Task:** a to-do Canvas does not list. Its `id` is the tick box key, so never rename one.
+- **Notes:** advice attached to a Canvas deadline, keyed `course:assignmentId`.
+
+Refs point at module items by number: `"3.5"` matches 3.5 and every 3.5.x (hand-ins and session
+pages excluded unless named exactly), `"3.4@Discussion"` narrows by item type, `"#Required Software"`
+matches by title. A ref that matches nothing stops the build.
+
+## Adding a study period
+
+Add a term to `TERMS` with `start`, `end`, `courses` and empty `sessions`, `study`, `tasks`,
+`notes`. Add each course to `COURSES`. Run `npm run update` once the course exists in Canvas, then
+fill in sessions from its schedule page. `docs/canvas-data-map.md` records where the data lives
+in Canvas and what is and is not machine-readable.
+
+## Tick boxes
+
+Ids: `d:<course>:<assignmentId>` (deadline), `d:<course>:quizzes:<date>` (quizzes closing
+together), `t:<taskId>` (task), `m:<course>:<itemId>` (material). `LEGACY_IDS` maps the ids of
+earlier page versions so nobody loses progress. Ticks are private per viewer.
