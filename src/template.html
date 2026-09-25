@@ -151,7 +151,10 @@ a.tag.feeds::after{content:" \2197"; font-size:9px}
 .week .rail{padding:14px 12px 14px 16px; border-right:1px solid var(--line)}
 .week .rail .wk{font-size:17px; font-family:Archivo,sans-serif; font-weight:700; letter-spacing:-.01em; display:flex; align-items:center; gap:6px}
 .week .rail .dates{font-size:11.5px; color:var(--muted); margin-top:2px}
-.week .rail .load{font-size:11.5px; color:var(--muted); margin-top:6px}
+.week .rail .load{font-size:11.5px; color:var(--muted); margin-top:6px; cursor:help}
+.week .rail .left{display:none; font-size:11.5px; font-weight:600; color:var(--alert); margin-top:4px}
+.week.collapsed .rail .left{display:inline}
+.week .rail .left.clear{color:var(--ok)}
 .fold{border:0; background:none; color:var(--muted); cursor:pointer; padding:0 2px; font-size:12px; line-height:1; border-radius:4px}
 .fold::before{content:"\25BE"}
 .week.collapsed .fold::before{content:"\25B8"}
@@ -159,7 +162,7 @@ a.tag.feeds::after{content:" \2197"; font-size:9px}
 .week.collapsed .rail{border-right:0}
 .week.collapsed{grid-template-columns:1fr}
 .week.collapsed .rail{display:flex; gap:12px; align-items:baseline; padding:10px 16px}
-.week.collapsed .rail .dates,.week.collapsed .rail .load,.week.collapsed .flag{margin-top:0}
+.week.collapsed .rail .dates,.week.collapsed .rail .load,.week.collapsed .rail .left,.week.collapsed .flag{margin-top:0}
 .flag{display:inline-block; margin-top:8px; font-size:10.5px; letter-spacing:.07em; text-transform:uppercase; color:var(--alert); background:var(--alert-soft); border-radius:4px; padding:2px 6px; font-weight:600}
 .flag.nowflag{color:var(--now); background:var(--now-soft)}
 .week .quiet{padding:14px 16px; color:var(--muted); font-size:13.5px}
@@ -532,7 +535,8 @@ function renderWeekView(t){
     var collapsed = state.weeks[mon] === false;
     return '<div class="card week' + (isNow ? ' now' : '') + (collapsed ? ' collapsed' : '') + '" id="week-' + t.id + '-' + i + '" data-week="' + mon + '">' +
       '<div class="rail"><div class="wk mono"><button type="button" class="fold" data-fold="' + mon + '" aria-label="Collapse or expand week"></button>v' + isoWeek(mon) + '</div><div class="dates">' + esc(weekDates(mon)) + '</div>' +
-      (mins ? '<div class="load">' + fmtMin(mins) + ' est.</div>' : '') +
+      (mins ? '<div class="load" title="Rough time for this week: the material estimates plus the effort the course states for its hand-ins">' + fmtMin(mins) + ' of work</div>' : '') +
+      '<div class="left" data-left="' + mon + '"></div>' +
       (isNow ? '<div class="flag nowflag">this week</div>' : '') + (flag ? '<div class="flag">' + esc(flag) + '</div>' : '') + '</div>' + body + '</div>';
   }).join("");
   var jump = document.getElementById("jump"), idx = weeks.indexOf(curMon);
@@ -653,6 +657,16 @@ function applyState(){
     if (b) b.checked = !!state.checked[id];
     host.classList.toggle("done", !!state.checked[id]);
     host.classList.toggle("muted", !!state.muted[id]);
+  });
+  document.querySelectorAll(".week").forEach(function(w){
+    var left = 0, total = 0;
+    w.querySelectorAll("[data-id]").forEach(function(h){
+      if (h.hidden || h.classList.contains("muted")) return;
+      var li = h.closest("details"); if (li && li.hidden) return;
+      total++; if (!h.classList.contains("done")) left++;
+    });
+    var el = w.querySelector(".left");
+    if (el) { el.textContent = total ? (left ? left + " left" : "all done") : ""; el.classList.toggle("clear", total > 0 && left === 0); }
   });
   var t = term(), all = countTerm(t);
   document.getElementById("pcount").textContent = "Deadlines and tasks " + all.work[0] + "/" + all.work[1];
