@@ -87,6 +87,14 @@ so they live in the plan.
 - **Folding:** week cards fold from the chevron by the week number, material blocks fold from
   their heading. Both are remembered per viewer.
 
+## Free time for group work
+
+Group activities have no fixed slot, so the page shows where they can go instead. Each day heading
+lists the windows inside the viewer's working hours (default 09:00 to 17:00, adjustable next to the
+week and day views, remembered per viewer) that no session occupies, with the longest window marked
+as the best candidate. The week rail sums the free hours Monday to Friday; the Day view has a "Free
+for group work" card. Only sessions on screen count, so filtering to one course frees its time.
+
 ## Tick boxes
 
 Ids: `d:<course>:<assignmentId>` (deadline), `d:<course>:quizzes:<date>` (quizzes closing

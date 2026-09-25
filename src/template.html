@@ -92,6 +92,15 @@ section{margin-bottom:30px}
 .dayhead{font-size:11.5px; letter-spacing:.06em; text-transform:uppercase; font-weight:600; color:var(--muted); padding:12px 0 2px; border-top:1px solid var(--line); margin-top:4px}
 .dayhead:first-child,.ann + .dayhead,.playhead + .dayhead{border-top:0; margin-top:0}
 .dayhead.today{color:var(--now)}
+.dayhead .free{font-weight:500; text-transform:none; letter-spacing:0; color:var(--muted); margin-left:10px}
+.dayhead .free b{font-weight:600; color:var(--ok)}
+.hours{display:inline-flex; align-items:center; gap:4px; font-size:12.5px; color:var(--muted)}
+.hours input[type=time]{font:inherit; font-size:12.5px; padding:2px 4px; border:1px solid var(--line); border-radius:5px; background:var(--surface); color:var(--ink)}
+.freeday{padding:4px 16px 12px; font-size:13.5px}
+.freeday .w{display:flex; justify-content:space-between; gap:12px; padding:5px 0; border-top:1px solid var(--line)}
+.freeday .w:first-child{border-top:0}
+.freeday .w.best{color:var(--ok); font-weight:600}
+.freeday .w small{color:var(--muted); font-weight:400}
 .row{display:flex; gap:11px; align-items:flex-start; padding:7px 0}
 .row .when{flex:0 0 78px; font-size:12.5px; color:var(--muted); padding-top:2px; line-height:1.35}
 .row .body{flex:1 1 auto; min-width:0}
@@ -300,8 +309,8 @@ footer p{margin:0 0 6px}
 
 /* ---------- Helpers ---------- */
 const P = DATA.plan, INV = DATA.inventory, COURSES = P.COURSES, TEACHERS = P.TEACHERS, TERMS = P.TERMS, PROGRESS = DATA.progress || null;
-const LS = { ticks: "ltu-plan-ticks", muted: "ltu-plan-muted", filter: "ltu-plan-filter", term: "ltu-plan-term", view: "ltu-plan-view", open: "ltu-plan-open", weeks: "ltu-plan-weeks", size: "ltu-plan-size", ping: "ltu-plan-ping", legacy: "lp2-shared-ticks" };
-const state = { checked: {}, muted: {}, filter: "all", term: null, view: "week", day: null, open: {}, weeks: {}, size: 100, ping: true };
+const LS = { hours: "ltu-plan-hours", ticks: "ltu-plan-ticks", muted: "ltu-plan-muted", filter: "ltu-plan-filter", term: "ltu-plan-term", view: "ltu-plan-view", open: "ltu-plan-open", weeks: "ltu-plan-weeks", size: "ltu-plan-size", ping: "ltu-plan-ping", legacy: "lp2-shared-ticks" };
+const state = { checked: {}, muted: {}, filter: "all", term: null, view: "week", day: null, open: {}, weeks: {}, size: 100, ping: true, hours: { start: "09:00", end: "17:00" } };
 let store = null, saveTimer = null;
 
 function esc(s){ return String(s == null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
@@ -323,6 +332,18 @@ function longDay(isoDate){ var d = new Date(isoDate + "T00:00:00"); return DOW[d
 function fullDay(isoDate){ var d = new Date(isoDate + "T00:00:00"); return DOWL[d.getDay()] + " " + d.getDate() + " " + MON[d.getMonth()]; }
 function weekDates(mon){ var a = new Date(mon + "T00:00:00"), b = new Date(mon + "T00:00:00"); b.setDate(b.getDate() + 6);
   return a.getMonth() === b.getMonth() ? a.getDate() + " to " + b.getDate() + " " + MON[a.getMonth()] : a.getDate() + " " + MON[a.getMonth()] + " to " + b.getDate() + " " + MON[b.getMonth()]; }
+function toMin(hhmm){ var p = String(hhmm || "").split(":"); return p.length === 2 ? Number(p[0]) * 60 + Number(p[1]) : null; }
+function fmtT(m){ return String(Math.floor(m / 60)).padStart(2, "0") + ":" + String(m % 60).padStart(2, "0"); }
+function fmtH(m){ return m >= 60 ? (Math.round(m / 15) / 4).toString().replace(".5", "\u00BD").replace(".25", "\u00BC").replace(".75", "\u00BE") + " h" : m + " min"; }
+// Free windows inside the working hours once the day's sessions are taken out. busy: [[start, end] in minutes].
+function freeWindows(busy){
+  var s = toMin(state.hours.start), e = toMin(state.hours.end);
+  if (s == null || e == null || e <= s) return [];
+  var out = [], cur = s;
+  busy.slice().sort(function(a, b){ return a[0] - b[0]; }).forEach(function(b){ if (b[0] > cur) out.push([cur, Math.min(b[0], e)]); cur = Math.max(cur, b[1]); });
+  if (cur < e) out.push([cur, e]);
+  return out.filter(function(w){ return w[1] - w[0] >= 30; });
+}
 function fmtMin(m){ if (!m) return ""; return m >= 60 ? "~" + (Math.round(m / 30) / 2).toString().replace(".5", "\u00BD") + " h" : "~" + m + " min"; }
 
 const KIND = { lecture: "Lecture page", selfpaced: "Self-paced, post required", poll: "Poll", quiz: "Quiz", overview: "Overview", wrapup: "Wrap-up", reading: "Reading",
@@ -472,7 +493,8 @@ function row(r, opts){
   var prep = r.prep && r.prep.length ? '<span class="why">Before it: ' + esc(r.prep.map(function(i){ return (i.number || "") + " " + i.title; }).join(", ").slice(0, 160)) + '</span>' : '';
   var inner = r.id ? '<label for="' + esc(r.id) + '">' + text + '</label>' : '<span class="block">' + text + '</span>';
   var cls = "row " + r.kind + (r.kind === "deadline" ? " deadline" : "") + (r.id && endangeredRow(r) ? " endangered" : "");
-  return '<div class="' + hostClass(r.id, cls) + '" data-course="' + r.code + '"' + (r.id ? ' data-id="' + esc(r.id) + '"' : '') + '>' +
+  var times = r.kind === "session" && r.time ? ' data-start="' + esc(r.time) + '" data-end="' + esc(r.end || "") + '"' : '';
+  return '<div class="' + hostClass(r.id, cls) + '" data-course="' + r.code + '"' + (r.id ? ' data-id="' + esc(r.id) + '"' : '') + times + '>' +
     when(r, opts) + (r.id ? box(r.id) : '') + '<span class="body">' + inner + prep + links(r.links) + '</span>' + (r.id ? muteBtn(r.id) : '') + '</div>';
 }
 function creq(code, i){
@@ -511,11 +533,12 @@ function groupedRows(wr, mon, today){
     while (i < wr.length && wr[i].date === d) group.push(wr[i++]);
     if (!placed && d > today) { out += playhead(today); placed = true; }
     if (!placed && d === today) { out += playhead(today); placed = true; }
-    out += '<div class="dayhead' + (d === today ? ' today' : '') + '">' + esc(fullDay(d)) + '</div>' + group.map(function(r){ return row(r); }).join("");
+    out += '<div class="dayhead' + (d === today ? ' today' : '') + '" data-date="' + d + '">' + esc(fullDay(d)) + '<span class="free"></span></div>' + group.map(function(r){ return row(r); }).join("");
   }
   if (!placed) out += playhead(today);
   return out;
 }
+function hoursCtl(){ return '<span class="hours">Working hours <input type="time" class="hstart" value="' + esc(state.hours.start) + '"> to <input type="time" class="hend" value="' + esc(state.hours.end) + '"></span>'; }
 function playhead(today){ return '<div class="playhead" id="today"><span>Today, ' + esc(longDay(today)) + '</span></div>'; }
 
 /* ---------- Views ---------- */
@@ -536,12 +559,12 @@ function renderWeekView(t){
     return '<div class="card week' + (isNow ? ' now' : '') + (collapsed ? ' collapsed' : '') + '" id="week-' + t.id + '-' + i + '" data-week="' + mon + '">' +
       '<div class="rail"><div class="wk mono"><button type="button" class="fold" data-fold="' + mon + '" aria-label="Collapse or expand week"></button>v' + isoWeek(mon) + '</div><div class="dates">' + esc(weekDates(mon)) + '</div>' +
       (mins ? '<div class="load" title="Rough time for this week: the material estimates plus the effort the course states for its hand-ins">' + fmtMin(mins) + ' of work</div>' : '') +
-      '<div class="left" data-left="' + mon + '"></div>' +
+      '<div class="left" data-left="' + mon + '"></div><div class="load freeh" data-freeweek="' + mon + '" title="Working hours not taken by sessions, Monday to Friday"></div>' +
       (isNow ? '<div class="flag nowflag">this week</div>' : '') + (flag ? '<div class="flag">' + esc(flag) + '</div>' : '') + '</div>' + body + '</div>';
   }).join("");
   var jump = document.getElementById("jump"), idx = weeks.indexOf(curMon);
   jump.hidden = idx < 0; if (idx >= 0) jump.href = "#week-" + t.id + "-" + idx;
-  return '<section><div class="sechead"><h2>Week by week</h2><span class="note">Deadlines carry a red stripe. Sessions have no box, they are attended. Click a week number to fold it.</span></div><div class="weeks">' + html + '</div></section>';
+  return '<section><div class="sechead"><h2>Week by week</h2><span class="note">Deadlines carry a red stripe. Sessions have no box, they are attended. Click a week number to fold it.</span>' + hoursCtl() + '</div><div class="weeks">' + html + '</div></section>';
 }
 function renderDayView(t){
   var d = state.day || todayIso();
@@ -557,10 +580,11 @@ function renderDayView(t){
   var dueRows = due.map(function(r){ var days = Math.round((day(r.date) - day(d)) / 864e5); return Object.assign({}, r, { title: r.title + (days === 0 ? " (today)" : days === 1 ? " (tomorrow)" : " (in " + days + " days)") }); });
   var mat = blocks.map(function(b){ return matBlock(b, "This week"); }).join("");
   return '<section>' +
-    '<div class="dayctl"><input type="date" id="daypick" value="' + d + '"><button type="button" id="day-prev">&larr; Day</button><button type="button" id="day-today">Today</button><button type="button" id="day-next">Day &rarr;</button><span class="note">' + esc(fullDay(d)) + ', week ' + isoWeek(d) + '</span></div>' +
+    '<div class="dayctl"><input type="date" id="daypick" value="' + d + '"><button type="button" id="day-prev">&larr; Day</button><button type="button" id="day-today">Today</button><button type="button" id="day-next">Day &rarr;</button><span class="note">' + esc(fullDay(d)) + ', week ' + isoWeek(d) + '</span>' + hoursCtl() + '</div>' +
     anns.map(function(a){ return annBlock(a, a.code); }).join("") +
     '<div class="day">' +
     card("Sessions today", today.length ? today.length + " to attend" : "", rowsOf(today)) +
+    card("Free for group work", "", '<div class="freeday" data-freeday="' + d + '"></div>') +
     card("Due within 7 days", due.length ? due.length + " deadlines" : "", rowsOf(dueRows, { withDay: true })) +
     card("Material this week", "", mat) +
     card("Tasks and later this week", "", rowsOf(tasks, { withDay: true }) + rowsOf(upcoming, { withDay: true })) +
@@ -649,7 +673,46 @@ function applyFilter(){
     var rowsEl = w.querySelector(".rows"), q = w.querySelector(".quiet");
     if (rowsEl) { rowsEl.hidden = visible.length === 0; if (!q && !visible.length) { q = document.createElement("div"); q.className = "quiet"; q.textContent = "Nothing scheduled."; w.appendChild(q); } else if (q && visible.length) q.remove(); }
   });
+  applyFree();
   applyState();
+}
+function busyAfter(head){
+  var busy = [], n = head.nextElementSibling;
+  while (n && !n.classList.contains("dayhead") && !n.classList.contains("playhead") && !n.classList.contains("mat")) {
+    if (!n.hidden && n.dataset.start) { var s = toMin(n.dataset.start), e = toMin(n.dataset.end); if (s != null) busy.push([s, e != null ? e : s + 60]); }
+    n = n.nextElementSibling;
+  }
+  return busy;
+}
+function longest(wins){ return wins.reduce(function(a, w){ return (w[1] - w[0]) > (a[1] - a[0]) ? w : a; }, wins[0]); }
+function freeText(wins){
+  if (!wins.length) return "no free time in working hours";
+  var best = longest(wins), total = wins.reduce(function(s, w){ return s + w[1] - w[0]; }, 0);
+  return "free " + wins.map(function(w){ var s = fmtT(w[0]) + "\u2013" + fmtT(w[1]); return w === best && wins.length > 1 ? '<b title="Longest window, best for group work">' + s + '</b>' : s; }).join(", ") + " \u00B7 " + fmtH(total);
+}
+// Free time is computed from the sessions on screen, so a course filter changes it.
+function applyFree(){
+  var dayMin = toMin(state.hours.end) - toMin(state.hours.start);
+  document.querySelectorAll(".week").forEach(function(w){
+    var known = {}, sum = 0;
+    w.querySelectorAll(".dayhead").forEach(function(h){
+      var d = h.dataset.date, dow = new Date(d + "T00:00:00").getDay();
+      var wins = freeWindows(busyAfter(h)), el = h.querySelector(".free");
+      if (el) el.innerHTML = dow === 0 || dow === 6 ? "weekend" : freeText(wins);
+      known[d] = wins.reduce(function(s, x){ return s + x[1] - x[0]; }, 0);
+    });
+    for (var i = 0; i < 5; i++) { var d = addDays(w.dataset.week, i); sum += known[d] != null ? known[d] : Math.max(0, dayMin); }
+    var fe = w.querySelector(".freeh"); if (fe) fe.textContent = dayMin > 0 ? "~" + fmtH(sum) + " free" : "";
+  });
+  var fd = document.querySelector("[data-freeday]");
+  if (fd) {
+    var busy = [];
+    var sessionsCard = document.querySelector(".day .card");
+    if (sessionsCard) sessionsCard.querySelectorAll(".row.session").forEach(function(n){ if (!n.hidden && n.dataset.start) { var s = toMin(n.dataset.start), e = toMin(n.dataset.end); busy.push([s, e != null ? e : s + 60]); } });
+    var wins = freeWindows(busy), best = longest(wins);
+    fd.innerHTML = wins.length ? wins.map(function(x){ return '<div class="w' + (x === best ? ' best' : '') + '"><span>' + fmtT(x[0]) + "\u2013" + fmtT(x[1]) + (x === best && wins.length > 1 ? ' <small>longest, best for group work</small>' : '') + '</span><span>' + fmtH(x[1] - x[0]) + '</span></div>'; }).join("")
+      : '<div class="none" style="padding:0">No free time inside ' + esc(state.hours.start) + " to " + esc(state.hours.end) + '.</div>';
+  }
 }
 function applyState(){
   document.querySelectorAll('[data-id]').forEach(function(host){
@@ -705,6 +768,10 @@ document.addEventListener("change", function(e){
   var b = e.target;
   if (!b) return;
   if (b.id === "daypick") { state.day = b.value || todayIso(); renderTerm(); return; }
+  if (b.classList.contains("hstart") || b.classList.contains("hend")) {
+    if (b.classList.contains("hstart")) state.hours.start = b.value || "09:00"; else state.hours.end = b.value || "17:00";
+    lsSet(LS.hours, JSON.stringify(state.hours)); applyFree(); return;
+  }
   if (b.type !== "checkbox") return;
   if (b.checked) state.checked[b.id] = true; else delete state.checked[b.id];
   applyState(); save();
@@ -740,6 +807,7 @@ state.muted = lsJson(LS.muted) || {};
 state.open = lsJson(LS.open) || {};
 state.weeks = lsJson(LS.weeks) || {};
 state.size = Number(lsGet(LS.size)) || 100;
+var sh = lsJson(LS.hours); if (sh && toMin(sh.start) != null && toMin(sh.end) != null) state.hours = sh;
 state.ping = lsGet(LS.ping) !== "0";
 state.filter = lsGet(LS.filter) || "all";
 var sv = lsGet(LS.view); if (sv === "day" || sv === "all" || sv === "week") state.view = sv;
