@@ -13,6 +13,8 @@
     "courses": "node tools/canvas-sync.mjs courses",
     "announcements": "node tools/canvas-sync.mjs announcements",
     "build": "node tools/build.mjs",
-    "update": "node tools/canvas-sync.mjs inventory && node tools/build.mjs"
+    "update": "node tools/canvas-sync.mjs inventory && node tools/build.mjs",
+    "progress": "node tools/canvas-sync.mjs progress",
+    "build:private": "node tools/build.mjs --private"
   }
 }

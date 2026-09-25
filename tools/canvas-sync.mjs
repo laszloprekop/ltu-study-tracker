@@ -5,6 +5,7 @@
 //   node tools/canvas-sync.mjs inventory      write data/canvas-inventory.json (modules, items, deadlines, announcements)
 //   node tools/canvas-sync.mjs check          compare the committed inventory with Canvas and report every difference
 //   node tools/canvas-sync.mjs announcements  print the announcements Canvas has for each course
+//   node tools/canvas-sync.mjs progress       write data/my-progress.json (git-ignored): what Canvas counts as done for YOUR account
 //
 // The token comes from $CANVAS_TOKEN, .env or the Keychain (see tools/lib/canvas.mjs). Never printed.
 
@@ -14,6 +15,7 @@ import { get, getAll, local, strip } from "./lib/canvas.mjs";
 import { COURSES } from "../data/plan.mjs";
 
 const INVENTORY = fileURLToPath(new URL("../data/canvas-inventory.json", import.meta.url));
+const PROGRESS = fileURLToPath(new URL("../data/my-progress.json", import.meta.url));
 
 // ---------- classification ----------
 
@@ -89,6 +91,7 @@ async function courseInventory(code, course) {
       const { number, title } = parseTitle(it.title);
       const row = { id: it.id, number, title, type: it.type, kind: kindOf(it), section, url: it.html_url, indent: it.indent || 0 };
       if (it.type === "ExternalUrl") row.external = it.external_url;
+      if (it.completion_requirement) row.req = it.completion_requirement.type;
       let body = null;
       if (it.type === "Page") body = (await get(`/courses/${id}/pages/${it.page_url}`)).body;
       else if (it.type === "Discussion") body = (await get(`/courses/${id}/discussion_topics/${it.content_id}`)).message;
@@ -214,7 +217,27 @@ async function announcements() {
   }
 }
 
+// What Canvas counts as done for the token's owner. Private: the file is git-ignored and only
+// a --private build reads it.
+async function progress() {
+  const out = { generatedAt: new Date().toISOString(), courses: {} };
+  for (const [code, course] of Object.entries(COURSES)) {
+    if (!course.canvasId) continue;
+    const modules = await getAll(`/courses/${course.canvasId}/modules?include[]=items`);
+    const done = {};
+    let n = 0, total = 0;
+    for (const m of modules) for (const it of m.items || []) {
+      if (!it.completion_requirement) continue;
+      total++; if (it.completion_requirement.completed) { done[it.id] = true; n++; }
+    }
+    out.courses[code] = done;
+    console.log(`${code}: ${n} of ${total} Canvas requirements done`);
+  }
+  writeFileSync(PROGRESS, JSON.stringify(out, null, 1) + "\n");
+  console.log(`Wrote ${PROGRESS} (git-ignored). Build a private page with: npm run build:private`);
+}
+
 const cmd = process.argv[2] || "check";
-const run = { courses, inventory, check, announcements }[cmd];
-if (!run) { console.error(`Unknown command "${cmd}". Use: courses | inventory | check | announcements`); process.exit(2); }
+const run = { courses, inventory, check, announcements, progress }[cmd];
+if (!run) { console.error(`Unknown command "${cmd}". Use: courses | inventory | check | announcements | progress`); process.exit(2); }
 run().catch(e => { console.error(e.message); process.exit(1); });

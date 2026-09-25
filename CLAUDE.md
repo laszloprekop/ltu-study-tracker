@@ -14,6 +14,7 @@
   gets them from `data/canvas-inventory.json`, not by hand.
 - Z0025E lectures carry `status: "expected"` until an announcement names them. When
   `npm run check` reports a new announcement, read it and confirm or move the sessions it names.
+- `data/my-progress.json` and `ltu-study-tracker.private.html` hold the owner's Canvas completion state. Both are git-ignored; never publish the private build to the shared artifact.
 - Never read, print or commit `.env`. The token is only used by `tools/lib/canvas.mjs`.
 - `docs/canvas-data-map.md` says where each kind of data lives in Canvas. Update it when the
   courses change shape.

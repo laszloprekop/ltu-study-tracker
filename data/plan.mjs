@@ -39,6 +39,10 @@ export const COURSES = {
       "Oral examination in week 49, booking link appears after 25 Nov"
     ],
     note: "Almost everything is group work. The group moves at the pace of its slowest hand-off, so agree early who owns which diagram.",
+    // MUST/NICE: graded work, required posts, labs, seminars and exams are MUST by rule (see the page).
+    // These lists override the rule for named refs.
+    must: ["1.7", "3.3", "3.5.6", "3.6.7", "4.2.10", "5.7"],  // workshops: portfolio work happens there
+    nice: [],
     // Material the course marks as "when you have time". Shown as one optional block, not in the weeks.
     optional: [
       { title: "Module 0, workplace wellbeing", refs: ["0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "0.10"],
@@ -62,6 +66,7 @@ export const COURSES = {
       "Six labs: report plus a booked assessment session, groups of 3 to 4"
     ],
     note: "The quizzes are the easy points. Take each one in the week its module is covered and the 2 Dec closing date stops mattering.",
+    must: [], nice: [],
     optional: []
   }
 };
@@ -139,22 +144,23 @@ const STUDY_LP2 = [
 ];
 
 // Hand-written to-dos that Canvas does not list. id must stay stable: it is the tick box key.
-const T = (id, course, date, title, why, links) => ({ id, course, date, title, why, links });
+// level: "must" when skipping it costs the course, otherwise "nice".
+const T = (id, course, date, title, why, links, level) => ({ id, course, date, title, why, links, level: level || "nice" });
 const TASKS_LP2 = [
   T("t-tools", "Z0025E", "2026-09-14", "Install Wireshark and Cisco Packet Tracer 8.0", "Packet Tracer 6.3, 7.2 and 8.0 are the confirmed versions, newer builds have broken the lab files before. Needed from Lab 2.",
-    [["Wireshark", "https://www.wireshark.org/"], ["Packet Tracer versions", "https://www.computernetworkingnotes.com/ccna-study-guide/download-packet-tracer-for-windows-and-linux.html"]]),
-  T("t-group", "Z0025E", "2026-09-14", "Form a lab group of 3 to 4 and sign up on sheet 9.2", "Lab 1 may be done alone, Labs 2 to 6 may not, so form the group once.", [["Lab sign-up sheet", SIGNUP]]),
+    [["Wireshark", "https://www.wireshark.org/"], ["Packet Tracer versions", "https://www.computernetworkingnotes.com/ccna-study-guide/download-packet-tracer-for-windows-and-linux.html"]], "must"),
+  T("t-group", "Z0025E", "2026-09-14", "Form a lab group of 3 to 4 and sign up on sheet 9.2", "Lab 1 may be done alone, Labs 2 to 6 may not, so form the group once.", [["Lab sign-up sheet", SIGNUP]], "must"),
   T("t-msg", "Z7005E", "2026-09-18", "Agree a fixed group meeting slot, and who books the system expert on Monday", "The booking page holds three groups per session, so Monday morning matters.", [["Booking page", BOOKING]]),
-  T("w39-book", "Z7005E", "2026-09-21", "Book the system expert slot (Josef Hallberg)", "Booking page, three groups per session. The session itself is Wednesday.", [["Booking page", BOOKING]]),
+  T("w39-book", "Z7005E", "2026-09-21", "Book the system expert slot (Josef Hallberg)", "Booking page, three groups per session. The session itself is Wednesday.", [["Booking page", BOOKING]], "must"),
   T("w39-gh", "Z7005E", "2026-09-21", "Start looking for a GitHub project for Lab 4", "Lab 4 is due 15 Oct. The Schema says to start now."),
   T("w39-prep", "Z7005E", "2026-09-21", "Draft interview questions and set up the portfolio skeleton", "Use the appendix structure, so interview answers land in the right section."),
   T("w39-writeup", "Z7005E", "2026-09-23", "Write up the interview findings the same afternoon", "Actors, user requirements, anything the expert ruled out."),
   T("w39-build", "Z7005E", "2026-09-24", "Portfolio build day", "Use cases and diagrams, cost/value/risk table with IDs and dependencies, storyboards, UI proposal, activity, module, class, sequence and state diagrams, a test plan covering white box and black box."),
-  T("w39-book1", "Z0025E", "2026-09-25", "Book the Lab 1 assessment session", "Sign-up sheet 9.2. Every lab needs a booked session, not only a report.", [["Sign-up sheet", SIGNUP]]),
+  T("w39-book1", "Z0025E", "2026-09-25", "Book the Lab 1 assessment session", "Sign-up sheet 9.2. Every lab needs a booked session, not only a report.", [["Sign-up sheet", SIGNUP]], "must"),
   T("w43-rev", "Z0025E", "2026-10-19", "Revise for Midterm 1 with the quizzes already taken", "At least 75 points needed."),
   T("w44-pull", "Z7005E", "2026-10-26", "Free week: pull Lab 6 and Lab 7 forward", "Week 45 is the worst week of the course. Work done here is work you will not do then."),
   T("w46-exam", "Z7005E", "2026-11-09", "Start the home exam", "Two free weeks. Watch the two AI videos first, the Schema asks for that."),
-  T("w48-book", "Z7005E", "2026-11-26", "Book the oral examination slot", "The booking link is published after the home exam deadline.", [["Schema page", "https://ltuedu.instructure.com/courses/613/pages/schema"]])
+  T("w48-book", "Z7005E", "2026-11-26", "Book the oral examination slot", "The booking link is published after the home exam deadline.", [["Schema page", "https://ltuedu.instructure.com/courses/613/pages/schema"]], "must")
 ];
 
 // Advice attached to Canvas deadlines, keyed "course:assignmentId".

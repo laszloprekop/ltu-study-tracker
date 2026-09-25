@@ -48,6 +48,7 @@ body{background:var(--bg); color:var(--ink); font-family:"Public Sans","Helvetic
 h1,h2,h3{font-family:Archivo,"Helvetica Neue",Arial,sans-serif; text-wrap:balance; margin:0}
 .mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace; font-variant-numeric:tabular-nums}
 a{color:inherit}
+button{font:inherit}
 
 header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; background:var(--bg); border-bottom:1px solid var(--line); padding-block:12px 10px; margin-bottom:22px}
 .topgrid{display:flex; flex-wrap:wrap; gap:10px 20px; align-items:center; justify-content:space-between}
@@ -55,7 +56,7 @@ h1{font-size:23px; letter-spacing:-.015em}
 .sub{color:var(--muted); font-size:13px; margin-top:2px}
 .controls{display:flex; flex-wrap:wrap; gap:8px 14px; align-items:center}
 .terms{display:flex; flex-wrap:wrap; gap:4px 18px; margin-top:8px; align-items:baseline}
-.terms button{font:inherit; font-size:13.5px; font-weight:600; color:var(--muted); background:none; border:0; padding:4px 0; cursor:pointer; border-bottom:2px solid transparent}
+.terms button{font-size:13.5px; font-weight:600; color:var(--muted); background:none; border:0; padding:4px 0; cursor:pointer; border-bottom:2px solid transparent}
 .terms button[aria-selected="true"]{color:var(--ink); border-bottom-color:var(--ink)}
 .terms button .soon{font-weight:500; font-size:11.5px; color:var(--muted); margin-left:5px}
 .meters{display:flex; gap:14px; flex-wrap:wrap; margin-left:auto}
@@ -63,13 +64,14 @@ h1{font-size:23px; letter-spacing:-.015em}
 .bar{width:80px; height:6px; border-radius:99px; background:var(--line); overflow:hidden}
 .bar span{display:block; height:100%; width:0; background:var(--ok); transition:width .25s ease}
 .bar.mat span{background:var(--now)}
-@media (prefers-reduced-motion:reduce){ .bar span{transition:none} }
 
 .seg{display:inline-flex; flex-wrap:wrap; border:1px solid var(--line); border-radius:7px; overflow:hidden; background:var(--surface)}
-.seg button{font:inherit; font-size:12.5px; font-weight:600; color:var(--muted); background:transparent; border:0; border-left:1px solid var(--line); padding:5px 10px; cursor:pointer}
+.seg button{font-size:12.5px; font-weight:600; color:var(--muted); background:transparent; border:0; border-left:1px solid var(--line); padding:5px 10px; cursor:pointer}
 .seg button:first-child{border-left:0}
 .seg button[aria-pressed="true"]{color:var(--ink); background:var(--surface-2); box-shadow:inset 0 -2px 0 var(--ink)}
-.seg button:focus-visible,.jump:focus-visible,.terms button:focus-visible,input:focus-visible,.dayctl button:focus-visible{outline:2px solid var(--now); outline-offset:1px}
+.seg button:focus-visible,.jump:focus-visible,.terms button:focus-visible,input:focus-visible,.dayctl button:focus-visible,.mute:focus-visible,.fold:focus-visible{outline:2px solid var(--now); outline-offset:1px}
+.seg.tools button{padding-inline:8px; min-width:32px}
+.seg.tools button.on{color:var(--alert)}
 .jump{font-size:12.5px; font-weight:600; color:var(--now); text-decoration:none}
 .jump:hover{text-decoration:underline}
 
@@ -87,10 +89,11 @@ section{margin-bottom:30px}
 
 /* Rows shared by the week view and the day view */
 .rows{padding:6px 16px 10px}
-.row{display:flex; gap:11px; align-items:flex-start; padding:8px 0; border-top:1px solid var(--line)}
-.row.first{border-top:0}
-.row .when{flex:0 0 78px; font-size:12.5px; color:var(--muted); padding-top:1px; line-height:1.35}
-.row .when small{display:block; font-size:11px}
+.dayhead{font-size:11.5px; letter-spacing:.06em; text-transform:uppercase; font-weight:600; color:var(--muted); padding:12px 0 2px; border-top:1px solid var(--line); margin-top:4px}
+.dayhead:first-child,.ann + .dayhead,.playhead + .dayhead{border-top:0; margin-top:0}
+.dayhead.today{color:var(--now)}
+.row{display:flex; gap:11px; align-items:flex-start; padding:7px 0}
+.row .when{flex:0 0 78px; font-size:12.5px; color:var(--muted); padding-top:2px; line-height:1.35}
 .row .body{flex:1 1 auto; min-width:0}
 .row .body label,.row .body .block{display:block}
 .row .body label{cursor:pointer}
@@ -98,13 +101,26 @@ section{margin-bottom:30px}
 .row .why{display:block; color:var(--muted); font-size:12.5px; margin-top:1px}
 .row.deadline .t{font-weight:600}
 .row.deadline{border-left:3px solid var(--alert); margin-left:-16px; padding-left:13px}
-.row input[type=checkbox]{margin:3px 0 0; width:15px; height:15px; accent-color:var(--ok); flex:0 0 auto}
 .row.done .t{text-decoration:line-through; color:var(--muted)}
-.row.session .t{color:var(--ink)}
+.muted{opacity:.42}
+.muted .t{text-decoration:none}
+.box{position:relative; flex:0 0 auto; width:15px; height:15px; margin-top:3px}
+.box input[type=checkbox]{margin:0; width:15px; height:15px; accent-color:var(--ok); display:block}
+.box .ring{display:none; position:absolute; inset:-4px; border-radius:50%; border:2px solid var(--alert); pointer-events:none; animation:pingring 1.5s ease-out infinite}
+.endangered:not(.done):not(.muted) .box .ring{display:block}
+body.noping .box .ring{display:none}
+@keyframes pingring{0%{transform:scale(.55); opacity:.95} 100%{transform:scale(2.1); opacity:0}}
+@media (prefers-reduced-motion:reduce){ .bar span{transition:none} .box .ring{animation:none; inset:-3px; opacity:.8} }
 .tag{display:inline-block; font-size:10.5px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:var(--muted); background:var(--surface-2); border:1px solid var(--line); border-radius:4px; padding:0 5px; margin-left:6px; vertical-align:1px; white-space:nowrap}
 .tag.expected{color:var(--now); border-color:transparent; background:var(--now-soft)}
 .tag.pts{color:var(--ink)}
+.lvl{display:inline-block; font-size:9.5px; font-weight:700; letter-spacing:.08em; border-radius:3px; padding:0 4px; margin-right:7px; vertical-align:1px; line-height:1.5}
+.lvl.must{color:var(--alert); border:1px solid var(--alert)}
+.lvl.nice{color:var(--muted); border:1px dashed var(--muted); opacity:.75}
 .est{color:var(--muted); font-size:12px; white-space:nowrap}
+.mute{flex:0 0 auto; width:20px; height:20px; border:0; background:none; color:var(--muted); opacity:.35; cursor:pointer; border-radius:50%; font-size:14px; line-height:1; padding:0; margin-top:1px}
+.mute:hover,.muted .mute{opacity:1}
+.muted .mute{color:var(--alert)}
 
 .chip{display:inline-block; font-size:10.5px; font-weight:600; letter-spacing:.05em; text-transform:uppercase; padding:1px 6px; border-radius:4px; margin-right:7px; vertical-align:1px; white-space:nowrap; color:var(--cc); background:var(--cc-soft)}
 .ph{display:inline-block; flex:0 0 auto; line-height:0; border-radius:50%; overflow:hidden; isolation:isolate; background:#fff; background:color-mix(in srgb, var(--cc) 32%, #fff)}
@@ -129,19 +145,30 @@ section{margin-bottom:30px}
 .weeks{display:flex; flex-direction:column; gap:14px}
 .week{display:grid; grid-template-columns:104px 1fr; gap:0; scroll-margin-top:150px}
 .week.now{border-color:var(--now); box-shadow:0 0 0 1px var(--now)}
-.week .rail{padding:16px 12px 16px 16px; border-right:1px solid var(--line)}
-.week .rail .wk{font-size:17px; font-family:Archivo,sans-serif; font-weight:700; letter-spacing:-.01em}
+.week .rail{padding:14px 12px 14px 16px; border-right:1px solid var(--line)}
+.week .rail .wk{font-size:17px; font-family:Archivo,sans-serif; font-weight:700; letter-spacing:-.01em; display:flex; align-items:center; gap:6px}
 .week .rail .dates{font-size:11.5px; color:var(--muted); margin-top:2px}
 .week .rail .load{font-size:11.5px; color:var(--muted); margin-top:6px}
+.fold{border:0; background:none; color:var(--muted); cursor:pointer; padding:0 2px; font-size:12px; line-height:1; border-radius:4px}
+.fold::before{content:"\25BE"}
+.week.collapsed .fold::before{content:"\25B8"}
+.week.collapsed .rows,.week.collapsed .quiet{display:none}
+.week.collapsed .rail{border-right:0}
+.week.collapsed{grid-template-columns:1fr}
+.week.collapsed .rail{display:flex; gap:12px; align-items:baseline; padding:10px 16px}
+.week.collapsed .rail .dates,.week.collapsed .rail .load,.week.collapsed .flag{margin-top:0}
 .flag{display:inline-block; margin-top:8px; font-size:10.5px; letter-spacing:.07em; text-transform:uppercase; color:var(--alert); background:var(--alert-soft); border-radius:4px; padding:2px 6px; font-weight:600}
 .flag.nowflag{color:var(--now); background:var(--now-soft)}
 .week .quiet{padding:14px 16px; color:var(--muted); font-size:13.5px}
+.playhead{display:flex; align-items:center; gap:10px; margin:10px 0 4px; color:var(--now); font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase}
+.playhead::before{content:""; width:10px; height:10px; border-radius:50%; background:var(--now); flex:0 0 auto}
+.playhead::after{content:""; flex:1 1 auto; height:2px; background:var(--now); border-radius:2px}
 
 /* Announcements and material blocks inside a week */
 .ann{margin:8px 0 2px; padding:8px 12px; border-radius:7px; background:var(--now-soft); font-size:13px}
 .ann .k{font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; font-weight:600; color:var(--now); margin-right:8px}
 .ann a{color:inherit}
-.mat{margin-top:6px; border-top:1px solid var(--line); padding-top:8px}
+.mat{margin-top:8px; border-top:1px solid var(--line); padding-top:8px}
 .mat summary{cursor:pointer; font-size:13px; font-weight:600; list-style:none; display:flex; gap:8px; align-items:baseline; flex-wrap:wrap}
 .mat summary::-webkit-details-marker{display:none}
 .mat summary::before{content:"\25B8"; color:var(--muted); font-size:12px}
@@ -150,24 +177,27 @@ section{margin-bottom:30px}
 .mat .why{color:var(--muted); font-size:12.5px; margin:4px 0 2px 16px; display:block}
 .mat ul{list-style:none; margin:4px 0 0 0; padding:0}
 .mat li{display:flex; gap:9px; align-items:flex-start; padding:5px 0 5px 16px; font-size:13.5px}
-.mat li input{margin:3px 0 0; width:14px; height:14px; accent-color:var(--now); flex:0 0 auto}
+.mat li .box{width:14px; height:14px; margin-top:3px}
+.mat li .box input{width:14px; height:14px; accent-color:var(--now)}
 .mat li label{cursor:pointer; flex:1 1 auto; min-width:0}
 .mat li.done label{text-decoration:line-through; color:var(--muted)}
 .mat li .num{color:var(--muted); font-size:12px; margin-right:6px}
 .mat li .kind{color:var(--muted); font-size:12px; margin-left:6px}
 .mat li a.go{font-size:11.5px; text-decoration:none; color:var(--ink); background:var(--surface-2); border:1px solid var(--line); border-radius:5px; padding:1px 6px; white-space:nowrap}
 .mat li a.go::after{content:" \2197"; color:var(--muted); font-size:10px}
+.creq{flex:0 0 auto; font-size:12px; line-height:1; margin-top:4px; color:var(--muted); cursor:help; width:14px; text-align:center}
+.creq.done{color:var(--ok)}
 
 /* Day view */
 .dayctl{display:flex; flex-wrap:wrap; gap:8px 12px; align-items:center; margin-bottom:12px}
 .dayctl input[type=date]{font:inherit; font-size:13.5px; padding:4px 8px; border:1px solid var(--line); border-radius:6px; background:var(--surface); color:var(--ink)}
-.dayctl button{font:inherit; font-size:12.5px; font-weight:600; background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:4px 10px; cursor:pointer; color:var(--ink)}
+.dayctl button{font-size:12.5px; font-weight:600; background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:4px 10px; cursor:pointer; color:var(--ink)}
 .day{display:grid; grid-template-columns:1fr 1fr; gap:14px}
 .day .card{padding-bottom:4px}
 .day h3{font-size:13.5px; padding:12px 16px 4px; display:flex; gap:8px; align-items:baseline}
 .day h3 .sum{font-weight:400; color:var(--muted); font-size:12.5px}
 .day .none{padding:6px 16px 12px; color:var(--muted); font-size:13px}
-.day .mat{border-top:0; padding:0 16px 8px}
+.day .mat{border-top:0; padding:0 16px 8px; margin-top:0}
 .day .mat li{padding-left:0}
 
 /* All deadlines table */
@@ -179,7 +209,7 @@ table.all tr:last-child td{border-bottom:0}
 table.all td.d{white-space:nowrap}
 table.all tr.past td{color:var(--muted)}
 table.all tr.done td.n{text-decoration:line-through; color:var(--muted)}
-table.all input{accent-color:var(--ok)}
+table.all td.b{display:flex; gap:6px; align-items:center}
 
 .grid2{display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:14px}
 .panel{padding:16px 18px}
@@ -196,6 +226,7 @@ table.all input{accent-color:var(--ok)}
 .teacher small{display:block; color:var(--muted); font-size:11.5px}
 .teacher:hover .tn{text-decoration:underline}
 .rhythm li{margin:6px 0}
+.legend{display:flex; flex-wrap:wrap; gap:8px 18px; font-size:12.5px; color:var(--muted); margin-top:10px}
 footer{color:var(--muted); font-size:12.5px; border-top:1px solid var(--line); padding-top:14px}
 footer p{margin:0 0 6px}
 @media (max-width:680px){
@@ -207,7 +238,7 @@ footer p{margin:0 0 6px}
 }
 </style>
 
-<div class="wrap">
+<div class="wrap" id="wrap">
   <header class="top">
     <div class="topgrid">
       <div>
@@ -221,6 +252,11 @@ footer p{margin:0 0 6px}
           <button type="button" id="v-all" data-view="all">All deadlines</button>
         </div>
         <div class="seg" role="group" aria-label="Show courses" id="filter"></div>
+        <div class="seg tools" role="group" aria-label="Display">
+          <button type="button" id="size-down" title="Smaller text" aria-label="Smaller text">A&minus;</button>
+          <button type="button" id="size-up" title="Larger text" aria-label="Larger text">A+</button>
+          <button type="button" id="ping-toggle" title="Pulse unfinished items that are due soon" aria-pressed="true">&#9673; Pulse</button>
+        </div>
         <a class="jump" id="jump" href="#" hidden>This week &darr;</a>
       </div>
     </div>
@@ -236,7 +272,12 @@ footer p{margin:0 0 6px}
   <section>
     <div class="card intro">
       <p>Every course in one place: sessions to attend, deadlines from Canvas, and the material buried in the Canvas modules, each with a link. Pick the study period and your courses at the top. <strong>Day</strong> shows one day with what is due soon, <strong>All deadlines</strong> is the flat list.</p>
-      <p>Tick boxes are yours alone. On claude.ai they follow your account, otherwise they stay in this browser. Green counts deadlines and tasks, blue counts material.</p>
+      <p>Tick boxes are yours alone. On claude.ai they follow your account, otherwise they stay in this browser. Green counts deadlines and tasks, blue counts material. The <span class="mute" style="display:inline-block;vertical-align:middle;opacity:1">&#8856;</span> button mutes an item that is not for you: it stays visible, stops pulsing and leaves the counts.</p>
+      <div class="legend">
+        <span><span class="lvl must">MUST</span>graded, required, or a session you cannot miss</span>
+        <span><span class="lvl nice">NICE</span>readings, videos, recordings: helps, not required</span>
+        <span><span class="creq" style="display:inline">&#9744;</span> a Canvas requirement (view, post, mark done, submit)</span>
+      </div>
     </div>
   </section>
 
@@ -252,14 +293,15 @@ footer p{margin:0 0 6px}
 /*__DATA__*/
 
 /* ---------- Helpers ---------- */
-const P = DATA.plan, INV = DATA.inventory, COURSES = P.COURSES, TEACHERS = P.TEACHERS, TERMS = P.TERMS;
-const LS = { ticks: "ltu-plan-ticks", filter: "ltu-plan-filter", term: "ltu-plan-term", view: "ltu-plan-view", legacy: "lp2-shared-ticks" };
-const state = { checked: {}, filter: "all", term: null, view: "week", day: null };
+const P = DATA.plan, INV = DATA.inventory, COURSES = P.COURSES, TEACHERS = P.TEACHERS, TERMS = P.TERMS, PROGRESS = DATA.progress || null;
+const LS = { ticks: "ltu-plan-ticks", muted: "ltu-plan-muted", filter: "ltu-plan-filter", term: "ltu-plan-term", view: "ltu-plan-view", open: "ltu-plan-open", weeks: "ltu-plan-weeks", size: "ltu-plan-size", ping: "ltu-plan-ping", legacy: "lp2-shared-ticks" };
+const state = { checked: {}, muted: {}, filter: "all", term: null, view: "week", day: null, open: {}, weeks: {}, size: 100, ping: true };
 let store = null, saveTimer = null;
 
 function esc(s){ return String(s == null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
 function lsGet(k){ try { return localStorage.getItem(k); } catch (e) { return null; } }
 function lsSet(k, v){ try { localStorage.setItem(k, v); } catch (e) {} }
+function lsJson(k){ try { return JSON.parse(lsGet(k) || "null"); } catch (e) { return null; } }
 function colorVars(code){ var n = (COURSES[code] && COURSES[code].color) || 5; return '--cc:var(--c' + n + ');--cc-soft:var(--c' + n + '-soft)'; }
 function label(code){ var k = COURSES[code] || {}; return (k.prefix ? k.prefix + "-" : "") + code; }
 function term(){ return TERMS.find(function(t){ return t.id === state.term; }) || TERMS[0]; }
@@ -269,9 +311,10 @@ function addDays(isoDate, n){ var d = new Date(isoDate + "T00:00:00"); d.setDate
 function todayIso(){ return iso(new Date()); }
 function monday(isoDate){ var d = new Date(isoDate + "T00:00:00"); var wd = (d.getDay() + 6) % 7; d.setDate(d.getDate() - wd); return iso(d); }
 function isoWeek(isoDate){ var d = new Date(isoDate + "T00:00:00Z"); d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7)); var y = new Date(Date.UTC(d.getUTCFullYear(), 0, 1)); return Math.ceil(((d - y) / 864e5 + 1) / 7); }
-const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"], DOW = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"], DOW = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"], DOWL = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
 function dayLabel(isoDate){ var d = new Date(isoDate + "T00:00:00"); return DOW[d.getDay()] + " " + d.getDate(); }
 function longDay(isoDate){ var d = new Date(isoDate + "T00:00:00"); return DOW[d.getDay()] + " " + d.getDate() + " " + MON[d.getMonth()]; }
+function fullDay(isoDate){ var d = new Date(isoDate + "T00:00:00"); return DOWL[d.getDay()] + " " + d.getDate() + " " + MON[d.getMonth()]; }
 function weekDates(mon){ var a = new Date(mon + "T00:00:00"), b = new Date(mon + "T00:00:00"); b.setDate(b.getDate() + 6);
   return a.getMonth() === b.getMonth() ? a.getDate() + " to " + b.getDate() + " " + MON[a.getMonth()] : a.getDate() + " " + MON[a.getMonth()] + " to " + b.getDate() + " " + MON[b.getMonth()]; }
 function fmtMin(m){ if (!m) return ""; return m >= 60 ? "~" + (Math.round(m / 30) / 2).toString().replace(".5", "\u00BD") + " h" : "~" + m + " min"; }
@@ -279,6 +322,8 @@ function fmtMin(m){ if (!m) return ""; return m >= 60 ? "~" + (Math.round(m / 30
 const KIND = { lecture: "Lecture page", selfpaced: "Self-paced, post required", poll: "Poll", quiz: "Quiz", overview: "Overview", wrapup: "Wrap-up", reading: "Reading",
   exercise: "Exercises", solutions: "Solutions", video: "Video", instructions: "Instructions", discussion: "Discussion", session: "Recording and slides", handin: "Hand-in", exam: "Exam", link: "Link" };
 const SESSION_KIND = { lecture: "Lecture", workshop: "Workshop", lab: "Lab session", interview: "Interview", seminar: "Seminar", exam: "Exam" };
+const REQ = { must_view: "view", must_mark_done: "mark done", must_contribute: "post", must_submit: "submit", min_score: "reach a score" };
+const SOON_DAYS = 7;
 
 /* ---------- Inventory access ---------- */
 function items(code){ var c = INV.courses[code]; return c ? c.modules.reduce(function(a, m){ return a.concat(m.items); }, []) : []; }
@@ -296,9 +341,24 @@ function expand(code, ref){
 function itemByNumber(code, num){ return items(code).find(function(i){ return i.number === num; }); }
 function assignments(code){ var c = INV.courses[code]; return c ? c.assignments : []; }
 function announcements(code){ var c = INV.courses[code]; return c ? c.announcements : []; }
+function inList(code, listName, item){ var k = COURSES[code]; return (k && k[listName] || []).some(function(r){ return expand(code, r).some(function(x){ return x.id === item.id; }); }); }
+// MUST: graded work, required posts or submissions, and the sessions you cannot miss. NICE: the rest. Plan lists override.
+function itemLevel(code, item){
+  if (inList(code, "must", item)) return "must";
+  if (inList(code, "nice", item)) return "nice";
+  if (item.kind === "handin" || item.kind === "quiz" || item.kind === "exam") return "must";
+  if (item.req === "must_submit" || item.req === "must_contribute") return "must";
+  return "nice";
+}
+function sessionLevel(s){
+  var it = s.ref ? itemByNumber(s.course, s.ref) : null;
+  if (it && inList(s.course, "must", it)) return "must";
+  if (it && inList(s.course, "nice", it)) return "nice";
+  return (s.kind === "lab" || s.kind === "seminar" || s.kind === "interview" || s.kind === "exam") ? "must" : "nice";
+}
+function canvasDone(code, item){ return !!(PROGRESS && PROGRESS.courses[code] && PROGRESS.courses[code][item.id]); }
 
 /* ---------- Building the term's timeline ---------- */
-// Deadlines: one row per assignment, except quizzes that close on the same day, which form one row.
 function deadlineRows(t){
   var rows = [];
   t.courses.forEach(function(code){
@@ -307,16 +367,15 @@ function deadlineRows(t){
       if (!a.due) return;
       if (a.kind === "quiz") { var g = code + ":quizzes:" + a.due; (groups[g] = groups[g] || { code: code, due: a.due, dueTime: a.dueTime, list: [] }).list.push(a); return; }
       var title = a.title.replace(/\s*\(submit your report\)/i, " report");
-      var pts = a.points ? a.points + " p" : "";
-      rows.push({ kind: "deadline", id: "d:" + code + ":" + a.id, code: code, date: a.due, time: a.dueTime,
-        title: title + " due " + a.dueTime, pts: pts, why: t.notes[code + ":" + a.id] || "", akind: a.kind,
+      rows.push({ kind: "deadline", level: "must", id: "d:" + code + ":" + a.id, code: code, date: a.due, time: a.dueTime,
+        title: title + " due " + a.dueTime, pts: a.points ? a.points + " p" : "", why: t.notes[code + ":" + a.id] || "", akind: a.kind,
         est: (itemByNumber(code, a.number) || {}).statedMinutes || null,
         links: [["Submit", a.url]].concat(a.moduleItemUrl ? [["In the module", a.moduleItemUrl]] : []) });
     });
     Object.keys(groups).forEach(function(g){
       var q = groups[g]; q.list.sort(function(x, y){ return (x.number || "").localeCompare(y.number || "", undefined, { numeric: true }); });
       var total = q.list.reduce(function(s, a){ return s + (a.points || 0); }, 0);
-      rows.push({ kind: "deadline", id: "d:" + g, code: q.code, date: q.due, time: q.dueTime, akind: "quiz",
+      rows.push({ kind: "deadline", level: "must", id: "d:" + g, code: q.code, date: q.due, time: q.dueTime, akind: "quiz",
         title: "All " + q.list.length + " module quizzes close " + q.dueTime, pts: total ? total + " p" : "", why: t.notes[q.code + ":quizzes"] || "",
         links: q.list.map(function(a){ return [a.title.replace(/module (\d+) quiz/i, "Quiz $1"), a.url]; }) });
     });
@@ -325,36 +384,38 @@ function deadlineRows(t){
 }
 function sessionRows(t){
   return t.sessions.filter(function(s){ return t.courses.indexOf(s.course) >= 0; }).map(function(s){
-    var links = [];
-    var k = COURSES[s.course];
+    var links = [], k = COURSES[s.course];
     if (k && k.zoom && s.kind !== "exam") links.push(["Zoom", k.zoom]);
     var it = s.ref ? itemByNumber(s.course, s.ref) : null;
     if (it) links.push([it.kind === "session" ? "Recording and slides" : "Page", it.url]);
     (s.also || []).forEach(function(r){ var x = itemByNumber(s.course, r); if (x) links.push([x.number + " " + x.title.slice(0, 28), x.url]); });
     (s.links || []).forEach(function(l){ links.push(l); });
     var prep = (s.prep || []).reduce(function(a, r){ return a.concat(expand(s.course, r)); }, []);
-    return { kind: "session", code: s.course, date: s.date, time: s.start, end: s.end, title: title(s), why: s.why || "", status: s.status || "", links: links, prep: prep, skind: s.kind };
+    return { kind: "session", level: sessionLevel(s), code: s.course, date: s.date, time: s.start, end: s.end, title: s.title, why: s.why || "", status: s.status || "", links: links, prep: prep, skind: s.kind };
   });
-  function title(s){ return s.title; }
 }
 function taskRows(t){
   return t.tasks.filter(function(x){ return t.courses.indexOf(x.course) >= 0; }).map(function(x){
-    return { kind: "task", id: "t:" + x.id, code: x.course, date: x.date, title: x.title, why: x.why || "", links: x.links || [] };
+    return { kind: "task", level: x.level || "nice", id: "t:" + x.id, code: x.course, date: x.date, title: x.title, why: x.why || "", links: x.links || [] };
   });
 }
 function studyBlocks(t){
   return t.study.filter(function(s){ return t.courses.indexOf(s.course) >= 0; }).map(function(s){
     var seen = {}, list = [];
     s.refs.forEach(function(r){ expand(s.course, r).forEach(function(i){ if (!seen[i.id]) { seen[i.id] = 1; list.push(i); } }); });
-    return { week: s.week, code: s.course, why: s.why || "", items: list };
+    return { week: s.week, code: s.course, why: s.why || "", items: list, key: "w:" + s.week + ":" + s.code };
   });
 }
-function weeksOf(t){
-  var out = [], m = monday(t.start), end = t.end;
-  while (m <= end) { out.push(m); m = addDays(m, 7); }
-  return out;
-}
+function weeksOf(t){ var out = [], m = monday(t.start); while (m <= t.end) { out.push(m); m = addDays(m, 7); } return out; }
 function matMinutes(list){ return list.reduce(function(s, i){ return s + (i.minutes || 0); }, 0); }
+function timeline(t){
+  var rows = deadlineRows(t).concat(sessionRows(t)).concat(taskRows(t));
+  rows.sort(function(a, b){ return a.date.localeCompare(b.date) || String(a.time || "").localeCompare(String(b.time || "")) || (a.kind === "session" ? -1 : 1); });
+  return rows;
+}
+// Endangered: unfinished, not muted, and either due within a week or belonging to a week that has started.
+function endangeredRow(r){ return !!r.id && r.date <= addDays(todayIso(), SOON_DAYS); }
+function endangeredItem(week){ return week <= monday(todayIso()); }
 
 /* ---------- Rendering pieces ---------- */
 function chip(code){ var k = COURSES[code] || {}; return faces(code) + '<span class="chip" style="' + colorVars(code) + '"' + (k.name ? ' title="' + esc(k.name + " " + code) + '"' : '') + '>' + esc(label(code)) + '</span>'; }
@@ -369,105 +430,127 @@ function links(list){
   if (!list || !list.length) return "";
   return '<span class="links">' + list.map(function(l){ return '<a href="' + esc(l[1]) + '" target="_blank" rel="noopener">' + esc(l[0]) + '</a>'; }).join("") + '</span>';
 }
+function lvl(level){ return '<span class="lvl ' + level + '">' + (level === "must" ? "MUST" : "NICE") + '</span>'; }
+function box(id){ return '<span class="box"><span class="ring"></span><input type="checkbox" id="' + esc(id) + '"></span>'; }
+function muteBtn(id){ return '<button type="button" class="mute" data-mute="' + esc(id) + '" title="Mute: not for me" aria-label="Mute">&#8856;</button>'; }
+function hostClass(id, extra){ return (extra || "") + (state.checked[id] ? " done" : "") + (state.muted[id] ? " muted" : ""); }
 function when(r, opts){
   opts = opts || {};
-  var top = opts.noDay ? "" : dayLabel(r.date);
-  var t = r.kind === "session" ? (r.time ? r.time + (r.end ? "\u2013" + r.end : "") : "week") : r.kind === "deadline" ? r.time : "";
-  return '<span class="when mono">' + esc(top) + (t ? '<small>' + esc(t) + '</small>' : '') + '</span>';
+  var top = opts.withDay ? dayLabel(r.date) : "";
+  var t = r.kind === "session" ? (r.time ? r.time + (r.end ? "\u2013" + r.end : "") : "any time") : r.kind === "deadline" ? r.time : "";
+  return '<span class="when mono">' + (top ? esc(top) + (t ? " " : "") : "") + esc(t) + '</span>';
 }
 function row(r, opts){
-  var box = r.id ? '<input type="checkbox" id="' + esc(r.id) + '">' : '';
+  opts = opts || {};
   var tags = "";
   if (r.status === "expected") tags += '<span class="tag expected">expected</span>';
   if (r.kind === "session" && r.skind && r.skind !== "lecture") tags += '<span class="tag">' + esc(SESSION_KIND[r.skind] || r.skind) + '</span>';
   if (r.pts) tags += '<span class="tag pts">' + esc(r.pts) + '</span>';
   var est = r.est ? ' <span class="est">' + fmtMin(r.est) + ' of work</span>' : '';
-  var text = '<span class="t">' + chip(r.code) + esc(r.title) + tags + est + '</span>' + (r.why ? '<span class="why">' + esc(r.why) + '</span>' : '');
-  var prep = r.prep && r.prep.length ? '<span class="why">Before it: ' + r.prep.map(function(i){ return (i.number || "") + " " + i.title; }).join(", ").slice(0, 160) + '</span>' : '';
+  var text = '<span class="t">' + chip(r.code) + lvl(r.level) + esc(r.title) + tags + est + '</span>' + (r.why ? '<span class="why">' + esc(r.why) + '</span>' : '');
+  var prep = r.prep && r.prep.length ? '<span class="why">Before it: ' + esc(r.prep.map(function(i){ return (i.number || "") + " " + i.title; }).join(", ").slice(0, 160)) + '</span>' : '';
   var inner = r.id ? '<label for="' + esc(r.id) + '">' + text + '</label>' : '<span class="block">' + text + '</span>';
-  return '<div class="row ' + r.kind + (r.kind === "deadline" ? ' deadline' : '') + '" data-course="' + r.code + '">' +
-    when(r, opts) + box + '<span class="body">' + inner + prep + links(r.links) + '</span></div>';
+  var cls = "row " + r.kind + (r.kind === "deadline" ? " deadline" : "") + (r.id && endangeredRow(r) ? " endangered" : "");
+  return '<div class="' + hostClass(r.id, cls) + '" data-course="' + r.code + '"' + (r.id ? ' data-id="' + esc(r.id) + '"' : '') + '>' +
+    when(r, opts) + (r.id ? box(r.id) : '') + '<span class="body">' + inner + prep + links(r.links) + '</span>' + (r.id ? muteBtn(r.id) : '') + '</div>';
+}
+function creq(code, i){
+  if (!i.req) return '<span class="creq" aria-hidden="true"></span>';
+  var done = canvasDone(code, i);
+  var title = "Canvas requirement: " + (REQ[i.req] || i.req) + (PROGRESS ? (done ? ". Canvas counts it as done." : ". Not done in Canvas yet.") : "");
+  return '<span class="creq' + (done ? ' done' : '') + '" title="' + esc(title) + '">' + (done ? '&#9745;' : '&#9744;') + '</span>';
 }
 function matList(code, list, opts){
   opts = opts || {};
   return '<ul>' + list.map(function(i){
-    var id = "m:" + code + ":" + i.id;
-    return '<li data-course="' + code + '"><input type="checkbox" id="' + id + '"><label for="' + id + '">' +
-      (opts.chip ? chip(code) : '') + (i.number ? '<span class="num mono">' + esc(i.number) + '</span>' : '') + esc(i.title) +
+    var id = "m:" + code + ":" + i.id, level = itemLevel(code, i);
+    var end = opts.week && level === "must" && endangeredItem(opts.week);
+    return '<li class="' + hostClass(id, end ? "endangered" : "") + '" data-course="' + code + '" data-id="' + id + '">' + box(id) + creq(code, i) + '<label for="' + id + '">' +
+      lvl(level) + (i.number ? '<span class="num mono">' + esc(i.number) + '</span>' : '') + esc(i.title) +
       '<span class="kind">' + esc(KIND[i.kind] || i.kind) + (i.minutes ? ", " + fmtMin(i.minutes) : "") + '</span></label>' +
-      '<a class="go" href="' + esc(i.url) + '" target="_blank" rel="noopener">Open</a></li>';
+      '<a class="go" href="' + esc(i.url) + '" target="_blank" rel="noopener">Open</a>' + muteBtn(id) + '</li>';
   }).join("") + '</ul>';
 }
-function matBlock(b, open){
+function isOpen(key){ return state.open[key] !== false; }
+function matBlock(b, titleText){
   var mins = matMinutes(b.items);
-  return '<details class="mat" data-course="' + b.code + '"' + (open ? ' open' : '') + '><summary>' + chip(b.code) + 'Material this week' +
+  return '<details class="mat" data-course="' + b.code + '" data-key="' + esc(b.key) + '"' + (isOpen(b.key) ? ' open' : '') + '><summary>' + chip(b.code) + esc(titleText || "Material this week") +
     '<span class="sum">' + b.items.length + ' items' + (mins ? ", " + fmtMin(mins) : "") + '</span></summary>' +
-    (b.why ? '<span class="why">' + esc(b.why) + '</span>' : '') + matList(b.code, b.items) + '</details>';
+    (b.why ? '<span class="why">' + esc(b.why) + '</span>' : '') + matList(b.code, b.items, { week: b.week }) + '</details>';
 }
 function annBlock(a, code){
   return '<div class="ann" data-course="' + code + '"><span class="k">From the teacher, ' + esc(longDay(a.posted)) + '</span>' + chip(code) +
     '<a href="' + esc(a.url) + '" target="_blank" rel="noopener">' + esc(a.title) + '</a>' + (a.text ? ' <span class="why" style="display:inline">' + esc(a.text.slice(0, 220)) + (a.text.length > 220 ? "\u2026" : "") + '</span>' : '') + '</div>';
 }
+// Rows of one week, grouped under day headings, with the Today playhead in the current week.
+function groupedRows(wr, mon, today){
+  var next = addDays(mon, 7), out = "", placed = today < mon || today >= next, i = 0;
+  while (i < wr.length) {
+    var d = wr[i].date, group = [];
+    while (i < wr.length && wr[i].date === d) group.push(wr[i++]);
+    if (!placed && d > today) { out += playhead(today); placed = true; }
+    if (!placed && d === today) { out += playhead(today); placed = true; }
+    out += '<div class="dayhead' + (d === today ? ' today' : '') + '">' + esc(fullDay(d)) + '</div>' + group.map(function(r){ return row(r); }).join("");
+  }
+  if (!placed) out += playhead(today);
+  return out;
+}
+function playhead(today){ return '<div class="playhead" id="today"><span>Today, ' + esc(longDay(today)) + '</span></div>'; }
 
 /* ---------- Views ---------- */
-function timeline(t){
-  var rows = deadlineRows(t).concat(sessionRows(t)).concat(taskRows(t));
-  rows.sort(function(a, b){ return a.date.localeCompare(b.date) || String(a.time || "").localeCompare(String(b.time || "")) || (a.kind === "session" ? -1 : 1); });
-  return rows;
-}
 function renderWeekView(t){
   var rows = timeline(t), blocks = studyBlocks(t), weeks = weeksOf(t), today = todayIso(), curMon = monday(today);
-  var anns = t.courses.reduce(function(a, c){ return a.concat(announcements(c).map(function(x){ x.code = c; return x; })); }, []);
+  var anns = t.courses.reduce(function(a, c){ return a.concat(announcements(c).map(function(x){ return Object.assign({ code: c }, x); })); }, []);
   var html = weeks.map(function(mon, i){
     var next = addDays(mon, 7);
     var wr = rows.filter(function(r){ return r.date >= mon && r.date < next; });
     var wb = blocks.filter(function(b){ return b.week === mon; });
     var wa = anns.filter(function(a){ return a.posted >= mon && a.posted < next; });
-    var isNow = mon === curMon;
-    var flag = t.weekFlags[mon];
+    var isNow = mon === curMon, flag = t.weekFlags[mon];
     var mins = wb.reduce(function(s, b){ return s + matMinutes(b.items); }, 0) + wr.reduce(function(s, r){ return s + (r.est || 0); }, 0);
     var body = wr.length || wb.length || wa.length
-      ? '<div class="rows">' + wa.map(function(a){ return annBlock(a, a.code); }).join("") + wr.map(function(r){ return row(r); }).join("") + wb.map(function(b){ return matBlock(b, isNow); }).join("") + '</div>'
+      ? '<div class="rows">' + wa.map(function(a){ return annBlock(a, a.code); }).join("") + groupedRows(wr, mon, today) + wb.map(function(b){ return matBlock(b); }).join("") + '</div>'
       : '<div class="quiet">Nothing scheduled.</div>';
-    return '<div class="card week' + (isNow ? ' now' : '') + '" id="week-' + t.id + '-' + i + '" data-week="' + mon + '">' +
-      '<div class="rail"><div class="wk mono">v' + isoWeek(mon) + '</div><div class="dates">' + esc(weekDates(mon)) + '</div>' +
+    var collapsed = state.weeks[mon] === false;
+    return '<div class="card week' + (isNow ? ' now' : '') + (collapsed ? ' collapsed' : '') + '" id="week-' + t.id + '-' + i + '" data-week="' + mon + '">' +
+      '<div class="rail"><div class="wk mono"><button type="button" class="fold" data-fold="' + mon + '" aria-label="Collapse or expand week"></button>v' + isoWeek(mon) + '</div><div class="dates">' + esc(weekDates(mon)) + '</div>' +
       (mins ? '<div class="load">' + fmtMin(mins) + ' est.</div>' : '') +
       (isNow ? '<div class="flag nowflag">this week</div>' : '') + (flag ? '<div class="flag">' + esc(flag) + '</div>' : '') + '</div>' + body + '</div>';
   }).join("");
   var jump = document.getElementById("jump"), idx = weeks.indexOf(curMon);
   jump.hidden = idx < 0; if (idx >= 0) jump.href = "#week-" + t.id + "-" + idx;
-  return '<section><div class="sechead"><h2>Week by week</h2><span class="note">Deadlines carry a red stripe. Sessions have no box, they are attended. Material opens by itself on the current week.</span></div><div class="weeks">' + html + '</div></section>';
+  return '<section><div class="sechead"><h2>Week by week</h2><span class="note">Deadlines carry a red stripe. Sessions have no box, they are attended. Click a week number to fold it.</span></div><div class="weeks">' + html + '</div></section>';
 }
 function renderDayView(t){
   var d = state.day || todayIso();
-  var rows = timeline(t), mon = monday(d), next = addDays(mon, 7), horizon = addDays(d, 7);
+  var rows = timeline(t), mon = monday(d), next = addDays(mon, 7), horizon = addDays(d, SOON_DAYS);
   var today = rows.filter(function(r){ return r.date === d && r.kind === "session"; });
   var due = rows.filter(function(r){ return r.kind === "deadline" && r.date >= d && r.date < horizon; });
   var tasks = rows.filter(function(r){ return r.kind === "task" && r.date >= mon && r.date <= d; });
   var blocks = studyBlocks(t).filter(function(b){ return b.week === mon; });
   var upcoming = rows.filter(function(r){ return r.kind === "session" && r.date > d && r.date < next; });
-  var anns = t.courses.reduce(function(a, c){ return a.concat(announcements(c).filter(function(x){ return x.posted >= mon && x.posted < next; }).map(function(x){ x.code = c; return x; })); }, []);
+  var anns = t.courses.reduce(function(a, c){ return a.concat(announcements(c).filter(function(x){ return x.posted >= mon && x.posted < next; }).map(function(x){ return Object.assign({ code: c }, x); })); }, []);
   function card(title, sum, inner){ return '<div class="card"><h3>' + title + (sum ? '<span class="sum">' + esc(sum) + '</span>' : '') + '</h3>' + (inner || '<div class="none">Nothing.</div>') + '</div>'; }
   function rowsOf(list, opts){ return list.length ? '<div class="rows">' + list.map(function(r){ return row(r, opts); }).join("") + '</div>' : ''; }
   var dueRows = due.map(function(r){ var days = Math.round((day(r.date) - day(d)) / 864e5); return Object.assign({}, r, { title: r.title + (days === 0 ? " (today)" : days === 1 ? " (tomorrow)" : " (in " + days + " days)") }); });
-  var mat = blocks.map(function(b){ var mins = matMinutes(b.items); return '<details class="mat" data-course="' + b.code + '" open><summary>' + chip(b.code) + 'This week' + '<span class="sum">' + b.items.length + ' items' + (mins ? ", " + fmtMin(mins) : "") + '</span></summary>' + (b.why ? '<span class="why">' + esc(b.why) + '</span>' : '') + matList(b.code, b.items) + '</details>'; }).join("");
+  var mat = blocks.map(function(b){ return matBlock(b, "This week"); }).join("");
   return '<section>' +
-    '<div class="dayctl"><input type="date" id="daypick" value="' + d + '"><button type="button" id="day-prev">&larr; Day</button><button type="button" id="day-today">Today</button><button type="button" id="day-next">Day &rarr;</button><span class="note">' + esc(longDay(d)) + ', week ' + isoWeek(d) + '</span></div>' +
-    (anns.length ? anns.map(function(a){ return annBlock(a, a.code); }).join("") : '') +
+    '<div class="dayctl"><input type="date" id="daypick" value="' + d + '"><button type="button" id="day-prev">&larr; Day</button><button type="button" id="day-today">Today</button><button type="button" id="day-next">Day &rarr;</button><span class="note">' + esc(fullDay(d)) + ', week ' + isoWeek(d) + '</span></div>' +
+    anns.map(function(a){ return annBlock(a, a.code); }).join("") +
     '<div class="day">' +
-    card("Sessions today", today.length ? today.length + " to attend" : "", rowsOf(today, { noDay: true })) +
-    card("Due within 7 days", due.length ? due.length + " deadlines" : "", rowsOf(dueRows)) +
+    card("Sessions today", today.length ? today.length + " to attend" : "", rowsOf(today)) +
+    card("Due within 7 days", due.length ? due.length + " deadlines" : "", rowsOf(dueRows, { withDay: true })) +
     card("Material this week", "", mat) +
-    card("Tasks and later this week", "", rowsOf(tasks) + (upcoming.length ? rowsOf(upcoming) : "")) +
+    card("Tasks and later this week", "", rowsOf(tasks, { withDay: true }) + rowsOf(upcoming, { withDay: true })) +
     '</div></section>';
 }
 function renderAllView(t){
   var rows = deadlineRows(t).sort(function(a, b){ return a.date.localeCompare(b.date) || a.time.localeCompare(b.time); });
   var today = todayIso();
   var tr = rows.map(function(r){
-    return '<tr data-course="' + r.code + '" data-id="' + esc(r.id) + '" class="' + (r.date < today ? 'past' : '') + '"><td><input type="checkbox" id="' + esc(r.id) + '"></td>' +
+    return '<tr class="' + hostClass(r.id, (r.date < today ? 'past' : '') + (endangeredRow(r) ? ' endangered' : '')) + '" data-course="' + r.code + '" data-id="' + esc(r.id) + '"><td class="b">' + box(r.id) + muteBtn(r.id) + '</td>' +
       '<td class="d mono">' + esc(r.date) + '<br><small>' + esc(r.time) + '</small></td><td>' + chip(r.code) + '</td>' +
-      '<td class="n"><label for="' + esc(r.id) + '">' + esc(r.title.replace(/ due \d\d:\d\d$/, "").replace(/ close \d\d:\d\d$/, " close")) + '</label>' + (r.why ? '<div class="why" style="color:var(--muted);font-size:12.5px">' + esc(r.why) + '</div>' : '') + '</td>' +
+      '<td class="n"><label for="' + esc(r.id) + '">' + lvl(r.level) + esc(r.title.replace(/ due \d\d:\d\d$/, "").replace(/ close \d\d:\d\d$/, " close")) + '</label>' + (r.why ? '<div class="why" style="color:var(--muted);font-size:12.5px">' + esc(r.why) + '</div>' : '') + '</td>' +
       '<td>' + esc(r.pts) + (r.est ? '<br><small class="est">' + fmtMin(r.est) + '</small>' : '') + '</td><td>' + links(r.links) + '</td></tr>';
   }).join("");
   return '<section><div class="sechead"><h2>All deadlines</h2><span class="note">Both courses, in date order, straight from Canvas.</span></div><div class="card tablewrap"><table class="all"><thead><tr><th></th><th>Due</th><th>Course</th><th>What</th><th>Points</th><th>Links</th></tr></thead><tbody>' + tr + '</tbody></table></div></section>';
@@ -484,8 +567,8 @@ function renderCourses(t){
   if (!t.courses.length) return "";
   return '<section><div class="sechead"><h2>How each course is passed</h2></div><div class="grid2">' + t.courses.map(function(c){
     var k = COURSES[c];
-    var opt = (k.optional || []).map(function(o){ var list = o.refs.reduce(function(a, r){ return a.concat(expand(c, r)); }, []); var mins = matMinutes(list);
-      return '<details class="mat" data-course="' + c + '"><summary>Optional: ' + esc(o.title) + '<span class="sum">' + list.length + ' items' + (mins ? ", " + fmtMin(mins) : "") + '</span></summary>' + (o.why ? '<span class="why">' + esc(o.why) + '</span>' : '') + matList(c, list) + '</details>'; }).join("");
+    var opt = (k.optional || []).map(function(o, n){ var list = o.refs.reduce(function(a, r){ return a.concat(expand(c, r)); }, []); var mins = matMinutes(list); var key = "opt:" + c + ":" + n;
+      return '<details class="mat" data-course="' + c + '" data-key="' + key + '"' + (state.open[key] === true ? ' open' : '') + '><summary>Optional: ' + esc(o.title) + '<span class="sum">' + list.length + ' items' + (mins ? ", " + fmtMin(mins) : "") + '</span></summary>' + (o.why ? '<span class="why">' + esc(o.why) + '</span>' : '') + matList(c, list) + '</details>'; }).join("");
     return '<div class="card panel" data-course="' + c + '" style="' + colorVars(c) + '"><h3><span class="dot"></span>' + esc(k.name) + ' ' + esc(c) + '</h3>' + teachers(k.teachers) +
       (k.rules && k.rules.length ? '<ul>' + k.rules.map(function(r){ return '<li>' + esc(r) + '</li>'; }).join("") + '</ul>' : '') + (k.note ? '<p>' + esc(k.note) + '</p>' : '') +
       (k.canvasId ? '' : '<p>Not in Canvas yet.</p>') + opt + '</div>';
@@ -515,7 +598,7 @@ function renderFilter(t){
 function renderTerm(){
   var t = term();
   document.getElementById("termsub").textContent = t.courses.length ? t.courses.map(function(c){ return COURSES[c].name + " " + c; }).join(" and ") + ", " + t.period.charAt(0).toLowerCase() + t.period.slice(1) : t.period;
-  var asof = "Deadlines and module items read from Canvas on " + longDay(INV.generatedAt.slice(0, 10)) + " " + INV.generatedAt.slice(0, 4) + "." + (t.extra ? " " + t.extra : "");
+  var asof = "Deadlines and module items read from Canvas on " + longDay(INV.generatedAt.slice(0, 10)) + " " + INV.generatedAt.slice(0, 4) + "." + (t.extra ? " " + t.extra : "") + (PROGRESS ? " This is a private build: the Canvas marks are your own account's." : "");
   document.getElementById("asof").textContent = asof;
   renderTabs(); renderFilter(t);
   document.querySelectorAll("#views button").forEach(function(b){ b.setAttribute("aria-pressed", String(b.dataset.view === state.view)); });
@@ -532,28 +615,26 @@ function applyFilter(){
   var f = state.filter;
   document.querySelectorAll("#filter button").forEach(function(b){ b.setAttribute("aria-pressed", String(b.dataset.filter === f)); });
   document.querySelectorAll("#termbody [data-course]").forEach(function(el){ el.hidden = f !== "all" && el.dataset.course !== f; });
+  // day headings with nothing visible under them go too
+  document.querySelectorAll(".dayhead").forEach(function(h){
+    var n = h.nextElementSibling, any = false;
+    while (n && !n.classList.contains("dayhead") && !n.classList.contains("playhead") && !n.classList.contains("mat")) { if (!n.hidden) any = true; n = n.nextElementSibling; }
+    h.hidden = !any;
+  });
   document.querySelectorAll(".week").forEach(function(w){
     var visible = Array.prototype.filter.call(w.querySelectorAll(".row, .mat, .ann"), function(r){ return !r.hidden; });
-    var rowsEl = w.querySelector(".rows");
-    if (rowsEl) { w.hidden = false; rowsEl.hidden = visible.length === 0; var q = w.querySelector(".quiet"); if (!q && !visible.length) { q = document.createElement("div"); q.className = "quiet"; q.textContent = "Nothing scheduled."; w.appendChild(q); } else if (q && visible.length) q.remove(); }
-    w.querySelectorAll(".row").forEach(function(r){ r.classList.remove("first"); });
-    var firstRow = visible.find(function(r){ return r.classList.contains("row"); }); if (firstRow) firstRow.classList.add("first");
+    var rowsEl = w.querySelector(".rows"), q = w.querySelector(".quiet");
+    if (rowsEl) { rowsEl.hidden = visible.length === 0; if (!q && !visible.length) { q = document.createElement("div"); q.className = "quiet"; q.textContent = "Nothing scheduled."; w.appendChild(q); } else if (q && visible.length) q.remove(); }
   });
-  document.querySelectorAll(".day .rows").forEach(function(rs){ rs.querySelectorAll(".row").forEach(function(r){ r.classList.remove("first"); }); var f1 = Array.prototype.find.call(rs.querySelectorAll(".row"), function(r){ return !r.hidden; }); if (f1) f1.classList.add("first"); });
   applyState();
 }
 function applyState(){
-  var boxes = document.querySelectorAll('input[type=checkbox]');
-  var work = [0, 0], mat = [0, 0];
-  boxes.forEach(function(b){
-    b.checked = !!state.checked[b.id];
-    var host = b.closest(".row, li, tr"); if (host) host.classList.toggle("done", b.checked);
-    if (host && host.hidden) return;
-    var li = b.closest("li"), tr = b.closest("tr"); if ((li && li.hidden) || (tr && tr.hidden)) return;
-    var bucket = b.id.indexOf("m:") === 0 ? mat : work;
-    bucket[1]++; if (b.checked) bucket[0]++;
+  document.querySelectorAll('[data-id]').forEach(function(host){
+    var id = host.dataset.id, b = host.querySelector('input[type=checkbox]');
+    if (b) b.checked = !!state.checked[id];
+    host.classList.toggle("done", !!state.checked[id]);
+    host.classList.toggle("muted", !!state.muted[id]);
   });
-  // the meters count the whole term, not only the view on screen
   var t = term(), all = countTerm(t);
   document.getElementById("pcount").textContent = "Deadlines and tasks " + all.work[0] + "/" + all.work[1];
   document.getElementById("pbar").style.width = (all.work[1] ? all.work[0] / all.work[1] * 100 : 0) + "%";
@@ -561,25 +642,29 @@ function applyState(){
   document.getElementById("mbar").style.width = (all.mat[1] ? all.mat[0] / all.mat[1] * 100 : 0) + "%";
   document.querySelector(".meters").hidden = !all.work[1] && !all.mat[1];
 }
+// Counts cover the whole term, not only the view on screen. Muted items are left out.
 function countTerm(t){
   var f = state.filter, work = [0, 0], mat = [0, 0];
-  deadlineRows(t).concat(taskRows(t)).forEach(function(r){ if (f !== "all" && r.code !== f) return; work[1]++; if (state.checked[r.id]) work[0]++; });
-  studyBlocks(t).forEach(function(b){ if (f !== "all" && b.code !== f) return; b.items.forEach(function(i){ mat[1]++; if (state.checked["m:" + b.code + ":" + i.id]) mat[0]++; }); });
+  deadlineRows(t).concat(taskRows(t)).forEach(function(r){ if ((f !== "all" && r.code !== f) || state.muted[r.id]) return; work[1]++; if (state.checked[r.id]) work[0]++; });
+  studyBlocks(t).forEach(function(b){ if (f !== "all" && b.code !== f) return; b.items.forEach(function(i){ var id = "m:" + b.code + ":" + i.id; if (state.muted[id]) return; mat[1]++; if (state.checked[id]) mat[0]++; }); });
   return { work: work, mat: mat };
+}
+function applyDisplay(){
+  document.getElementById("wrap").style.zoom = state.size / 100;
+  document.body.classList.toggle("noping", !state.ping);
+  var pb = document.getElementById("ping-toggle"); pb.setAttribute("aria-pressed", String(state.ping)); pb.classList.toggle("on", state.ping);
 }
 function save(){
   lsSet(LS.ticks, JSON.stringify(state.checked));
+  lsSet(LS.muted, JSON.stringify(state.muted));
   if (!store) return;
   clearTimeout(saveTimer);
-  saveTimer = setTimeout(function(){ store.set({ checked: state.checked, updated: new Date().toISOString() }).catch(function(){ store = null; }); }, 400);
+  saveTimer = setTimeout(function(){ store.set({ checked: state.checked, muted: state.muted, updated: new Date().toISOString() }).catch(function(){ store = null; }); }, 400);
 }
 // Old tick ids from earlier page versions map onto the new ones.
 function migrate(checked){
   var out = {};
-  Object.keys(checked).forEach(function(k){
-    var nk = P.LEGACY_IDS[k] || (/^(d|t|m):/.test(k) ? k : "t:" + k);
-    out[nk] = true;
-  });
+  Object.keys(checked || {}).forEach(function(k){ out[P.LEGACY_IDS[k] || (/^(d|t|m):/.test(k) ? k : "t:" + k)] = true; });
   return out;
 }
 
@@ -593,13 +678,22 @@ document.addEventListener("change", function(e){
 });
 document.addEventListener("click", function(e){
   var b = e.target.closest("button"); if (!b) return;
-  if (b.closest("#filter")) { state.filter = b.dataset.filter; lsSet(LS.filter, state.filter); applyFilter(); }
+  if (b.dataset.mute) { e.preventDefault(); var id = b.dataset.mute; if (state.muted[id]) delete state.muted[id]; else state.muted[id] = true; applyState(); save(); }
+  else if (b.dataset.fold) { var w = b.closest(".week"); var open = w.classList.toggle("collapsed") ? false : true; if (open) delete state.weeks[b.dataset.fold]; else state.weeks[b.dataset.fold] = false; lsSet(LS.weeks, JSON.stringify(state.weeks)); }
+  else if (b.closest("#filter")) { state.filter = b.dataset.filter; lsSet(LS.filter, state.filter); applyFilter(); }
   else if (b.closest("#views")) { state.view = b.dataset.view; lsSet(LS.view, state.view); renderTerm(); }
   else if (b.closest("#terms")) { if (b.dataset.term !== state.term) { state.term = b.dataset.term; lsSet(LS.term, state.term); renderTerm(); } }
   else if (b.id === "day-prev") { state.day = addDays(state.day || todayIso(), -1); renderTerm(); }
   else if (b.id === "day-next") { state.day = addDays(state.day || todayIso(), 1); renderTerm(); }
   else if (b.id === "day-today") { state.day = todayIso(); renderTerm(); }
+  else if (b.id === "size-down" || b.id === "size-up") { state.size = Math.min(150, Math.max(70, state.size + (b.id === "size-up" ? 10 : -10))); lsSet(LS.size, String(state.size)); applyDisplay(); }
+  else if (b.id === "ping-toggle") { state.ping = !state.ping; lsSet(LS.ping, state.ping ? "1" : "0"); applyDisplay(); }
 });
+// Remember each material block's open state. "toggle" does not bubble, so listen in the capture phase.
+document.addEventListener("toggle", function(e){
+  var d = e.target; if (!d || !d.dataset || !d.dataset.key) return;
+  state.open[d.dataset.key] = d.open; lsSet(LS.open, JSON.stringify(state.open));
+}, true);
 
 function defaultTerm(){
   var now = todayIso();
@@ -608,14 +702,17 @@ function defaultTerm(){
   var next = TERMS.find(function(t){ return t.courses.length && t.start > now; });
   return (next || TERMS.filter(function(t){ return t.courses.length; }).pop() || TERMS[0]).id;
 }
-try {
-  var local = lsGet(LS.ticks) || lsGet(LS.legacy);
-  if (local) state.checked = migrate(JSON.parse(local) || {});
-} catch (e) {}
+state.checked = migrate(lsJson(LS.ticks) || lsJson(LS.legacy) || {});
+state.muted = lsJson(LS.muted) || {};
+state.open = lsJson(LS.open) || {};
+state.weeks = lsJson(LS.weeks) || {};
+state.size = Number(lsGet(LS.size)) || 100;
+state.ping = lsGet(LS.ping) !== "0";
 state.filter = lsGet(LS.filter) || "all";
 var sv = lsGet(LS.view); if (sv === "day" || sv === "all" || sv === "week") state.view = sv;
 var savedTerm = lsGet(LS.term);
 state.term = TERMS.some(function(t){ return t.id === savedTerm; }) ? savedTerm : defaultTerm();
+applyDisplay();
 renderTerm();
 
 // Each viewer's ticks live in their own private subtree, data/users/<id>/, which nobody else can read.
@@ -630,10 +727,10 @@ renderTerm();
     if (!uid) return;
     var ref = db.doc("data/users/" + uid + "/progress");
     var snap = await ref.get();
-    if (snap && snap.data && snap.data.checked) {
-      var remote = migrate(snap.data.checked);
-      Object.keys(remote).forEach(function(k){ state.checked[k] = true; });
-      lsSet(LS.ticks, JSON.stringify(state.checked));
+    if (snap && snap.data) {
+      Object.keys(migrate(snap.data.checked || {})).forEach(function(k){ state.checked[k] = true; });
+      Object.keys(snap.data.muted || {}).forEach(function(k){ state.muted[k] = true; });
+      lsSet(LS.ticks, JSON.stringify(state.checked)); lsSet(LS.muted, JSON.stringify(state.muted));
       applyState();
     }
     store = ref;

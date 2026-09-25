@@ -35,7 +35,13 @@ npm run build           # rebuild ltu-study-tracker.html; fails on any ref that 
 npm run check           # diff the committed inventory against live Canvas (dates, points, new items, announcements)
 npm run announcements   # print the announcements per course
 npm run courses         # list your Canvas courses with ids
+npm run progress        # write data/my-progress.json: what Canvas counts as done for YOUR account (git-ignored)
+npm run build:private   # build ltu-study-tracker.private.html with those Canvas marks filled in (git-ignored, never share)
 ```
+
+The shared page shows, for each material item, whether Canvas has a completion requirement
+(view, mark done, post, submit) as an empty box. Canvas only tells a person about their own
+completion, so the filled-in box exists only in the private build.
 
 After `npm run update`, publish `ltu-study-tracker.html` to the artifact URL above and commit.
 
@@ -60,6 +66,22 @@ Add a term to `TERMS` with `start`, `end`, `courses` and empty `sessions`, `stud
 `notes`. Add each course to `COURSES`. Run `npm run update` once the course exists in Canvas, then
 fill in sessions from its schedule page. `docs/canvas-data-map.md` records where the data lives
 in Canvas and what is and is not machine-readable.
+
+## MUST and NICE
+
+Every item carries a level. By rule: hand-ins, quizzes, exams, items Canvas requires a post or
+submission for, and lab, seminar, interview and exam sessions are MUST; everything else is NICE.
+`must` and `nice` lists on a course in `data/plan.mjs` override the rule by ref (Z7005E
+workshops are MUST that way). Tasks take `"must"` as their last argument.
+
+## Pulse, mute, folding
+
+- **Pulse:** an unfinished MUST or dated item pulses when it is due within 7 days or belongs to a
+  week that has started. The header button turns it off; the choice is remembered.
+- **Mute:** the circle-slash button on any item marks it "not for me". It stays visible, stops
+  pulsing and leaves the counts. Muting is per viewer and stored with the ticks.
+- **Folding:** week cards fold from the chevron by the week number, material blocks fold from
+  their heading. Both are remembered per viewer.
 
 ## Tick boxes
 
