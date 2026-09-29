@@ -69,13 +69,26 @@ in Canvas and what is and is not machine-readable.
 
 ## MUST and NICE
 
-Every item carries a level. By rule: hand-ins, quizzes, exams, items Canvas requires a post or
+Every item carries a level, and every MUST item has a red stripe on its left edge. By rule: hand-ins, quizzes, exams, items Canvas requires a post or
 submission for, and lab, seminar, interview and exam sessions are MUST; everything else is NICE.
 `must` and `nice` lists on a course in `data/plan.mjs` override the rule by ref (Z7005E
 workshops are MUST that way). Tasks take `"must"` as their last argument, and a task listed in
 `TASK_FOR` with the deadline it feeds (`"Z7005E:3013"`) inherits MUST and shows a "for ..." tag.
 Material listed as `prep` for a MUST session is MUST too. Canvas records none of these links,
 so they live in the plan.
+
+## Header and settings
+
+Row 1: study period tabs, then the settings: text size, pulse on or off, course-coloured titles
+(beach ball: unfinished titles take their course colour), and working hours (clock). Row 2: view,
+course filter, jump to Today, progress. Below the sticky header: the courses and period of the
+selected term, then a foldable "About this page".
+
+## Icons
+
+Phosphor duotone icons (MIT, `assets/icons/LICENSE`). `tools/fetch-icons.sh` downloads the list it
+names into `assets/icons/`; the build inlines every SVG there as a hidden sprite, used in the
+template as `ic("name")`. Icons take the text colour they sit in, so they keep its contrast.
 
 ## Pulse, mute, folding
 
