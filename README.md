@@ -80,9 +80,10 @@ so they live in the plan.
 ## Header and settings
 
 Row 1: study period tabs, then the settings: text size, pulse on or off, course-coloured titles
-(beach ball: unfinished titles take their course colour), and working hours (clock). Row 2: view,
-course filter, jump to Today, progress. Below the sticky header: the courses and period of the
-selected term, then a foldable "About this page".
+(beach ball, on by default: unfinished titles take their course colour), "About this page" (question
+mark, a popup), and working hours (clock). Row 2: view, course filter, jump to Today, and one
+progress block (green bar deadlines and tasks, blue bar material). Below the sticky header: the full
+course names of the selected term and its period.
 
 ## Icons
 

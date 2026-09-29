@@ -1,7 +1,7 @@
 <title>LTU Study Tracker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
 <style>
 /* Course colours are slots (--c1 to --c5), assigned per course in data/plan.mjs. */
 :root{
@@ -62,9 +62,10 @@ h1{font-size:20px; letter-spacing:-.015em; margin-right:6px}
 .terms button[aria-selected="true"]{color:var(--ink); border-bottom-color:var(--ink)}
 .terms button .soon{font-weight:500; font-size:11.5px; color:var(--muted); margin-left:5px}
 .settings{margin-left:auto; display:flex; align-items:center; gap:6px; position:relative}
-.meters{display:flex; gap:14px; flex-wrap:wrap; margin-left:auto}
-.meter{display:flex; align-items:center; gap:8px; font-size:12px; color:var(--muted); white-space:nowrap}
-.bar{width:80px; height:6px; border-radius:99px; background:var(--line); overflow:hidden}
+.progress{display:flex; align-items:center; gap:8px; margin-left:auto; font-size:12px; color:var(--muted); white-space:nowrap; cursor:help}
+.progress .pbars{display:flex; flex-direction:column; gap:3px}
+.progress .pnums b{color:var(--ink); font-weight:600}
+.bar{width:90px; height:5px; border-radius:99px; background:var(--line); overflow:hidden}
 .bar span{display:block; height:100%; width:0; background:var(--ok); transition:width .25s ease}
 .bar.mat span{background:var(--now)}
 .seg{display:inline-flex; flex-wrap:wrap; border:1px solid var(--line); border-radius:7px; overflow:hidden; background:var(--surface)}
@@ -82,13 +83,16 @@ h1{font-size:20px; letter-spacing:-.015em; margin-right:6px}
 .pop[open] summary{color:var(--now)}
 .pop .panel{position:absolute; right:0; top:calc(100% + 6px); z-index:30; background:var(--surface); border:1px solid var(--line); border-radius:8px; box-shadow:0 6px 18px rgba(0,0,0,.14); padding:10px 12px; width:max-content; font-size:12.5px; color:var(--muted)}
 .pop .panel p{margin:0 0 6px}
+.pop.about .panel{width:min(540px, calc(100vw - 32px)); white-space:normal; font-size:13px; line-height:1.5; padding:14px 16px}
+.pop.about .panel h3{font-size:14px; color:var(--ink); margin-bottom:6px}
+.pop.about .panel p + p{margin-top:6px}
 .hours input[type=time]{font:inherit; font-size:12.5px; padding:2px 4px; border:1px solid var(--line); border-radius:5px; background:var(--surface); color:var(--ink)}
 .jump{display:inline-flex; align-items:center; gap:4px; font-size:12.5px; font-weight:600; color:var(--now); text-decoration:none}
 .jump:hover{text-decoration:underline}
 
 /* Term line and the collapsible explanation, both below the sticky header */
 .termline{display:flex; flex-wrap:wrap; gap:6px 16px; align-items:center; font-size:13px; color:var(--muted); margin:0 0 12px}
-.termline .course{display:inline-flex; align-items:center; color:var(--ink)}
+.termline .course{color:var(--cc); font-weight:600}
 .info{margin-bottom:26px}
 .info summary{list-style:none; cursor:pointer; display:flex; align-items:center; gap:8px; padding:10px 16px; font-size:13px; font-weight:600; color:var(--muted)}
 .info summary::-webkit-details-marker{display:none}
@@ -170,13 +174,14 @@ a.tag.feeds:hover{border-color:var(--alert)}
 .quick .faces .ph{width:16px; height:16px}
 
 /* ---------- Week cards ---------- */
-.weeks{display:flex; flex-direction:column; gap:14px}
-.week{display:grid; grid-template-columns:104px minmax(0,1fr); gap:0; scroll-margin-top:130px}
+.weeks{--rail:132px; display:flex; flex-direction:column; gap:14px}
+.week{display:grid; grid-template-columns:var(--rail) minmax(0,1fr); gap:0; scroll-margin-top:130px}
 .week.now{border-color:var(--now); box-shadow:0 0 0 1px var(--now)}
 .week .rail{padding:14px 12px 14px 16px; border-right:1px solid var(--line)}
 .week .rail .wk{font-size:17px; font-family:Archivo,sans-serif; font-weight:700; letter-spacing:-.01em; display:flex; align-items:center; gap:4px}
 .week .rail .dates{font-size:11.5px; color:var(--muted); margin-top:2px}
-.week .rail .load{display:flex; align-items:center; gap:4px; font-size:11.5px; color:var(--muted); margin-top:6px; cursor:help}
+.week .rail .load{display:flex; align-items:center; gap:4px; font-family:Archivo,"Arial Narrow",sans-serif; font-stretch:78%; font-size:12.5px; letter-spacing:.01em; color:var(--muted); margin-top:6px; cursor:help; white-space:nowrap}
+.week .rail .load .hv{font-weight:700; font-size:13.5px; color:var(--ink)}
 .week .rail .load + .load{margin-top:2px}
 .week .rail .left{display:none; font-size:11.5px; font-weight:600; color:var(--alert); margin-top:4px}
 .week.collapsed .rail .left{display:inline}
@@ -185,13 +190,13 @@ a.tag.feeds:hover{border-color:var(--alert)}
 .week.collapsed .fold{transform:rotate(-90deg)}
 .week.collapsed .rows,.week.collapsed .quiet{display:none}
 .week.collapsed{grid-template-columns:1fr}
-.week.collapsed .rail{display:flex; flex-wrap:wrap; gap:4px 14px; align-items:baseline; padding:10px 16px; border-right:0}
+.week.collapsed .rail{display:flex; flex-wrap:wrap; gap:4px 14px; align-items:center; padding:10px 16px; border-right:0}
 .week.collapsed .rail .dates,.week.collapsed .rail .load,.week.collapsed .rail .left,.week.collapsed .flag{margin-top:0}
 .flag{display:inline-block; margin-top:8px; font-size:10.5px; letter-spacing:.07em; text-transform:uppercase; color:var(--alert); background:var(--alert-soft); border-radius:4px; padding:2px 6px; font-weight:600}
 .flag.nowflag{color:var(--now); background:var(--now-soft)}
 .week .quiet{padding:14px 16px; color:var(--muted); font-size:13.5px}
 /* The Today playhead reaches left across the rail and peeks out of the card */
-.playhead{position:relative; z-index:2; display:flex; align-items:center; margin:12px 0 6px calc(-16px - 104px - 14px)}
+.playhead{position:relative; z-index:2; display:flex; align-items:center; margin:12px 0 6px calc(-16px - var(--rail) - 14px)}
 .playhead .phl{flex:0 0 auto; font-size:11px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:var(--on-now); background:var(--now); border-radius:99px; padding:3px 10px; box-shadow:0 0 0 3px var(--bg)}
 .playhead::after{content:""; flex:1 1 auto; height:2px; background:var(--now); border-radius:2px}
 
@@ -279,7 +284,7 @@ footer p{margin:0 0 6px}
   .playhead{margin-left:-26px}
   .row .when{flex-basis:64px}
   .day{grid-template-columns:1fr}
-  .settings,.meters{margin-left:0}
+  .settings,.progress{margin-left:0}
 }
 </style>
 
@@ -295,8 +300,23 @@ footer p{margin:0 0 6px}
           <span class="lbl" title="Text size"><svg class="ic"><use href="#i-text-aa"/></svg></span>
           <button type="button" id="size-up" title="Larger text" aria-label="Larger text"><svg class="ic sm"><use href="#i-plus"/></svg></button>
           <button type="button" id="ping-toggle" title="Pulse unfinished items due within the coming week" aria-pressed="true"><svg class="ic"><use href="#i-pulse"/></svg></button>
-          <button type="button" id="color-toggle" title="Colour unfinished titles by course" aria-pressed="false"><svg class="ic"><use href="#i-beach-ball"/></svg></button>
+          <button type="button" id="color-toggle" title="Colour unfinished titles by course" aria-pressed="true"><svg class="ic"><use href="#i-beach-ball"/></svg></button>
         </div>
+        <details class="pop about" id="about-pop">
+          <summary title="About this page" aria-label="About this page"><svg class="ic"><use href="#i-question"/></svg></summary>
+          <div class="panel">
+            <h3>About this page</h3>
+            <p>Every course in one place: sessions to attend, deadlines from Canvas, and the material buried in the Canvas modules, each with a link. Pick the study period and your courses at the top. <strong>Day</strong> shows one day with what is due soon and the free time for group work, <strong>All deadlines</strong> is the flat list.</p>
+            <p>Tick boxes are yours alone. On claude.ai they follow your account, otherwise they stay in this browser. The <svg class="ic sm"><use href="#i-prohibit"/></svg> button mutes an item that is not for you: it stays visible, stops pulsing and leaves the counts.</p>
+            <div class="legend">
+              <span><span class="lvl must">MUST</span>graded, required, a session you cannot miss, or what one of those depends on. Red stripe.</span>
+              <span><span class="lvl nice">NICE</span>readings, videos, recordings: helps, not required</span>
+              <span><svg class="ic sm"><use href="#i-circle-dashed"/></svg> Canvas tracks this item (view, post, mark done, submit)</span>
+              <span><svg class="ic sm"><use href="#i-pulse"/></svg> pulse &nbsp;<svg class="ic sm"><use href="#i-beach-ball"/></svg> course colours &nbsp;<svg class="ic sm"><use href="#i-clock"/></svg> working hours</span>
+              <span>Progress: green is deadlines and tasks, blue is material.</span>
+            </div>
+          </div>
+        </details>
         <details class="pop hours" id="hours-pop">
           <summary title="Working hours, used for the free time shown per day"><svg class="ic"><use href="#i-clock"/></svg></summary>
           <div class="panel"><p>Working hours, used for the free time per day</p>
@@ -312,28 +332,15 @@ footer p{margin:0 0 6px}
       </div>
       <div class="seg" role="group" aria-label="Show courses" id="filter"></div>
       <a class="jump" id="jump" href="#" hidden><svg class="ic"><use href="#i-arrow-line-down"/></svg>Today</a>
-      <div class="meters">
-        <div class="meter"><span id="pcount"></span><span class="bar"><span id="pbar"></span></span></div>
-        <div class="meter"><span id="mcount"></span><span class="bar mat"><span id="mbar"></span></span></div>
+      <div class="progress" title="Ticked so far. Green: deadlines and tasks. Blue: material. Muted items are left out.">
+        <span class="pbars"><span class="bar"><span id="pbar"></span></span><span class="bar mat"><span id="mbar"></span></span></span>
+        <span class="pnums"><span id="pcount"></span> &middot; <span id="mcount"></span></span>
       </div>
     </div>
   </header>
 
   <div class="termline" id="termline"></div>
 
-  <details class="card info" id="info" data-key="info">
-    <summary><svg class="ic"><use href="#i-info"/></svg>About this page<svg class="ic caret"><use href="#i-caret-down"/></svg></summary>
-    <div class="body">
-      <p>Every course in one place: sessions to attend, deadlines from Canvas, and the material buried in the Canvas modules, each with a link. Pick the study period and your courses at the top. <strong>Day</strong> shows one day with what is due soon and the free time for group work, <strong>All deadlines</strong> is the flat list.</p>
-      <p>Tick boxes are yours alone. On claude.ai they follow your account, otherwise they stay in this browser. Green counts deadlines and tasks, blue counts material. The <svg class="ic sm"><use href="#i-prohibit"/></svg> button mutes an item that is not for you: it stays visible, stops pulsing and leaves the counts.</p>
-      <div class="legend">
-        <span><span class="lvl must">MUST</span>graded, required, a session you cannot miss, or what one of those depends on. Red stripe.</span>
-        <span><span class="lvl nice">NICE</span>readings, videos, recordings: helps, not required</span>
-        <span><svg class="ic sm"><use href="#i-circle-dashed"/></svg> Canvas tracks this item (view, post, mark done, submit)</span>
-        <span><svg class="ic sm"><use href="#i-pulse"/></svg> pulse &nbsp;<svg class="ic sm"><use href="#i-beach-ball"/></svg> course colours &nbsp;<svg class="ic sm"><use href="#i-clock"/></svg> working hours</span>
-      </div>
-    </div>
-  </details>
 
   <div id="termbody"></div>
 
@@ -349,7 +356,7 @@ footer p{margin:0 0 6px}
 /* ---------- Helpers ---------- */
 const P = DATA.plan, INV = DATA.inventory, COURSES = P.COURSES, TEACHERS = P.TEACHERS, TERMS = P.TERMS, PROGRESS = DATA.progress || null;
 const LS = { hours: "ltu-plan-hours", ticks: "ltu-plan-ticks", muted: "ltu-plan-muted", filter: "ltu-plan-filter", term: "ltu-plan-term", view: "ltu-plan-view", open: "ltu-plan-open", weeks: "ltu-plan-weeks", size: "ltu-plan-size", ping: "ltu-plan-ping", colored: "ltu-plan-colored", legacy: "lp2-shared-ticks" };
-const state = { checked: {}, muted: {}, filter: "all", term: null, view: "week", day: null, open: {}, weeks: {}, size: 100, ping: true, colored: false, hours: { start: "09:00", end: "17:00" } };
+const state = { checked: {}, muted: {}, filter: "all", term: null, view: "week", day: null, open: {}, weeks: {}, size: 100, ping: true, colored: true, hours: { start: "09:00", end: "17:00" } };
 let store = null, saveTimer = null;
 
 function esc(s){ return String(s == null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
@@ -597,7 +604,7 @@ function renderWeekView(t){
     var collapsed = state.weeks[mon] === false;
     return '<div class="card week' + (isNow ? ' now' : '') + (collapsed ? ' collapsed' : '') + '" id="week-' + t.id + '-' + i + '" data-week="' + mon + '">' +
       '<div class="rail"><div class="wk mono"><button type="button" class="fold" data-fold="' + mon + '" aria-label="Fold or unfold the week">' + ic("caret-down") + '</button>v' + isoWeek(mon) + '</div><div class="dates">' + esc(weekDates(mon)) + '</div>' +
-      (mins ? '<div class="load" title="Rough time for this week: the material estimates plus the effort the course states for its hand-ins">' + ic("hourglass-medium", "sm") + fmtMin(mins) + ' of work</div>' : '') +
+      (mins ? '<div class="load" title="Rough time for this week: the material estimates plus the effort the course states for its hand-ins">' + ic("hourglass-medium", "sm") + '<b class="hv">' + fmtMin(mins) + '</b> of work</div>' : '') +
       '<div class="load freeh" title="Working hours not taken by sessions, Monday to Friday"></div>' +
       '<div class="left"></div>' +
       (isNow ? '<div class="flag nowflag">this week</div>' : '') + (flag ? '<div class="flag">' + esc(flag) + '</div>' : '') + '</div>' + body + '</div>';
@@ -682,7 +689,7 @@ function renderFilter(t){
   if (state.filter !== "all" && t.courses.indexOf(state.filter) < 0) state.filter = "all";
 }
 function renderTermLine(t){
-  document.getElementById("termline").innerHTML = t.courses.map(function(c){ return '<span class="course" data-course="' + c + '">' + chip(c) + esc(COURSES[c].name) + '</span>'; }).join("") +
+  document.getElementById("termline").innerHTML = t.courses.map(function(c){ return '<span class="course" data-course="' + c + '" style="' + colorVars(c) + '" title="' + esc(label(c)) + '">' + esc(COURSES[c].name) + '</span>'; }).join("") +
     '<span>' + ic("calendar", "sm") + ' ' + esc(t.period) + '</span>';
 }
 function renderTerm(){
@@ -736,7 +743,7 @@ function applyFree(){
       known[d] = wins.reduce(function(s, x){ return s + x[1] - x[0]; }, 0);
     });
     for (var i = 0; i < 5; i++) { var d = addDays(w.dataset.week, i); sum += known[d] != null ? known[d] : Math.max(0, dayMin); }
-    var fe = w.querySelector(".freeh"); if (fe) fe.innerHTML = dayMin > 0 ? ic("users-three", "sm") + "~" + fmtH(sum) + " free" : "";
+    var fe = w.querySelector(".freeh"); if (fe) fe.innerHTML = dayMin > 0 ? ic("users-three", "sm") + '<b class="hv">~' + fmtH(sum) + '</b> free' : "";
   });
   var fd = document.querySelector("[data-freeday]");
   if (fd) {
@@ -786,11 +793,11 @@ function applyState(){
     if (el) { el.textContent = total ? (left ? left + " left" : "all done") : ""; el.classList.toggle("clear", total > 0 && left === 0); }
   });
   var all = countTerm(term());
-  document.getElementById("pcount").textContent = "Deadlines and tasks " + all.work[0] + "/" + all.work[1];
+  document.getElementById("pcount").innerHTML = "<b>" + all.work[0] + "/" + all.work[1] + "</b> tasks";
   document.getElementById("pbar").style.width = (all.work[1] ? all.work[0] / all.work[1] * 100 : 0) + "%";
-  document.getElementById("mcount").textContent = "Material " + all.mat[0] + "/" + all.mat[1];
+  document.getElementById("mcount").innerHTML = "<b>" + all.mat[0] + "/" + all.mat[1] + "</b> material";
   document.getElementById("mbar").style.width = (all.mat[1] ? all.mat[0] / all.mat[1] * 100 : 0) + "%";
-  document.querySelector(".meters").hidden = !all.work[1] && !all.mat[1];
+  document.querySelector(".progress").hidden = !all.work[1] && !all.mat[1];
 }
 // Counts cover the whole term, not only the view on screen. Muted items are left out.
 function countTerm(t){
@@ -807,7 +814,6 @@ function applyDisplay(){
   document.getElementById("color-toggle").setAttribute("aria-pressed", String(state.colored));
   document.querySelector(".hstart").value = state.hours.start;
   document.querySelector(".hend").value = state.hours.end;
-  document.getElementById("info").open = state.open.info !== false;
 }
 function save(){
   lsSet(LS.ticks, JSON.stringify(state.checked));
@@ -868,7 +874,7 @@ state.open = lsJson(LS.open) || {};
 state.weeks = lsJson(LS.weeks) || {};
 state.size = Number(lsGet(LS.size)) || 100;
 state.ping = lsGet(LS.ping) !== "0";
-state.colored = lsGet(LS.colored) === "1";
+state.colored = lsGet(LS.colored) !== "0";
 var sh = lsJson(LS.hours); if (sh && toMin(sh.start) != null && toMin(sh.end) != null) state.hours = sh;
 state.filter = lsGet(LS.filter) || "all";
 var sv = lsGet(LS.view); if (sv === "day" || sv === "all" || sv === "week") state.view = sv;
