@@ -79,9 +79,11 @@ so they live in the plan.
 
 ## Header and settings
 
-Row 1: study period tabs, then the settings: text size, pulse on or off, course-coloured titles
-(beach ball, on by default: unfinished titles take their course colour), "About this page" (question
-mark, a popup), and working hours (clock). Row 2: view, course filter, jump to Today, and one
+Row 1: study period tabs, then the settings: text size, pulse on or off (target), course-coloured
+titles (beach ball, on by default: unfinished titles take their course colour), theme (light, dark,
+or follow the system; "system" hands control back to the viewer's own theme), "About this page"
+(question mark, a popup), and working hours (clock). Every link into Canvas ends with the
+external-link mark. Row 2: view, course filter, jump to Today, and one
 progress block (green bar deadlines and tasks, blue bar material). Below the sticky header: the full
 course names of the selected term and its period.
 

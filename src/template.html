@@ -62,12 +62,11 @@ h1{font-size:20px; letter-spacing:-.015em; margin-right:6px}
 .terms button[aria-selected="true"]{color:var(--ink); border-bottom-color:var(--ink)}
 .terms button .soon{font-weight:500; font-size:11.5px; color:var(--muted); margin-left:5px}
 .settings{margin-left:auto; display:flex; align-items:center; gap:6px; position:relative}
-.progress{display:flex; align-items:center; gap:8px; margin-left:auto; font-size:12px; color:var(--muted); white-space:nowrap; cursor:help}
-.progress .pbars{display:flex; flex-direction:column; gap:3px}
-.progress .pnums b{color:var(--ink); font-weight:600}
+.progress{display:grid; grid-template-columns:auto auto; align-items:center; gap:3px 8px; margin-left:auto; font-size:11.5px; line-height:1.2; color:var(--muted); white-space:nowrap; cursor:help}
+.progress b{color:var(--ink); font-weight:600}
 .bar{width:90px; height:5px; border-radius:99px; background:var(--line); overflow:hidden}
 .bar span{display:block; height:100%; width:0; background:var(--ok); transition:width .25s ease}
-.bar.mat span{background:var(--now)}
+.bar.matbar span{background:var(--now)}
 .seg{display:inline-flex; flex-wrap:wrap; border:1px solid var(--line); border-radius:7px; overflow:hidden; background:var(--surface)}
 .seg button,.seg .lbl{display:inline-flex; align-items:center; gap:5px; font-size:12.5px; font-weight:600; color:var(--muted); background:transparent; border:0; border-left:1px solid var(--line); padding:5px 10px; cursor:pointer}
 .seg .lbl{cursor:default; padding-inline:4px; border-left:0}
@@ -101,7 +100,7 @@ h1{font-size:20px; letter-spacing:-.015em; margin-right:6px}
 .info .body{padding:0 18px 12px; color:var(--muted); font-size:13.5px}
 .info .body p{margin:0; max-width:76ch}
 .info .body p + p{margin-top:5px}
-.legend{display:flex; flex-wrap:wrap; gap:8px 18px; font-size:12.5px; color:var(--muted); margin-top:10px}
+.legend{display:flex; flex-direction:column; gap:6px; font-size:12.5px; color:var(--muted); margin-top:10px}
 
 section{margin-bottom:30px}
 .sechead{display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; margin-bottom:12px}
@@ -164,6 +163,7 @@ a.tag.feeds:hover{border-color:var(--alert)}
 .links{display:flex; flex-wrap:wrap; gap:6px; margin-top:5px}
 .links a{display:inline-flex; align-items:center; gap:4px; font-size:11.5px; line-height:1.4; text-decoration:none; color:var(--ink); background:var(--surface-2); border:1px solid var(--line); border-radius:5px; padding:2px 7px}
 .links a .ic{color:var(--muted)}
+.ic.ext{width:.85em; height:.85em; color:var(--muted); margin-left:2px; vertical-align:-.1em}
 .links a:hover{border-color:var(--ink)}
 .links a:focus-visible,.quick a:focus-visible{outline:2px solid var(--ok); outline-offset:1px}
 .quick{display:flex; flex-wrap:wrap; gap:8px}
@@ -299,8 +299,13 @@ footer p{margin:0 0 6px}
           <button type="button" id="size-down" title="Smaller text" aria-label="Smaller text"><svg class="ic sm"><use href="#i-minus"/></svg></button>
           <span class="lbl" title="Text size"><svg class="ic"><use href="#i-text-aa"/></svg></span>
           <button type="button" id="size-up" title="Larger text" aria-label="Larger text"><svg class="ic sm"><use href="#i-plus"/></svg></button>
-          <button type="button" id="ping-toggle" title="Pulse unfinished items due within the coming week" aria-pressed="true"><svg class="ic"><use href="#i-pulse"/></svg></button>
+          <button type="button" id="ping-toggle" title="Red pulsing ring on unfinished items due within the coming week" aria-pressed="true"><svg class="ic"><use href="#i-target"/></svg></button>
           <button type="button" id="color-toggle" title="Colour unfinished titles by course" aria-pressed="true"><svg class="ic"><use href="#i-beach-ball"/></svg></button>
+        </div>
+        <div class="seg tools" role="group" aria-label="Theme" id="theme">
+          <button type="button" data-theme-set="light" title="Light" aria-label="Light theme"><svg class="ic"><use href="#i-sun"/></svg></button>
+          <button type="button" data-theme-set="dark" title="Dark" aria-label="Dark theme"><svg class="ic"><use href="#i-moon"/></svg></button>
+          <button type="button" data-theme-set="system" title="Follow the system" aria-label="System theme"><svg class="ic"><use href="#i-desktop"/></svg></button>
         </div>
         <details class="pop about" id="about-pop">
           <summary title="About this page" aria-label="About this page"><svg class="ic"><use href="#i-question"/></svg></summary>
@@ -312,7 +317,9 @@ footer p{margin:0 0 6px}
               <span><span class="lvl must">MUST</span>graded, required, a session you cannot miss, or what one of those depends on. Red stripe.</span>
               <span><span class="lvl nice">NICE</span>readings, videos, recordings: helps, not required</span>
               <span><svg class="ic sm"><use href="#i-circle-dashed"/></svg> Canvas tracks this item (view, post, mark done, submit)</span>
-              <span><svg class="ic sm"><use href="#i-pulse"/></svg> pulse &nbsp;<svg class="ic sm"><use href="#i-beach-ball"/></svg> course colours &nbsp;<svg class="ic sm"><use href="#i-clock"/></svg> working hours</span>
+              <span><svg class="ic sm"><use href="#i-target"/></svg> turns on a red pulsing ring around the tick box of anything unfinished that is overdue or due within the coming seven days. Nothing further ahead pulses.</span>
+              <span><span class="tag expected" style="margin-left:0">expected</span> a Z0025E lecture whose date and time come from the course Homepage timetable, but which lecture it is comes from module order. The teacher has not named it yet; the weekly announcement confirms or moves it.</span>
+              <span><svg class="ic sm"><use href="#i-beach-ball"/></svg> course colours &nbsp;<svg class="ic sm"><use href="#i-clock"/></svg> working hours &nbsp;<svg class="ic sm"><use href="#i-sun"/></svg><svg class="ic sm"><use href="#i-moon"/></svg><svg class="ic sm"><use href="#i-desktop"/></svg> theme</span>
               <span>Progress: green is deadlines and tasks, blue is material.</span>
             </div>
           </div>
@@ -333,8 +340,8 @@ footer p{margin:0 0 6px}
       <div class="seg" role="group" aria-label="Show courses" id="filter"></div>
       <a class="jump" id="jump" href="#" hidden><svg class="ic"><use href="#i-arrow-line-down"/></svg>Today</a>
       <div class="progress" title="Ticked so far. Green: deadlines and tasks. Blue: material. Muted items are left out.">
-        <span class="pbars"><span class="bar"><span id="pbar"></span></span><span class="bar mat"><span id="mbar"></span></span></span>
-        <span class="pnums"><span id="pcount"></span> &middot; <span id="mcount"></span></span>
+        <span class="bar"><span id="pbar"></span></span><span id="pcount"></span>
+        <span class="bar matbar"><span id="mbar"></span></span><span id="mcount"></span>
       </div>
     </div>
   </header>
@@ -355,8 +362,8 @@ footer p{margin:0 0 6px}
 
 /* ---------- Helpers ---------- */
 const P = DATA.plan, INV = DATA.inventory, COURSES = P.COURSES, TEACHERS = P.TEACHERS, TERMS = P.TERMS, PROGRESS = DATA.progress || null;
-const LS = { hours: "ltu-plan-hours", ticks: "ltu-plan-ticks", muted: "ltu-plan-muted", filter: "ltu-plan-filter", term: "ltu-plan-term", view: "ltu-plan-view", open: "ltu-plan-open", weeks: "ltu-plan-weeks", size: "ltu-plan-size", ping: "ltu-plan-ping", colored: "ltu-plan-colored", legacy: "lp2-shared-ticks" };
-const state = { checked: {}, muted: {}, filter: "all", term: null, view: "week", day: null, open: {}, weeks: {}, size: 100, ping: true, colored: true, hours: { start: "09:00", end: "17:00" } };
+const LS = { hours: "ltu-plan-hours", ticks: "ltu-plan-ticks", muted: "ltu-plan-muted", filter: "ltu-plan-filter", term: "ltu-plan-term", view: "ltu-plan-view", open: "ltu-plan-open", weeks: "ltu-plan-weeks", size: "ltu-plan-size", ping: "ltu-plan-ping", colored: "ltu-plan-colored", theme: "ltu-plan-theme", legacy: "lp2-shared-ticks" };
+const state = { checked: {}, muted: {}, filter: "all", term: null, view: "week", day: null, open: {}, weeks: {}, size: 100, ping: true, colored: true, theme: "system", hours: { start: "09:00", end: "17:00" } };
 let store = null, saveTimer = null;
 
 function esc(s){ return String(s == null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
@@ -509,9 +516,12 @@ function faces(code){
   return '<span class="faces" style="' + colorVars(code) + '" title="' + esc(people.map(function(p){ return p.name; }).join(", ")) + '">' +
     people.map(function(p){ return '<span class="ph"><img src="' + p.photo + '" alt="" width="18" height="18"></span>'; }).join("") + '</span>';
 }
+// Links into Canvas end with the external-link mark, so it is clear they leave the page for Canvas.
+function isCanvas(url){ return /instructure\.com\//.test(url); }
+function ext(url){ return isCanvas(url) ? ic("arrow-square-out", "sm ext") : ""; }
 function links(list){
   if (!list || !list.length) return "";
-  return '<span class="links">' + list.map(function(l){ var i = LINK_ICON[l[0]]; return '<a href="' + esc(l[1]) + '" target="_blank" rel="noopener">' + (i ? ic(i, "sm") : '') + esc(l[0]) + '</a>'; }).join("") + '</span>';
+  return '<span class="links">' + list.map(function(l){ var i = LINK_ICON[l[0]]; return '<a href="' + esc(l[1]) + '" target="_blank" rel="noopener">' + (i ? ic(i, "sm") : '') + esc(l[0]) + ext(l[1]) + '</a>'; }).join("") + '</span>';
 }
 function lvl(level){ return '<span class="lvl ' + level + '">' + (level === "must" ? "MUST" : "NICE") + '</span>'; }
 function box(id){ return '<span class="box"><span class="ring"></span><input type="checkbox" id="' + esc(id) + '"></span>'; }
@@ -531,12 +541,12 @@ function rowIcon(r){
 function row(r, opts){
   opts = opts || {};
   var tags = "";
-  if (r.status === "expected") tags += '<span class="tag expected">expected</span>';
+  if (r.status === "expected") tags += '<span class="tag expected" title="Date from the Homepage timetable, lecture number from module order. Not yet named by the teacher.">expected</span>';
   if (r.pts) tags += '<span class="tag pts">' + esc(r.pts) + '</span>';
   if (r.feeds) tags += '<a class="tag feeds" href="' + esc(r.feeds.url) + '" target="_blank" rel="noopener" title="This task feeds this deadline, open it in Canvas">for ' + esc(r.feeds.title) + (r.feeds.date ? ", " + esc(dayLabel(r.feeds.date)) : "") + ' ' + ic("arrow-square-out", "sm") + '</a>';
   var est = r.est ? ' <span class="est">' + fmtMin(r.est) + ' of work</span>' : '';
   var kindTitle = r.kind === "session" ? (SESSION_KIND[r.skind] || "") : r.kind === "deadline" ? (KIND[r.akind] || "") : "";
-  var text = '<span class="t" title="' + esc(kindTitle) + '">' + chip(r.code) + lvl(r.level) + rowIcon(r) + '<span class="tt">' + esc(r.title) + '</span>' + tags + est + '</span>' + (r.why ? '<span class="why">' + esc(r.why) + '</span>' : '');
+  var text = '<span class="t">' + chip(r.code) + lvl(r.level) + (kindTitle ? '<span title="' + esc(kindTitle) + '">' + rowIcon(r) + '</span>' : rowIcon(r)) + '<span class="tt">' + esc(r.title) + '</span>' + tags + est + '</span>' + (r.why ? '<span class="why">' + esc(r.why) + '</span>' : '');
   var prep = r.prep && r.prep.length ? '<span class="why">Before it: ' + esc(r.prep.map(function(i){ return (i.number || "") + " " + i.title; }).join(", ").slice(0, 160)) + '</span>' : '';
   var inner = r.id ? '<label for="' + esc(r.id) + '">' + text + '</label>' : '<span class="block">' + text + '</span>';
   var cls = "row " + r.kind + " lvl-" + r.level + (r.id && endangeredRow(r) ? " endangered" : "");
@@ -571,7 +581,7 @@ function matBlock(b, titleText){
 }
 function annBlock(a, code){
   return '<div class="ann" data-course="' + code + '">' + ic("megaphone") + '<div><span class="k">From the teacher, ' + esc(longDay(a.posted)) + '</span>' + chip(code) +
-    '<a href="' + esc(a.url) + '" target="_blank" rel="noopener">' + esc(a.title) + '</a>' + (a.text ? ' <span class="why" style="display:inline;color:var(--muted)">' + esc(a.text.slice(0, 220)) + (a.text.length > 220 ? "\u2026" : "") + '</span>' : '') + '</div></div>';
+    '<a href="' + esc(a.url) + '" target="_blank" rel="noopener">' + esc(a.title) + ext(a.url) + '</a>' + (a.text ? ' <span class="why" style="display:inline;color:var(--muted)">' + esc(a.text.slice(0, 220)) + (a.text.length > 220 ? "\u2026" : "") + '</span>' : '') + '</div></div>';
 }
 // Rows of one week, grouped under day headings, with the Today playhead in the current week.
 function groupedRows(wr, mon, today){
@@ -653,7 +663,7 @@ function renderQuick(t){
   t.courses.forEach(function(c){ (COURSES[c].quick || []).forEach(function(q){ out.push([c, q[0], q[1]]); }); });
   if (!out.length) return "";
   return '<section><div class="sechead"><h2>Straight to Canvas</h2><span class="note">the pages you open most</span></div><div class="quick">' + out.map(function(q){
-    return '<a href="' + esc(q[2]) + '" target="_blank" rel="noopener" data-course="' + q[0] + '" style="' + colorVars(q[0]) + '"><span class="k" title="' + esc(COURSES[q[0]].name + " " + q[0]) + '">' + faces(q[0]) + esc(label(q[0])) + '</span>' + esc(q[1]) + '</a>';
+    return '<a href="' + esc(q[2]) + '" target="_blank" rel="noopener" data-course="' + q[0] + '" style="' + colorVars(q[0]) + '"><span class="k" title="' + esc(COURSES[q[0]].name + " " + q[0]) + '">' + faces(q[0]) + esc(label(q[0])) + '</span>' + esc(q[1]) + ' ' + ext(q[2]) + '</a>';
   }).join("") + '</div></section>';
 }
 function renderCourses(t){
@@ -806,7 +816,16 @@ function countTerm(t){
   studyBlocks(t).forEach(function(b){ if (f !== "all" && b.code !== f) return; b.items.forEach(function(i){ var id = "m:" + b.code + ":" + i.id; if (state.muted[id]) return; mat[1]++; if (state.checked[id]) mat[0]++; }); });
   return { work: work, mat: mat };
 }
+// The viewer's own theme stamp, kept so "system" can hand control back to it.
+var hostTheme = document.documentElement.getAttribute("data-theme");
+function applyTheme(){
+  var root = document.documentElement;
+  if (state.theme === "light" || state.theme === "dark") root.setAttribute("data-theme", state.theme);
+  else if (hostTheme) root.setAttribute("data-theme", hostTheme); else root.removeAttribute("data-theme");
+  document.querySelectorAll("#theme button").forEach(function(b){ b.setAttribute("aria-pressed", String(b.dataset.themeSet === state.theme)); });
+}
 function applyDisplay(){
+  applyTheme();
   document.getElementById("wrap").style.zoom = state.size / 100;
   document.body.classList.toggle("noping", !state.ping);
   document.body.classList.toggle("colored", state.colored);
@@ -853,6 +872,7 @@ document.addEventListener("click", function(e){
   else if (b.id === "day-today") { state.day = todayIso(); renderTerm(); }
   else if (b.id === "size-down" || b.id === "size-up") { state.size = Math.min(150, Math.max(70, state.size + (b.id === "size-up" ? 10 : -10))); lsSet(LS.size, String(state.size)); applyDisplay(); }
   else if (b.id === "ping-toggle") { state.ping = !state.ping; lsSet(LS.ping, state.ping ? "1" : "0"); applyDisplay(); }
+  else if (b.dataset.themeSet) { state.theme = b.dataset.themeSet; lsSet(LS.theme, state.theme); applyTheme(); }
   else if (b.id === "color-toggle") { state.colored = !state.colored; lsSet(LS.colored, state.colored ? "1" : "0"); applyDisplay(); }
 });
 // Remember each foldable block's state. "toggle" does not bubble, so listen in the capture phase.
@@ -875,6 +895,7 @@ state.weeks = lsJson(LS.weeks) || {};
 state.size = Number(lsGet(LS.size)) || 100;
 state.ping = lsGet(LS.ping) !== "0";
 state.colored = lsGet(LS.colored) !== "0";
+var th = lsGet(LS.theme); if (th === "light" || th === "dark" || th === "system") state.theme = th;
 var sh = lsJson(LS.hours); if (sh && toMin(sh.start) != null && toMin(sh.end) != null) state.hours = sh;
 state.filter = lsGet(LS.filter) || "all";
 var sv = lsGet(LS.view); if (sv === "day" || sv === "all" || sv === "week") state.view = sv;
