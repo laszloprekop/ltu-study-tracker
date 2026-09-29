@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-25T11:27:09.422Z",
+ "generatedAt": "2026-09-29T20:33:36.821Z",
  "courses": {
   "Z7005E": {
    "canvasId": 613,
@@ -848,8 +848,8 @@
        "section": null,
        "url": "https://ltuedu.instructure.com/courses/613/modules/items/19681",
        "indent": 1,
-       "words": 18,
-       "videos": 2,
+       "words": 6,
+       "videos": 1,
        "files": 2,
        "minutes": null
       },
@@ -912,8 +912,8 @@
        "section": null,
        "url": "https://ltuedu.instructure.com/courses/613/modules/items/19685",
        "indent": 1,
-       "words": 8,
-       "videos": 2,
+       "words": 6,
+       "videos": 1,
        "files": 2,
        "minutes": null
       },
@@ -2345,10 +2345,10 @@
        "url": "https://ltuedu.instructure.com/courses/614/modules/items/19916",
        "indent": 1,
        "req": "must_mark_done",
-       "words": 2414,
-       "videos": 3,
-       "files": 7,
-       "minutes": 60
+       "words": 2435,
+       "videos": 6,
+       "files": 11,
+       "minutes": 95
       },
       {
        "id": 19918,
@@ -3418,6 +3418,13 @@
      "posted": "2026-09-21",
      "url": "https://ltuedu.instructure.com/courses/614/discussion_topics/4000",
      "text": "Dear All, Welcome to Week 2 of Z0025E Computer Networks! This week is a self-paced learning week . There are no scheduled lectures. Instead, you should work through Lecture 2 and Lecture 3 independently in Canvas . The two lectures continue our introduction to computer networks before moving into the Application Layer . Please work through the lecture material, reflection questions, Knowledge Checks, and associated learning activities provided on each Canvas page. You should also continue working on Lab 1 , with the Lab 1 report due on Friday . Week 2 Outlook 🧠 Lecture 2 – The Network Core, N"
+    },
+    {
+     "id": 4087,
+     "title": "Welcome to Week 3",
+     "posted": "2026-09-28",
+     "url": "https://ltuedu.instructure.com/courses/614/discussion_topics/4087",
+     "text": "Dear All, Welcome to Week 3 of Z0025E Computer Networks! This week we return to our scheduled lectures on Zoom and continue with the Application Layer before beginning our study of the Transport Layer . We will cover Lecture 4 and Lecture 5 , building on the self-paced material from last week. We also have Lab 2 on Friday . Please remember to sign up for a lab assessment session in Canvas before Friday . Week 3 Outlook 🎓 Monday, 28 September – Lecture 4 (09:00–10:30, Zoom). We will continue with the Application Layer, focusing on Web and HTTP, P2P applications, video streaming, and Content Di"
     }
    ]
   }

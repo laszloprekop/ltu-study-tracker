@@ -103,9 +103,9 @@ const SESSIONS_LP2 = [
 
   // Z0025E, from the Homepage slot table. Lecture numbers by module order until an announcement confirms them.
   S("Z0025E", "2026-09-17", "14:30", "16:00", "lecture", "Lecture 1, computer networks and the Internet", { ref: "1.3", status: "confirmed" }),
-  S("Z0025E", "2026-09-28", "09:00", "10:30", "lecture", "Lecture 4, web and HTTP, P2P, video streaming", { ref: "2.4", status: "expected" }),
-  S("Z0025E", "2026-09-30", "13:00", "14:30", "lecture", "Lecture 5, reliable data transfer and TCP", { ref: "3.2", status: "expected" }),
-  S("Z0025E", "2026-10-02", "13:00", "15:00", "lab", "Lab 2 session, Packet Tracer skills 1 to 5", { ref: "9.5" }),
+  S("Z0025E", "2026-09-28", "09:00", "10:30", "lecture", "Lecture 4, web and HTTP, P2P, video streaming", { ref: "2.4", status: "confirmed" }),
+  S("Z0025E", "2026-09-30", "13:00", "14:30", "lecture", "Lecture 5, reliable data transfer and TCP", { ref: "3.2", status: "confirmed" }),
+  S("Z0025E", "2026-10-02", "13:00", "15:00", "lab", "Lab 2 session, Packet Tracer skills 1 to 5", { ref: "9.5", why: "Attend the group's booked assessment session. Sign up in Canvas before Friday (announced 28 Sep)." }),
   S("Z0025E", "2026-10-05", "09:00", "10:30", "lecture", "Lecture 6, TCP flow and congestion control", { ref: "3.3", status: "expected" }),
   S("Z0025E", "2026-10-06", "09:00", "10:30", "lecture", "Lecture 8, network layer, inside a router, IP", { ref: "4.2", status: "expected" }),
   S("Z0025E", "2026-10-12", "09:00", "10:30", "lecture", "Lecture 9, NAT, IPv6, generalized forwarding", { ref: "4.3", status: "expected" }),
