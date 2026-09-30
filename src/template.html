@@ -336,9 +336,9 @@ svg.showall .gn.item:not(.hl):not(.sel):not(.hover):not(.cur) .lab,svg.showall .
 svg.showall .ge.lvsection:not(.hl),svg.showall .ge.lvitem:not(.hl){opacity:.08}
 .gn{cursor:pointer; transition:opacity .4s ease}
 .ge{transition:opacity .45s ease, stroke-width .3s ease}
-.gn circle.body,.gn rect{transition:stroke .3s ease, fill .3s ease, stroke-width .3s ease}
+.gn circle.body,.gn path.pill{transition:stroke .3s ease, fill .3s ease, stroke-width .3s ease}
 .gn .sub,.gn .lab{transition:opacity .3s ease}
-@media (prefers-reduced-motion:reduce){ .gn,.ge,.gn circle.body,.gn rect,.gn .sub,.gn .lab{transition:none} }
+@media (prefers-reduced-motion:reduce){ .gn,.ge,.gn circle.body,.gn path.pill,.gn .sub,.gn .lab{transition:none} }
 svg.focus .gn:not(.hl){opacity:.22}
 svg.focus .ge:not(.hl):not(.tl){opacity:.04}
 /* a lit chain is fully opaque; only the widths keep the trunk-to-twig order */
@@ -348,7 +348,7 @@ svg.focus .ge.lvsection.hl{stroke-width:2.6}
 svg.focus .ge.lvitem.hl,svg.focus .ge.dep.hl{stroke-width:1.8}
 svg.focus .ge.tl.hl{stroke:var(--now)}
 .gwrap svg{cursor:grab}
-.gn rect{fill:var(--cc); stroke:none}
+.gn path.pill{fill:var(--cc); stroke:none}
 .gn circle.body{fill:var(--cc); stroke:none}
 .gn.section circle.body{opacity:.8}
 .gn .gl{font-family:Archivo,sans-serif; font-weight:700; font-size:12px; fill:var(--on-now)}
@@ -366,10 +366,10 @@ svg.focus .ge.tl.hl{stroke:var(--now)}
 .gn.cur circle.body{stroke:var(--now); stroke-width:2}
 .gn.sel circle.body{stroke:var(--now); stroke-width:3.5}
 .gn text{font-family:"Public Sans","Helvetica Neue",Arial,sans-serif; font-size:12px; fill:var(--ink)}
-.gn.time rect{fill:var(--cc)}
+.gn.time path.pill{fill:var(--cc)}
 .gn.time text{font-size:10px; font-family:"IBM Plex Mono",ui-monospace,monospace; fill:var(--on-now)}
-.gn.time.deadline rect{fill:var(--alert)}
-.gn.time.task rect{fill:var(--muted)}
+.gn.time.deadline path.pill{fill:var(--alert)}
+.gn.time.task path.pill{fill:var(--muted)}
 .gn use{fill:var(--on-now)}
 .ge.tl{stroke:var(--cc); opacity:0}
 svg.focus .ge.tl.hl{opacity:.5; stroke-width:1.4}
@@ -382,11 +382,11 @@ svg.focus .ge.tl.hl{opacity:.5; stroke-width:1.4}
 .ring .now.empty .wedge{opacity:.7}
 .ring .now text{fill:var(--now); font-weight:700; font-size:11px; letter-spacing:.06em; text-transform:uppercase; paint-order:stroke; stroke:var(--bg); stroke-width:3px; stroke-linejoin:round}
 .gn.course text,.gn.module text{font-weight:600}
-.gn.time.done rect{fill:var(--line)}
+.gn.time.done path.pill{fill:var(--line)}
 .gn.time.done text{fill:var(--muted); text-decoration:line-through}
 .gn.muted{opacity:.4}
-.gn.cur rect{stroke:var(--now); stroke-width:2}
-.gn.sel rect{stroke:var(--now); stroke-width:3}
+.gn.cur path.pill{stroke:var(--now); stroke-width:2}
+.gn.sel path.pill{stroke:var(--now); stroke-width:3}
 .gn .must{fill:var(--alert)}
 .gn .badge{font-size:10px; fill:var(--muted); font-weight:600}
 .gn .sub,.gn.time .sub{display:none; font-size:calc(11px * var(--labscale, 1)); font-weight:600; fill:var(--ink); paint-order:stroke; stroke:var(--surface); stroke-width:4px; stroke-linejoin:round; pointer-events:none}
@@ -409,7 +409,7 @@ svg.focus .ge.tl.hl{opacity:.5; stroke-width:1.4}
 .legend-g .lg{width:16px; height:16px; margin-right:2px}
 .legend-g .lg .c{fill:var(--now); stroke:none}
 .legend-g .lg .c.d{opacity:.7}
-.legend-g .lp{display:inline-flex; align-items:center; justify-content:center; width:22px; height:14px; background:var(--now); color:var(--on-now); margin-right:2px}
+.legend-g .lp{display:inline-flex; align-items:center; justify-content:center; width:22px; height:14px; background:var(--now); color:var(--on-now); margin-right:2px; clip-path:polygon(0 0, calc(100% - 4px) 0, 100% 4px, 100% 100%, 0 100%)}
 .legend-g .lp .ic{fill:var(--on-now)}
 .legend-g .lp.r{background:var(--alert)}
 .legend-g .lp.t{background:var(--muted)}
@@ -1051,6 +1051,8 @@ function clockAngle(isoDate, time){
   for (var i = 1; i < pts.length; i++) if (s <= pts[i].s) { var a = pts[i - 1], b = pts[i]; return b.s === a.s ? a.ang : a.ang + (b.ang - a.ang) * (s - a.s) / (b.s - a.s); }
   return -Math.PI / 2;
 }
+// A ring pill: a rectangle with the page's cut top-right corner.
+function pillPath(w, h){ var b = 6; return "M0 0H" + (w - b) + "L" + w + " " + b + "V" + h + "H0Z"; }
 function nodeRadius(n){ return n.w / 2 + (n.kind === "time" ? 6 : 14); }
 function buildForceGraph(t, roots){
   var nodes = [], edges = [];
@@ -1209,7 +1211,7 @@ function svgGraph(t){
     var ids = ' data-node="' + esc(n.id) + '"' + (n.tick ? ' data-id="' + esc(n.tick) + '"' : n.kind === "time" && n.row.id ? ' data-id="' + esc(n.row.id) + '"' : '');
     if (n.kind === "time") {
       var ticon = '<use href="#i-' + (n.row.kind === "session" ? (SESSION_ICON[n.row.skind] || "calendar") : n.row.kind === "deadline" ? (KIND_ICON[n.row.akind] || "upload-simple") : "clipboard-text") + '" x="6" y="4" width="12" height="12"/>';
-      return '<g class="' + cls + '"' + ids + ' style="' + colorVars(n.code) + '"><title>' + esc(n.label) + '</title><rect rx="0" width="' + n.w + '" height="' + n.h + '"/>' + ticon +
+      return '<g class="' + cls + '"' + ids + ' style="' + colorVars(n.code) + '"><title>' + esc(n.label) + '</title><path class="pill" d="' + pillPath(n.w, n.h) + '"/>' + ticon +
         '<text class="sub" x="' + (n.w / 2) + '" y="' + (n.h + 13) + '" text-anchor="middle">' + esc(trunc(n.label, 70)) + '</text><text x="21" y="14">' + esc(n.short) + '</text></g>';
     }
     // inner nodes: a circle sized by depth with a glyph inside, the title underneath
