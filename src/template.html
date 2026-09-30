@@ -7,28 +7,28 @@
 :root{
   --bg:#ece5ec; --surface:#ffffff; --surface-2:#f8f3f8;
   --ink:#061335; --muted:#58637b; --line:#dad1da;
-  --c1:#d7008d; --c1-soft:#ffd8e9;
-  --c2:#00951a; --c2-soft:#a3ffa1;
-  --c3:#008a9a; --c3-soft:#aaf3ff;
-  --c4:#bb5c00; --c4-soft:#ffddc8;
-  --c5:#9200fe; --c5-soft:#e9deff;
-  --alert:#e4002f; --alert-soft:#ffdbd8;
-  --ok:#00951a; --now:#008a9a; --now-soft:#aaf3ff; --on-now:#ffffff;
-  --ann:#00e4fd; --on-ann:#061335;
+  --c1:#c40080; --c1-soft:#ffd8e9; --c1-tint:#ff4fb2;
+  --c2:#007913; --c2-soft:#a3ffa1; --c2-tint:#00fc33;
+  --c3:#007381; --c3-soft:#aaf3ff; --c3-tint:#00e4fd;
+  --c4:#a14f00; --c4-soft:#ffddc8; --c4-tint:#fe8000;
+  --c5:#9200fe; --c5-soft:#e9deff; --c5-tint:#b17eff;
+  --alert:#cf0029; --alert-soft:#ffdbd8; --alert-tint:#ff6363;
+  --ok:#007913; --now:#007381; --now-soft:#aaf3ff; --now-tint:#00e4fd; --on-now:#ffffff;
+  --ann:#00e4fd; --on-ann:#061335; --on-tint:#061335;
   --shadow:0 1px 2px rgba(0,0,32,.08);
 }
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
     --bg:#010204; --surface:#05070d; --surface-2:#0c0f17;
     --ink:#f4f4d6; --muted:#979faf; --line:#212630;
-    --c1:#ff06a8; --c1-soft:#700048;
-    --c2:#00fc33; --c2-soft:#004c08;
-    --c3:#00e4fd; --c3-soft:#00464f;
-    --c4:#fe8000; --c4-soft:#612d00;
-    --c5:#a052ff; --c5-soft:#500090;
-    --alert:#ff0035; --alert-soft:#770013;
-    --ok:#00fc33; --now:#00e4fd; --now-soft:#00464f; --on-now:#010204;
-    --ann:#00e4fd; --on-ann:#010204;
+    --c1:#ff06a8; --c1-soft:#700048; --c1-tint:#ff06a8;
+    --c2:#00fc33; --c2-soft:#004c08; --c2-tint:#00fc33;
+    --c3:#00e4fd; --c3-soft:#00464f; --c3-tint:#00e4fd;
+    --c4:#fe8000; --c4-soft:#612d00; --c4-tint:#fe8000;
+    --c5:#a052ff; --c5-soft:#500090; --c5-tint:#9c44ff;
+    --alert:#ff0035; --alert-soft:#770013; --alert-tint:#ff0035;
+    --ok:#00fc33; --now:#00e4fd; --now-soft:#00464f; --now-tint:#00e4fd; --on-now:#010204;
+    --ann:#00e4fd; --on-ann:#010204; --on-tint:#010204;
     --shadow:0 1px 2px rgba(0,0,0,.4);
     color-scheme:dark;
   }
@@ -37,14 +37,14 @@
   color-scheme:dark;
   --bg:#010204; --surface:#05070d; --surface-2:#0c0f17;
   --ink:#f4f4d6; --muted:#979faf; --line:#212630;
-  --c1:#ff06a8; --c1-soft:#700048;
-  --c2:#00fc33; --c2-soft:#004c08;
-  --c3:#00e4fd; --c3-soft:#00464f;
-  --c4:#fe8000; --c4-soft:#612d00;
-  --c5:#a052ff; --c5-soft:#500090;
-  --alert:#ff0035; --alert-soft:#770013;
-  --ok:#00fc33; --now:#00e4fd; --now-soft:#00464f; --on-now:#010204;
-  --ann:#00e4fd; --on-ann:#010204;
+  --c1:#ff06a8; --c1-soft:#700048; --c1-tint:#ff06a8;
+  --c2:#00fc33; --c2-soft:#004c08; --c2-tint:#00fc33;
+  --c3:#00e4fd; --c3-soft:#00464f; --c3-tint:#00e4fd;
+  --c4:#fe8000; --c4-soft:#612d00; --c4-tint:#fe8000;
+  --c5:#a052ff; --c5-soft:#500090; --c5-tint:#9c44ff;
+  --alert:#ff0035; --alert-soft:#770013; --alert-tint:#ff0035;
+  --ok:#00fc33; --now:#00e4fd; --now-soft:#00464f; --now-tint:#00e4fd; --on-now:#010204;
+  --ann:#00e4fd; --on-ann:#010204; --on-tint:#010204;
   --shadow:0 1px 2px rgba(0,0,0,.4);
 }
 *{box-sizing:border-box; scrollbar-color:var(--line) transparent}
@@ -152,19 +152,19 @@ body:not(.noping) .endangered:not(.done):not(.muted) .box .ring{display:block}
 /* Labels: chip (course), lvl (MUST/NICE) and tag share one size, so they sit level in a row. */
 .tag,.lvl,.chip{display:inline-block; font-size:10.5px; line-height:1.5; letter-spacing:.05em; text-transform:uppercase; padding:1px 6px; vertical-align:1px; white-space:nowrap}
 .tag{font-weight:600; color:var(--muted); background:var(--bg); margin-left:6px}
-.tag.expected{color:var(--now); border-color:transparent; background:var(--now-soft)}
+.tag.expected{color:var(--on-tint); background:var(--now-tint)}
 .tag.pts{color:var(--ink)}
-a.tag.feeds{text-decoration:none; color:var(--alert); background:var(--alert-soft)}
+a.tag.feeds{text-decoration:none; color:var(--on-tint); background:var(--alert-tint)}
 a.tag.feeds:hover{text-decoration:underline}
 .lvl{font-weight:700; margin-right:7px}
-.lvl.must{color:var(--alert); background:var(--alert-soft)}
-.lvl.nice{color:var(--muted); background:var(--bg); opacity:.85}
+.lvl.must{color:var(--on-tint); background:var(--alert-tint)}
+.lvl.nice{color:var(--muted); background:var(--surface-2)}
 .est{color:var(--muted); font-size:12px; white-space:nowrap}
 .mute{flex:0 0 auto; display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; border:0; background:none; color:var(--muted); opacity:.4; cursor:pointer; border-radius:50%; padding:0}
 .mute:hover,.muted .mute{opacity:1}
 .muted .mute{color:var(--alert)}
 
-.chip{font-weight:600; margin-right:7px; color:var(--cc); background:var(--cc-soft)}
+.chip{font-weight:600; margin-right:7px; color:var(--on-tint); background:var(--cc-tint)}
 .ph{display:inline-block; flex:0 0 auto; line-height:0; border-radius:50%; overflow:hidden; isolation:isolate; background:#fff; background:color-mix(in srgb, var(--cc) 32%, #fff)}
 .ph img{display:block; width:100%; height:100%; object-fit:cover; mix-blend-mode:multiply}
 .faces{display:inline-flex; vertical-align:-4px; margin-right:5px}
@@ -206,7 +206,7 @@ a.tag.feeds:hover{text-decoration:underline}
 .week.collapsed{grid-template-columns:1fr}
 .week.collapsed .rail{display:flex; flex-wrap:wrap; gap:4px 14px; align-items:center; padding:10px 16px; border-right:0}
 .week.collapsed .rail .dates,.week.collapsed .rail .load,.week.collapsed .rail .left,.week.collapsed .flag{margin-top:0}
-.flag{display:inline-block; margin-top:8px; font-size:10.5px; letter-spacing:.07em; text-transform:uppercase; color:var(--alert); background:var(--alert-soft); padding:2px 6px; font-weight:600}
+.flag{display:inline-block; margin-top:8px; font-size:10.5px; letter-spacing:.07em; text-transform:uppercase; color:var(--on-tint); background:var(--alert-tint); padding:2px 6px; font-weight:600}
 .flag.nowflag{color:var(--now); background:var(--now-soft)}
 .week .quiet{padding:14px 16px; color:var(--muted); font-size:13.5px}
 /* The Today playhead reaches left across the rail and peeks out of the card */
@@ -219,6 +219,7 @@ a.tag.feeds:hover{text-decoration:underline}
 .ann > .ic{color:var(--on-ann); opacity:.8; margin-top:2px}
 .ann .k{font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; font-weight:600; color:var(--on-ann); opacity:.85; margin-right:8px}
 .ann a{color:inherit}
+.ann .why{color:var(--on-ann); opacity:.9}
 .mat{margin-top:12px; padding-top:8px}
 .mat summary{cursor:pointer; font-size:13px; font-weight:600; list-style:none; display:flex; gap:8px; align-items:center; flex-wrap:wrap}
 .mat summary::-webkit-details-marker{display:none}
@@ -579,7 +580,7 @@ function ic(name, cls){ return '<svg class="ic' + (cls ? " " + cls : "") + '" ar
 function lsGet(k){ try { return localStorage.getItem(k); } catch (e) { return null; } }
 function lsSet(k, v){ try { localStorage.setItem(k, v); } catch (e) {} }
 function lsJson(k){ try { return JSON.parse(lsGet(k) || "null"); } catch (e) { return null; } }
-function colorVars(code){ var n = (COURSES[code] && COURSES[code].color) || 5; return '--cc:var(--c' + n + ');--cc-soft:var(--c' + n + '-soft)'; }
+function colorVars(code){ var n = (COURSES[code] && COURSES[code].color) || 5; return '--cc:var(--c' + n + ');--cc-soft:var(--c' + n + '-soft);--cc-tint:var(--c' + n + '-tint)'; }
 function label(code){ var k = COURSES[code] || {}; return (k.prefix ? k.prefix + "-" : "") + code; }
 function term(){ return TERMS.find(function(t){ return t.id === state.term; }) || TERMS[0]; }
 function day(iso){ return new Date(iso + "T00:00:00").getTime(); }
@@ -826,7 +827,7 @@ function matBlock(b, titleText){
 }
 function annBlock(a, code){
   return '<div class="ann" data-course="' + code + '">' + ic("megaphone") + '<div><span class="k">From the teacher, ' + esc(longDay(a.posted)) + '</span>' + chip(code) +
-    '<a href="' + esc(a.url) + '" target="_blank" rel="noopener">' + esc(a.title) + ext(a.url) + '</a>' + (a.text ? ' <span class="why" style="display:inline;color:var(--muted)">' + esc(a.text.slice(0, 220)) + (a.text.length > 220 ? "\u2026" : "") + '</span>' : '') + '</div></div>';
+    '<a href="' + esc(a.url) + '" target="_blank" rel="noopener">' + esc(a.title) + ext(a.url) + '</a>' + (a.text ? ' <span class="why" style="display:inline">' + esc(a.text.slice(0, 220)) + (a.text.length > 220 ? "\u2026" : "") + '</span>' : '') + '</div></div>';
 }
 // Rows of one week, grouped under day headings, with the Today playhead in the current week.
 function groupedRows(wr, mon, today){

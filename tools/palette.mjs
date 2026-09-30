@@ -39,17 +39,29 @@ function oklch(L, H, C) {
   return toHex(at(C != null ? Math.min(C, lo) : lo));
 }
 
+// WCAG contrast ratio between two hex colours.
+function contrast(h1, h2) {
+  const lum = h => { const [r, g, b] = [1, 3, 5].map(i => lin(parseInt(h.slice(i, i + 2), 16) / 255)); return 0.2126 * r + 0.7152 * g + 0.0722 * b; };
+  const a = lum(h1), b = lum(h2); return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+}
 // The most vivid colour of a hue inside a lightness band: sRGB shows the most chroma at a different
 // lightness per hue (magenta near L .65, green near .87), so the band is scanned for the peak.
-function vivid([lo, hi], H) {
+// `floors` are backgrounds the colour must reach 4.5:1 against (WCAG AA for normal text); among the
+// lightnesses that pass, the one with the most chroma wins. If none passes, the closest is taken and
+// reported, so a failing colour never slips out silently.
+function vivid([lo, hi], H, floors = [], ratio = 4.5) {
   const rad = H * Math.PI / 180;
-  let best = null;
+  let best = null, fallback = null;
   for (let L = lo; L <= hi + 1e-9; L += 0.01) {
     let a = 0, b = 0.4;
     for (let i = 0; i < 30; i++) { const mid = (a + b) / 2; if (inGamut(oklabToRgb(L, mid * Math.cos(rad), mid * Math.sin(rad)))) a = mid; else b = mid; }
-    if (!best || a > best.C) best = { L, C: a };
+    const hex = oklch(L, H, a), worst = Math.min(Infinity, ...floors.map(f => contrast(hex, f)));
+    if (worst >= ratio) { if (!best || a > best.C) best = { L, C: a, hex }; }
+    else if (!fallback || worst > fallback.worst) fallback = { L, C: a, hex, worst };
   }
-  return oklch(best.L, H, best.C);
+  if (best) return best.hex;
+  console.error(`no lightness in ${lo}..${hi} at hue ${H.toFixed(0)} reaches ${ratio}:1 against ${floors.join(", ")}; using ${fallback.hex} (${fallback.worst.toFixed(2)}:1)`);
+  return fallback.hex;
 }
 
 // ---- reference hues ----
@@ -64,8 +76,9 @@ H.violet = 300;
 // Courses: 1 magenta, 2 green, 3 cyan, 4 orange, 5 violet. Alert coral, ok green, now cyan.
 const courses = [H.magenta, H.green, H.cyan, H.orange, H.violet];
 function theme(dark) {
-  const text = dark ? [0.62, 0.86] : [0.45, 0.58];   // accent as text or a stroke: legible on the background, then as vivid as it gets
-  const soft = dark ? [0.28, 0.36] : [0.92, 0.96];   // accent as a background tint
+  const text = dark ? [0.60, 0.88] : [0.40, 0.62];   // accent as text or a stroke: legible on the backgrounds, then as vivid as it gets
+  const soft = dark ? [0.28, 0.36] : [0.92, 0.96];   // accent as a faint background under ordinary text
+  const tint = dark ? [0.60, 0.88] : [0.70, 0.86];   // accent as a solid block behind dark label text (chips, MUST, tags)
   const v = {};
   if (dark) {
     // deep black with a trace of navy; the neon has to sit on near-black to glow
@@ -75,9 +88,13 @@ function theme(dark) {
     v.bg = oklch(0.93, H.grey, 0.012); v.surface = "#ffffff"; v["surface-2"] = oklch(0.97, H.grey, 0.008);
     v.ink = oklch(0.20, H.navy, 0.07); v.muted = oklch(0.50, H.navy, 0.04); v.line = oklch(0.87, H.grey, 0.015);
   }
-  courses.forEach((h, i) => { v["c" + (i + 1)] = vivid(text, h); v["c" + (i + 1) + "-soft"] = vivid(soft, h); });
-  v.alert = vivid(text, H.coral); v["alert-soft"] = vivid(soft, H.coral);
-  v.ok = vivid(text, H.green); v.now = vivid(text, H.cyan); v["now-soft"] = vivid(soft, H.cyan); v["on-now"] = dark ? v.bg : "#ffffff";
+  // text accents must read on every surface they appear on; "on-now" text must read on "now"
+  const floors = dark ? [v.bg, v.surface, v["surface-2"]] : [v.surface, v.bg, v["surface-2"]];
+  v["on-tint"] = dark ? v.bg : v.ink;
+  courses.forEach((h, i) => { v["c" + (i + 1)] = vivid(text, h, floors); v["c" + (i + 1) + "-soft"] = vivid(soft, h); v["c" + (i + 1) + "-tint"] = vivid(tint, h, [v["on-tint"]]); });
+  v.alert = vivid(text, H.coral, floors); v["alert-soft"] = vivid(soft, H.coral); v["alert-tint"] = vivid(tint, H.coral, [v["on-tint"]]);
+  v.ok = vivid(text, H.green, floors); v.now = vivid(text, H.cyan, floors); v["now-soft"] = vivid(soft, H.cyan); v["now-tint"] = vivid(tint, H.cyan, [v["on-tint"]]);
+  v["on-now"] = dark ? v.bg : "#ffffff";
   // the teacher's announcement box: a fully saturated cyan block with dark text on it, like the reference
   v.ann = vivid([0.80, 0.88], H.cyan); v["on-ann"] = dark ? v.bg : v.ink;
   v.shadow = dark ? "0 1px 2px rgba(0,0,0,.4)" : "0 1px 2px rgba(0,0,32,.08)";
@@ -88,10 +105,10 @@ function block(v, indent) {
   return [
     line([["bg", v.bg], ["surface", v.surface], ["surface-2", v["surface-2"]]]),
     line([["ink", v.ink], ["muted", v.muted], ["line", v.line]]),
-    ...[1, 2, 3, 4, 5].map(i => line([["c" + i, v["c" + i]], ["c" + i + "-soft", v["c" + i + "-soft"]]])),
-    line([["alert", v.alert], ["alert-soft", v["alert-soft"]]]),
-    line([["ok", v.ok], ["now", v.now], ["now-soft", v["now-soft"]], ["on-now", v["on-now"]]]),
-    line([["ann", v.ann], ["on-ann", v["on-ann"]]]),
+    ...[1, 2, 3, 4, 5].map(i => line([["c" + i, v["c" + i]], ["c" + i + "-soft", v["c" + i + "-soft"]], ["c" + i + "-tint", v["c" + i + "-tint"]]])),
+    line([["alert", v.alert], ["alert-soft", v["alert-soft"]], ["alert-tint", v["alert-tint"]]]),
+    line([["ok", v.ok], ["now", v.now], ["now-soft", v["now-soft"]], ["now-tint", v["now-tint"]], ["on-now", v["on-now"]]]),
+    line([["ann", v.ann], ["on-ann", v["on-ann"]], ["on-tint", v["on-tint"]]]),
     line([["shadow", v.shadow]])
   ].join("\n");
 }
