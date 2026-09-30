@@ -15,6 +15,7 @@
     "build": "node tools/build.mjs",
     "update": "node tools/canvas-sync.mjs inventory && node tools/build.mjs",
     "progress": "node tools/canvas-sync.mjs progress",
-    "build:private": "node tools/build.mjs --private"
+    "build:private": "node tools/build.mjs --private",
+    "palette": "node tools/palette.mjs --write"
   }
 }

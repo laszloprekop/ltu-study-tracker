@@ -33,6 +33,7 @@ npm run update          # inventory + build, the usual refresh
 npm run inventory       # rewrite data/canvas-inventory.json from Canvas
 npm run build           # rebuild ltu-study-tracker.html; fails on any ref that matches nothing
 npm run check           # diff the committed inventory against live Canvas (dates, points, new items, announcements)
+npm run palette         # regenerate the theme colours in src/template.html from the reference hues (tools/palette.mjs)
 npm run announcements   # print the announcements per course
 npm run courses         # list your Canvas courses with ids
 npm run progress        # write data/my-progress.json: what Canvas counts as done for YOUR account (git-ignored)

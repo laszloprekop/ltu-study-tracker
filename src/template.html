@@ -5,43 +5,43 @@
 <style>
 /* Course colours are slots (--c1 to --c5), assigned per course in data/plan.mjs. */
 :root{
-  --bg:#eef1f4; --surface:#ffffff; --surface-2:#f7f9fb;
-  --ink:#131820; --muted:#5b6876; --line:#dde3e9;
-  --c1:#a8471a; --c1-soft:#f5e6dd;
-  --c2:#0d6b74; --c2-soft:#ddeeef;
-  --c3:#6a4aa3; --c3-soft:#ebe5f5;
-  --c4:#7a6410; --c4-soft:#f3edd6;
-  --c5:#3d5f8c; --c5-soft:#e2e9f3;
-  --alert:#a5231d; --alert-soft:#f7e2e0;
-  --ok:#2f6b3f; --now:#2b5fb4; --now-soft:#e3ebf8; --on-now:#ffffff;
-  --shadow:0 1px 2px rgba(19,24,32,.06);
+  --bg:#ece5ec; --surface:#ffffff; --surface-2:#f8f3f8;
+  --ink:#061335; --muted:#58637b; --line:#dad1da;
+  --c1:#d7008d; --c1-soft:#ffd8e9;
+  --c2:#00951a; --c2-soft:#a3ffa1;
+  --c3:#008a9a; --c3-soft:#aaf3ff;
+  --c4:#bb5c00; --c4-soft:#ffddc8;
+  --c5:#9200fe; --c5-soft:#e9deff;
+  --alert:#e4002f; --alert-soft:#ffdbd8;
+  --ok:#00951a; --now:#008a9a; --now-soft:#aaf3ff; --on-now:#ffffff;
+  --shadow:0 1px 2px rgba(0,0,32,.08);
 }
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
-    --bg:#0f1319; --surface:#161d25; --surface-2:#1b232c;
-    --ink:#e6edf4; --muted:#95a3b2; --line:#27313c;
-    --c1:#ef9a68; --c1-soft:#33231a;
-    --c2:#57c7cc; --c2-soft:#122b2d;
-    --c3:#b9a2ec; --c3-soft:#261e38;
-    --c4:#dcc261; --c4-soft:#2d2710;
-    --c5:#93b3e0; --c5-soft:#18233a;
-    --alert:#f19089; --alert-soft:#33191a;
-    --ok:#7fc492; --now:#8fb4f2; --now-soft:#18253a; --on-now:#0f1319;
+    --bg:#030d29; --surface:#0e1a32; --surface-2:#19233a;
+    --ink:#f4f4d6; --muted:#9ba5b8; --line:#2d384d;
+    --c1:#ff06a8; --c1-soft:#700048;
+    --c2:#00fc33; --c2-soft:#004c08;
+    --c3:#00e4fd; --c3-soft:#00464f;
+    --c4:#fe8000; --c4-soft:#612d00;
+    --c5:#a052ff; --c5-soft:#500090;
+    --alert:#ff0035; --alert-soft:#770013;
+    --ok:#00fc33; --now:#00e4fd; --now-soft:#00464f; --on-now:#030d29;
     --shadow:0 1px 2px rgba(0,0,0,.4);
     color-scheme:dark;
   }
 }
 :root[data-theme="dark"]{
   color-scheme:dark;
-  --bg:#0f1319; --surface:#161d25; --surface-2:#1b232c;
-  --ink:#e6edf4; --muted:#95a3b2; --line:#27313c;
-  --c1:#ef9a68; --c1-soft:#33231a;
-  --c2:#57c7cc; --c2-soft:#122b2d;
-  --c3:#b9a2ec; --c3-soft:#261e38;
-  --c4:#dcc261; --c4-soft:#2d2710;
-  --c5:#93b3e0; --c5-soft:#18233a;
-  --alert:#f19089; --alert-soft:#33191a;
-  --ok:#7fc492; --now:#8fb4f2; --now-soft:#18253a; --on-now:#0f1319;
+  --bg:#030d29; --surface:#0e1a32; --surface-2:#19233a;
+  --ink:#f4f4d6; --muted:#9ba5b8; --line:#2d384d;
+  --c1:#ff06a8; --c1-soft:#700048;
+  --c2:#00fc33; --c2-soft:#004c08;
+  --c3:#00e4fd; --c3-soft:#00464f;
+  --c4:#fe8000; --c4-soft:#612d00;
+  --c5:#a052ff; --c5-soft:#500090;
+  --alert:#ff0035; --alert-soft:#770013;
+  --ok:#00fc33; --now:#00e4fd; --now-soft:#00464f; --on-now:#030d29;
   --shadow:0 1px 2px rgba(0,0,0,.4);
 }
 *{box-sizing:border-box; scrollbar-color:var(--line) transparent}
