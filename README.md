@@ -93,7 +93,7 @@ the layout, positions are remembered per viewer, and when a module opens only it
 settle while everything already placed stays put. The full title replaces the short one under a hovered or selected node. Hovering or selecting highlights the whole chain in
 both directions, as far as the links keep pointing the same way: up through parents,
 prerequisites and the events pointing in, down through children and what depends on it, plus every event on the ring tied to anything in the chain. Ties
-from events to a folded module do not count. **Show all** (toolbar, on by default) opens every module
+from events to a folded module do not count. A **Reach** slider (1 to 4 hops or all, remembered) caps how far the chain walks from the node; the jump to the ring counts as a hop. **Show all** (toolbar, on by default) opens every module
 and section and fades sections and items, labels hidden, until they join a hovered or selected
 chain; the viewer's own open/closed choices are kept for when it is off. Hovering a node also
 previews its details in the right pane; a click pins them. So any item is zero clicks from its

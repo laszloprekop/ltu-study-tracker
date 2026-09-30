@@ -276,6 +276,9 @@ a.tag.feeds:hover{border-color:var(--alert)}
 .gtools button{display:inline-flex; align-items:center; gap:4px; font-size:12px; font-weight:600; color:var(--muted); background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:4px 7px; cursor:pointer}
 .gtools button:hover{color:var(--ink)}
 .gtools button[aria-pressed="true"]{color:var(--now); border-color:var(--now)}
+.gtools .reach{display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:var(--muted); background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:3px 8px}
+.gtools .reach input{width:70px; accent-color:var(--now); margin:0}
+.gtools .reach b{color:var(--ink); min-width:42px}
 svg.showall .gn.section:not(.hl):not(.sel):not(.hover):not(.cur){opacity:.35}
 svg.showall .gn.item:not(.hl):not(.sel):not(.hover):not(.cur){opacity:.22}
 svg.showall .gn.item:not(.hl):not(.sel):not(.hover):not(.cur) .lab,svg.showall .gn.section:not(.hl):not(.sel):not(.hover) .lab{display:none}
@@ -468,8 +471,8 @@ footer p{margin:0 0 6px}
 
 /* ---------- Helpers ---------- */
 const P = DATA.plan, INV = DATA.inventory, COURSES = P.COURSES, TEACHERS = P.TEACHERS, TERMS = P.TERMS, PROGRESS = DATA.progress || null;
-const LS = { hours: "ltu-plan-hours", ticks: "ltu-plan-ticks", muted: "ltu-plan-muted", filter: "ltu-plan-filter", term: "ltu-plan-term", view: "ltu-plan-view", open: "ltu-plan-open", weeks: "ltu-plan-weeks", size: "ltu-plan-size", ping: "ltu-plan-ping", colored: "ltu-plan-colored", theme: "ltu-plan-theme", mapOpen: "ltu-plan-map-open", mapPos: "ltu-plan-map-pos", mapAll: "ltu-plan-map-all", legacy: "lp2-shared-ticks" };
-const state = { checked: {}, muted: {}, filter: "all", term: null, view: "week", day: null, open: {}, weeks: {}, size: 100, ping: true, colored: true, theme: "system", hours: { start: "09:00", end: "17:00" }, mapOpen: null, mapSel: null, mapAll: false };
+const LS = { hours: "ltu-plan-hours", ticks: "ltu-plan-ticks", muted: "ltu-plan-muted", filter: "ltu-plan-filter", term: "ltu-plan-term", view: "ltu-plan-view", open: "ltu-plan-open", weeks: "ltu-plan-weeks", size: "ltu-plan-size", ping: "ltu-plan-ping", colored: "ltu-plan-colored", theme: "ltu-plan-theme", mapOpen: "ltu-plan-map-open", mapPos: "ltu-plan-map-pos", mapAll: "ltu-plan-map-all", mapHops: "ltu-plan-map-hops", legacy: "lp2-shared-ticks" };
+const state = { checked: {}, muted: {}, filter: "all", term: null, view: "week", day: null, open: {}, weeks: {}, size: 100, ping: true, colored: true, theme: "system", hours: { start: "09:00", end: "17:00" }, mapOpen: null, mapSel: null, mapAll: false, mapHops: 5 };
 let store = null, saveTimer = null;
 
 function esc(s){ return String(s == null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
@@ -1143,11 +1146,13 @@ function detailFor(t, key){
   }
   return html;
 }
+function hopsLabel(){ return state.mapHops >= 5 ? "all" : state.mapHops + (state.mapHops === 1 ? " hop" : " hops"); }
 function renderMapView(t){
   return '<section><div class="map">' +
     '<div class="card"><h3>' + ic("calendar-dot") + 'Coming up</h3><div class="rail-list" id="rail">' + railList(t) + '</div></div>' +
     '<div class="card"><h3>' + ic("tree-structure") + 'Canvas map <span class="why" style="display:inline;text-transform:none;letter-spacing:0;font-weight:400">hover or click a node to see its links, click a module to open it, drag to pan, scroll to zoom</span></h3>' +
-      '<div class="gwrap" id="gwrap">' + svgGraph(t) + '<div class="gtools"><button type="button" id="g-fit" title="Fit the whole graph">' + ic("arrows-in", "sm") + 'Fit</button><button type="button" id="g-open" title="Open every module">' + ic("arrows-out", "sm") + 'Open all</button><button type="button" id="g-close" title="Close every module">Close all</button><button type="button" id="g-all" title="Show every node; lower levels fade until they join a chain" aria-pressed="' + (state.mapAll ? "true" : "false") + '">Show all</button></div>' +
+      '<div class="gwrap" id="gwrap">' + svgGraph(t) + '<div class="gtools"><button type="button" id="g-fit" title="Fit the whole graph">' + ic("arrows-in", "sm") + 'Fit</button><button type="button" id="g-open" title="Open every module">' + ic("arrows-out", "sm") + 'Open all</button><button type="button" id="g-close" title="Close every module">Close all</button><button type="button" id="g-all" title="Show every node; lower levels fade until they join a chain" aria-pressed="' + (state.mapAll ? "true" : "false") + '">Show all</button>' +
+      '<label class="reach" title="How far a highlighted chain reaches from the node: link steps in either direction, the jump to the ring counts as one"><span>Reach</span><input type="range" id="g-hops" min="1" max="5" step="1" value="' + state.mapHops + '"><b id="g-hops-v">' + hopsLabel() + '</b></label></div>' +
       '<div class="gnote">Two zones: the outer band holds sessions, deadlines and tasks in date order, the inner disc holds the Canvas material. Hover or select to see what ties them together. Blue tint: this week\u2019s material. Dashed: watch before the session. Red dot: MUST.</div></div></div>' +
     '<div class="card"><h3>' + ic("info") + 'Details</h3><div class="detail" id="detail">' + detailFor(t, state.mapSel) + '</div></div>' +
     '</div></section>';
@@ -1194,17 +1199,18 @@ function openPathTo(id){
 // Everything a node is linked to, up and down: ancestors, visible descendants, its events, its prep links.
 // Edges point parent -> child, prerequisite -> page, event -> page. The chain follows them as far as
 // they keep pointing the same way: everything upstream of the node and everything downstream of it.
+// The reach setting caps the walk: hops counts link steps from the node, in either direction.
 function chainOf(id){
   var nodes = {}, edges = {}, n = mapLayout.nodes.find(function(x){ return x.id === id; });
   if (!n) return { nodes: nodes, edges: edges };
-  var all = mapLayout.edges.concat(mapLayout.deps), outs = {}, ins = {};
+  var all = mapLayout.edges.concat(mapLayout.deps), outs = {}, ins = {}, limit = state.mapHops >= 5 ? Infinity : state.mapHops, depth = {};
   all.forEach(function(e){ (outs[e.a.id] = outs[e.a.id] || []).push(e); (ins[e.b.id] = ins[e.b.id] || []).push(e); });
-  nodes[n.id] = true;
+  nodes[n.id] = true; depth[n.id] = 0;
   // a loose tie (an event whose page is folded away) only counts when starting from that event
-  (function up(x){ (ins[x.id] || []).forEach(function(e){ if (e.loose) return; edges[e.a.id + ">" + e.b.id] = true; if (!nodes[e.a.id]) { nodes[e.a.id] = true; up(e.a); } }); })(n);
-  (function down(x){ (outs[x.id] || []).forEach(function(e){ if (e.loose && x !== n) return; edges[e.a.id + ">" + e.b.id] = true; if (!nodes[e.b.id]) { nodes[e.b.id] = true; down(e.b); } }); })(n);
+  (function up(x, d){ if (d >= limit) return; (ins[x.id] || []).forEach(function(e){ if (e.loose) return; edges[e.a.id + ">" + e.b.id] = true; if (!nodes[e.a.id]) { nodes[e.a.id] = true; depth[e.a.id] = d + 1; up(e.a, d + 1); } }); })(n, 0);
+  (function down(x, d){ if (d >= limit) return; (outs[x.id] || []).forEach(function(e){ if (e.loose && x !== n) return; edges[e.a.id + ">" + e.b.id] = true; if (!nodes[e.b.id]) { nodes[e.b.id] = true; depth[e.b.id] = d + 1; down(e.b, d + 1); } }); })(n, 0);
   // one more hop: the events (ring pills) tied to anything in the chain, so a module shows when its material is taught or due
-  Object.keys(nodes).forEach(function(id){ (ins[id] || []).forEach(function(e){ if (e.time && !e.loose) { nodes[e.a.id] = true; edges[e.a.id + ">" + e.b.id] = true; } }); });
+  Object.keys(nodes).forEach(function(id){ if (depth[id] + 1 > limit) return; (ins[id] || []).forEach(function(e){ if (e.time && !e.loose) { nodes[e.a.id] = true; edges[e.a.id + ">" + e.b.id] = true; } }); });
   return { nodes: nodes, edges: edges };
 }
 function highlight(id){
@@ -1416,10 +1422,12 @@ function migrate(checked){
   return out;
 }
 
+document.addEventListener("input", function(e){ var b = e.target; if (b && b.id === "g-hops") { state.mapHops = Number(b.value); document.getElementById("g-hops-v").textContent = hopsLabel(); applySel(term()); } });
 document.addEventListener("change", function(e){
   var b = e.target;
   if (!b) return;
   if (b.id === "daypick") { state.day = b.value || todayIso(); renderTerm(); return; }
+  if (b.id === "g-hops") { state.mapHops = Number(b.value); lsSet(LS.mapHops, String(state.mapHops)); document.getElementById("g-hops-v").textContent = hopsLabel(); applySel(term()); return; }
   if (b.classList.contains("hstart") || b.classList.contains("hend")) {
     if (b.classList.contains("hstart")) state.hours.start = b.value || "09:00"; else state.hours.end = b.value || "17:00";
     lsSet(LS.hours, JSON.stringify(state.hours)); applyFree(); return;
@@ -1469,6 +1477,7 @@ state.filter = lsGet(LS.filter) || "all";
 var sv = lsGet(LS.view); if (sv === "day" || sv === "all" || sv === "week" || sv === "map") state.view = sv;
 state.mapOpen = lsJson(LS.mapOpen);
 state.mapAll = lsGet(LS.mapAll) !== "0";   // on unless the viewer switched it off
+var hp = Number(lsGet(LS.mapHops)); if (hp >= 1 && hp <= 5) state.mapHops = hp;   // 5 means no limit
 var savedTerm = lsGet(LS.term);
 state.term = TERMS.some(function(t){ return t.id === savedTerm; }) ? savedTerm : defaultTerm();
 applyDisplay();
