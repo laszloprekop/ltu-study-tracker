@@ -300,6 +300,7 @@ svg.focus .ge.tl.hl{stroke:var(--now)}
 .gn .gl{font-family:Archivo,sans-serif; font-weight:700; font-size:12px; fill:var(--cc)}
 .gn .gl.big{font-size:13px; letter-spacing:.04em}
 .gn .gl.small{font-size:10.5px}
+.gn.module .lab{font-size:11px; font-weight:600; fill:var(--ink)}
 .gn .lab{font-size:10.5px; fill:var(--muted); paint-order:stroke; stroke:var(--surface); stroke-width:3px; stroke-linejoin:round; pointer-events:none}
 .gn.sel .lab,.gn.hover .lab{display:none}
 .gn.done circle.body{stroke:var(--line); fill:var(--surface-2)}
@@ -341,7 +342,23 @@ svg.focus .ge.tl.hl{opacity:1}
 .gn.sel .sub,.gn.hover .sub{display:block}
 .ge{stroke:var(--muted); stroke-width:1.2; fill:none; opacity:.7}
 .ge.dep{stroke:var(--now); stroke-dasharray:4 3; opacity:.9}
-.gnote{position:absolute; left:10px; bottom:8px; font-size:11px; color:var(--muted); pointer-events:none}
+.legend-g{position:absolute; left:10px; top:10px; background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:8px 10px; font-size:11px; color:var(--muted); display:flex; flex-direction:column; gap:4px; pointer-events:none; max-width:300px}
+.legend-g .lt{font-size:10px; letter-spacing:.08em; text-transform:uppercase; font-weight:600}
+.legend-g div{display:flex; flex-wrap:wrap; align-items:center; gap:3px 8px}
+.legend-g .lg{width:16px; height:16px; margin-right:2px}
+.legend-g .lg .c{fill:var(--now-soft); stroke:var(--now); stroke-width:1.5}
+.legend-g .lg .c.d{stroke-dasharray:2 1.5}
+.legend-g .lp{display:inline-flex; align-items:center; justify-content:center; width:22px; height:14px; border:1px solid var(--muted); border-radius:6px; margin-right:2px}
+.legend-g .lp.r{border-color:var(--alert)}
+.legend-g .lp.t{border-style:dashed}
+.legend-g .dot{width:7px; height:7px; border-radius:50%; background:var(--alert); display:inline-block; margin-right:2px}
+.legend-g .sw{width:14px; height:10px; display:inline-block; border-radius:2px; margin-right:2px}
+.legend-g .sw.now{background:var(--now-soft); border:1px solid var(--now)}
+.legend-g .sw.wedge{background:var(--now); opacity:.35}
+.legend-g .ln{width:18px; height:0; border-top:1.5px solid var(--muted); display:inline-block; margin-right:2px}
+.legend-g .ln.dep{border-top:1.5px dashed var(--now)}
+.legend-g .ln.tl{border-top:1.5px solid var(--now)}
+.legend-g .why{display:block; font-size:10.5px}
 .detail{overflow:auto; padding:0 16px 16px; font-size:13.5px}
 .detail .dt{font-size:16px; font-weight:600; line-height:1.3; margin:4px 0 8px; font-family:Archivo,sans-serif}
 .detail .kv{display:grid; grid-template-columns:auto 1fr; gap:3px 12px; font-size:12.5px; color:var(--muted); margin:8px 0}
@@ -889,9 +906,9 @@ function depEdges(t, visible){
   });
   return out;
 }
-var LABEL_MAX = { course: 24, module: 22, section: 20, item: 20, time: 6 };
+var LABEL_MAX = { course: 60, module: 200, section: 20, item: 20, time: 6 };
 var RADIUS = { course: 26, module: 17, section: 12, item: 9 };
-var LAYER = { course: 0, module: 0.38, section: 0.64, item: 0.9 };   // home radius per level, as a share of the inner disc
+var LAYER = { course: 0, module: 0.55, section: 0.62, item: 0.7 };   // home radius per level, as a share of the inner disc
 function trunc(s, n){ return s.length > n ? s.slice(0, n - 1) + "\u2026" : s; }
 
 // ---- the clock: dated nodes pinned on a ring, in date order, starting at the top and running clockwise
@@ -915,7 +932,7 @@ function buildForceGraph(t, roots){
   roots.forEach(function(r){ (function walk(n, parent, depth){
     n.depth = depth; n.w = width(n); n.open = n.kind !== "item" && (state.mapAll || !!state.mapOpen[n.id]); n.parent = parent;
     nodes.push(n);
-    if (parent) edges.push({ a: parent, b: n, len: parent.kind === "course" ? 230 : (parent.kind === "module" ? 110 : 80), k: parent.kind === "course" ? 0.02 : 0.05 });
+    if (parent) edges.push({ a: parent, b: n, len: parent.kind === "course" ? 260 : 40, k: parent.kind === "course" ? 0.02 : 0.25 });
     if (n.open) n.children.forEach(function(k){ walk(k, n, depth + 1); });
   })(r, null, 0); });
   var structural = nodes.length, visible = {};
@@ -924,7 +941,7 @@ function buildForceGraph(t, roots){
   // the ring: the study period around the full circle
   var rows = timeline(t).filter(function(r){ return state.filter === "all" || r.code === state.filter; });
   clock = { start: t.start, days: Math.max(7, (day(t.end) - day(t.start)) / 864e5 + 1) };
-  var R = Math.max(420, rows.length * 26 / (2 * Math.PI), Math.sqrt(structural * 2000 / Math.PI) / 0.82 + 30);
+  var R = Math.max(420, rows.length * 26 / (2 * Math.PI), Math.sqrt(structural * 2000 / Math.PI) / 0.9 + 30);
   clock.R = R;
   // events sit just outside the ring like numerals, one slot each, in date order
   clock.pts = rows.map(function(r, i){ return { s: stamp(r.date, r.time), ang: i / rows.length * 2 * Math.PI - Math.PI / 2 }; });
@@ -939,7 +956,11 @@ function buildForceGraph(t, roots){
     nids.forEach(function(nid){
       var target = visible[nid];
       if (!target) { var it = findNode(roots, nid); var p = it && it.parent; while (p && !visible[p.id]) p = p.parent; target = p ? visible[p.id] : visible["c:" + r.code]; }
-      if (target) edges.push({ a: n, b: target, len: 60, k: 0.03 / nids.length, time: true, loose: !visible[nid] });
+      if (target) {
+        edges.push({ a: n, b: target, len: 60, k: 0.008 / nids.length, time: true, loose: !visible[nid] });
+        var hub = target; while (hub && hub.kind !== "module" && hub.kind !== "course") hub = hub.parent;
+        if (hub && hub !== target) edges.push({ a: n, b: hub, len: 60, k: 0.03 / nids.length, time: true, loose: true, steer: true });
+      }
     });
   });
 
@@ -957,7 +978,7 @@ function buildForceGraph(t, roots){
 }
 var sim = { alpha: 0, raf: null, pinned: null };
 function stepForces(){
-  var nodes = mapLayout.nodes, edges = mapLayout.edges, a = sim.alpha, R = clock.R * 0.82 - 30;
+  var nodes = mapLayout.nodes, edges = mapLayout.edges, a = sim.alpha, R = clock.R * 0.9 - 30;
   var i, j, n, m, dx, dy, d, f;
   for (i = 0; i < nodes.length; i++) {
     n = nodes[i];
@@ -1012,7 +1033,7 @@ function runSim(heat){
   sim.raf = requestAnimationFrame(tick);
 }
 function ringSvg(t){
-  var R = clock.R, inner = R * 0.82;
+  var R = clock.R, inner = R * 0.9;
   var out = '<g class="zones"><circle class="band" cx="0" cy="0" r="' + (R + 48) + '"/><circle class="disc" cx="0" cy="0" r="' + inner + '"/>' +
     '<text x="0" y="' + (-inner + 18) + '" text-anchor="middle">Canvas material</text><text x="0" y="' + (-R - 58) + '" text-anchor="middle">Sessions, deadlines, tasks, in date order</text></g>' +
     '<g class="ring"><circle cx="0" cy="0" r="' + R + '"/>';
@@ -1047,7 +1068,7 @@ function svgGraph(t){
   g.deps = depEdges(t, g.visible).map(function(e){ return { a: e[0], b: e[1] }; });
   mapLayout = g;
   var cur = currentSet(t), sel = resolveSel(t);
-  var edges = g.edges.map(function(e, i){ return '<path class="ge' + (e.time ? ' tl' : '') + ' lv' + e.b.kind + '" data-edge="' + i + '" data-a="' + esc(e.a.id) + '" data-b="' + esc(e.b.id) + '" style="' + colorVars(e.a.code) + '" d="M0 0"/>'; }).join("");
+  var edges = g.edges.map(function(e, i){ if (e.steer) return ''; return '<path class="ge' + (e.time ? ' tl' : '') + ' lv' + e.b.kind + '" data-edge="' + i + '" data-a="' + esc(e.a.id) + '" data-b="' + esc(e.b.id) + '" style="' + colorVars(e.a.code) + '" d="M0 0"/>'; }).join("");
   var dep = g.deps.map(function(e, i){ return '<path class="ge dep" data-dep="' + i + '" data-a="' + esc(e.a.id) + '" data-b="' + esc(e.b.id) + '" marker-end="url(#arrb)" d="M0 0"><title>Watch before the session</title></path>'; }).join("");
   var nodes = g.nodes.map(function(n){
     var isSel = n.kind === "time" ? !!sel.rows[n.key] : n.id === sel.node;
@@ -1179,7 +1200,12 @@ function renderMapView(t){
     '<div class="card"><h3>' + ic("tree-structure") + 'Canvas map <span class="why" style="display:inline;text-transform:none;letter-spacing:0;font-weight:400">hover or click a node to see its links, click a module to open it, drag to pan, scroll to zoom</span></h3>' +
       '<div class="gwrap" id="gwrap">' + svgGraph(t) + '<div class="gtools"><button type="button" id="g-fit" title="Fit the whole graph">' + ic("arrows-in", "sm") + 'Fit</button><button type="button" id="g-open" title="Open every module">' + ic("arrows-out", "sm") + 'Open all</button><button type="button" id="g-close" title="Close every module">Close all</button><button type="button" id="g-settle" title="Forget the saved positions and lay the material out afresh">Re-settle</button><button type="button" id="g-all" title="Show every node; lower levels fade until they join a chain" aria-pressed="' + (state.mapAll ? "true" : "false") + '">Show all</button>' +
       '<label class="reach" title="How far a highlighted chain reaches from the node: link steps in either direction, the jump to the ring counts as one"><span>Reach</span><input type="range" id="g-hops" min="1" max="5" step="1" value="' + state.mapHops + '"><b id="g-hops-v">' + hopsLabel() + '</b></label></div>' +
-      '<div class="gnote">Two zones: the outer band holds sessions, deadlines and tasks in date order, the inner disc holds the Canvas material. Hover or select to see what ties them together. Blue tint: this week\u2019s material. Dashed: watch before the session. Red dot: MUST.</div></div></div>' +
+      '<div class="legend-g"><div class="lt">Legend</div>' +
+        '<div><svg class="lg" viewBox="-14 -14 28 28"><circle r="11" class="c"/></svg>course <svg class="lg" viewBox="-14 -14 28 28"><circle r="8" class="c"/></svg>module <svg class="lg" viewBox="-14 -14 28 28"><circle r="6" class="c d"/></svg>section <svg class="lg" viewBox="-14 -14 28 28"><circle r="4.5" class="c"/></svg>item</div>' +
+        '<div><span class="lp">' + ic("chalkboard-teacher", "sm") + '</span>session <span class="lp r">' + ic("upload-simple", "sm") + '</span>deadline <span class="lp t">' + ic("clipboard-text", "sm") + '</span>task</div>' +
+        '<div><span class="dot"></span>MUST <span class="sw now"></span>this week <span class="sw wedge"></span>today</div>' +
+        '<div><span class="ln"></span>belongs to <span class="ln dep"></span>watch before <span class="ln tl"></span>event to page</div>' +
+        '<div class="why">Faded: lower levels until they join a hovered or selected chain.</div></div></div></div>' +
     '<div class="card"><h3>' + ic("info") + 'Details</h3><div class="detail" id="detail">' + detailFor(t, state.mapSel) + '</div></div>' +
     '</div></section>';
 }
@@ -1229,7 +1255,7 @@ function openPathTo(id){
 function chainOf(id){
   var nodes = {}, edges = {}, n = mapLayout.nodes.find(function(x){ return x.id === id; });
   if (!n) return { nodes: nodes, edges: edges };
-  var all = mapLayout.edges.concat(mapLayout.deps), outs = {}, ins = {}, limit = state.mapHops >= 5 ? Infinity : state.mapHops, depth = {};
+  var all = mapLayout.edges.filter(function(e){ return !e.steer; }).concat(mapLayout.deps), outs = {}, ins = {}, limit = state.mapHops >= 5 ? Infinity : state.mapHops, depth = {};
   all.forEach(function(e){ (outs[e.a.id] = outs[e.a.id] || []).push(e); (ins[e.b.id] = ins[e.b.id] || []).push(e); });
   nodes[n.id] = true; depth[n.id] = 0;
   // a loose tie (an event whose page is folded away) only counts when starting from that event
