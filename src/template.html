@@ -890,6 +890,7 @@ function depEdges(t, visible){
 }
 var LABEL_MAX = { course: 24, module: 22, section: 20, item: 20, time: 6 };
 var RADIUS = { course: 26, module: 17, section: 12, item: 9 };
+var LAYER = { course: 0, module: 0.38, section: 0.64, item: 0.9 };   // home radius per level, as a share of the inner disc
 function trunc(s, n){ return s.length > n ? s.slice(0, n - 1) + "\u2026" : s; }
 
 // ---- the clock: dated nodes pinned on a ring, in date order, starting at the top and running clockwise
@@ -965,9 +966,11 @@ function stepForces(){
       if (!m.fixed) { m.vx += dx * f; m.vy += dy * f; }
     }
     if (n.fixed) continue;
-    n.vx -= n.x * (n.parent ? 0.002 : 0.03) * a; n.vy -= n.y * (n.parent ? 0.002 : 0.03) * a;
+    // radial layering: each level has a home radius, courses in the middle and items near the edge
+    d = Math.sqrt(n.x * n.x + n.y * n.y) || 1;
+    var home = R * (LAYER[n.kind] != null ? LAYER[n.kind] : 0.9), pull = (d - home) * (n.kind === "course" ? 0.06 : 0.015) * a;
+    n.vx -= n.x / d * pull; n.vy -= n.y / d * pull;
     // keep the structure well inside the ring
-    d = Math.sqrt(n.x * n.x + n.y * n.y);
     if (d > R) { f = (d - R) * 0.45 * a; n.vx -= n.x / d * f; n.vy -= n.y / d * f; }
   }
   edges.forEach(function(e){

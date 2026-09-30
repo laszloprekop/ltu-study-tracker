@@ -86,8 +86,7 @@ deadline, task) sits just outside the ring as a small pill (day and kind icon), 
 evenly spaced in date order; week ticks and the today spoke land between their neighbours. Each
 pill is tied by a spring to the Canvas page it points at. Inside the ring the
 Canvas structure floats in a force layout: course to module to section (Canvas's own headings,
-when a module has several) to item; nodes repel, links attract, and the springs to the ring pull
-each module toward the time it is taught. Inner nodes are circles sized by level: the course (its prefix letters), modules (their number), sections (a letter), items (their kind icon), with the title underneath. Nodes are not draggable; drag
+when a module has several) to item; nodes repel, links attract, each level has a home radius (courses in the middle, then modules, sections, items near the edge), and the springs to the ring pull each page toward the time it is taught. Inner nodes are circles sized by level: the course (its prefix letters), modules (their number), sections (a letter), items (their kind icon), with the title underneath. Nodes are not draggable; drag
 the background to pan, scroll to zoom, click a module or section to open it. Selecting never moves
 the layout, positions are remembered per viewer, and when a module opens only its new nodes
 settle while everything already placed stays put. The full title replaces the short one under a hovered or selected node. Hovering or selecting highlights the whole chain in
