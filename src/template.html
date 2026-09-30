@@ -312,6 +312,8 @@ svg.focus .ge.tl.hl{opacity:1}
 .gn.sel rect{stroke:var(--now); stroke-width:2.5; fill:var(--now-soft)}
 .gn .must{fill:var(--alert)}
 .gn .badge{font-size:10px; fill:var(--muted); font-weight:600}
+.gn .sub{display:none; font-size:11px; fill:var(--ink); paint-order:stroke; stroke:var(--surface); stroke-width:4px; stroke-linejoin:round; pointer-events:none}
+.gn.sel .sub,.gn.hover .sub{display:block}
 .ge{stroke:var(--muted); stroke-width:1.2; fill:none; opacity:.7}
 .ge.dep{stroke:var(--now); stroke-dasharray:4 3; opacity:.9}
 .gnote{position:absolute; left:10px; bottom:8px; font-size:11px; color:var(--muted); pointer-events:none}
@@ -447,7 +449,7 @@ footer p{margin:0 0 6px}
 
 /* ---------- Helpers ---------- */
 const P = DATA.plan, INV = DATA.inventory, COURSES = P.COURSES, TEACHERS = P.TEACHERS, TERMS = P.TERMS, PROGRESS = DATA.progress || null;
-const LS = { hours: "ltu-plan-hours", ticks: "ltu-plan-ticks", muted: "ltu-plan-muted", filter: "ltu-plan-filter", term: "ltu-plan-term", view: "ltu-plan-view", open: "ltu-plan-open", weeks: "ltu-plan-weeks", size: "ltu-plan-size", ping: "ltu-plan-ping", colored: "ltu-plan-colored", theme: "ltu-plan-theme", mapOpen: "ltu-plan-map-open", legacy: "lp2-shared-ticks" };
+const LS = { hours: "ltu-plan-hours", ticks: "ltu-plan-ticks", muted: "ltu-plan-muted", filter: "ltu-plan-filter", term: "ltu-plan-term", view: "ltu-plan-view", open: "ltu-plan-open", weeks: "ltu-plan-weeks", size: "ltu-plan-size", ping: "ltu-plan-ping", colored: "ltu-plan-colored", theme: "ltu-plan-theme", mapOpen: "ltu-plan-map-open", mapPos: "ltu-plan-map-pos", legacy: "lp2-shared-ticks" };
 const state = { checked: {}, muted: {}, filter: "all", term: null, view: "week", day: null, open: {}, weeks: {}, size: 100, ping: true, colored: true, theme: "system", hours: { start: "09:00", end: "17:00" }, mapOpen: null, mapSel: null };
 let store = null, saveTimer = null;
 
@@ -860,10 +862,13 @@ function depEdges(t, visible){
   });
   return out;
 }
+var LABEL_MAX = { course: 22, module: 18, section: 16, item: 16, time: 6 };
 function trunc(s, n){ return s.length > n ? s.slice(0, n - 1) + "\u2026" : s; }
 
 // ---- the clock: dated nodes pinned on a ring, in date order, starting at the top and running clockwise
-var mapPos = {}, mapT = { x: 0, y: 0, s: 1 }, mapRoots = null, mapLayout = null, clock = null;
+var mapPos = lsJson("ltu-plan-map-pos") || {}, mapT = { x: 0, y: 0, s: 1 }, mapRoots = null, mapLayout = null, clock = null;
+var posSaveTimer = null;
+function savePos(){ clearTimeout(posSaveTimer); posSaveTimer = setTimeout(function(){ lsSet(LS.mapPos, JSON.stringify(mapPos)); }, 500); }
 // Events are spaced evenly around the ring in date order; any other date lands between its neighbours.
 function stamp(isoDate, time){ return day(isoDate) / 864e5 + (time ? toMin(time) / 1440 : 0.5); }
 function clockAngle(isoDate, time){
@@ -877,7 +882,7 @@ function clockAngle(isoDate, time){
 function nodeRadius(n){ return n.w / 2 + 6; }
 function buildForceGraph(t, roots){
   var nodes = [], edges = [];
-  function width(n){ var chars = Math.min(n.label.length, n.kind === "item" ? 26 : n.kind === "time" ? 22 : 24); return Math.max(chars * 6.4 + (n.kind === "item" ? 40 : 26), 64); }
+  function width(n){ var chars = Math.min(n.label.length, LABEL_MAX[n.kind] || 18); return Math.max(chars * 6.4 + (n.kind === "item" ? 40 : 26), 56); }
   roots.forEach(function(r){ (function walk(n, parent, depth){
     n.depth = depth; n.w = width(n); n.open = n.kind !== "item" && !!state.mapOpen[n.id]; n.parent = parent;
     nodes.push(n);
@@ -902,16 +907,17 @@ function buildForceGraph(t, roots){
     var nid = rowNodeId(t, r), target = nid && visible[nid];
     if (nid && !target) { var it = findNode(roots, nid); var p = it && it.parent; while (p && !visible[p.id]) p = p.parent; target = p ? visible[p.id] : null; }
     if (!target) target = visible["c:" + r.code];
-    if (target) edges.push({ a: n, b: target, len: 200, k: 0.004, time: true });
+    if (target) edges.push({ a: n, b: target, len: 200, k: 0.004, time: true, loose: !(nid && visible[nid]) });
   });
 
   // starting positions: remembered ones, else a ring around the parent
-  nodes.forEach(function(n){
+  nodes.forEach(function(n, k){
     if (n.fixed) return;
     var p = mapPos[n.id];
+    n.settled = !!p;
     if (p) { n.x = p.x; n.y = p.y; }
     else if (!n.parent) { var ri = roots.indexOf(n); n.x = roots.length > 1 ? Math.cos(ri / roots.length * 2 * Math.PI) * 120 : 0; n.y = roots.length > 1 ? Math.sin(ri / roots.length * 2 * Math.PI) * 120 : 0; }
-    else { var sib = n.parent.children, idx = sib.indexOf(n), ang = idx / sib.length * 2 * Math.PI + n.depth; var r = n.parent.kind === "course" ? 150 : 85; n.x = n.parent.x + Math.cos(ang) * r + (Math.random() - 0.5) * 20; n.y = n.parent.y + Math.sin(ang) * r + (Math.random() - 0.5) * 20; }
+    else { var sib = n.parent.children, idx = sib.indexOf(n), ang = idx / sib.length * 2 * Math.PI + n.depth, j = ((k * 9301 + 49297) % 233280) / 233280 - 0.5; var r = n.parent.kind === "course" ? 150 : 85; n.x = n.parent.x + Math.cos(ang) * r + j * 20; n.y = n.parent.y + Math.sin(ang) * r + j * 14; }
     n.vx = 0; n.vy = 0;
   });
   return { nodes: nodes, edges: edges, visible: visible };
@@ -947,6 +953,7 @@ function stepForces(){
     if (n.fixed) return;
     if (n === sim.pinned) { n.vx = 0; n.vy = 0; return; }
     n.vx *= 0.6; n.vy *= 0.6;
+    if (n.settled) { n.vx *= 0.15; n.vy *= 0.15; }   // already placed: only nudge
     var sp = Math.sqrt(n.vx * n.vx + n.vy * n.vy), cap = 18;   // no node jumps further than this per step
     if (sp > cap) { n.vx *= cap / sp; n.vy *= cap / sp; }
     n.x += n.vx; n.y += n.vy;
@@ -965,7 +972,7 @@ function runSim(heat){
     for (var k = 0; k < 3; k++) stepForces();
     paintForces();
     sim.alpha *= 0.96;
-    if (sim.alpha > 0.005 || sim.pinned) sim.raf = requestAnimationFrame(tick); else { sim.raf = null; sim.alpha = 0; }
+    if (sim.alpha > 0.005 || sim.pinned) sim.raf = requestAnimationFrame(tick); else { sim.raf = null; sim.alpha = 0; savePos(); }
   };
   sim.raf = requestAnimationFrame(tick);
 }
@@ -1010,7 +1017,8 @@ function svgGraph(t){
     var ids = ' data-node="' + esc(n.id) + '"' + (n.tick ? ' data-id="' + esc(n.tick) + '"' : n.kind === "time" && n.row.id ? ' data-id="' + esc(n.row.id) + '"' : '');
     return '<g class="' + cls + '"' + ids + ' style="' + colorVars(n.code) + '">' +
       '<title>' + esc(n.label) + '</title><rect rx="' + rx + '" width="' + n.w + '" height="' + (n.h || 28) + '"/>' + (must && n.kind !== "time" ? '<circle class="must" cx="10" cy="14" r="3"/>' : '') + icon +
-      '<text x="' + tx + '" y="' + (n.kind === "time" ? 14 : 18) + '">' + esc(n.kind === "time" ? n.short : trunc(n.label, n.kind === "item" ? 26 : 24)) + '</text>' + badge + '</g>';
+      '<text class="sub" x="' + (n.w / 2) + '" y="' + ((n.h || 28) + 13) + '" text-anchor="middle">' + esc(trunc(n.kind === "time" ? n.label : n.label, 70)) + '</text>' +
+      '<text x="' + tx + '" y="' + (n.kind === "time" ? 14 : 18) + '">' + esc(n.kind === "time" ? n.short : trunc(n.label, LABEL_MAX[n.kind] || 18)) + '</text>' + badge + '</g>';
   }).join("");
   return '<svg id="gsvg" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--now)"/></marker></defs>' +
     '<g id="gpan">' + ringSvg(t) + edges + dep + nodes + '</g></svg>';
@@ -1123,8 +1131,8 @@ function wireGraph(){
   mapLayout.edges.forEach(function(e, i){ e.el = svg.querySelector('[data-edge="' + i + '"]'); });
   mapLayout.deps.forEach(function(e, i){ e.el = svg.querySelector('[data-dep="' + i + '"]'); });
   paintForces();
-  svg.addEventListener("pointerover", function(e){ var g = e.target.closest("[data-node]"); if (g) highlight(g.dataset.node); });
-  svg.addEventListener("pointerout", function(e){ var g = e.target.closest("[data-node]"); if (g) applySel(term()); });
+  svg.addEventListener("pointerover", function(e){ var g = e.target.closest("[data-node]"); if (g) { g.classList.add("hover"); highlight(g.dataset.node); } });
+  svg.addEventListener("pointerout", function(e){ var g = e.target.closest("[data-node]"); if (g) { g.classList.remove("hover"); applySel(term()); } });
 }
 function applyMapT(){ var g = document.getElementById("gpan"); if (g) g.setAttribute("transform", "translate(" + mapT.x + " " + mapT.y + ") scale(" + mapT.s + ")"); }
 function graphBounds(){
@@ -1151,20 +1159,17 @@ function openPathTo(id){
   return changed;
 }
 // Everything a node is linked to, up and down: ancestors, visible descendants, its events, its prep links.
+// Edges point parent -> child, prerequisite -> page, event -> page. The chain follows them as far as
+// they keep pointing the same way: everything upstream of the node and everything downstream of it.
 function chainOf(id){
   var nodes = {}, edges = {}, n = mapLayout.nodes.find(function(x){ return x.id === id; });
   if (!n) return { nodes: nodes, edges: edges };
-  function mark(x){ nodes[x.id] = true; }
-  mark(n);
-  var p = n.parent; while (p) { mark(p); p = p.parent; }
-  (function down(x){ (x.open ? x.children : []).forEach(function(k){ mark(k); down(k); }); })(n);
-  mapLayout.edges.concat(mapLayout.deps).forEach(function(e, i){
-    var touches = e.a === n || e.b === n, inChain = nodes[e.a.id] && nodes[e.b.id];
-    if (touches) { mark(e.a); mark(e.b); }
-    if (touches || inChain) edges[e.a.id + ">" + e.b.id] = true;
-  });
-  // an event's chain continues into its page's ancestors
-  if (n.kind === "time") mapLayout.edges.forEach(function(e){ if (e.a === n) { var q = e.b; while (q) { mark(q); if (q.parent) edges[q.parent.id + ">" + q.id] = true; q = q.parent; } } });
+  var all = mapLayout.edges.concat(mapLayout.deps), outs = {}, ins = {};
+  all.forEach(function(e){ (outs[e.a.id] = outs[e.a.id] || []).push(e); (ins[e.b.id] = ins[e.b.id] || []).push(e); });
+  nodes[n.id] = true;
+  // a loose tie (an event whose page is folded away) only counts when starting from that event
+  (function up(x){ (ins[x.id] || []).forEach(function(e){ if (e.loose) return; edges[e.a.id + ">" + e.b.id] = true; if (!nodes[e.a.id]) { nodes[e.a.id] = true; up(e.a); } }); })(n);
+  (function down(x){ (outs[x.id] || []).forEach(function(e){ if (e.loose && x !== n) return; edges[e.a.id + ">" + e.b.id] = true; if (!nodes[e.b.id]) { nodes[e.b.id] = true; down(e.b); } }); })(n);
   return { nodes: nodes, edges: edges };
 }
 function highlight(id){
@@ -1191,7 +1196,7 @@ function refreshMap(t, center, structural){
   var w = document.getElementById("gwrap"); if (!w) return;
   if (structural) {
     w.querySelector("svg").outerHTML = svgGraph(t);
-    wireGraph(); applyMapT(); bindSvg(); runSim(0.8);
+    wireGraph(); applyMapT(); bindSvg(); runSim(0.5);
   }
   applySel(t);
   if (center) setTimeout(function(){ centerMapOn(center); }, structural ? 350 : 0);
@@ -1230,7 +1235,7 @@ function gotoKey(t, key){
   refreshMap(t, nid, opened);
 }
 function bindMap(t){
-  wireGraph(); bindSvg(); applySel(t); runSim(1); setTimeout(fitMap, 700);
+  wireGraph(); bindSvg(); applySel(t); runSim(Object.keys(mapPos).length ? 0.3 : 1); setTimeout(fitMap, 700);
   document.getElementById("termbody").addEventListener("click", function(e){
     var b = e.target.closest("button"); if (!b) return;
     if (b.dataset.ev) gotoKey(t, b.dataset.ev);

@@ -89,8 +89,12 @@ Canvas structure floats in a force layout: course to module to section (Canvas's
 when a module has several) to item; nodes repel, links attract, and the springs to the ring pull
 each module toward the time it is taught. Item nodes show their kind icon. Nodes are not draggable; drag
 the background to pan, scroll to zoom, click a module or section to open it. Selecting never moves
-the layout. Hovering or selecting a node highlights its whole chain (ancestors, open descendants,
-its events, its prep links) and dims the rest. Dashed blue edges
+the layout, positions are remembered per viewer, and when a module opens only its new nodes
+settle while everything already placed stays put. Nodes are short; the full title appears as a
+sublabel under a hovered or selected node. Hovering or selecting highlights the whole chain in
+both directions, as far as the links keep pointing the same way: up through parents,
+prerequisites and the events pointing in, down through children and what depends on it. Ties
+from events to a folded module do not count. Dashed blue edges
 show what a session's page depends on (its `prep`), a red dot marks MUST, a blue tint marks this
 week's material. Right: details of the chosen event or node, with the tick box, mute, Canvas links
 and everything connected to it. The selection is shared: a node lights the events that point at it
