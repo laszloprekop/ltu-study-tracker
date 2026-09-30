@@ -323,6 +323,8 @@ svg.focus .ge.tl.hl{stroke:var(--now)}
 .gn.module .lab{font-size:11px; font-weight:600; fill:var(--ink)}
 .gn .lab{font-size:10.5px; fill:var(--muted); paint-order:stroke; stroke:var(--surface); stroke-width:3px; stroke-linejoin:round; pointer-events:none}
 .gn.sel .lab,.gn.hover .lab{display:none}
+.gn.item .lab,.gn.section .lab{display:none}
+.gn.item.hl .lab,.gn.section.hl .lab{display:block}
 .gn.done circle.body{fill:var(--line)}
 .gn.done .gl,.gn.done use{fill:var(--muted)}
 .gn.done .lab{text-decoration:line-through}
@@ -352,7 +354,7 @@ svg.focus .ge.tl.hl{opacity:.5; stroke-width:1.4}
 .gn.sel rect{stroke:var(--now); stroke-width:3}
 .gn .must{fill:var(--alert)}
 .gn .badge{font-size:10px; fill:var(--muted); font-weight:600}
-.gn .sub{display:none; font-size:11px; font-weight:600; fill:var(--ink); paint-order:stroke; stroke:var(--surface); stroke-width:4px; stroke-linejoin:round; pointer-events:none}
+.gn .sub,.gn.time .sub{display:none; font-size:11px; font-weight:600; fill:var(--ink); paint-order:stroke; stroke:var(--surface); stroke-width:4px; stroke-linejoin:round; pointer-events:none}
 .gn.sel .sub,.gn.hover .sub{display:block}
 .ge{stroke:var(--muted); stroke-width:1.2; fill:none; opacity:.7}
 /* thick and faint near the trunk, thin and firmer toward the leaves */
