@@ -288,6 +288,8 @@ body.mapview footer p{margin:0 0 2px}
 .gtools{position:absolute; top:10px; right:10px; display:flex; gap:4px}
 .gtools button{display:inline-flex; align-items:center; gap:4px; font-size:12px; font-weight:600; color:var(--muted); background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:4px 7px; cursor:pointer}
 .gtools button:hover{color:var(--ink)}
+.gtools button:disabled{opacity:.4; cursor:default}
+.gtools button:disabled:hover{color:var(--muted)}
 .gtools button[aria-pressed="true"]{color:var(--on-now); background:var(--now); border-color:var(--now)}
 .gtools button[aria-pressed="true"] .ic{fill:var(--on-now)}
 .gtools .reach{display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:var(--muted); background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:3px 8px}
@@ -1242,7 +1244,7 @@ function renderMapView(t){
   return '<section><div class="map">' +
     '<div class="card"><h3>' + ic("calendar-dot") + 'Coming up</h3><div class="rail-list" id="rail">' + railList(t) + '</div></div>' +
     '<div class="card"><h3>' + ic("tree-structure") + 'Canvas map <span class="why" style="display:inline;text-transform:none;letter-spacing:0;font-weight:400">hover or click a node to see its links, shift-click to select several, click a module to open it, drag to pan, scroll to zoom</span></h3>' +
-      '<div class="gwrap" id="gwrap">' + svgGraph(t) + '<div class="gtools"><button type="button" id="g-fit" title="Fit the whole graph">' + ic("arrows-in", "sm") + 'Fit</button><button type="button" id="g-open" title="Open every module">Open all</button><button type="button" id="g-close" title="Close every module">Close all</button><button type="button" id="g-settle" title="Forget the saved positions and lay the material out afresh">Re-settle</button><button type="button" id="g-all" title="Draw closed modules and sections open too; their contents stay faded until they join a chain" aria-pressed="' + (state.mapAll ? "true" : "false") + '">Unhide closed</button>' +
+      '<div class="gwrap" id="gwrap">' + svgGraph(t) + '<div class="gtools"><button type="button" id="g-fit" title="Fit the whole graph">' + ic("arrows-in", "sm") + 'Fit</button><button type="button" id="g-open" title="Open every module"' + (state.mapAll ? ' disabled' : '') + '>Open all</button><button type="button" id="g-close" title="Close every module"' + (state.mapAll ? ' disabled' : '') + '>Close all</button><button type="button" id="g-settle" title="Forget the saved positions and lay the material out afresh">Re-settle</button><button type="button" id="g-all" title="Draw closed modules and sections open too; their contents stay faded until they join a chain" aria-pressed="' + (state.mapAll ? "true" : "false") + '">Unhide closed</button>' +
       '<label class="reach" title="How far a highlighted chain reaches from the node: link steps in either direction, the jump to the ring counts as one"><span>Reach</span><input type="range" id="g-hops" min="1" max="5" step="1" value="' + state.mapHops + '"><b id="g-hops-v">' + hopsLabel() + '</b></label></div>' +
       '<details class="legend-g" data-key="legend"' + (state.open.legend === false ? '' : ' open') + '><summary class="lt">' + ic("caret-down", "sm caret") + 'Legend</summary>' +
         '<div><svg class="lg" viewBox="-14 -14 28 28"><circle r="11" class="c"/></svg>course <svg class="lg" viewBox="-14 -14 28 28"><circle r="8" class="c"/></svg>module <svg class="lg" viewBox="-14 -14 28 28"><circle r="6" class="c d"/></svg>section <svg class="lg" viewBox="-14 -14 28 28"><circle r="4.5" class="c"/></svg>item</div>' +
@@ -1388,7 +1390,7 @@ function bindMap(t){
     else if (b.id === "sel-clear") { selectKey(null, false); refreshMap(t, null, false); }
     else if (b.id === "g-fit") fitMap();
     else if (b.id === "g-settle") { mapPos = {}; lsSet(LS.mapPos, "{}"); refreshMap(t, null, true); runSim(1); setTimeout(fitMap, 900); }
-    else if (b.id === "g-all") { state.mapAll = !state.mapAll; lsSet(LS.mapAll, state.mapAll ? "1" : "0"); b.setAttribute("aria-pressed", String(state.mapAll)); refreshMap(t, null, true); setTimeout(fitMap, 700); }
+    else if (b.id === "g-all") { state.mapAll = !state.mapAll; lsSet(LS.mapAll, state.mapAll ? "1" : "0"); b.setAttribute("aria-pressed", String(state.mapAll)); document.getElementById("g-open").disabled = state.mapAll; document.getElementById("g-close").disabled = state.mapAll; refreshMap(t, null, true); setTimeout(fitMap, 700); }
     else if (b.id === "g-open" || b.id === "g-close") { allNodes(mapRoots).forEach(function(n){ if (n.kind !== "item" && n.kind !== "time") state.mapOpen[n.id] = b.id === "g-open" || n.kind === "course"; }); lsSet(LS.mapOpen, JSON.stringify(state.mapOpen)); refreshMap(t, null, true); setTimeout(fitMap, 700); }
   });
 }
