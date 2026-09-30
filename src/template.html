@@ -364,8 +364,13 @@ svg.focus .ge.tl.hl{opacity:.5; stroke-width:1.4}
 .ge.lvsection{stroke-width:2; opacity:.15}
 .ge.lvitem{stroke-width:1; opacity:.15}
 .ge.dep{stroke:var(--now); stroke-dasharray:4 3; opacity:.15}
-.legend-g{position:absolute; left:10px; top:10px; background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:8px 10px; font-size:11px; color:var(--muted); display:flex; flex-direction:column; gap:4px; pointer-events:none; max-width:300px}
-.legend-g .lt{font-size:10px; letter-spacing:.08em; text-transform:uppercase; font-weight:600}
+.legend-g{position:absolute; left:10px; top:10px; background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:5px 9px; font-size:11px; color:var(--muted); display:flex; flex-direction:column; gap:4px; max-width:300px}
+.legend-g[open]{padding:8px 10px}
+.legend-g .lt{font-size:10px; letter-spacing:.08em; text-transform:uppercase; font-weight:600; cursor:pointer; list-style:none; display:flex; align-items:center; gap:4px}
+.legend-g .lt::-webkit-details-marker{display:none}
+.legend-g .lt .caret{transition:transform .15s; transform:rotate(-90deg)}
+.legend-g[open] .lt .caret{transform:none}
+.legend-g > div{pointer-events:none}
 .legend-g div{display:flex; flex-wrap:wrap; align-items:center; gap:3px 8px}
 .legend-g .lg{width:16px; height:16px; margin-right:2px}
 .legend-g .lg .c{fill:var(--now-soft); stroke:var(--now); stroke-width:1.5}
@@ -1236,12 +1241,12 @@ function renderMapView(t){
     '<div class="card"><h3>' + ic("tree-structure") + 'Canvas map <span class="why" style="display:inline;text-transform:none;letter-spacing:0;font-weight:400">hover or click a node to see its links, shift-click to select several, click a module to open it, drag to pan, scroll to zoom</span></h3>' +
       '<div class="gwrap" id="gwrap">' + svgGraph(t) + '<div class="gtools"><button type="button" id="g-fit" title="Fit the whole graph">' + ic("arrows-in", "sm") + 'Fit</button><button type="button" id="g-open" title="Open every module">Open all</button><button type="button" id="g-close" title="Close every module">Close all</button><button type="button" id="g-settle" title="Forget the saved positions and lay the material out afresh">Re-settle</button><button type="button" id="g-all" title="Draw closed modules and sections open too; their contents stay faded until they join a chain" aria-pressed="' + (state.mapAll ? "true" : "false") + '">Unhide closed</button>' +
       '<label class="reach" title="How far a highlighted chain reaches from the node: link steps in either direction, the jump to the ring counts as one"><span>Reach</span><input type="range" id="g-hops" min="1" max="5" step="1" value="' + state.mapHops + '"><b id="g-hops-v">' + hopsLabel() + '</b></label></div>' +
-      '<div class="legend-g"><div class="lt">Legend</div>' +
+      '<details class="legend-g" data-key="legend"' + (state.open.legend === false ? '' : ' open') + '><summary class="lt">' + ic("caret-down", "sm caret") + 'Legend</summary>' +
         '<div><svg class="lg" viewBox="-14 -14 28 28"><circle r="11" class="c"/></svg>course <svg class="lg" viewBox="-14 -14 28 28"><circle r="8" class="c"/></svg>module <svg class="lg" viewBox="-14 -14 28 28"><circle r="6" class="c d"/></svg>section <svg class="lg" viewBox="-14 -14 28 28"><circle r="4.5" class="c"/></svg>item</div>' +
         '<div><span class="lp">' + ic("chalkboard-teacher", "sm") + '</span>session <span class="lp r">' + ic("upload-simple", "sm") + '</span>deadline <span class="lp t">' + ic("clipboard-text", "sm") + '</span>task</div>' +
         '<div><span class="dot"></span>MUST <span class="sw now"></span>this week <span class="sw wedge"></span>today</div>' +
         '<div><span class="ln"></span>belongs to <span class="ln dep"></span>watch before <span class="ln tl"></span>event to page</div>' +
-        '<div class="why">Faded: lower levels until they join a hovered or selected chain.</div></div></div></div>' +
+        '<div class="why">Faded: lower levels until they join a hovered or selected chain.</div></details></div></div>' +
     '<div class="card"><h3>' + ic("info") + 'Details</h3><div class="detail" id="detail">' + detailFor(t, state.mapSel) + '</div></div>' +
     '</div></section>';
 }
