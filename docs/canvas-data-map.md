@@ -106,3 +106,21 @@ Each module item has `html_url`, so every entry below can be linked directly.
 614 rules per item: `must_view`, `must_mark_done`, `must_contribute`, `must_submit`, each with a
 `completed` flag for the calling user. Read via `/courses/614/modules?include[]=items`. 613 has none.
 This state belongs to the token's owner only, so a shared page cannot show it for other viewers.
+
+## Map layout notes (2026-09-30)
+
+Measured in the Map tab with everything shown (282 inner nodes, 71 events), after a full settle,
+counting crossings among tree edges and visible event ties:
+
+| Force setting | Crossings | Mean item-to-module distance |
+|---|---|---|
+| strong radial layering (modules inside, items at the edge) | 1169 | 193 px |
+| tight layering | 901 | 143 px |
+| gentle layering, stiff short springs (in use) | 850 | 126 px |
+| no layering | 789 | 125 px |
+
+Radial layering does not cut crossings: they are mostly Z7005E lines crossing Z0025E lines,
+because the two courses run in parallel and interleave around the ring. What would cut them: the
+course filter, or one radial band per course. Also measured: event-to-page alignment went from
+126° mean (worse than random) to 23° once the ring pills stopped repelling the material and the
+event springs were strengthened; layering then held it at 19°.
