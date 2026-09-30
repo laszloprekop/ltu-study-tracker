@@ -93,9 +93,11 @@ the layout, positions are remembered per viewer, and when a module opens only it
 settle while everything already placed stays put. The full title replaces the short one under a hovered or selected node. Hovering or selecting highlights the whole chain in
 both directions, as far as the links keep pointing the same way: up through parents,
 prerequisites and the events pointing in, down through children and what depends on it. Ties
-from events to a folded module do not count. **Show all** (toolbar) opens every module and
-section and fades sections and items, labels hidden, until they join a hovered or selected chain;
-the viewer's own open/closed choices are kept for when it is off. Dashed blue edges
+from events to a folded module do not count. **Show all** (toolbar, on by default) opens every module
+and section and fades sections and items, labels hidden, until they join a hovered or selected
+chain; the viewer's own open/closed choices are kept for when it is off. Hovering a node also
+previews its details in the right pane; a click pins them. So any item is zero clicks from its
+information and one from keeping it. Dashed blue edges
 show what a session's page depends on (its `prep`), a red dot marks MUST, a blue tint marks this
 week's material. Right: details of the chosen event or node, with the tick box, mute, Canvas links
 and everything connected to it. The selection is shared: a node lights the events that point at it

@@ -346,6 +346,8 @@ svg.focus .ge.tl.hl{opacity:1}
 .detail .act{display:flex; align-items:center; gap:10px; margin:10px 0}
 .detail .act label{cursor:pointer}
 .detail .none{color:var(--muted); padding:8px 0}
+.detail .peek{font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; font-weight:600; color:var(--now); margin:8px 0 2px}
+.detail.preview{outline:2px solid var(--now-soft); outline-offset:-2px; border-radius:0 0 10px 10px}
 .detail .why{color:var(--muted); font-size:12.5px; margin:4px 0}
 .detail .lnk{background:none; border:0; padding:0; font:inherit; color:inherit; cursor:pointer; text-decoration:underline}
 @media (max-width:900px){ .map{grid-template-columns:1fr; height:auto} .map .rail-list{max-height:220px} .gwrap{height:50vh} .detail{max-height:60vh} }
@@ -1157,8 +1159,13 @@ function wireGraph(){
   mapLayout.edges.forEach(function(e, i){ e.el = svg.querySelector('[data-edge="' + i + '"]'); });
   mapLayout.deps.forEach(function(e, i){ e.el = svg.querySelector('[data-dep="' + i + '"]'); });
   paintForces();
-  svg.addEventListener("pointerover", function(e){ var g = e.target.closest("[data-node]"); if (g) { g.classList.add("hover"); highlight(g.dataset.node); } });
-  svg.addEventListener("pointerout", function(e){ var g = e.target.closest("[data-node]"); if (g) { g.classList.remove("hover"); applySel(term()); } });
+  svg.addEventListener("pointerover", function(e){
+    var g = e.target.closest("[data-node]"); if (!g) return;
+    g.classList.add("hover"); highlight(g.dataset.node);
+    var n = mapLayout.nodes.find(function(x){ return x.id === g.dataset.node; }), key = n && (n.kind === "time" ? n.key : n.id);
+    if (key && key !== state.mapSel) { var d = document.getElementById("detail"); d.classList.add("preview"); d.innerHTML = '<div class="peek">Hovering. Click to keep.</div>' + detailFor(term(), key); }
+  });
+  svg.addEventListener("pointerout", function(e){ var g = e.target.closest("[data-node]"); if (g) { g.classList.remove("hover"); document.getElementById("detail").classList.remove("preview"); applySel(term()); } });
 }
 function applyMapT(){ var g = document.getElementById("gpan"); if (g) g.setAttribute("transform", "translate(" + mapT.x + " " + mapT.y + ") scale(" + mapT.s + ")"); }
 function graphBounds(){
@@ -1459,7 +1466,7 @@ var sh = lsJson(LS.hours); if (sh && toMin(sh.start) != null && toMin(sh.end) !=
 state.filter = lsGet(LS.filter) || "all";
 var sv = lsGet(LS.view); if (sv === "day" || sv === "all" || sv === "week" || sv === "map") state.view = sv;
 state.mapOpen = lsJson(LS.mapOpen);
-state.mapAll = lsGet(LS.mapAll) === "1";
+state.mapAll = lsGet(LS.mapAll) !== "0";   // on unless the viewer switched it off
 var savedTerm = lsGet(LS.term);
 state.term = TERMS.some(function(t){ return t.id === savedTerm; }) ? savedTerm : defaultTerm();
 applyDisplay();
