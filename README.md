@@ -80,7 +80,7 @@ so they live in the plan.
 ## Map view
 
 A fourth tab that fits the window: the page never scrolls in it, the rail and the details pane scroll on their own, the footer stays in view (on narrow screens it falls back to a scrolling page). Left: the coming events (sessions, deadlines, tasks) as a timeline, titles only.
-Centre: a clock in two zones: an outer band for everything with a date, an inner disc (dashed boundary) for the Canvas material. The study period runs once around a ring, starting at the top and going
+Centre: a clock in two zones: an outer band for everything with a date, an inner disc for the Canvas material; neither is drawn, the week ticks and the pills mark the ring. The study period runs once around a ring, starting at the top and going
 clockwise, with a tick and label per week, and a wedge across the band spanning all of today's events (a hairline when there are none). Every dated thing (session,
 deadline, task) sits just outside the ring as a small pill (day and kind icon), one slot each,
 evenly spaced in date order; week ticks and the today spoke land between their neighbours. Each
