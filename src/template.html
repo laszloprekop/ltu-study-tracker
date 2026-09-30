@@ -53,8 +53,9 @@ h1,h2,h3{font-family:Archivo,"Helvetica Neue",Arial,sans-serif; text-wrap:balanc
 a{color:inherit}
 button{font:inherit}
 /* Phosphor duotone icons: both layers use currentColor, the back layer at 20 % */
-.ic{width:1.15em; height:1.15em; flex:0 0 auto; vertical-align:-.2em; fill:currentColor}
-.ic.sm{width:1em; height:1em; vertical-align:-.15em}
+/* Icons keep one size whatever the text around them: 16px, 14px for the small class. */
+.ic{width:16px; height:16px; flex:0 0 auto; vertical-align:-.25em; fill:currentColor}
+.ic.sm{width:14px; height:14px; vertical-align:-.2em}
 
 /* ---------- Header ---------- */
 header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; background:var(--bg); padding-block:10px 8px; margin-bottom:12px; display:flex; flex-direction:column; gap:8px}
@@ -90,7 +91,7 @@ h1{font-size:20px; letter-spacing:-.015em; margin-right:6px}
 .pop.about .panel{width:min(540px, calc(100vw - 32px)); white-space:normal; font-size:13px; line-height:1.5; padding:14px 16px}
 .pop.about .panel h3{font-size:14px; color:var(--ink); margin-bottom:6px}
 .pop.about .panel p + p{margin-top:6px}
-.hours input[type=time]{font:inherit; font-size:12.5px; padding:2px 4px; background:var(--bg); color:var(--ink)}
+.hours input[type=time]{font:inherit; font-size:12.5px; padding:2px 4px; border:0; background:var(--bg); color:var(--ink)}
 .jump{display:inline-flex; align-items:center; gap:4px; font-size:12.5px; font-weight:600; color:var(--now); text-decoration:none}
 .jump:hover{text-decoration:underline}
 
@@ -239,8 +240,8 @@ a.tag.feeds:hover{text-decoration:underline}
 
 /* ---------- Day view ---------- */
 .dayctl{display:flex; flex-wrap:wrap; gap:8px 12px; align-items:center; margin-bottom:12px}
-.dayctl input[type=date]{font:inherit; font-size:13.5px; padding:4px 8px; background:var(--surface); color:var(--ink)}
-.dayctl button{font-size:12.5px; font-weight:600; background:var(--surface); padding:4px 10px; cursor:pointer; color:var(--ink)}
+.dayctl input[type=date]{font:inherit; font-size:13.5px; padding:4px 8px; border:0; background:var(--surface); color:var(--ink)}
+.dayctl button{font-size:12.5px; font-weight:600; background:var(--surface); border:0; padding:4px 10px; cursor:pointer; color:var(--ink)}
 .day{display:grid; grid-template-columns:1fr 1fr; gap:14px}
 .day .card{padding-bottom:4px}
 .day h3{font-size:13.5px; padding:12px 16px 4px; display:flex; gap:8px; align-items:center}
@@ -272,7 +273,7 @@ body.mapview #termbody section{flex:1 1 auto; min-height:0; margin-bottom:12px; 
 .map h3 .t{white-space:nowrap}
 .rail-toggle{margin-left:auto; display:inline-flex; align-items:center; color:var(--muted); background:none; border:0; padding:0 2px; cursor:pointer; line-height:1}
 .rail-toggle:hover{color:var(--ink)}
-.rail-toggle .ic{width:20px; height:20px; transition:transform .15s}
+.rail-toggle .ic{width:22px; height:22px; transition:transform .15s}
 .rail-card.slim{position:absolute; left:0; top:0; bottom:0; width:36px; z-index:3; align-items:center; padding:6px 0 8px; background:color-mix(in srgb, var(--surface) 86%, transparent); backdrop-filter:blur(4px)}
 .rail-card.slim .rail-toggle{margin:0; padding:4px 0}
 .rail-dots{flex:1 1 auto; min-height:0; width:100%; position:relative; display:flex; flex-direction:column; align-items:center; justify-content:space-evenly; padding:8px 0; overflow:hidden}
@@ -311,8 +312,8 @@ body.mapview #termbody section{flex:1 1 auto; min-height:0; margin-bottom:12px; 
 .gwrap svg{width:100%; height:100%; display:block; touch-action:none}
 .gwrap svg.drag{cursor:grabbing}
 .gtools{position:absolute; top:10px; right:10px; display:flex; gap:4px}
-.gtools button{display:inline-flex; align-items:center; gap:4px; font-size:12px; font-weight:600; color:var(--muted); background:var(--bg); padding:4px 7px; cursor:pointer; line-height:1.2}
-.gtools button .ic{width:14px; height:14px}
+.gtools button{display:inline-flex; align-items:center; gap:4px; font-size:12px; font-weight:600; color:var(--muted); background:var(--bg); border:0; padding:4px 7px; cursor:pointer; line-height:1.2}
+.gtools button .ic{width:16px; height:16px}
 .gtools button:hover{color:var(--ink)}
 .gtools button:disabled{opacity:.4; cursor:default}
 .gtools button:disabled:hover{color:var(--muted)}
@@ -429,7 +430,7 @@ svg.focus .ge.tl.hl{opacity:.5; stroke-width:1.4}
 .detail .act label{cursor:pointer}
 .detail .none{color:var(--muted); padding:8px 0}
 .detail .multi{font-size:12px; color:var(--muted); margin:8px 0 4px; display:flex; align-items:center; gap:8px}
-.detail .multi button{font-size:11.5px; font-weight:600; background:var(--bg); padding:2px 8px; cursor:pointer; color:var(--ink)}
+.detail .multi button{font-size:11.5px; font-weight:600; background:var(--bg); border:0; padding:2px 8px; cursor:pointer; color:var(--ink)}
 .detail .peek{font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; font-weight:600; color:var(--now); margin:8px 0 2px}
 .detail.preview{outline:2px solid var(--now-soft); outline-offset:-2px}
 .detail .why{color:var(--muted); font-size:12.5px; margin:4px 0}
@@ -442,9 +443,11 @@ svg.focus .ge.tl.hl{opacity:.5; stroke-width:1.4}
 .pop .panel{filter:drop-shadow(0 6px 14px rgba(0,0,0,.18))}
 .rail-card.slim{background:none}
 .rail-card.slim::before{background:color-mix(in srgb, var(--surface) 86%, transparent); clip-path:none}
-/* Only large surfaces get the cut; on a button or a label it reads as a glitch, so those stay plain squares. */
-.legend-g,.ann{clip-path:polygon(0 0, calc(100% - var(--bev, 8px)) 0, 100% var(--bev, 8px), 100% 100%, 0 100%)}
+/* Everything else is cut directly, in proportion: --bev is the size of the cut. */
+.legend-g,.ann,.seg,.pop summary,.gtools button,.gtools .reach,.detail .multi button,.dayctl input[type=date],.dayctl button,.hours input[type=time],.rail-tip,.tag,.lvl,.chip,.flag,.links a,.quick a,.rail-list .ev,.playhead .phl{clip-path:polygon(0 0, calc(100% - var(--bev, 6px)) 0, 100% var(--bev, 6px), 100% 100%, 0 100%)}
 .legend-g{--bev:10px}
+.ann{--bev:8px}
+.tag,.lvl,.chip,.flag,.links a{--bev:4px}
 
 @media (max-width:900px){ body.mapview{overflow:auto} body.mapview .wrap{height:auto} .map,.map.rail-slim{grid-template-columns:1fr; height:auto} .map .rail-list{max-height:220px} .gwrap{height:50vh} .detail{max-height:60vh}
   .rail-card.slim{position:static; width:auto; flex-direction:row; padding:0 6px} .rail-dots{flex-direction:row; height:40px; padding:0 8px} .rail-dots::before{left:10px; right:10px; top:50%; bottom:auto; width:auto; height:2px; margin:-1px 0 0} .rail-dots .dot{flex:0 1 16px; min-height:0; min-width:7px; width:auto; height:100%} .rail-dots .dot.gap{margin:0 0 0 3px} .rail-dots .dot.now::before{left:-2px; right:auto; top:8px; bottom:8px; width:2px; height:auto} }
