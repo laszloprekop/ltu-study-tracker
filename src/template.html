@@ -265,7 +265,31 @@ body.mapview #termbody{flex:1 1 auto; min-height:0; display:flex; flex-direction
 body.mapview #termbody section{flex:1 1 auto; min-height:0; margin-bottom:12px; display:flex}
 body.mapview footer{flex:0 0 auto; padding-top:8px; font-size:11.5px}
 body.mapview footer p{margin:0 0 2px}
-.map{display:grid; grid-template-columns:clamp(230px, 18vw, 300px) minmax(0,1fr) clamp(340px, 26vw, 460px); gap:14px; flex:1 1 auto; min-height:0; width:100%}
+.map{position:relative; display:grid; grid-template-columns:clamp(230px, 18vw, 300px) minmax(0,1fr) clamp(340px, 26vw, 460px); gap:14px; flex:1 1 auto; min-height:0; width:100%}
+/* Collapsed rail: the map takes its column and the rail sits over the map's left edge as a thin timeline of dots */
+.map.rail-slim{grid-template-columns:minmax(0,1fr) clamp(340px, 26vw, 460px)}
+.map.rail-slim .legend-g{left:46px}
+.rail-toggle{margin-left:auto; display:inline-flex; align-items:center; background:none; border:1px solid var(--line); border-radius:6px; padding:2px 4px; color:var(--muted); cursor:pointer}
+.rail-toggle:hover{color:var(--ink)}
+.rail-toggle .ic{width:12px; height:12px; transition:transform .15s}
+.rail-card.slim{position:absolute; left:0; top:0; bottom:0; width:36px; z-index:3; border-radius:10px 0 0 10px; align-items:center; padding:6px 0 8px; background:color-mix(in srgb, var(--surface) 86%, transparent); backdrop-filter:blur(4px)}
+.rail-card.slim .rail-toggle{margin:0}
+.rail-card.slim .rail-toggle .ic{transform:rotate(180deg)}
+.rail-dots{flex:1 1 auto; min-height:0; width:100%; position:relative; display:flex; flex-direction:column; align-items:center; justify-content:space-evenly; padding:8px 0; overflow:hidden}
+.rail-dots::before{content:""; position:absolute; left:50%; top:10px; bottom:10px; width:2px; margin-left:-1px; background:var(--line)}
+.rail-dots .dot{position:relative; flex:0 1 16px; min-height:7px; width:100%; background:none; border:0; padding:0; cursor:pointer; display:flex; align-items:center; justify-content:center}
+.rail-dots .dot.gap{margin-top:3px}
+.rail-dots .dot .pip{width:9px; height:9px; border-radius:50%; background:var(--cc); box-shadow:0 0 0 2px var(--surface); transition:transform .12s}
+.rail-dots .dot.must .pip{width:11px; height:11px}
+.rail-dots .dot:hover .pip,.rail-dots .dot:focus-visible .pip{transform:scale(1.4)}
+.rail-dots .dot[aria-current="true"] .pip{transform:scale(1.4); box-shadow:0 0 0 2px var(--surface), 0 0 0 4px var(--now)}
+.rail-dots .dot.rel .pip,.rail-dots .dot[data-rel] .pip{box-shadow:0 0 0 2px var(--surface), 0 0 0 3px var(--now)}
+.rail-dots .dot.done .pip{background:var(--surface); border:2px solid var(--cc)}
+.rail-dots .dot.muted{opacity:.4}
+.rail-dots .dot.now::before{content:""; position:absolute; left:6px; right:6px; top:-2px; height:2px; background:var(--now); border-radius:2px}
+.rail-tip{position:absolute; z-index:6; left:44px; transform:translateY(-50%); background:var(--ink); color:var(--bg); font-size:12px; line-height:1.3; padding:4px 9px; border-radius:6px; pointer-events:none; max-width:min(360px, 60vw); box-shadow:var(--shadow)}
+.rail-tip.below{transform:none}
+.rail-tip b{display:block; font-size:11px; font-weight:600; opacity:.75}
 .map > .card{min-height:0; display:flex; flex-direction:column}
 .map h3{font-size:12px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); padding:12px 14px 6px; display:flex; align-items:center; gap:6px}
 .map h3 .ic{color:var(--muted)}
@@ -410,7 +434,8 @@ svg.focus .ge.tl.hl{opacity:.5; stroke-width:1.4}
 .detail.preview{outline:2px solid var(--now-soft); outline-offset:-2px; border-radius:0 0 10px 10px}
 .detail .why{color:var(--muted); font-size:12.5px; margin:4px 0}
 .detail .lnk{background:none; border:0; padding:0; font:inherit; color:inherit; cursor:pointer; text-decoration:underline}
-@media (max-width:900px){ body.mapview{overflow:auto} body.mapview .wrap{height:auto} .map{grid-template-columns:1fr; height:auto} .map .rail-list{max-height:220px} .gwrap{height:50vh} .detail{max-height:60vh} }
+@media (max-width:900px){ body.mapview{overflow:auto} body.mapview .wrap{height:auto} .map,.map.rail-slim{grid-template-columns:1fr; height:auto} .map .rail-list{max-height:220px} .gwrap{height:50vh} .detail{max-height:60vh}
+  .rail-card.slim{position:static; width:auto; flex-direction:row; padding:0 6px; border-radius:10px} .rail-dots{flex-direction:row; height:40px; padding:0 8px} .rail-dots::before{left:10px; right:10px; top:50%; bottom:auto; width:auto; height:2px; margin:-1px 0 0} .rail-dots .dot{flex:0 1 16px; min-height:0; min-width:7px; width:auto; height:100%} .rail-dots .dot.gap{margin:0 0 0 3px} .rail-dots .dot.now::before{left:-2px; right:auto; top:8px; bottom:8px; width:2px; height:auto} }
 
 /* ---------- All deadlines ---------- */
 .tablewrap{overflow-x:auto}
@@ -528,8 +553,8 @@ footer p{margin:0 0 6px}
 
 /* ---------- Helpers ---------- */
 const P = DATA.plan, INV = DATA.inventory, COURSES = P.COURSES, TEACHERS = P.TEACHERS, TERMS = P.TERMS, PROGRESS = DATA.progress || null;
-const LS = { hours: "ltu-plan-hours", ticks: "ltu-plan-ticks", muted: "ltu-plan-muted", filter: "ltu-plan-filter", term: "ltu-plan-term", view: "ltu-plan-view", open: "ltu-plan-open", weeks: "ltu-plan-weeks", size: "ltu-plan-size", ping: "ltu-plan-ping", colored: "ltu-plan-colored", theme: "ltu-plan-theme", mapOpen: "ltu-plan-map-open", mapPos: "ltu-plan-map-pos", mapAll: "ltu-plan-map-all", mapHops: "ltu-plan-map-hops", mapMode: "ltu-plan-map-mode", legacy: "lp2-shared-ticks" };
-const state = { checked: {}, muted: {}, filter: "all", term: null, view: "week", day: null, open: {}, weeks: {}, size: 100, ping: true, colored: true, theme: "system", hours: { start: "09:00", end: "17:00" }, mapOpen: null, mapSel: null, mapSels: [], mapAll: false, mapHops: 5, mapMode: "select" };
+const LS = { hours: "ltu-plan-hours", ticks: "ltu-plan-ticks", muted: "ltu-plan-muted", filter: "ltu-plan-filter", term: "ltu-plan-term", view: "ltu-plan-view", open: "ltu-plan-open", weeks: "ltu-plan-weeks", size: "ltu-plan-size", ping: "ltu-plan-ping", colored: "ltu-plan-colored", theme: "ltu-plan-theme", mapOpen: "ltu-plan-map-open", mapPos: "ltu-plan-map-pos", mapAll: "ltu-plan-map-all", mapHops: "ltu-plan-map-hops", mapMode: "ltu-plan-map-mode", railSlim: "ltu-plan-map-rail", legacy: "lp2-shared-ticks" };
+const state = { checked: {}, muted: {}, filter: "all", term: null, view: "week", day: null, open: {}, weeks: {}, size: 100, ping: true, colored: true, theme: "system", hours: { start: "09:00", end: "17:00" }, mapOpen: null, mapSel: null, mapSels: [], mapAll: false, mapHops: 5, mapMode: "select", railSlim: false };
 let store = null, saveTimer = null;
 
 function esc(s){ return String(s == null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
@@ -1196,6 +1221,34 @@ function railList(t){
   });
   return out || '<div class="none" style="padding:10px 14px">Nothing ahead in this study period.</div>';
 }
+// The rail folded to a line: one dot per coming event, in the same order, a gap at each new day.
+// Same class and data as the list rows, so selection, ticks and clicks need nothing extra.
+function railDots(t){
+  var today = todayIso(), rows = timeline(t).filter(function(r){ return r.date >= today; }), sel = resolveSel(t), out = "", last = null;
+  rows.forEach(function(r){
+    var key = r.id || r.key, title = r.title.replace(/ due \d\d:\d\d$/, "").replace(/ close \d\d:\d\d$/, " close");
+    var when = dayLabel(r.date) + (r.time ? " " + r.time : "") + ", " + (r.kind === "session" ? (SESSION_KIND[r.skind] || "") : r.kind === "deadline" ? "deadline" : "task");
+    out += '<button type="button" class="ev dot' + (r.level === "must" ? " must" : "") + (r.id ? hostClass(r.id, "") : "") + (last && r.date !== last ? " gap" : "") + (r.date === today && last !== today ? " now" : "") +
+      '" data-ev="' + esc(key) + '" data-course="' + r.code + '"' + (r.id ? ' data-id="' + esc(r.id) + '"' : '') + ' style="' + colorVars(r.code) + '" aria-current="' + (sel.rows[key] ? "true" : "false") + '"' + (sel.related[key] ? ' data-rel="1"' : '') +
+      ' data-tip="' + esc(title) + '" data-when="' + esc(when) + '" aria-label="' + esc(when + " " + title) + '"><span class="pip"></span></button>';
+    last = r.date;
+  });
+  return out;
+}
+function railCard(t){
+  if (state.railSlim) return '<div class="card rail-card slim"><button type="button" class="rail-toggle" id="rail-toggle" title="Show the list of coming events">' + ic("caret-right", "sm") + '</button><div class="rail-dots" id="rail">' + railDots(t) + '</div></div>';
+  return '<div class="card rail-card"><h3>' + ic("calendar-dot") + 'Coming up<button type="button" class="rail-toggle" id="rail-toggle" title="Fold the list to a thin timeline over the map">' + ic("caret-right", "sm") + '</button></h3><div class="rail-list" id="rail">' + railList(t) + '</div></div>';
+}
+function showRailTip(d){
+  var tip = document.getElementById("rail-tip"); if (!tip) return;
+  var map = tip.parentNode, r = d.getBoundingClientRect(), m = map.getBoundingClientRect(), below = window.innerWidth <= 900;
+  tip.innerHTML = '<b>' + esc(d.dataset.when) + '</b>' + esc(d.dataset.tip);
+  tip.classList.toggle("below", below);
+  if (below) { tip.style.left = Math.max(0, r.left - m.left - 20) + "px"; tip.style.top = (r.bottom - m.top + 4) + "px"; }
+  else { tip.style.left = ""; tip.style.top = (r.top + r.height / 2 - m.top) + "px"; }
+  tip.hidden = false;
+}
+function hideRailTip(){ var tip = document.getElementById("rail-tip"); if (tip) tip.hidden = true; }
 // What the rail's event points at in the graph: a session's page, a deadline's assignment, a task's target.
 function rowNodeIds(t, r){
   if (r.kind === "deadline" && r.aids) return items(r.code).filter(function(i){ return r.aids.indexOf(i.assignmentId) >= 0; }).map(function(i){ return nodeIdOf(r.code, i); });
@@ -1304,8 +1357,7 @@ function hopsLabel(){ return state.mapHops >= 5 ? "all" : state.mapHops + (state
 function renderMapView(t){
   // Nothing chosen yet: start on today's first event, or the next one coming up.
   if (!state.mapSel) { var today = todayIso(), first = timeline(t).find(function(r){ return r.date >= today; }); if (first) selectKey(first.id || first.key, false); }
-  return '<section><div class="map">' +
-    '<div class="card"><h3>' + ic("calendar-dot") + 'Coming up</h3><div class="rail-list" id="rail">' + railList(t) + '</div></div>' +
+  return '<section><div class="map' + (state.railSlim ? ' rail-slim' : '') + '">' + railCard(t) + '<div class="rail-tip" id="rail-tip" hidden></div>' +
     '<div class="card"><h3>' + ic("tree-structure") + 'Canvas map <span class="why" style="display:inline;text-transform:none;letter-spacing:0;font-weight:400">hover or click a node to see its links, shift-click to select several, drag to pan, scroll to zoom</span></h3>' +
       '<div class="gwrap" id="gwrap">' + svgGraph(t) + '<div class="gtools"><button type="button" id="g-fit" title="Fit the whole graph">' + ic("arrows-in", "sm") + 'Fit</button><button type="button" id="g-open" title="Open every module"' + (state.mapAll ? ' disabled' : '') + '>Open all</button><button type="button" id="g-close" title="Close every module"' + (state.mapAll ? ' disabled' : '') + '>Close all</button><button type="button" id="g-settle" title="Forget the saved positions and lay the material out afresh">Re-settle</button><span class="seg mode" role="group" aria-label="What a click on a module does"><button type="button" id="g-mode-select" data-mode="select" title="Clicking a module or section selects it" aria-pressed="' + (state.mapMode === "select" ? "true" : "false") + '">Select</button><button type="button" id="g-mode-fold" data-mode="fold" title="Clicking a module or section opens or closes it" aria-pressed="' + (state.mapMode === "fold" ? "true" : "false") + '"' + (state.mapAll ? ' disabled' : '') + '>Close</button></span>' +
       '<button type="button" id="g-all" title="Draw closed modules and sections open too; their contents stay faded until they join a chain" aria-pressed="' + (state.mapAll ? "true" : "false") + '">' + ic(state.mapAll ? "eye" : "eye-slash", "sm") + '</button>' +
@@ -1452,12 +1504,20 @@ function bindMap(t){
   wireGraph(); bindSvg(); applySel(t); runSim(Object.keys(mapPos).length ? 0.3 : 1); setTimeout(fitMap, 700);
   if (mapClicksBound) return;
   mapClicksBound = true;
-  document.getElementById("termbody").addEventListener("click", function(e){
+  var tb = document.getElementById("termbody");
+  ["pointerover", "focusin"].forEach(function(ev){ tb.addEventListener(ev, function(e){ var d = e.target.closest && e.target.closest(".rail-dots .dot"); if (d) showRailTip(d); }); });
+  ["pointerout", "focusout"].forEach(function(ev){ tb.addEventListener(ev, function(e){ if (e.target.closest && e.target.closest(".rail-dots .dot")) hideRailTip(); }); });
+  tb.addEventListener("click", function(e){
     if (state.view !== "map") return;
     var t = term(), b = e.target.closest("button"); if (!b) return;
     var add = e.shiftKey || e.metaKey || e.ctrlKey;
     if (b.dataset.ev) gotoKey(t, b.dataset.ev, add);
     else if (b.dataset.goto) gotoKey(t, b.dataset.goto, add);
+    else if (b.id === "rail-toggle") {
+      // swap only the rail card and refit the map to its new width; the graph itself stays as it is
+      state.railSlim = !state.railSlim; lsSet(LS.railSlim, state.railSlim ? "1" : "0"); hideRailTip();
+      var map = b.closest(".map"); map.classList.toggle("rail-slim", state.railSlim); map.querySelector(".rail-card").outerHTML = railCard(t); applyState(); setTimeout(fitMap, 50);
+    }
     else if (b.id === "sel-clear") { selectKey(null, false); refreshMap(t, null, false); }
     else if (b.id === "g-fit") fitMap();
     else if (b.id === "g-settle") { mapPos = {}; lsSet(LS.mapPos, "{}"); refreshMap(t, null, true); runSim(1); setTimeout(fitMap, 900); }
@@ -1654,6 +1714,7 @@ var sv = lsGet(LS.view); if (sv === "day" || sv === "all" || sv === "week" || sv
 state.mapOpen = lsJson(LS.mapOpen);
 state.mapAll = lsGet(LS.mapAll) !== "0";   // on unless the viewer switched it off
 var hp = Number(lsGet(LS.mapHops)); if (hp >= 1 && hp <= 5) state.mapHops = hp;   // 5 means no limit
+state.railSlim = lsGet(LS.railSlim) === "1";
 if (lsGet(LS.mapMode) === "fold") state.mapMode = "fold";   // what a click on a module does: select it, or open/close it
 var savedTerm = lsGet(LS.term);
 state.term = TERMS.some(function(t){ return t.id === savedTerm; }) ? savedTerm : defaultTerm();
