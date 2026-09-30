@@ -71,15 +71,16 @@ h1{font-size:20px; letter-spacing:-.015em; margin-right:6px}
 .seg button,.seg .lbl{display:inline-flex; align-items:center; gap:5px; font-size:12.5px; font-weight:600; color:var(--muted); background:transparent; border:0; border-left:1px solid var(--line); padding:5px 10px; cursor:pointer}
 .seg .lbl{cursor:default; padding-inline:4px; border-left:0}
 .seg button:first-child{border-left:0}
-.seg button[aria-pressed="true"]{color:var(--ink); background:var(--surface-2); box-shadow:inset 0 -2px 0 var(--ink)}
+.seg button[aria-pressed="true"]{color:var(--on-now); background:var(--now); box-shadow:none}
+.seg button[aria-pressed="true"] .ic{fill:var(--on-now)}
 .seg.tools button{padding-inline:8px}
 .seg.tools .lbl + button{border-left:0}
-.seg.tools button[aria-pressed="true"]{box-shadow:none; color:var(--now)}
+.seg.tools button[aria-pressed="true"]{color:var(--on-now); background:var(--now)}
 .seg button:focus-visible,.jump:focus-visible,.terms button:focus-visible,input:focus-visible,.dayctl button:focus-visible,.mute:focus-visible,.fold:focus-visible,summary:focus-visible{outline:2px solid var(--now); outline-offset:1px}
 .pop{position:relative}
 .pop summary{list-style:none; display:inline-flex; align-items:center; gap:5px; font-size:12.5px; font-weight:600; color:var(--muted); background:var(--surface); border:1px solid var(--line); border-radius:7px; padding:5px 8px; cursor:pointer}
 .pop summary::-webkit-details-marker{display:none}
-.pop[open] summary{color:var(--now)}
+.pop[open] summary{color:var(--on-now); background:var(--now); border-color:var(--now)}
 .pop .panel{position:absolute; right:0; top:calc(100% + 6px); z-index:30; background:var(--surface); border:1px solid var(--line); border-radius:8px; box-shadow:0 6px 18px rgba(0,0,0,.14); padding:10px 12px; width:max-content; font-size:12.5px; color:var(--muted)}
 .pop .panel p{margin:0 0 6px}
 .pop.about .panel{width:min(540px, calc(100vw - 32px)); white-space:normal; font-size:13px; line-height:1.5; padding:14px 16px}
@@ -275,7 +276,8 @@ a.tag.feeds:hover{border-color:var(--alert)}
 .gtools{position:absolute; top:10px; right:10px; display:flex; gap:4px}
 .gtools button{display:inline-flex; align-items:center; gap:4px; font-size:12px; font-weight:600; color:var(--muted); background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:4px 7px; cursor:pointer}
 .gtools button:hover{color:var(--ink)}
-.gtools button[aria-pressed="true"]{color:var(--now); border-color:var(--now)}
+.gtools button[aria-pressed="true"]{color:var(--on-now); background:var(--now); border-color:var(--now)}
+.gtools button[aria-pressed="true"] .ic{fill:var(--on-now)}
 .gtools .reach{display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:var(--muted); background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:3px 8px}
 .gtools .reach input{width:70px; accent-color:var(--now); margin:0}
 .gtools .reach b{color:var(--ink); min-width:42px}
@@ -1219,7 +1221,7 @@ function renderMapView(t){
   return '<section><div class="map">' +
     '<div class="card"><h3>' + ic("calendar-dot") + 'Coming up</h3><div class="rail-list" id="rail">' + railList(t) + '</div></div>' +
     '<div class="card"><h3>' + ic("tree-structure") + 'Canvas map <span class="why" style="display:inline;text-transform:none;letter-spacing:0;font-weight:400">hover or click a node to see its links, shift-click to select several, click a module to open it, drag to pan, scroll to zoom</span></h3>' +
-      '<div class="gwrap" id="gwrap">' + svgGraph(t) + '<div class="gtools"><button type="button" id="g-fit" title="Fit the whole graph">' + ic("arrows-in", "sm") + 'Fit</button><button type="button" id="g-open" title="Open every module">' + ic("arrows-out", "sm") + 'Open all</button><button type="button" id="g-close" title="Close every module">Close all</button><button type="button" id="g-settle" title="Forget the saved positions and lay the material out afresh">Re-settle</button><button type="button" id="g-all" title="Show every node; lower levels fade until they join a chain" aria-pressed="' + (state.mapAll ? "true" : "false") + '">Show all</button>' +
+      '<div class="gwrap" id="gwrap">' + svgGraph(t) + '<div class="gtools"><button type="button" id="g-fit" title="Fit the whole graph">' + ic("arrows-in", "sm") + 'Fit</button><button type="button" id="g-open" title="Open every module">' + ic("arrows-out", "sm") + 'Open all</button><button type="button" id="g-close" title="Close every module">Close all</button><button type="button" id="g-settle" title="Forget the saved positions and lay the material out afresh">Re-settle</button><button type="button" id="g-all" title="Draw closed modules and sections open too; their contents stay faded until they join a chain" aria-pressed="' + (state.mapAll ? "true" : "false") + '">Unhide closed</button>' +
       '<label class="reach" title="How far a highlighted chain reaches from the node: link steps in either direction, the jump to the ring counts as one"><span>Reach</span><input type="range" id="g-hops" min="1" max="5" step="1" value="' + state.mapHops + '"><b id="g-hops-v">' + hopsLabel() + '</b></label></div>' +
       '<div class="legend-g"><div class="lt">Legend</div>' +
         '<div><svg class="lg" viewBox="-14 -14 28 28"><circle r="11" class="c"/></svg>course <svg class="lg" viewBox="-14 -14 28 28"><circle r="8" class="c"/></svg>module <svg class="lg" viewBox="-14 -14 28 28"><circle r="6" class="c d"/></svg>section <svg class="lg" viewBox="-14 -14 28 28"><circle r="4.5" class="c"/></svg>item</div>' +
