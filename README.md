@@ -55,6 +55,9 @@ After `npm run update`, publish `ltu-study-tracker.html` to the artifact URL abo
 - **Study week:** the Monday, the course, refs to the material for that week, and why.
 - **Task:** a to-do Canvas does not list. Its `id` is the tick box key, so never rename one.
 - **Notes:** advice attached to a Canvas deadline, keyed `course:assignmentId`.
+- **Needs:** what an assessment tests, keyed `course:assignmentId`, as refs. A rule already
+  covers the obvious cases (see below); `NEEDS_LP2` holds what the structure cannot say: the
+  midterm ranges, Lab 3's IP lectures, the home exam's two videos.
 
 Refs point at module items by number: `"3.5"` matches 3.5 and every 3.5.x (hand-ins and session
 pages excluded unless named exactly), `"3.4@Discussion"` narrows by item type, `"#Required Software"`
@@ -77,6 +80,17 @@ workshops are MUST that way). Tasks take `"must"` as their last argument, and a 
 Material listed as `prep` for a MUST session is MUST too. Canvas records none of these links,
 so they live in the plan.
 
+## What an assessment needs
+
+Every dated quiz, lab hand-in and exam is linked to the material it tests, so a walk from the
+event reaches the pages, and a page reaches the events it counts for. The rule, applied by the
+page: the other items under the assessment's own heading; when it sits alone under its heading
+(every Z0025E quiz), the items before it in the module, minus those under a heading that holds
+another assessment. Then the `needs` refs from the plan. Hand-ins, exams and links are never
+material. Ungraded practice quizzes get no rule, only refs. An assignment Canvas lists in no
+module (the Z7005E home exam) is placed in the module its number names, flagged `unlisted`, and
+gets only its refs. The level (MUST/NICE) does not travel along these links.
+
 ## Map view
 
 A fourth tab that fits the window: the page never scrolls in it, the rail and the details pane scroll on their own, the footer stays in view (on narrow screens it falls back to a scrolling page). Left: the coming events (sessions, deadlines, tasks) as a timeline, titles only.
@@ -92,12 +106,15 @@ the layout, positions are remembered per viewer, and when a module opens only it
 settle while everything already placed stays put. The full title replaces the short one under a hovered or selected node. Hovering or selecting highlights the whole chain in
 both directions, as far as the links keep pointing the same way: up through parents,
 prerequisites and the events pointing in, down through children and what depends on it, plus every event on the ring tied to anything in the chain. Ties
-from events to a folded module do not count. A **Reach** slider (1 to 4 hops or all, remembered) caps how far the chain walks from the node; the jump to the ring counts as a hop. **Re-settle** forgets the saved positions and lays the material out afresh. **Unhide closed** (toolbar, on by default) opens every module
+from events to a folded module do not count, but a selected event whose page is folded walks from the
+folded module: Midterm 1 lights Modules 1 to 4 when Module 10 is open, and Modules 1 to 8 when it is
+folded, because the folded module then stands for both midterms. A **Reach** slider (1 to 4 hops or all, remembered) caps how far the chain walks from the node; the jump to the ring counts as a hop. **Re-settle** forgets the saved positions and lays the material out afresh. **Unhide closed** (toolbar, on by default) opens every module
 and section and fades sections and items, labels hidden, until they join a hovered or selected
 chain; the viewer's own open/closed choices are kept for when it is off. A toggled button is filled blue with inverted text. Hovering a node also
 previews its details in the right pane; a click pins them. So any item is zero clicks from its
 information and one from keeping it. Dashed blue edges
-show what a session's page depends on (its `prep`), a red dot marks MUST, a blue tint marks this
+show what a session's page depends on (its `prep`), dotted red edges what an assessment needs
+(bundled to the module while it is folded, so a closed module still shows it feeds the exam), a red dot marks MUST, a blue tint marks this
 week's material. Right: details of the chosen event or node, with the tick box, mute, Canvas links
 and everything connected to it. On opening, today's first event is selected, or the next one coming up. Shift-click (or Cmd/Ctrl-click) adds to or removes from the selection; every selected chain lights, the details show the last one picked with a count and a Clear button. The selection is shared: a node lights the events that point at it
 (and, lighter, the sessions that need it first, or every event inside a module), an event lights

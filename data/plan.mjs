@@ -184,6 +184,19 @@ const NOTES_LP2 = {
   "Z0025E:quizzes": "150 of 300 points needed. With the weekly rhythm, these points are already in the bag."
 };
 
+// What an assessment tests, keyed "course:assignmentId", as refs. The page already applies a rule
+// (needsOf in the template): an assessment needs the other items in its own section, or the items
+// before it in a module without sections. That covers every module quiz and the Z7005E labs that
+// sit inside their section. Entries here are added on top, for what the structure cannot say.
+// Sources: the Midterm instruction pages ("Reviewed the Module 1-4 Study Guides"), the Z7005E
+// Schema ("innan du borjar med tentan: 5.3, 5.4"), the Lab 3 subnet page in Module 9.
+const NEEDS_LP2 = {
+  "Z0025E:3030": ["1", "2", "3", "4"],          // Midterm 1
+  "Z0025E:3031": ["5", "6", "7", "8"],          // Midterm 2
+  "Z0025E:3043": ["4.2", "4.3"],                // Lab 3, subnetting: the IP lectures (9.7 comes from the rule)
+  "Z7005E:3024": ["5.3", "5.4"]                 // Home exam: the two AI videos the Schema asks for. What else it tests is not stated in Canvas.
+};
+
 export const TERMS = [
   {
     id: "ht26-lp2", label: "LP2", period: "Autumn 2026, week 38 to week 49",
@@ -199,12 +212,12 @@ export const TERMS = [
       { c: "Z7005E", html: "<strong>Two hours of exercise a week.</strong> The Z7005E Schema puts it in the plan, so treat it as scheduled." },
       { html: "<strong>Check the Canvas calendar every Monday.</strong> Z7005E lists weeks 44, 46 and 47 as empty and Z0025E says to expect changes, so sessions can appear in either course." }
     ],
-    sessions: SESSIONS_LP2, study: STUDY_LP2, tasks: TASKS_LP2, notes: NOTES_LP2
+    sessions: SESSIONS_LP2, study: STUDY_LP2, tasks: TASKS_LP2, notes: NOTES_LP2, needs: NEEDS_LP2
   },
   {
     id: "vt27-lp3", label: "LP3", period: "Spring 2027", start: "2027-01-11", end: "2027-03-21",
     courses: [], upcoming: "The courses for this study period are not in Canvas yet. They will be added here once their schedules are published.",
-    weekFlags: {}, rhythm: [], sessions: [], study: [], tasks: [], notes: {}
+    weekFlags: {}, rhythm: [], sessions: [], study: [], tasks: [], notes: {}, needs: {}
   }
 ];
 

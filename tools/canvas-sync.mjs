@@ -118,13 +118,39 @@ async function courseInventory(code, course) {
     out.modules.push(mod);
   }
 
+  // An assignment that sits in no module (613's home exam) still needs a place in the map, or nothing
+  // can be walked from it. Its number says which module it belongs to; it becomes an item there,
+  // flagged unlisted so the page can say Canvas does not show it in the module.
+  for (const a of assignments) {
+    if (a.__moduleItem) continue;
+    const { number, title } = parseTitle(a.name);
+    const top = number ? number.split(".")[0] : null;
+    const mod = top && out.modules.find(m => m.items.some(i => i.number && i.number.split(".")[0] === top));
+    if (!mod) { process.stderr.write(`\n  ${code}: assignment "${title}" is in no module and has no usable number, left out of the map\n`); continue; }
+    const row = { id: "a" + a.id, number, title, type: "Assignment", kind: kindOf({ type: "Assignment", title: a.name }), section: null, url: a.html_url, indent: 0, unlisted: true,
+      assignmentId: a.id, points: a.points_possible, submission: (a.submission_types || []).join("/") };
+    if (a.due_at) { const l = local(a.due_at); row.due = l.date; row.dueTime = l.time; }
+    if (typeof a.description === "string") {
+      const text = strip(a.description);
+      row.words = text.split(" ").filter(Boolean).length; row.videos = countVideos(a.description);
+      row.files = new Set([...a.description.matchAll(/\/files\/(\d+)/g)].map(x => x[1])).size;
+      const est = /(?:tidsåtgång|estimated time)[:\s~]*(\d+)\s*(h|timmar|hours|min)/i.exec(text);
+      if (est) row.statedMinutes = /^h|timmar|hours/i.test(est[2]) ? Number(est[1]) * 60 : Number(est[1]);
+    }
+    row.minutes = row.statedMinutes || minutes(row.kind, row.words, row.videos);
+    const cmp = (x, y) => String(x).localeCompare(String(y), undefined, { numeric: true });
+    const at = mod.items.findIndex(i => i.number && cmp(i.number, number) > 0);
+    mod.items.splice(at < 0 ? mod.items.length : at, 0, row);
+    a.__moduleItem = row;
+  }
+
   for (const a of assignments) {
     const { number, title } = parseTitle(a.name);
     const l = a.due_at ? local(a.due_at) : null;
     out.assignments.push({
       id: a.id, number, title, points: a.points_possible, submission: (a.submission_types || []).join("/"),
       due: l ? l.date : null, dueTime: l ? l.time : null, url: a.html_url,
-      moduleItemUrl: a.__moduleItem ? a.__moduleItem.url : null, section: a.__moduleItem ? a.__moduleItem.section : null,
+      moduleItemUrl: a.__moduleItem && !a.__moduleItem.unlisted ? a.__moduleItem.url : null, section: a.__moduleItem ? a.__moduleItem.section : null,
       kind: kindOf({ type: "Assignment", title: a.name })
     });
   }

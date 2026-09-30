@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-29T20:33:36.821Z",
+ "generatedAt": "2026-09-30T20:03:44.007Z",
  "courses": {
   "Z7005E": {
    "canvasId": 613,
@@ -1715,6 +1715,26 @@
        "minutes": null
       },
       {
+       "id": "a3024",
+       "number": "6.2",
+       "title": "Hemtentamen - Boomerang Australia",
+       "type": "Assignment",
+       "kind": "exam",
+       "section": null,
+       "url": "https://ltuedu.instructure.com/courses/613/assignments/3024",
+       "indent": 0,
+       "unlisted": true,
+       "assignmentId": 3024,
+       "points": 0,
+       "submission": "online_upload",
+       "due": "2026-11-25",
+       "dueTime": "17:00",
+       "words": 69,
+       "videos": 1,
+       "files": 8,
+       "minutes": null
+      },
+      {
        "id": 19744,
        "number": "6.3",
        "title": "Zoom - Individuell muntlig examination",
@@ -2433,10 +2453,10 @@
        "url": "https://ltuedu.instructure.com/courses/614/modules/items/19926",
        "indent": 1,
        "req": "must_mark_done",
-       "words": 2415,
-       "videos": 4,
-       "files": 7,
-       "minutes": 70
+       "words": 2436,
+       "videos": 6,
+       "files": 10,
+       "minutes": 95
       },
       {
        "id": 19927,

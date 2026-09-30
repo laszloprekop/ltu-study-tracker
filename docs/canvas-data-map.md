@@ -107,6 +107,59 @@ Each module item has `html_url`, so every entry below can be linked directly.
 `completed` flag for the calling user. Read via `/courses/614/modules?include[]=items`. 613 has none.
 This state belongs to the token's owner only, so a shared page cannot show it for other viewers.
 
+## Relations: from any page to the assessment it counts for (2026-09-30)
+
+The question: standing on an exam or hand-in, reach every page it tests; standing on a page,
+reach every assessment it counts for. What the data gave before this scan, and what was added.
+
+| Relation | Source | From Canvas? | Walkable on the map? |
+|---|---|---|---|
+| course > module > heading > item | modules and SubHeaders | yes | yes |
+| deadline > its module item | `assignmentId` on the item | yes | yes |
+| session > the page it teaches | `ref` in `plan.mjs` | no | yes |
+| session < pages to watch first | `prep` in `plan.mjs` (Workshops 3 and 4 only) | no | yes, dashed |
+| task > the deadline it feeds | `TASK_FOR` | no | yes |
+| **assessment < the material it tests** | rule plus `NEEDS_LP2`, added now | partly | yes, dotted red |
+| session `also` pages, study week > items | `plan.mjs` | no | no, detail text only |
+
+Before: every edge pointed from an event to one page. Nothing pointed from an assessment to what
+it tests. Midterm 1 reached exactly one node; "covers modules 1 to 4" lived in a `why` string.
+The Z7005E home exam (assignment 3024, "6.2 Hemtentamen") sits in no Canvas module at all
+(`moduleItemUrl: null`), so it had no node and could reach nothing.
+
+### What page bodies can and cannot give
+Fetched read-only on 2026-09-30 to see whether links inside pages could produce edges for free:
+- 614 pages link almost only to the Q&A forum (discussion 3985). The Midterm instruction pages
+  state coverage in prose: "Reviewed the Module 1–4 Study Guides", "Module 5–8". End-of-module
+  pages carry "Next Module" and a key-concept list, no links.
+- The 613 Schema page is the one rich linker: 7 module, 26 page, 19 assignment links, plus
+  "att ha tittat på innan" (watch before). All of it is already transcribed into `plan.mjs`.
+So body links are not a source. The sync tool still discards bodies after counting words.
+
+### The rule, and where it is
+`needsOf` in `src/template.html`. For a dated assessment: the other items under its own heading;
+when it sits alone under its heading (every 614 quiz has its own "Module Quiz" SubHeader), the
+items before it in the module, minus those under a heading that holds another assessment (Lab 3's
+subnet page 9.7 is not Lab 4's). Then the `needs` refs from the plan. Hand-ins, exams and links
+are never material. That rule alone gets all 8 module quizzes, 613 Labs 1 to 4 (their sections),
+Lab 5 (5.1) and 614 Lab 3 (9.7) right. Hand-written on top (`NEEDS_LP2`): midterm ranges, Lab 3's
+IP lectures 4.2 and 4.3, the home exam's videos 5.3 and 5.4 (the Schema: "innan du börjar med
+tentan"). What else the home exam and the oral tests is not stated in Canvas; unverified.
+
+An assignment in no module becomes a synthetic item in `canvas-sync.mjs`: placed in the module
+whose items share its top number (6.2 goes to Modul 6), id `a<assignmentId>`, `unlisted: true`,
+no `moduleItemUrl` on the assignment. Only the refs apply to it, never the rule, since its
+position among the items is by number, not by the teacher's hand.
+
+Not done, on purpose: MUST does not travel along `needs` (the oral exam would make all of Z7005E
+MUST); ungraded practice quizzes (no due date) get no rule; weeks are not nodes.
+
+### Fixed on the way
+A folded page's ring tie fell back to the course centre: `buildForceGraph` read `parent`, which the
+layout walk only sets on nodes it visited. `visibleHost` now finds the deepest open ancestor by
+path, so a deadline inside a closed module ties to that module, and a selected event whose page
+is folded walks its chain from the module.
+
 ## Map layout notes (2026-09-30)
 
 Measured in the Map tab with everything shown (282 inner nodes, 71 events), after a full settle,

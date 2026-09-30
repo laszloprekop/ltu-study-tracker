@@ -40,6 +40,11 @@ for (const term of TERMS) {
     const [code, id] = key.split(":");
     if (id !== "quizzes" && !(inventory.courses[code]?.assignments || []).some(a => String(a.id) === id)) problems.push(`${term.id} note ${key} names no Canvas assignment`);
   }
+  for (const [key, refs] of Object.entries(term.needs || {})) {
+    const [code, id] = key.split(":");
+    if (!(inventory.courses[code]?.assignments || []).some(a => String(a.id) === id)) problems.push(`${term.id} needs ${key} names no Canvas assignment`);
+    for (const r of refs) if (!refMatches(code, r).length) problems.push(`${term.id} needs ${key} ref "${r}" matches nothing`);
+  }
   const ids = new Set();
   for (const t of term.tasks) {
     if (ids.has(t.id)) problems.push(`duplicate task id ${t.id}`); ids.add(t.id);

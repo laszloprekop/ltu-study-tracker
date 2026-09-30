@@ -367,6 +367,7 @@ svg.focus .ge.tl.hl{opacity:.5; stroke-width:1.4}
 .ge.lvsection{stroke-width:2; opacity:.08}
 .ge.lvitem{stroke-width:1; opacity:.08}
 .ge.dep{stroke:var(--now); stroke-dasharray:4 3; opacity:.08}
+.ge.dep.need{stroke:var(--alert); stroke-dasharray:2 3}
 .legend-g{position:absolute; left:10px; top:10px; background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:5px 9px; font-size:11px; color:var(--muted); display:flex; flex-direction:column; gap:4px; max-width:300px}
 .legend-g[open]{padding:8px 10px}
 .legend-g .lt{font-size:10px; letter-spacing:.08em; text-transform:uppercase; font-weight:600; cursor:pointer; list-style:none; display:flex; align-items:center; gap:4px}
@@ -388,6 +389,7 @@ svg.focus .ge.tl.hl{opacity:.5; stroke-width:1.4}
 .legend-g .sw.wedge{background:var(--now); opacity:.35}
 .legend-g .ln{width:18px; height:0; border-top:1.5px solid var(--muted); display:inline-block; margin-right:2px}
 .legend-g .ln.dep{border-top:1.5px dashed var(--now)}
+.legend-g .ln.need{border-top:1.5px dotted var(--alert)}
 .legend-g .ln.tl{border-top:1.5px solid var(--now)}
 .legend-g .why{display:block; font-size:10.5px}
 .detail{overflow:auto; padding:0 16px 16px; font-size:13.5px}
@@ -619,6 +621,30 @@ function itemLevel(code, item){
   return "nice";
 }
 function canvasDone(code, item){ return !!(PROGRESS && PROGRESS.courses[code] && PROGRESS.courses[code][item.id]); }
+
+/* ---------- What an assessment tests ---------- */
+// The module item that stands for an assignment: a quiz, a lab hand-in, an exam.
+function assessmentItem(code, aid){ return items(code).find(function(i){ return i.assignmentId === aid; }) || null; }
+function isMaterial(i){ return i.kind !== "handin" && i.kind !== "exam" && i.kind !== "link"; }
+// Rule: the other items in its own section; when it sits alone under its heading (every Z0025E
+// quiz does), the items before it in the module, minus those under a heading that holds another
+// assessment (Lab 3's subnet page is not Lab 4's). Then the plan's NEEDS refs. The rule is only for
+// dated assessments: an ungraded practice quiz, or an item Canvas lists in no module (the home
+// exam), gets only the refs. Hand-ins, exams and links are never material.
+function needsOf(t, code, aid){
+  var it = assessmentItem(code, aid); if (!it) return [];
+  var mod = INV.courses[code].modules.find(function(m){ return m.items.indexOf(it) >= 0; }), at = mod.items.indexOf(it), seen = {}, out = [];
+  var add = function(i){ if (i !== it && isMaterial(i) && !seen[i.id]) { seen[i.id] = 1; out.push(i); } };
+  if (it.due && !it.unlisted) {
+    var same = it.section ? mod.items.filter(function(i){ return i !== it && i.section === it.section; }) : [];
+    if (same.length) same.forEach(add);
+    else mod.items.forEach(function(i, k){ if (k < at && !(i.section && mod.items.some(function(x){ return x !== it && x.assignmentId && x.section === i.section; }))) add(i); });
+  }
+  ((t.needs || {})[code + ":" + aid] || []).forEach(function(r){ expand(code, r).forEach(add); });
+  return out;
+}
+// The assessments an item is needed for.
+function neededFor(t, code, item){ return assignments(code).filter(function(a){ return needsOf(t, code, a.id).indexOf(item) >= 0; }); }
 
 /* ---------- Building the term's timeline ---------- */
 function deadlineRows(t){
@@ -940,6 +966,30 @@ function depEdges(t, visible){
   });
   return out;
 }
+// The node standing in for an item on screen: the item itself, or its deepest visible ancestor when
+// it is folded away. Never the course, which would say nothing.
+function visibleHost(roots, id, visible){
+  var found = null;
+  (function walk(n, path){ if (found) return; if (n.id === id) { found = path.concat([n]); return; } (n.children || []).forEach(function(k){ walk(k, path.concat([n])); }); })({ children: roots }, []);
+  if (!found) return null;
+  for (var k = found.length - 1; k >= 1; k--) if (visible[found[k].id] && found[k].kind !== "course") return visible[found[k].id];
+  return null;
+}
+// Dotted edges: material -> the assessment that tests it. A folded module still shows it feeds the exam.
+function needEdges(t, visible, roots){
+  var out = [], seen = {};
+  t.courses.forEach(function(code){
+    assignments(code).forEach(function(a){
+      var it = assessmentItem(code, a.id), to = it && visibleHost(roots, nodeIdOf(code, it), visible); if (!to) return;
+      needsOf(t, code, a.id).forEach(function(i){
+        var from = visibleHost(roots, nodeIdOf(code, i), visible);
+        if (!from || from === to || seen[from.id + ">" + to.id]) return;
+        seen[from.id + ">" + to.id] = 1; out.push({ a: from, b: to, need: true });
+      });
+    });
+  });
+  return out;
+}
 var LABEL_MAX = { course: 60, module: 200, section: 20, item: 20, time: 6 };
 var RADIUS = { course: 26, module: 17, section: 12, item: 9 };
 var LAYER = { course: 0, module: 0.55, section: 0.62, item: 0.7 };   // home radius per level, as a share of the inner disc
@@ -988,8 +1038,8 @@ function buildForceGraph(t, roots){
     var nids = rowNodeIds(t, r);
     if (!nids.length) { var c0 = visible["c:" + r.code]; if (c0) edges.push({ a: n, b: c0, len: 60, k: 0.03, time: true, loose: true }); }
     nids.forEach(function(nid){
-      var target = visible[nid];
-      if (!target) { var it = findNode(roots, nid); var p = it && it.parent; while (p && !visible[p.id]) p = p.parent; target = p ? visible[p.id] : visible["c:" + r.code]; }
+      // a folded page ties to its deepest open ancestor (parent is only set on walked nodes, so look it up by path)
+      var target = visible[nid] || visibleHost(roots, nid, visible) || visible["c:" + r.code];
       if (target) {
         edges.push({ a: n, b: target, len: 60, k: 0.008 / nids.length, time: true, loose: !visible[nid] });
         var hub = target; while (hub && hub.kind !== "module" && hub.kind !== "course") hub = hub.parent;
@@ -1103,11 +1153,11 @@ function svgGraph(t){
   mapRoots = graphModel(t);
   if (!state.mapOpen) state.mapOpen = defaultOpen(t, mapRoots);
   var g = buildForceGraph(t, mapRoots);
-  g.deps = depEdges(t, g.visible).map(function(e){ return { a: e[0], b: e[1] }; });
+  g.deps = depEdges(t, g.visible).map(function(e){ return { a: e[0], b: e[1] }; }).concat(needEdges(t, g.visible, mapRoots));
   mapLayout = g;
   var cur = currentSet(t), sel = resolveSel(t);
   var edges = g.edges.map(function(e, i){ if (e.steer) return ''; return '<path class="ge' + (e.time ? ' tl' : '') + ' lv' + e.b.kind + '" data-edge="' + i + '" data-a="' + esc(e.a.id) + '" data-b="' + esc(e.b.id) + '" style="' + colorVars(e.a.code) + '" d="M0 0"/>'; }).join("");
-  var dep = g.deps.map(function(e, i){ return '<path class="ge dep" data-dep="' + i + '" data-a="' + esc(e.a.id) + '" data-b="' + esc(e.b.id) + '" marker-end="url(#arrb)" d="M0 0"><title>Watch before the session</title></path>'; }).join("");
+  var dep = g.deps.map(function(e, i){ return '<path class="ge dep' + (e.need ? ' need' : '') + '" data-dep="' + i + '" data-a="' + esc(e.a.id) + '" data-b="' + esc(e.b.id) + '" marker-end="url(#' + (e.need ? 'arrr' : 'arrb') + ')" d="M0 0"><title>' + (e.need ? 'Needed for the assessment' : 'Watch before the session') + '</title></path>'; }).join("");
   var nodes = g.nodes.map(function(n){
     var isSel = n.kind === "time" ? !!sel.rows[n.key] : !!sel.nodes[n.id];
     var cls = "gn " + n.kind + (isSel ? " sel" : "") + (cur[n.id] ? " cur" : "") + (n.kind === "time" && n.row.level === "must" ? " must" : "") + (n.tick && state.checked[n.tick] ? " done" : "") + (n.tick && state.muted[n.tick] ? " muted" : "") +
@@ -1132,7 +1182,7 @@ function svgGraph(t){
       '<text class="lab" y="' + (r + 12) + '" text-anchor="middle">' + esc(trunc(n.label, LABEL_MAX[n.kind] || 18)) + '</text>' +
       '<text class="sub" y="' + (r + 12) + '" text-anchor="middle">' + esc(trunc(n.label, 70)) + '</text></g>';
   }).join("");
-  return '<svg id="gsvg" class="' + (state.mapAll ? 'showall' : '') + '" xmlns="http://www.w3.org/2000/svg"><defs><filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3.5"/></filter><marker id="arrb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--now)"/></marker></defs>' +
+  return '<svg id="gsvg" class="' + (state.mapAll ? 'showall' : '') + '" xmlns="http://www.w3.org/2000/svg"><defs><filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3.5"/></filter><marker id="arrb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--now)"/></marker><marker id="arrr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--alert)"/></marker></defs>' +
     '<g id="gpan">' + ringSvg(t) + edges + dep + nodes + '</g></svg>';
 }
 function railList(t){
@@ -1173,6 +1223,8 @@ function resolveOne(t, key, out){
   if (row) out.rows[key] = true;
   if (nid) rows.forEach(function(r){ if (rowNodeIds(t, r).indexOf(nid) >= 0) out.rows[r.id || r.key] = true; });
   if (node && node.kind === "item") rows.forEach(function(r){ if (r.kind === "session" && r.prep && r.prep.indexOf(node.item) >= 0) out.related[r.key] = true; });
+  // the deadlines of the assessments this page is needed for
+  if (node && node.kind === "item") { var aids = neededFor(t, node.code, node.item).map(function(a){ return a.id; }); rows.forEach(function(r){ if (r.kind === "deadline" && (r.aids ? r.aids.some(function(x){ return aids.indexOf(x) >= 0; }) : aids.indexOf(Number(r.id.split(":")[2])) >= 0)) out.related[r.id] = true; }); }
   if (node && node.kind === "module") rows.forEach(function(r){ var ids = rowNodeIds(t, r); if (ids.some(function(x){ return leafItems(node).some(function(c){ return c.id === x; }); })) out.related[r.id || r.key] = true; });
   return nid;
 }
@@ -1224,6 +1276,7 @@ function detailFor(t, key){
         (i.section ? '<span>Section</span><b>' + esc(i.section) + '</b>' : '') + (i.minutes ? '<span>Time</span><b>' + fmtMin(i.minutes) + (i.statedMinutes ? ", stated by the course" : ", estimate") + '</b>' : '') +
         (i.words ? '<span>Length</span><b>' + i.words + ' words' + (i.videos ? ", " + i.videos + " video" + (i.videos > 1 ? "s" : "") : "") + (i.files ? ", " + i.files + " file" + (i.files > 1 ? "s" : "") : "") + '</b>' : '') +
         (i.req ? '<span>Canvas</span><b>tracks this: ' + esc(REQ[i.req] || i.req) + (canvasDone(node.code, i) ? ", done" : "") + '</b>' : '') +
+        (i.unlisted ? '<span>Listed</span><b>not in this module in Canvas, placed here by its number</b>' : '') +
         (i.due ? '<span>Due</span><b>' + esc(longDay(i.due) + " " + i.dueTime) + (i.points ? ", " + i.points + " p" : "") + '</b>' : '') + '</div>';
       html += '<div class="act" data-id="' + esc(node.tick) + '">' + box(node.tick) + '<label for="' + esc(node.tick) + '">Done</label>' + muteBtn(node.tick) + '</div>';
       html += '<span class="links"><a href="' + esc(i.url) + '" target="_blank" rel="noopener">Open in Canvas' + ext(i.url) + '</a></span>';
@@ -1235,7 +1288,14 @@ function detailFor(t, key){
       });
       studyBlocks(t).forEach(function(b){ if (b.code === node.code && b.items.indexOf(i) >= 0) rel.push(["Planned for", "week of " + longDay(b.week), null]); });
       if (i.assignmentId) { var asg = assignments(node.code).find(function(a){ return a.id === i.assignmentId; }); taskRows(t).forEach(function(r){ if (asg && r.feeds && r.feeds.url === asg.url) rel.push(["Task feeding it", longDay(r.date) + ", " + r.title, r.id]); }); }
+      neededFor(t, node.code, i).forEach(function(a){ var ai = assessmentItem(node.code, a.id); rel.push(["Needed for", (ai.number ? ai.number + " " : "") + ai.title + (a.due ? ", " + dayLabel(a.due) : ""), nodeIdOf(node.code, ai)]); });
       if (rel.length) html += '<div class="sec">Connected</div><ul class="rel">' + rel.map(function(x){ return '<li><span class="why" style="display:inline">' + esc(x[0]) + ':</span> ' + (x[2] ? '<button type="button" data-goto="' + esc(x[2]) + '">' + esc(x[1]) + '</button>' : esc(x[1])) + '</li>'; }).join("") + '</ul>';
+      // what this assessment tests, by the section rule plus the plan's NEEDS entries
+      if (i.assignmentId) {
+        var need = needsOf(t, node.code, i.assignmentId), needDone = need.filter(function(x){ return state.checked["m:" + node.code + ":" + x.id]; }).length;
+        if (need.length) html += '<div class="sec">Needs</div><div class="why">' + need.length + ' items, ' + needDone + ' ticked' + (matMinutes(need) ? ', ' + fmtMin(matMinutes(need)) : '') + '</div><ul class="rel">' +
+          need.map(function(x){ return '<li' + (state.checked["m:" + node.code + ":" + x.id] ? ' style="opacity:.55"' : '') + '><button type="button" data-goto="' + esc(nodeIdOf(node.code, x)) + '">' + ic(KIND_ICON[x.kind] || "book-open", "sm kic") + esc((x.number ? x.number + " " : "") + x.title) + '</button></li>'; }).join("") + '</ul>';
+      }
     }
   }
   return html;
@@ -1254,7 +1314,7 @@ function renderMapView(t){
         '<div><svg class="lg" viewBox="-14 -14 28 28"><circle r="11" class="c"/></svg>course <svg class="lg" viewBox="-14 -14 28 28"><circle r="8" class="c"/></svg>module <svg class="lg" viewBox="-14 -14 28 28"><circle r="6" class="c d"/></svg>section <svg class="lg" viewBox="-14 -14 28 28"><circle r="4.5" class="c"/></svg>item</div>' +
         '<div><span class="lp">' + ic("chalkboard-teacher", "sm") + '</span>session <span class="lp r">' + ic("upload-simple", "sm") + '</span>deadline <span class="lp t">' + ic("clipboard-text", "sm") + '</span>task</div>' +
         '<div><span class="dot"></span>MUST <span class="sw now"></span>this week <span class="sw wedge"></span>today</div>' +
-        '<div><span class="ln"></span>belongs to <span class="ln dep"></span>watch before <span class="ln tl"></span>event to page</div>' +
+        '<div><span class="ln"></span>belongs to <span class="ln dep"></span>watch before <span class="ln need"></span>needed for <span class="ln tl"></span>event to page</div>' +
         '<div class="why">Faded: lower levels until they join a hovered or selected chain.</div></details></div></div>' +
     '<div class="card"><h3>' + ic("info") + 'Details</h3><div class="detail" id="detail">' + detailFor(t, state.mapSel) + '</div></div>' +
     '</div></section>';
@@ -1337,7 +1397,8 @@ function applySel(t){
   document.getElementById("detail").innerHTML = (state.mapSels.length > 1 ? '<div class="multi">' + state.mapSels.length + ' selected, showing the last. <button type="button" id="sel-clear">Clear</button></div>' : '') + detailFor(t, state.mapSel);
   document.querySelectorAll("#rail .ev").forEach(function(b){ b.setAttribute("aria-current", String(!!sel.rows[b.dataset.ev])); b.classList.toggle("rel", !!sel.related[b.dataset.ev]); });
   var cur = document.querySelector('#rail .ev[aria-current="true"], #rail .ev.rel'); if (cur && cur.scrollIntoView) cur.scrollIntoView({ block: "nearest" });
-  var focus = Object.keys(sel.nodes);
+  // a selected page that is folded away walks from its deepest open ancestor instead
+  var focus = Object.keys(sel.nodes).map(function(id){ if (mapLayout.visible[id]) return id; var h = visibleHost(mapRoots, id, mapLayout.visible); return h ? h.id : null; }).filter(Boolean);
   state.mapSels.forEach(function(k){ if (mapLayout.nodes.some(function(n){ return n.kind === "time" && n.key === k; })) focus.push("t:" + k); });
   highlight(focus.length ? focus : null);
   applyState();
