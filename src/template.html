@@ -1083,7 +1083,8 @@ function ringSvg(t){
     // the wedge lives in the gap between the material and the pills, never under them
     var P = function(r, a){ return (Math.cos(a) * r).toFixed(1) + " " + (Math.sin(a) * r).toFixed(1); };
     // the title sits on its own orbit just outside the material, fitted to the curve; the band sits just above it
-    var mid = (a0 + a1) / 2, gap = R + 6 - (inner + 6), rt = inner + 6 + gap * 0.18, r0 = rt + 9, r1 = r0 + gap * 0.3, large = (a1 - a0) > Math.PI ? 1 : 0;
+    // outside the pills: the title on an orbit just beyond them, the band beyond the title
+    var mid = (a0 + a1) / 2, rt = R + 44, r0 = rt + 9, r1 = r0 + 10, large = (a1 - a0) > Math.PI ? 1 : 0;
     // text path: wide enough for the words, running left to right on the top half and right to left on the bottom, so it reads upright
     var span = Math.max(a1 - a0, 0.9), ta0 = mid - span, ta1 = mid + span, bottom = Math.sin(mid) > 0;
     var tp = bottom ? 'M' + P(rt, ta1) + ' A' + rt + ' ' + rt + ' 0 0 0 ' + P(rt, ta0) : 'M' + P(rt, ta0) + ' A' + rt + ' ' + rt + ' 0 0 1 ' + P(rt, ta1);
