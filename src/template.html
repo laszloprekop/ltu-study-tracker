@@ -269,12 +269,12 @@ body.mapview footer p{margin:0 0 2px}
 /* Collapsed rail: the map takes its column and the rail sits over the map's left edge as a thin timeline of dots */
 .map.rail-slim{grid-template-columns:minmax(0,1fr) clamp(340px, 26vw, 460px)}
 .map.rail-slim .legend-g{left:46px}
-.rail-toggle{margin-left:auto; display:inline-flex; align-items:center; background:none; border:1px solid var(--line); border-radius:6px; padding:2px 4px; color:var(--muted); cursor:pointer}
-.rail-toggle:hover{color:var(--ink)}
-.rail-toggle .ic{width:12px; height:12px; transition:transform .15s}
+.rail-toggle{margin-left:auto; display:inline-flex; align-items:center; gap:4px; font-size:12px; font-weight:600; letter-spacing:0; text-transform:none; color:var(--muted); background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:3px 7px; cursor:pointer; line-height:1.2}
+.rail-toggle:hover{color:var(--ink); border-color:var(--muted)}
+.rail-toggle .ic{width:14px; height:14px; transition:transform .15s}
 .rail-card.slim{position:absolute; left:0; top:0; bottom:0; width:36px; z-index:3; border-radius:10px 0 0 10px; align-items:center; padding:6px 0 8px; background:color-mix(in srgb, var(--surface) 86%, transparent); backdrop-filter:blur(4px)}
-.rail-card.slim .rail-toggle{margin:0}
-.rail-card.slim .rail-toggle .ic{transform:rotate(180deg)}
+.rail-card.slim .rail-toggle{margin:0; padding:4px 5px}
+.rail-card.slim .rail-toggle .ic{width:16px; height:16px}
 .rail-dots{flex:1 1 auto; min-height:0; width:100%; position:relative; display:flex; flex-direction:column; align-items:center; justify-content:space-evenly; padding:8px 0; overflow:hidden}
 .rail-dots::before{content:""; position:absolute; left:50%; top:10px; bottom:10px; width:2px; margin-left:-1px; background:var(--line)}
 .rail-dots .dot{position:relative; flex:0 1 16px; min-height:7px; width:100%; background:none; border:0; padding:0; cursor:pointer; display:flex; align-items:center; justify-content:center}
@@ -1236,8 +1236,8 @@ function railDots(t){
   return out;
 }
 function railCard(t){
-  if (state.railSlim) return '<div class="card rail-card slim"><button type="button" class="rail-toggle" id="rail-toggle" title="Show the list of coming events">' + ic("caret-right", "sm") + '</button><div class="rail-dots" id="rail">' + railDots(t) + '</div></div>';
-  return '<div class="card rail-card"><h3>' + ic("calendar-dot") + 'Coming up<button type="button" class="rail-toggle" id="rail-toggle" title="Fold the list to a thin timeline over the map">' + ic("caret-right", "sm") + '</button></h3><div class="rail-list" id="rail">' + railList(t) + '</div></div>';
+  if (state.railSlim) return '<div class="card rail-card slim"><button type="button" class="rail-toggle" id="rail-toggle" title="Unfold the list of coming events">' + ic("caret-right") + '</button><div class="rail-dots" id="rail">' + railDots(t) + '</div></div>';
+  return '<div class="card rail-card"><h3>' + ic("calendar-dot") + 'Coming up<button type="button" class="rail-toggle" id="rail-toggle" title="Fold the list to a thin timeline over the map"><svg class="ic" aria-hidden="true" style="transform:rotate(180deg)"><use href="#i-caret-right"/></svg>Fold</button></h3><div class="rail-list" id="rail">' + railList(t) + '</div></div>';
 }
 function showRailTip(d){
   var tip = document.getElementById("rail-tip"); if (!tip) return;
