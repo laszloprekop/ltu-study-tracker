@@ -285,11 +285,17 @@ body.mapview #termbody section{flex:1 1 auto; min-height:0; margin-bottom:12px; 
 .rail-card.slim .rail-toggle{margin:0; padding:4px 0}
 /* The folded rail as a timeline: rows of squares, one square per unit of time an event covers; overlaps sit in the next lane */
 .rail-strip{flex:1 1 auto; min-height:0; width:100%; position:relative; margin:4px 0; --sq:8px}
-.rail-strip .ev{position:absolute; background:none; border:0; padding:0; margin:0; cursor:pointer; display:block}
-.rail-strip .ev i{position:absolute; left:0; width:var(--sq); height:var(--sq); background:var(--cc)}
+.rail-strip .ev{position:absolute; background:none; border:0; padding:0; margin:0; cursor:pointer; display:block; transition:top .35s ease, left .35s ease, width .35s ease, height .35s ease, opacity .3s ease}
+.rail-strip .ev i{position:absolute; left:0; width:var(--sq); height:var(--sq); background:var(--cc); transition:top .35s ease, width .35s ease, height .35s ease}
+.rail-strip .gapc,.rail-strip .nowline{transition:opacity .3s ease}
+.rail-strip .in,.rail-strip .out{opacity:0}
+.rail-card.slim{transition:width .35s ease}
+.map.rail-slim .legend-g{transition:left .35s ease}
+.map.rail-slim .mapcard h3{transition:padding-left .35s ease}
 .rail-strip .ev.done i{background:transparent; box-shadow:inset 0 0 0 1px var(--cc)}
 .rail-strip .ev.muted{opacity:.35}
 .rail-strip .ev.past{opacity:.45}
+.rail-strip .ev.in,.rail-strip .ev.out{opacity:0}
 .rail-strip .ev:hover,.rail-strip .ev:focus-visible{z-index:2; box-shadow:0 0 0 1px var(--ink)}
 .rail-strip .ev[aria-current="true"]{z-index:3; box-shadow:0 0 0 2px var(--now-tint)}
 .rail-strip .ev.rel,.rail-strip .ev[data-rel]{z-index:2; box-shadow:0 0 0 1px var(--now-tint)}
@@ -349,7 +355,7 @@ svg.showall .ge.lvsection:not(.hl),svg.showall .ge.lvitem:not(.hl){opacity:.08}
 .ge{transition:opacity .45s ease, stroke-width .3s ease}
 .gn circle.body,.gn path.pill{transition:stroke .3s ease, fill .3s ease, stroke-width .3s ease}
 .gn .sub,.gn .lab{transition:opacity .3s ease}
-@media (prefers-reduced-motion:reduce){ .gn,.ge,.gn circle.body,.gn path.pill,.gn .sub,.gn .lab{transition:none} }
+@media (prefers-reduced-motion:reduce){ .gn,.ge,.gn circle.body,.gn path.pill,.gn .sub,.gn .lab,.rail-strip .ev,.rail-strip .ev i,.rail-strip .gapc,.rail-strip .nowline,.rail-card.slim{transition:none} }
 svg.focus .gn:not(.hl){opacity:.22}
 svg.focus .ge:not(.hl):not(.tl){opacity:.04}
 /* a lit chain is fully opaque; only the widths keep the trunk-to-twig order */
@@ -1344,21 +1350,40 @@ function layoutRail(t){
   railGeom = { ys: ys, per: per, span: span, level: level, sq: sq };
   strip.style.setProperty("--sq", sq + "px");
   var map = strip.closest(".map"); if (map) map.style.setProperty("--rail-w", Math.max(36, width) + "px");
-  var html = "";
+  // Morph rather than rebuild: an event that stays keeps its button and slides to its new place,
+  // one that leaves fades out, one that arrives fades in. Connectors and the now line cross-fade.
+  var keep = {}, old = {};
+  strip.querySelectorAll(".ev").forEach(function(b){ old[b.dataset.ev] = b; });
+  strip.querySelectorAll(".gapc, .nowline").forEach(function(el){ if (!el.classList.contains("out")) { el.classList.add("out"); setTimeout(function(){ el.remove(); }, 400); } });
+  var fresh = [];
   conns.forEach(function(c){
-    html += '<div class="gapc" style="top:' + c.y + 'px;height:' + RAIL_CONN + 'px" title="' + esc(railGapLabel(level, c.rows) + " with nothing in it") + '"><svg viewBox="0 0 8 18" width="8" height="18" aria-hidden="true"><polyline points="4,0 1,4 7,8 1,12 7,16 4,18"/></svg><span>' + esc(railGapLabel(level, c.rows)) + '</span></div>';
+    var el = document.createElement("div"); el.className = "gapc in"; el.style.top = c.y + "px"; el.style.height = RAIL_CONN + "px"; el.title = railGapLabel(level, c.rows) + " with nothing in it";
+    el.innerHTML = '<svg viewBox="0 0 8 18" width="8" height="18" aria-hidden="true"><polyline points="4,0 1,4 7,8 1,12 7,16 4,18"/></svg><span>' + esc(railGapLabel(level, c.rows)) + '</span>';
+    strip.appendChild(el); fresh.push(el);
   });
   d.events.forEach(function(e){
     var r = e.r, title = r.title.replace(/ due \d\d:\d\d$/, "").replace(/ close \d\d:\d\d$/, " close");
     var when = dayLabel(r.date) + (r.time ? " " + r.time + (r.end ? "\u2013" + r.end : "") : "") + ", " + (r.kind === "session" ? (SESSION_KIND[r.skind] || "") : r.kind === "deadline" ? "deadline" : "task");
-    var top = ys[e.row], h = ys[e.row + e.rows - 1] + sq - top, cells = "";
-    for (k = e.row; k < e.row + e.rows; k++) cells += '<i style="top:' + (ys[k] - top) + 'px"></i>';
-    html += '<button type="button" class="ev' + (r.level === "must" ? " must" : "") + (r.id ? hostClass(r.id, "") : "") + (r.date < today ? " past" : "") +
-      '" style="' + colorVars(r.code) + ';top:' + top + 'px;left:' + (pad + e.lane * (sq + gap)) + 'px;width:' + sq + 'px;height:' + h + 'px" data-ev="' + esc(e.key) + '" data-course="' + r.code + '"' + (r.id ? ' data-id="' + esc(r.id) + '"' : '') +
-      ' aria-current="' + (e.sel ? "true" : "false") + '"' + (e.rel ? ' data-rel="1"' : '') + ' data-tip="' + esc(title) + '" data-when="' + esc(when) + '" aria-label="' + esc(when + " " + title) + '">' + cells + '</button>';
+    var top = ys[e.row], h = ys[e.row + e.rows - 1] + sq - top;
+    var btn = old[e.key], isNew = !btn;
+    if (isNew) { btn = document.createElement("button"); btn.type = "button"; btn.className = "ev in"; btn.dataset.ev = e.key; strip.appendChild(btn); fresh.push(btn); }
+    keep[e.key] = true;
+    btn.className = "ev" + (isNew ? " in" : "") + (r.level === "must" ? " must" : "") + (r.id ? hostClass(r.id, "") : "") + (r.date < today ? " past" : "");
+    btn.setAttribute("style", colorVars(r.code) + ";top:" + top + "px;left:" + (pad + e.lane * (sq + gap)) + "px;width:" + sq + "px;height:" + h + "px");
+    btn.dataset.course = r.code; if (r.id) btn.dataset.id = r.id; else delete btn.dataset.id;
+    btn.setAttribute("aria-current", e.sel ? "true" : "false"); if (e.rel) btn.dataset.rel = "1"; else delete btn.dataset.rel;
+    btn.dataset.tip = title; btn.dataset.when = when; btn.setAttribute("aria-label", when + " " + title);
+    // one square per row: keep the ones there, add the missing at the end, drop the surplus
+    var cells = btn.querySelectorAll("i"), n = e.rows, lastTop = cells.length ? cells[cells.length - 1].style.top : "0px";
+    for (k = cells.length; k < n; k++) { var c = document.createElement("i"); c.style.top = lastTop; btn.appendChild(c); }
+    for (k = cells.length - 1; k >= n; k--) cells[k].remove();
+    cells = btn.querySelectorAll("i");
+    for (k = 0; k < n; k++) cells[k].style.top = (ys[e.row + k] - top) + "px";
   });
-  if (nowRow >= 0) html += '<div class="nowline" style="top:' + (ys[nowRow] - 2) + 'px"></div>';
-  strip.innerHTML = html;
+  Object.keys(old).forEach(function(key){ if (!keep[key]) { var b = old[key]; b.classList.add("out"); b.style.pointerEvents = "none"; setTimeout(function(){ b.remove(); }, 400); } });
+  if (nowRow >= 0) { var nl = document.createElement("div"); nl.className = "nowline in"; nl.style.top = (ys[nowRow] - 2) + "px"; strip.appendChild(nl); fresh.push(nl); }
+  // next frame: let the arrivals fade in and the squares slide, after their start state has painted
+  if (fresh.length) { void strip.offsetWidth; requestAnimationFrame(function(){ fresh.forEach(function(el){ el.classList.remove("in"); }); }); }
   var lbl = document.getElementById("rz-lbl"); if (lbl) lbl.textContent = level === 0 ? t.label : level === 1 ? "v" + isoWeek(span.start) : dayLabel(span.start);
   var zin = document.getElementById("rz-in"), zout = document.getElementById("rz-out"); if (zin) zin.disabled = level === 2; if (zout) zout.disabled = level === 0;
   ["rz-prev", "rz-next"].forEach(function(id){ var b = document.getElementById(id); if (b) b.disabled = level === 0; });
@@ -1649,12 +1674,13 @@ function bindMap(t){
   ["pointerover", "focusin"].forEach(function(ev){ tb.addEventListener(ev, function(e){ var d = e.target.closest && e.target.closest(".rail-strip .ev"); if (d) showRailTip(d); }); });
   ["pointerout", "focusout"].forEach(function(ev){ tb.addEventListener(ev, function(e){ if (e.target.closest && e.target.closest(".rail-strip .ev")) hideRailTip(); }); });
   // wheel over the strip zooms in at the row under the pointer, or out
-  var wheelAcc = 0;
+  var wheelAcc = 0, wheelLock = false;
   tb.addEventListener("wheel", function(e){
     var strip = e.target.closest && e.target.closest(".rail-strip"); if (!strip) return;
-    e.preventDefault(); wheelAcc += e.deltaY;
-    if (Math.abs(wheelAcc) < 40) return;
-    var dir = wheelAcc < 0 ? 1 : -1; wheelAcc = 0;
+    e.preventDefault();
+    if (wheelLock) return;
+    wheelAcc += e.deltaY; if (Math.abs(wheelAcc) < 30) return;
+    var dir = wheelAcc < 0 ? 1 : -1; wheelAcc = 0; wheelLock = true; setTimeout(function(){ wheelLock = false; }, 420);
     var focus = railDateAt(e.clientY - strip.getBoundingClientRect().top);
     railSetZoom(term(), railZoom.level + dir, dir > 0 ? focus : null);
   }, { passive: false });
