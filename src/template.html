@@ -145,7 +145,7 @@ section{margin-bottom:30px}
 body.colored .row:not(.done) .tt,body.colored .mat li:not(.done) .tt{color:var(--cc)}
 .box{position:relative; flex:0 0 auto; width:15px; height:15px; margin-top:3px}
 .box input[type=checkbox]{margin:0; width:15px; height:15px; accent-color:var(--ok); display:block}
-.box .ring{display:none; position:absolute; inset:-4px; border-radius:50%; border:2px solid var(--alert); pointer-events:none; animation:pingring 1.5s ease-out infinite}
+.box .ring{display:none; position:absolute; inset:-4px; border-radius:50%; border:2px solid var(--now-tint); box-shadow:0 0 6px var(--now-tint); pointer-events:none; animation:pingring 1.5s ease-out infinite}
 body:not(.noping) .endangered:not(.done):not(.muted) .box .ring{display:block}
 @keyframes pingring{0%{transform:scale(.55); opacity:.95} 100%{transform:scale(2.1); opacity:0}}
 @media (prefers-reduced-motion:reduce){ .bar span{transition:none} .box .ring{animation:none; inset:-3px; opacity:.8} }
@@ -511,7 +511,7 @@ body.colored table.all tr:not(.done) .tt{color:var(--cc)}
           <button type="button" id="size-down" title="Smaller text" aria-label="Smaller text"><svg class="ic sm"><use href="#i-minus"/></svg></button>
           <span class="lbl" title="Text size"><svg class="ic"><use href="#i-text-aa"/></svg></span>
           <button type="button" id="size-up" title="Larger text" aria-label="Larger text"><svg class="ic sm"><use href="#i-plus"/></svg></button>
-          <button type="button" id="ping-toggle" title="Red pulsing ring on unfinished items due within the coming week" aria-pressed="true"><svg class="ic"><use href="#i-target"/></svg></button>
+          <button type="button" id="ping-toggle" title="Cyan pulsing ring on unfinished items due within the coming week" aria-pressed="true"><svg class="ic"><use href="#i-target"/></svg></button>
           <button type="button" id="color-toggle" title="Colour unfinished titles by course" aria-pressed="true"><svg class="ic"><use href="#i-beach-ball"/></svg></button>
         </div>
         <div class="seg tools" role="group" aria-label="Theme" id="theme">
@@ -529,7 +529,7 @@ body.colored table.all tr:not(.done) .tt{color:var(--cc)}
               <span><span class="lvl must">MUST</span>graded, required, a session you cannot miss, or what one of those depends on. Red stripe.</span>
               <span><span class="lvl nice">NICE</span>readings, videos, recordings: helps, not required</span>
               <span><svg class="ic sm"><use href="#i-circle-dashed"/></svg> Canvas tracks this item (view, post, mark done, submit)</span>
-              <span><svg class="ic sm"><use href="#i-target"/></svg> turns on a red pulsing ring around the tick box of anything unfinished that is overdue or due within the coming seven days. Nothing further ahead pulses.</span>
+              <span><svg class="ic sm"><use href="#i-target"/></svg> turns on a cyan pulsing ring around the tick box of anything unfinished that is overdue or due within the coming seven days. Nothing further ahead pulses.</span>
               <span><span class="tag expected" style="margin-left:0">expected</span> a Z0025E lecture whose date and time come from the course Homepage timetable, but which lecture it is comes from module order. The teacher has not named it yet; the weekly announcement confirms or moves it.</span>
               <span><svg class="ic sm"><use href="#i-beach-ball"/></svg> course colours &nbsp;<svg class="ic sm"><use href="#i-clock"/></svg> working hours &nbsp;<svg class="ic sm"><use href="#i-sun"/></svg><svg class="ic sm"><use href="#i-moon"/></svg><svg class="ic sm"><use href="#i-desktop"/></svg> theme</span>
               <span>Progress: green is deadlines and tasks, blue is material.</span>
