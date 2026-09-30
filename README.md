@@ -86,7 +86,10 @@ node to move it, drag the background to pan, scroll to zoom, click a module to o
 are kept while the tab is open, so opening a module only moves what has to move. Dashed blue edges
 show what a session's page depends on (its `prep`), a red dot marks MUST, a blue tint marks this
 week's material. Right: details of the chosen event or node, with the tick box, mute, Canvas links
-and everything connected to it. Which modules are open is remembered per viewer.
+and everything connected to it. The selection is shared: a node lights the events that point at it
+(and, lighter, the sessions that need it first, or every event inside a module), an event lights
+its node. Which modules are open is remembered per viewer. Link chips everywhere are icons (Zoom,
+recording, submit, module, page, booking, download) with the label on hover.
 
 ## Header and settings
 

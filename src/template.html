@@ -163,6 +163,9 @@ a.tag.feeds:hover{border-color:var(--alert)}
 .links{display:flex; flex-wrap:wrap; gap:6px; margin-top:5px}
 .links a{display:inline-flex; align-items:center; gap:4px; font-size:11.5px; line-height:1.4; text-decoration:none; color:var(--ink); background:var(--surface-2); border:1px solid var(--line); border-radius:5px; padding:2px 7px}
 .links a .ic{color:var(--muted)}
+.links a.io{padding:3px 6px; gap:1px}
+.links a.io:hover .ic{color:var(--ink)}
+.links a.io .ic.ext{width:.7em; height:.7em; margin-left:0}
 .ic.ext{width:.85em; height:.85em; color:var(--muted); margin-left:2px; vertical-align:-.1em}
 .links a:hover{border-color:var(--ink)}
 .links a:focus-visible,.quick a:focus-visible{outline:2px solid var(--ok); outline-offset:1px}
@@ -261,6 +264,7 @@ a.tag.feeds:hover{border-color:var(--alert)}
 .rail-list .ev{display:block; width:100%; text-align:left; background:none; border:0; border-radius:6px; padding:4px 6px 4px 18px; font-size:13px; line-height:1.3; color:var(--ink); cursor:pointer}
 .rail-list .ev:hover{background:var(--surface-2)}
 .rail-list .ev[aria-current="true"]{background:var(--now-soft)}
+.rail-list .ev.rel,.rail-list .ev[data-rel]{box-shadow:inset 3px 0 0 var(--now)}
 .rail-list .ev .tt{display:inline}
 .rail-list .ev small{display:block; color:var(--muted); font-size:11px}
 .rail-list .ev.done .tt{text-decoration:line-through; color:var(--muted)}
@@ -455,7 +459,20 @@ const KIND_ICON = { lecture: "chalkboard-teacher", selfpaced: "chats-circle", po
   exercise: "barbell", solutions: "lightbulb", video: "play-circle", instructions: "clipboard-text", discussion: "chats", session: "play-circle", handin: "upload-simple", exam: "exam", link: "arrow-square-out" };
 const SESSION_KIND = { lecture: "Lecture", workshop: "Workshop", lab: "Lab session", interview: "Interview", seminar: "Seminar", exam: "Exam" };
 const SESSION_ICON = { lecture: "chalkboard-teacher", workshop: "users-three", lab: "flask", interview: "microphone", seminar: "presentation-chart", exam: "exam" };
-const LINK_ICON = { "Zoom": "video-camera", "Submit": "upload-simple", "Recording and slides": "play-circle" };
+// Link chips are icons; the label shows on hover and to screen readers.
+function linkIcon(label, url){
+  var l = String(label), u = String(url);
+  if (/zoom/i.test(l) || /zoom\.us/.test(u)) return "video-camera";
+  if (/recording/i.test(l)) return "play-circle";
+  if (/submit/i.test(l) || /\/assignments\/\d+$/.test(u)) return "upload-simple";
+  if (/module/i.test(l)) return "tree-structure";
+  if (/book|sign-?up|doodle/i.test(l) || /doodle/.test(u)) return "calendar-check";
+  if (/wireshark|packet tracer|download|install/i.test(l)) return "download-simple";
+  if (/quiz/i.test(l)) return "question";
+  if (/schema|schedule|calendar/i.test(l)) return "calendar";
+  if (/page|lecture|brief|instructions|overview|\/pages\/|\/modules\/items\//i.test(l + " " + u)) return "book-open";
+  return "link";
+}
 const REQ = { must_view: "view", must_mark_done: "mark done", must_contribute: "post", must_submit: "submit", min_score: "reach a score" };
 const SOON_DAYS = 7;
 
@@ -577,7 +594,7 @@ function isCanvas(url){ return /instructure\.com\//.test(url); }
 function ext(url){ return isCanvas(url) ? ic("arrow-square-out", "sm ext") : ""; }
 function links(list){
   if (!list || !list.length) return "";
-  return '<span class="links">' + list.map(function(l){ var i = LINK_ICON[l[0]]; return '<a href="' + esc(l[1]) + '" target="_blank" rel="noopener">' + (i ? ic(i, "sm") : '') + esc(l[0]) + ext(l[1]) + '</a>'; }).join("") + '</span>';
+  return '<span class="links">' + list.map(function(l){ var lab = l[0] + (isCanvas(l[1]) ? " (Canvas)" : ""); return '<a class="io" href="' + esc(l[1]) + '" target="_blank" rel="noopener" title="' + esc(lab) + '" aria-label="' + esc(lab) + '">' + ic(linkIcon(l[0], l[1])) + ext(l[1]) + '</a>'; }).join("") + '</span>';
 }
 function lvl(level){ return '<span class="lvl ' + level + '">' + (level === "must" ? "MUST" : "NICE") + '</span>'; }
 function box(id){ return '<span class="box"><span class="ring"></span><input type="checkbox" id="' + esc(id) + '"></span>'; }
@@ -911,7 +928,7 @@ function railList(t){
   rows.forEach(function(r){
     if (r.date !== last) { out += '<div class="rd' + (r.date === today ? ' today' : '') + '">' + esc(longDay(r.date)) + '</div>'; last = r.date; }
     var key = r.id || r.key;
-    out += '<button type="button" class="ev' + (r.id ? hostClass(r.id, "") : "") + '" data-ev="' + esc(key) + '" data-course="' + r.code + '"' + (r.id ? ' data-id="' + esc(r.id) + '"' : '') + ' style="' + colorVars(r.code) + '" aria-current="' + (sel.rows[key] ? "true" : "false") + '">' +
+    out += '<button type="button" class="ev' + (r.id ? hostClass(r.id, "") : "") + '" data-ev="' + esc(key) + '" data-course="' + r.code + '"' + (r.id ? ' data-id="' + esc(r.id) + '"' : '') + ' style="' + colorVars(r.code) + '" aria-current="' + (sel.rows[key] ? "true" : "false") + '"' + (sel.related[key] ? ' data-rel="1"' : '') + '>' +
       '<span class="tt">' + esc(r.title.replace(/ due \d\d:\d\d$/, "").replace(/ close \d\d:\d\d$/, " close")) + '</span><small>' + esc((r.time ? r.time + " " : "") + (r.kind === "session" ? (SESSION_KIND[r.skind] || "") : r.kind === "deadline" ? "deadline" : "task")) + '</small></button>';
   });
   return out || '<div class="none" style="padding:10px 14px">Nothing ahead in this study period.</div>';
@@ -927,12 +944,16 @@ function rowNodeId(t, r){
 }
 // The selection is one key (a rail event or a graph node); every pane derives its own highlight from it.
 function resolveSel(t){
-  var key = state.mapSel, out = { node: null, rows: {} };
+  var key = state.mapSel, out = { node: null, rows: {}, related: {} };
   if (!key) return out;
   var rows = timeline(t), row = rows.find(function(r){ return (r.id || r.key) === key; });
-  out.node = row ? rowNodeId(t, row) : (findNode(mapRoots, key) ? key : null);
+  var node = row ? null : findNode(mapRoots, key);
+  out.node = row ? rowNodeId(t, row) : (node ? key : null);
   if (row) out.rows[key] = true;
   if (out.node) rows.forEach(function(r){ if (rowNodeId(t, r) === out.node) out.rows[r.id || r.key] = true; });
+  // related, shown lighter: sessions that need the item first; for a module, every event inside it
+  if (node && node.kind === "item") rows.forEach(function(r){ if (r.kind === "session" && r.prep && r.prep.indexOf(node.item) >= 0) out.related[r.key] = true; });
+  if (node && node.kind === "module") rows.forEach(function(r){ var nid = rowNodeId(t, r); if (nid && node.children.some(function(c){ return c.id === nid; })) out.related[r.id || r.key] = true; });
   return out;
 }
 function sessionKeyOf(s){ return "s:" + s.course + ":" + s.date + ":" + (s.start || ""); }
@@ -1034,8 +1055,8 @@ function refreshMap(t, center){
   w.querySelector("svg").outerHTML = svgGraph(t);
   document.getElementById("detail").innerHTML = detailFor(t, state.mapSel);
   var sel = resolveSel(t);
-  document.querySelectorAll("#rail .ev").forEach(function(b){ b.setAttribute("aria-current", String(!!sel.rows[b.dataset.ev])); });
-  var cur = document.querySelector('#rail .ev[aria-current="true"]'); if (cur && cur.scrollIntoView) cur.scrollIntoView({ block: "nearest" });
+  document.querySelectorAll("#rail .ev").forEach(function(b){ b.setAttribute("aria-current", String(!!sel.rows[b.dataset.ev])); b.classList.toggle("rel", !!sel.related[b.dataset.ev]); });
+  var cur = document.querySelector('#rail .ev[aria-current="true"], #rail .ev.rel'); if (cur && cur.scrollIntoView) cur.scrollIntoView({ block: "nearest" });
   wireGraph(); applyMapT(); bindSvg(); applyState();
   runSim(0.8);
   if (center) setTimeout(function(){ centerMapOn(center); }, 350);
@@ -1060,9 +1081,8 @@ function bindSvg(){
   svg.addEventListener("pointerup", function(e){
     var wasDrag = drag && drag.moved, node = drag && drag.node; drag = null; svg.classList.remove("drag");
     sim.pinned = null; if (node) runSim(0.3);
-    if (wasDrag) return;
-    var g = e.target.closest("[data-node]"); if (!g) return;
-    var id = g.dataset.node, t = term();
+    if (wasDrag || !node) return;
+    var id = node.id, t = term();
     if (id.charAt(0) !== "i") { state.mapOpen[id] = !state.mapOpen[id]; lsSet(LS.mapOpen, JSON.stringify(state.mapOpen)); }
     state.mapSel = id; refreshMap(t);
   });
