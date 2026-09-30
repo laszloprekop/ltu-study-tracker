@@ -99,7 +99,7 @@ previews its details in the right pane; a click pins them. So any item is zero c
 information and one from keeping it. Dashed blue edges
 show what a session's page depends on (its `prep`), a red dot marks MUST, a blue tint marks this
 week's material. Right: details of the chosen event or node, with the tick box, mute, Canvas links
-and everything connected to it. The selection is shared: a node lights the events that point at it
+and everything connected to it. On opening, today's first event is selected, or the next one coming up. The selection is shared: a node lights the events that point at it
 (and, lighter, the sessions that need it first, or every event inside a module), an event lights
 its node. Which modules are open is remembered per viewer. Link chips everywhere are icons (Zoom,
 recording, submit, module, page, booking, download) with the label on hover.

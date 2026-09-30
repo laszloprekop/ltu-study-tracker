@@ -1195,6 +1195,8 @@ function detailFor(t, key){
 }
 function hopsLabel(){ return state.mapHops >= 5 ? "all" : state.mapHops + (state.mapHops === 1 ? " hop" : " hops"); }
 function renderMapView(t){
+  // Nothing chosen yet: start on today's first event, or the next one coming up.
+  if (!state.mapSel) { var today = todayIso(), first = timeline(t).find(function(r){ return r.date >= today; }); if (first) state.mapSel = first.id || first.key; }
   return '<section><div class="map">' +
     '<div class="card"><h3>' + ic("calendar-dot") + 'Coming up</h3><div class="rail-list" id="rail">' + railList(t) + '</div></div>' +
     '<div class="card"><h3>' + ic("tree-structure") + 'Canvas map <span class="why" style="display:inline;text-transform:none;letter-spacing:0;font-weight:400">hover or click a node to see its links, click a module to open it, drag to pan, scroll to zoom</span></h3>' +
