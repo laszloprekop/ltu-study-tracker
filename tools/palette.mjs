@@ -68,8 +68,9 @@ function theme(dark) {
   const soft = dark ? [0.28, 0.36] : [0.92, 0.96];   // accent as a background tint
   const v = {};
   if (dark) {
-    v.bg = oklch(0.17, H.navy, 0.06); v.surface = oklch(0.22, H.navy, 0.05); v["surface-2"] = oklch(0.26, H.navy, 0.045);
-    v.ink = oklch(0.96, H.cream, 0.04); v.muted = oklch(0.72, H.navy, 0.03); v.line = oklch(0.34, H.navy, 0.04);
+    // deep black with a trace of navy; the neon has to sit on near-black to glow
+    v.bg = oklch(0.08, H.navy, 0.012); v.surface = oklch(0.13, H.navy, 0.014); v["surface-2"] = oklch(0.17, H.navy, 0.016);
+    v.ink = oklch(0.96, H.cream, 0.04); v.muted = oklch(0.70, H.navy, 0.025); v.line = oklch(0.27, H.navy, 0.02);
   } else {
     v.bg = oklch(0.93, H.grey, 0.012); v.surface = "#ffffff"; v["surface-2"] = oklch(0.97, H.grey, 0.008);
     v.ink = oklch(0.20, H.navy, 0.07); v.muted = oklch(0.50, H.navy, 0.04); v.line = oklch(0.87, H.grey, 0.015);
@@ -77,6 +78,8 @@ function theme(dark) {
   courses.forEach((h, i) => { v["c" + (i + 1)] = vivid(text, h); v["c" + (i + 1) + "-soft"] = vivid(soft, h); });
   v.alert = vivid(text, H.coral); v["alert-soft"] = vivid(soft, H.coral);
   v.ok = vivid(text, H.green); v.now = vivid(text, H.cyan); v["now-soft"] = vivid(soft, H.cyan); v["on-now"] = dark ? v.bg : "#ffffff";
+  // the teacher's announcement box: a fully saturated cyan block with dark text on it, like the reference
+  v.ann = vivid([0.80, 0.88], H.cyan); v["on-ann"] = dark ? v.bg : v.ink;
   v.shadow = dark ? "0 1px 2px rgba(0,0,0,.4)" : "0 1px 2px rgba(0,0,32,.08)";
   return v;
 }
@@ -88,6 +91,7 @@ function block(v, indent) {
     ...[1, 2, 3, 4, 5].map(i => line([["c" + i, v["c" + i]], ["c" + i + "-soft", v["c" + i + "-soft"]]])),
     line([["alert", v.alert], ["alert-soft", v["alert-soft"]]]),
     line([["ok", v.ok], ["now", v.now], ["now-soft", v["now-soft"]], ["on-now", v["on-now"]]]),
+    line([["ann", v.ann], ["on-ann", v["on-ann"]]]),
     line([["shadow", v.shadow]])
   ].join("\n");
 }
