@@ -77,6 +77,15 @@ workshops are MUST that way). Tasks take `"must"` as their last argument, and a 
 Material listed as `prep` for a MUST session is MUST too. Canvas records none of these links,
 so they live in the plan.
 
+## Map view
+
+A fourth tab. Left: the coming events (sessions, deadlines, tasks) as a timeline, titles only.
+Centre: the Canvas entities as a tree, course to module to item, laid out by module order with a
+readable minimum zoom; drag to pan, scroll to zoom, click a module to open it. Dashed blue edges
+show what a session's page depends on (its `prep`), a red dot marks MUST, a blue tint marks this
+week's material. Right: details of the chosen event or node, with the tick box, mute, Canvas links
+and everything connected to it. Which modules are open is remembered per viewer.
+
 ## Header and settings
 
 Row 1: study period tabs, then the settings: text size, pulse on or off (target), course-coloured

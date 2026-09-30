@@ -247,6 +247,63 @@ a.tag.feeds:hover{border-color:var(--alert)}
 .freeday .w.best{color:var(--ok); font-weight:600}
 .freeday .w small{color:var(--muted); font-weight:400}
 
+/* ---------- Map view ---------- */
+.map{display:grid; grid-template-columns:230px minmax(0,1fr) 340px; gap:14px; height:calc(100vh - 150px); min-height:520px}
+.map > .card{min-height:0; display:flex; flex-direction:column}
+.map h3{font-size:12px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); padding:12px 14px 6px; display:flex; align-items:center; gap:6px}
+.map h3 .ic{color:var(--muted)}
+.rail-list{overflow:auto; padding:4px 10px 14px 14px; position:relative}
+.rail-list::before{content:""; position:absolute; left:19px; top:8px; bottom:14px; width:2px; background:var(--line)}
+.rail-list .rd{position:relative; padding:8px 0 2px 18px; font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; font-weight:600; color:var(--muted)}
+.rail-list .rd::before{content:""; position:absolute; left:2px; top:14px; width:12px; height:2px; background:var(--muted)}
+.rail-list .rd.today{color:var(--now)}
+.rail-list .rd.today::before{background:var(--now); height:3px}
+.rail-list .ev{display:block; width:100%; text-align:left; background:none; border:0; border-radius:6px; padding:4px 6px 4px 18px; font-size:13px; line-height:1.3; color:var(--ink); cursor:pointer}
+.rail-list .ev:hover{background:var(--surface-2)}
+.rail-list .ev[aria-current="true"]{background:var(--now-soft)}
+.rail-list .ev .tt{display:inline}
+.rail-list .ev small{display:block; color:var(--muted); font-size:11px}
+.rail-list .ev.done .tt{text-decoration:line-through; color:var(--muted)}
+.rail-list .ev.muted{opacity:.45}
+.gwrap{position:relative; flex:1 1 auto; min-height:0; overflow:hidden; border-radius:0 0 10px 10px}
+.gwrap svg{width:100%; height:100%; display:block; cursor:grab; touch-action:none}
+.gwrap svg.drag{cursor:grabbing}
+.gtools{position:absolute; top:10px; right:10px; display:flex; gap:4px}
+.gtools button{display:inline-flex; align-items:center; gap:4px; font-size:12px; font-weight:600; color:var(--muted); background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:4px 7px; cursor:pointer}
+.gtools button:hover{color:var(--ink)}
+.gn{cursor:pointer}
+.gn rect{fill:var(--surface-2); stroke:var(--cc); stroke-width:1.2}
+.gn text{font-family:"Public Sans","Helvetica Neue",Arial,sans-serif; font-size:12px; fill:var(--ink)}
+.gn.course rect{fill:var(--cc-soft); stroke-width:1.6}
+.gn.course text,.gn.module text{font-weight:600}
+.gn.done rect{stroke:var(--line)}
+.gn.done text{fill:var(--muted); text-decoration:line-through}
+.gn.muted{opacity:.4}
+.gn.cur rect{fill:var(--now-soft)}
+.gn.sel rect{stroke:var(--now); stroke-width:2.5; fill:var(--now-soft)}
+.gn .must{fill:var(--alert)}
+.gn .badge{font-size:10px; fill:var(--muted); font-weight:600}
+.ge{stroke:var(--muted); stroke-width:1.2; fill:none; opacity:.7}
+.ge.dep{stroke:var(--now); stroke-dasharray:4 3; opacity:.9}
+.gaxis text{font-size:10.5px; fill:var(--muted); letter-spacing:.06em; text-transform:uppercase}
+.gaxis line{stroke:var(--muted); stroke-width:1}
+.gnote{position:absolute; left:10px; bottom:8px; font-size:11px; color:var(--muted); pointer-events:none}
+.detail{overflow:auto; padding:0 16px 16px; font-size:13.5px}
+.detail .dt{font-size:16px; font-weight:600; line-height:1.3; margin:4px 0 8px; font-family:Archivo,sans-serif}
+.detail .kv{display:grid; grid-template-columns:auto 1fr; gap:3px 12px; font-size:12.5px; color:var(--muted); margin:8px 0}
+.detail .kv b{color:var(--ink); font-weight:500}
+.detail .sec{font-size:11px; letter-spacing:.06em; text-transform:uppercase; font-weight:600; color:var(--muted); margin:14px 0 6px}
+.detail .rel{list-style:none; margin:0; padding:0}
+.detail .rel li{padding:4px 0; border-top:1px solid var(--line)}
+.detail .rel button{background:none; border:0; padding:0; font:inherit; color:var(--ink); cursor:pointer; text-align:left}
+.detail .rel button:hover{text-decoration:underline}
+.detail .act{display:flex; align-items:center; gap:10px; margin:10px 0}
+.detail .act label{cursor:pointer}
+.detail .none{color:var(--muted); padding:8px 0}
+.detail .why{color:var(--muted); font-size:12.5px; margin:4px 0}
+.detail .lnk{background:none; border:0; padding:0; font:inherit; color:inherit; cursor:pointer; text-decoration:underline}
+@media (max-width:900px){ .map{grid-template-columns:1fr; height:auto} .map .rail-list{max-height:220px} .gwrap{height:50vh} .detail{max-height:60vh} }
+
 /* ---------- All deadlines ---------- */
 .tablewrap{overflow-x:auto}
 table.all{width:100%; border-collapse:collapse; font-size:13.5px}
@@ -336,6 +393,7 @@ footer p{margin:0 0 6px}
         <button type="button" id="v-week" data-view="week"><svg class="ic"><use href="#i-calendar"/></svg>Week by week</button>
         <button type="button" id="v-day" data-view="day"><svg class="ic"><use href="#i-calendar-dot"/></svg>Day</button>
         <button type="button" id="v-all" data-view="all"><svg class="ic"><use href="#i-list-checks"/></svg>All deadlines</button>
+        <button type="button" id="v-map" data-view="map"><svg class="ic"><use href="#i-tree-structure"/></svg>Map</button>
       </div>
       <div class="seg" role="group" aria-label="Show courses" id="filter"></div>
       <a class="jump" id="jump" href="#" hidden><svg class="ic"><use href="#i-arrow-line-down"/></svg>Today</a>
@@ -362,8 +420,8 @@ footer p{margin:0 0 6px}
 
 /* ---------- Helpers ---------- */
 const P = DATA.plan, INV = DATA.inventory, COURSES = P.COURSES, TEACHERS = P.TEACHERS, TERMS = P.TERMS, PROGRESS = DATA.progress || null;
-const LS = { hours: "ltu-plan-hours", ticks: "ltu-plan-ticks", muted: "ltu-plan-muted", filter: "ltu-plan-filter", term: "ltu-plan-term", view: "ltu-plan-view", open: "ltu-plan-open", weeks: "ltu-plan-weeks", size: "ltu-plan-size", ping: "ltu-plan-ping", colored: "ltu-plan-colored", theme: "ltu-plan-theme", legacy: "lp2-shared-ticks" };
-const state = { checked: {}, muted: {}, filter: "all", term: null, view: "week", day: null, open: {}, weeks: {}, size: 100, ping: true, colored: true, theme: "system", hours: { start: "09:00", end: "17:00" } };
+const LS = { hours: "ltu-plan-hours", ticks: "ltu-plan-ticks", muted: "ltu-plan-muted", filter: "ltu-plan-filter", term: "ltu-plan-term", view: "ltu-plan-view", open: "ltu-plan-open", weeks: "ltu-plan-weeks", size: "ltu-plan-size", ping: "ltu-plan-ping", colored: "ltu-plan-colored", theme: "ltu-plan-theme", mapOpen: "ltu-plan-map-open", legacy: "lp2-shared-ticks" };
+const state = { checked: {}, muted: {}, filter: "all", term: null, view: "week", day: null, open: {}, weeks: {}, size: 100, ping: true, colored: true, theme: "system", hours: { start: "09:00", end: "17:00" }, mapOpen: null, mapSel: null };
 let store = null, saveTimer = null;
 
 function esc(s){ return String(s == null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
@@ -475,7 +533,7 @@ function sessionRows(t){
     (s.also || []).forEach(function(r){ var x = itemByNumber(s.course, r); if (x) links.push([x.number + " " + x.title.slice(0, 28), x.url]); });
     (s.links || []).forEach(function(l){ links.push(l); });
     var prep = (s.prep || []).reduce(function(a, r){ return a.concat(expand(s.course, r)); }, []);
-    return { kind: "session", level: sessionLevel(s), code: s.course, date: s.date, time: s.start, end: s.end, title: s.title, why: s.why || "", status: s.status || "", links: links, prep: prep, skind: s.kind };
+    return { kind: "session", level: sessionLevel(s), code: s.course, date: s.date, time: s.start, end: s.end, title: s.title, why: s.why || "", status: s.status || "", links: links, prep: prep, skind: s.kind, ref: s.ref || null, key: "s:" + s.course + ":" + s.date + ":" + (s.start || "") };
   });
 }
 function taskRows(t){
@@ -711,10 +769,238 @@ function renderTerm(){
   document.querySelectorAll("#views button").forEach(function(b){ b.setAttribute("aria-pressed", String(b.dataset.view === state.view)); });
   var body;
   if (t.upcoming && !t.courses.length) { body = '<section><div class="card empty"><h3>' + esc(t.label + ", " + t.period) + '</h3><p>' + esc(t.upcoming) + '</p></div></section>'; document.getElementById("jump").hidden = true; }
+  else if (state.view === "map") body = renderMapView(t);
   else body = (state.view === "day" ? renderDayView(t) : state.view === "all" ? renderAllView(t) : renderWeekView(t)) + renderQuick(t) + renderCourses(t) + renderRhythm(t);
   if (state.view !== "week") document.getElementById("jump").hidden = true;
   document.getElementById("termbody").innerHTML = body;
+  if (state.view === "map") bindMap(t);
   applyFilter();
+}
+
+/* ---------- Map view: rail of coming events, graph of Canvas entities, details ---------- */
+function nodeIdOf(code, item){ return "i:" + code + ":" + item.id; }
+function graphModel(t){
+  var f = state.filter;
+  return t.courses.filter(function(c){ return INV.courses[c] && (f === "all" || f === c); }).map(function(c){
+    var inv = INV.courses[c];
+    return { id: "c:" + c, kind: "course", code: c, label: COURSES[c].name, children: inv.modules.map(function(m){
+      return { id: "m:" + c + ":" + m.id, kind: "module", code: c, label: m.name, module: m, children: m.items.map(function(i){
+        return { id: nodeIdOf(c, i), kind: "item", code: c, label: (i.number ? i.number + " " : "") + i.title, item: i, module: m, tick: "m:" + c + ":" + i.id };
+      }) };
+    }) };
+  });
+}
+function allNodes(roots){ var out = []; (function walk(n){ out.push(n); (n.children || []).forEach(walk); })({ children: roots }); return out.slice(1); }
+function findNode(roots, id){ return roots ? allNodes(roots).find(function(n){ return n.id === id; }) || null : null; }
+// Items in this week's study blocks: the "current" set, tinted blue in the graph.
+function currentSet(t){
+  var mon = monday(todayIso()), set = {};
+  studyBlocks(t).forEach(function(b){ if (b.week === mon) b.items.forEach(function(i){ set[nodeIdOf(b.code, i)] = true; }); });
+  return set;
+}
+function defaultOpen(t, roots){
+  var open = {}, cur = currentSet(t);
+  roots.forEach(function(c){ open[c.id] = true; c.children.forEach(function(m){ if (m.children.some(function(i){ return cur[i.id]; })) open[m.id] = true; }); });
+  return open;
+}
+// Tree layout: depth is the row, leaves take slots left to right, a parent sits over the middle of its children.
+function layoutGraph(roots){
+  var nodes = [], edges = [], rowH = 96, gap = 12;
+  function width(n){ var chars = Math.min(n.label.length, n.kind === "item" ? 26 : 24); return Math.max(chars * 6.4 + 26, 64); }
+  function measure(n, depth){
+    n.depth = depth; n.w = width(n); n.open = n.kind !== "item" && !!state.mapOpen[n.id];
+    var kids = n.open ? n.children : [];
+    n.kidsSpan = kids.reduce(function(s, k){ return s + measure(k, depth + 1); }, 0);
+    n.span = Math.max(n.kidsSpan, n.w + gap);
+    return n.span;
+  }
+  function place(n, x0){
+    var kids = n.open ? n.children : [];
+    if (kids.length) { var x = x0 + (n.span - n.kidsSpan) / 2; kids.forEach(function(k){ place(k, x); x += k.span; }); n.x = (kids[0].x + kids[kids.length - 1].x) / 2; }
+    else n.x = x0 + n.span / 2;
+    n.y = n.depth * rowH + 50; nodes.push(n); kids.forEach(function(k){ edges.push([n, k]); });
+  }
+  var x = 0; roots.forEach(function(r){ measure(r, 0); place(r, x); x += r.span + 60; });
+  var depth = nodes.reduce(function(m, n){ return Math.max(m, n.depth); }, 0);
+  return { nodes: nodes, edges: edges, width: Math.max(x - 60, 200), height: (depth + 1) * rowH + 60 };
+}
+// Dashed edges: what a session's page depends on (prep), between items that are both on screen.
+function depEdges(t, visible){
+  var out = [];
+  t.sessions.forEach(function(s){
+    if (!s.ref || !s.prep) return;
+    var target = itemByNumber(s.course, s.ref); if (!target) return;
+    var to = visible[nodeIdOf(s.course, target)]; if (!to) return;
+    s.prep.forEach(function(r){ expand(s.course, r).forEach(function(i){ var from = visible[nodeIdOf(s.course, i)]; if (from) out.push([from, to]); }); });
+  });
+  return out;
+}
+function trunc(s, n){ return s.length > n ? s.slice(0, n - 1) + "\u2026" : s; }
+var mapT = { x: 20, y: 10, s: 1 }, mapRoots = null, mapLayout = null;
+function svgGraph(t){
+  mapRoots = graphModel(t);
+  if (!state.mapOpen) state.mapOpen = defaultOpen(t, mapRoots);
+  mapLayout = layoutGraph(mapRoots);
+  var cur = currentSet(t), visible = {};
+  mapLayout.nodes.forEach(function(n){ visible[n.id] = n; });
+  var deps = depEdges(t, visible);
+  var edges = mapLayout.edges.map(function(e){ var a = e[0], b = e[1]; return '<path class="ge" marker-end="url(#arr)" d="M' + a.x + ' ' + (a.y + 14) + ' C ' + a.x + ' ' + (a.y + 50) + ', ' + b.x + ' ' + (b.y - 50) + ', ' + b.x + ' ' + (b.y - 15) + '"/>'; }).join("");
+  var dep = deps.map(function(e){ var a = e[0], b = e[1]; return '<path class="ge dep" marker-end="url(#arrb)" d="M' + a.x + ' ' + (a.y - 14) + ' C ' + a.x + ' ' + (a.y - 40) + ', ' + b.x + ' ' + (b.y - 40) + ', ' + b.x + ' ' + (b.y - 15) + '"><title>Watch before the session</title></path>'; }).join("");
+  var nodes = mapLayout.nodes.map(function(n){
+    var cls = "gn " + n.kind + (n.id === state.mapSel ? " sel" : "") + (cur[n.id] ? " cur" : "") + (n.tick && state.checked[n.tick] ? " done" : "") + (n.tick && state.muted[n.tick] ? " muted" : "");
+    var must = n.item && itemLevel(n.code, n.item) === "must";
+    var badge = n.kind !== "item" && !n.open ? '<text class="badge" x="' + (n.w - 8) + '" y="18" text-anchor="end">' + n.children.length + '</text>' : "";
+    return '<g class="' + cls + '" data-node="' + esc(n.id) + '"' + (n.tick ? ' data-id="' + esc(n.tick) + '"' : '') + ' style="' + colorVars(n.code) + '" transform="translate(' + (n.x - n.w / 2) + ' ' + (n.y - 14) + ')">' +
+      '<title>' + esc(n.label) + '</title><rect rx="14" width="' + n.w + '" height="28"/>' + (must ? '<circle class="must" cx="10" cy="14" r="3"/>' : '') +
+      '<text x="' + (must ? 18 : 12) + '" y="18">' + esc(trunc(n.label, n.kind === "item" ? 26 : 24)) + '</text>' + badge + '</g>';
+  }).join("");
+  var axis = '<g class="gaxis"><line x1="0" y1="' + (mapLayout.height - 20) + '" x2="' + mapLayout.width + '" y2="' + (mapLayout.height - 20) + '" marker-end="url(#arr)"/><text x="0" y="' + (mapLayout.height - 26) + '">Course order, earlier to later</text></g>';
+  return '<svg id="gsvg" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--muted)"/></marker><marker id="arrb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--now)"/></marker></defs>' +
+    '<g id="gpan">' + axis + edges + dep + nodes + '</g></svg>';
+}
+function railList(t){
+  var today = todayIso(), rows = timeline(t).filter(function(r){ return r.date >= today; });
+  var out = "", last = null;
+  rows.forEach(function(r){
+    if (r.date !== last) { out += '<div class="rd' + (r.date === today ? ' today' : '') + '">' + esc(longDay(r.date)) + '</div>'; last = r.date; }
+    var key = r.id || r.key;
+    out += '<button type="button" class="ev' + (r.id ? hostClass(r.id, "") : "") + '" data-ev="' + esc(key) + '" data-course="' + r.code + '"' + (r.id ? ' data-id="' + esc(r.id) + '"' : '') + ' style="' + colorVars(r.code) + '" aria-current="' + (state.mapSel === key ? "true" : "false") + '">' +
+      '<span class="tt">' + esc(r.title.replace(/ due \d\d:\d\d$/, "").replace(/ close \d\d:\d\d$/, " close")) + '</span><small>' + esc((r.time ? r.time + " " : "") + (r.kind === "session" ? (SESSION_KIND[r.skind] || "") : r.kind === "deadline" ? "deadline" : "task")) + '</small></button>';
+  });
+  return out || '<div class="none" style="padding:10px 14px">Nothing ahead in this study period.</div>';
+}
+// What the rail's event points at in the graph: a session's page, a deadline's assignment, a task's target.
+function rowNodeId(t, r){
+  if (r.kind === "session" && r.ref) { var it = itemByNumber(r.code, r.ref); return it ? nodeIdOf(r.code, it) : null; }
+  if (r.kind === "deadline" && r.id.indexOf(":quizzes:") < 0) {
+    var aid = r.id.split(":")[2], it2 = items(r.code).find(function(i){ return String(i.assignmentId) === aid; }); return it2 ? nodeIdOf(r.code, it2) : null;
+  }
+  if (r.kind === "task" && r.feeds) { var a = assignments(r.code).find(function(x){ return x.url === r.feeds.url; }), it3 = a && items(r.code).find(function(i){ return i.assignmentId === a.id; }); return it3 ? nodeIdOf(r.code, it3) : null; }
+  return null;
+}
+function sessionKeyOf(s){ return "s:" + s.course + ":" + s.date + ":" + (s.start || ""); }
+function detailFor(t, key){
+  var row = key ? timeline(t).find(function(r){ return (r.id || r.key) === key; }) : null;
+  var node = key ? findNode(mapRoots, key) : null;
+  if (!row && !node) return '<div class="none">Pick an event on the left or a node in the graph.</div>';
+  var html = "";
+  if (row) {
+    html += chip(row.code) + lvl(row.level) + '<div class="dt">' + esc(row.title) + '</div>';
+    html += '<div class="kv"><span>When</span><b>' + esc(longDay(row.date) + (row.time ? ", " + row.time + (row.end ? "\u2013" + row.end : "") : "")) + '</b>' +
+      (row.kind === "session" ? '<span>Kind</span><b>' + esc(SESSION_KIND[row.skind] || row.skind) + (row.status === "expected" ? " (expected)" : "") + '</b>' : '') +
+      (row.pts ? '<span>Points</span><b>' + esc(row.pts) + '</b>' : '') + (row.est ? '<span>Effort</span><b>' + fmtMin(row.est) + ' stated by the course</b>' : '') + '</div>';
+    if (row.why) html += '<div class="why">' + esc(row.why) + '</div>';
+    if (row.id) html += '<div class="act" data-id="' + esc(row.id) + '">' + box(row.id) + '<label for="' + esc(row.id) + '">Done</label>' + muteBtn(row.id) + '</div>';
+    html += links(row.links);
+    if (row.prep && row.prep.length) html += '<div class="sec">Watch before it</div><ul class="rel">' + row.prep.map(function(i){ return '<li><button type="button" data-goto="' + esc(nodeIdOf(row.code, i)) + '">' + esc((i.number || "") + " " + i.title) + '</button></li>'; }).join("") + '</ul>';
+    var nid = rowNodeId(t, row); if (nid && !node) node = findNode(mapRoots, nid);
+    if (node) html += '<div class="sec">In Canvas</div>';
+  }
+  if (node) {
+    if (node.kind === "course") {
+      var k = COURSES[node.code];
+      html += chip(node.code) + '<div class="dt">' + esc(k.name) + '</div>' + teachers(k.teachers) + '<ul class="rel">' + (k.rules || []).map(function(r){ return '<li>' + esc(r) + '</li>'; }).join("") + '</ul>' +
+        '<div class="sec">Modules</div><ul class="rel">' + node.children.map(function(m){ return '<li><button type="button" data-goto="' + esc(m.id) + '">' + esc(m.label) + '</button> <span class="why" style="display:inline">' + m.children.length + ' items</span></li>'; }).join("") + '</ul>';
+    } else if (node.kind === "module") {
+      var done = node.children.filter(function(i){ return state.checked[i.tick]; }).length;
+      html += chip(node.code) + '<div class="dt">' + esc(node.label) + '</div><div class="kv"><span>Items</span><b>' + node.children.length + ', ' + done + ' ticked</b><span>Time</span><b>' + (fmtMin(matMinutes(node.children.map(function(i){ return i.item; }))) || "-") + '</b></div>' +
+        '<span class="links"><a href="' + esc(node.module.url) + '" target="_blank" rel="noopener">Open module' + ext(node.module.url) + '</a></span>' +
+        '<div class="sec">Items</div><ul class="rel">' + node.children.map(function(i){ return '<li' + (state.checked[i.tick] ? ' style="opacity:.55"' : '') + '><button type="button" data-goto="' + esc(i.id) + '">' + ic(KIND_ICON[i.item.kind] || "book-open", "sm kic") + esc(i.label) + '</button></li>'; }).join("") + '</ul>';
+    } else {
+      var i = node.item, level = itemLevel(node.code, i), mid = "m:" + node.code + ":" + node.module.id;
+      html += chip(node.code) + lvl(level) + '<div class="dt">' + ic(KIND_ICON[i.kind] || "book-open", "kic") + esc((i.number ? i.number + " " : "") + i.title) + '</div>';
+      html += '<div class="kv"><span>Kind</span><b>' + esc(KIND[i.kind] || i.kind) + '</b><span>Module</span><b><button type="button" class="lnk" data-goto="' + esc(mid) + '">' + esc(node.module.name) + '</button></b>' +
+        (i.section ? '<span>Section</span><b>' + esc(i.section) + '</b>' : '') + (i.minutes ? '<span>Time</span><b>' + fmtMin(i.minutes) + (i.statedMinutes ? ", stated by the course" : ", estimate") + '</b>' : '') +
+        (i.words ? '<span>Length</span><b>' + i.words + ' words' + (i.videos ? ", " + i.videos + " video" + (i.videos > 1 ? "s" : "") : "") + (i.files ? ", " + i.files + " file" + (i.files > 1 ? "s" : "") : "") + '</b>' : '') +
+        (i.req ? '<span>Canvas</span><b>tracks this: ' + esc(REQ[i.req] || i.req) + (canvasDone(node.code, i) ? ", done" : "") + '</b>' : '') +
+        (i.due ? '<span>Due</span><b>' + esc(longDay(i.due) + " " + i.dueTime) + (i.points ? ", " + i.points + " p" : "") + '</b>' : '') + '</div>';
+      html += '<div class="act" data-id="' + esc(node.tick) + '">' + box(node.tick) + '<label for="' + esc(node.tick) + '">Done</label>' + muteBtn(node.tick) + '</div>';
+      html += '<span class="links"><a href="' + esc(i.url) + '" target="_blank" rel="noopener">Open in Canvas' + ext(i.url) + '</a></span>';
+      var rel = [];
+      t.sessions.forEach(function(s){
+        if (s.course !== node.code) return;
+        if (s.ref && itemByNumber(s.course, s.ref) === i) rel.push(["Session", longDay(s.date) + (s.start ? " " + s.start : "") + ", " + s.title, sessionKeyOf(s)]);
+        if ((s.prep || []).some(function(r){ return expand(s.course, r).indexOf(i) >= 0; })) rel.push(["Needed before", longDay(s.date) + ", " + s.title, sessionKeyOf(s)]);
+      });
+      studyBlocks(t).forEach(function(b){ if (b.code === node.code && b.items.indexOf(i) >= 0) rel.push(["Planned for", "week of " + longDay(b.week), null]); });
+      if (i.assignmentId) { var asg = assignments(node.code).find(function(a){ return a.id === i.assignmentId; }); taskRows(t).forEach(function(r){ if (asg && r.feeds && r.feeds.url === asg.url) rel.push(["Task feeding it", longDay(r.date) + ", " + r.title, r.id]); }); }
+      if (rel.length) html += '<div class="sec">Connected</div><ul class="rel">' + rel.map(function(x){ return '<li><span class="why" style="display:inline">' + esc(x[0]) + ':</span> ' + (x[2] ? '<button type="button" data-goto="' + esc(x[2]) + '">' + esc(x[1]) + '</button>' : esc(x[1])) + '</li>'; }).join("") + '</ul>';
+    }
+  }
+  return html;
+}
+function renderMapView(t){
+  return '<section><div class="map">' +
+    '<div class="card"><h3>' + ic("calendar-dot") + 'Coming up</h3><div class="rail-list" id="rail">' + railList(t) + '</div></div>' +
+    '<div class="card"><h3>' + ic("tree-structure") + 'Canvas map <span class="why" style="display:inline;text-transform:none;letter-spacing:0;font-weight:400">click a module to open it, drag to pan, scroll to zoom</span></h3>' +
+      '<div class="gwrap" id="gwrap">' + svgGraph(t) + '<div class="gtools"><button type="button" id="g-fit" title="Fit the whole graph">' + ic("arrows-in", "sm") + 'Fit</button><button type="button" id="g-open" title="Open every module">' + ic("arrows-out", "sm") + 'Open all</button><button type="button" id="g-close" title="Close every module">Close all</button></div>' +
+      '<div class="gnote">Blue tint: this week\u2019s material. Dashed: watch before the session. Red dot: MUST.</div></div></div>' +
+    '<div class="card"><h3>' + ic("info") + 'Details</h3><div class="detail" id="detail">' + detailFor(t, state.mapSel) + '</div></div>' +
+    '</div></section>';
+}
+function applyMapT(){ var g = document.getElementById("gpan"); if (g) g.setAttribute("transform", "translate(" + mapT.x + " " + mapT.y + ") scale(" + mapT.s + ")"); }
+// Fit never shrinks below a readable size; a wide graph is panned instead, starting at what matters now.
+function fitMap(){
+  var w = document.getElementById("gwrap"); if (!w || !mapLayout) return;
+  var W = w.clientWidth, H = w.clientHeight, s = Math.min((W - 30) / mapLayout.width, (H - 30) / mapLayout.height, 1.15);
+  s = Math.max(s, 0.6);
+  mapT = { s: s, x: (W - mapLayout.width * s) / 2, y: Math.max(10, (H - mapLayout.height * s) / 2) }; applyMapT();
+  var focus = state.mapSel && findNode(mapRoots, state.mapSel) ? state.mapSel : (mapLayout.nodes.find(function(n){ return n.kind === "module" && n.open; }) || {}).id;
+  if (mapLayout.width * s > W && focus) centerMapOn(focus, true);
+}
+function centerMapOn(id, topAligned){
+  var w = document.getElementById("gwrap"), n = mapLayout && mapLayout.nodes.find(function(x){ return x.id === id; }); if (!w || !n) return;
+  if (mapT.s < 0.85) mapT.s = 0.85;
+  mapT.x = w.clientWidth / 2 - n.x * mapT.s;
+  mapT.y = topAligned ? 10 : w.clientHeight / 2 - n.y * mapT.s;
+  applyMapT();
+}
+function openPathTo(id){
+  if (!mapRoots) return;
+  (function walk(n, path){ if (n.id === id) { path.forEach(function(p){ if (p.id) state.mapOpen[p.id] = true; }); return true; } return (n.children || []).some(function(k){ return walk(k, path.concat([n])); }); })({ children: mapRoots, id: "" }, []);
+  lsSet(LS.mapOpen, JSON.stringify(state.mapOpen));
+}
+// Redraw graph and details without rebuilding the whole view, keeping the pan and zoom.
+function refreshMap(t, center){
+  var w = document.getElementById("gwrap"); if (!w) return;
+  w.querySelector("svg").outerHTML = svgGraph(t);
+  document.getElementById("detail").innerHTML = detailFor(t, state.mapSel);
+  document.querySelectorAll("#rail .ev").forEach(function(b){ b.setAttribute("aria-current", String(b.dataset.ev === state.mapSel)); });
+  applyMapT(); if (center) centerMapOn(center);
+  bindSvg(); applyState();
+}
+function bindSvg(){
+  var svg = document.getElementById("gsvg"); if (!svg) return;
+  var drag = null;
+  svg.addEventListener("pointerdown", function(e){ if (e.button !== 0) return; drag = { x: e.clientX, y: e.clientY, tx: mapT.x, ty: mapT.y, moved: false }; svg.setPointerCapture(e.pointerId); svg.classList.add("drag"); });
+  svg.addEventListener("pointermove", function(e){ if (!drag) return; var dx = e.clientX - drag.x, dy = e.clientY - drag.y; if (Math.abs(dx) + Math.abs(dy) > 3) drag.moved = true; mapT.x = drag.tx + dx; mapT.y = drag.ty + dy; applyMapT(); });
+  svg.addEventListener("pointerup", function(e){
+    var wasDrag = drag && drag.moved; drag = null; svg.classList.remove("drag");
+    if (wasDrag) return;
+    var g = e.target.closest("[data-node]"); if (!g) return;
+    var id = g.dataset.node, t = term();
+    if (id.charAt(0) !== "i") { state.mapOpen[id] = !state.mapOpen[id]; lsSet(LS.mapOpen, JSON.stringify(state.mapOpen)); }
+    state.mapSel = id; refreshMap(t);
+  });
+  svg.addEventListener("wheel", function(e){ e.preventDefault(); var r = svg.getBoundingClientRect(), px = e.clientX - r.left, py = e.clientY - r.top, f = e.deltaY < 0 ? 1.12 : 1 / 1.12, s = Math.min(3, Math.max(.25, mapT.s * f)); mapT.x = px - (px - mapT.x) * (s / mapT.s); mapT.y = py - (py - mapT.y) * (s / mapT.s); mapT.s = s; applyMapT(); }, { passive: false });
+}
+function gotoKey(t, key){
+  var row = timeline(t).find(function(r){ return (r.id || r.key) === key; });
+  var nid = row ? rowNodeId(t, row) : (findNode(mapRoots, key) ? key : null);
+  if (nid) openPathTo(nid);
+  state.mapSel = key;
+  refreshMap(t, nid);
+  if (nid && nid !== key) { var g = document.querySelector('[data-node="' + nid + '"]'); if (g) g.classList.add("sel"); }
+}
+function bindMap(t){
+  bindSvg(); requestAnimationFrame(fitMap);
+  document.getElementById("termbody").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    if (b.dataset.ev) gotoKey(t, b.dataset.ev);
+    else if (b.dataset.goto) gotoKey(t, b.dataset.goto);
+    else if (b.id === "g-fit") fitMap();
+    else if (b.id === "g-open" || b.id === "g-close") { allNodes(mapRoots).forEach(function(n){ if (n.kind !== "item") state.mapOpen[n.id] = b.id === "g-open" || n.kind === "course"; }); lsSet(LS.mapOpen, JSON.stringify(state.mapOpen)); refreshMap(t); fitMap(); }
+  });
 }
 
 /* ---------- Free time ---------- */
@@ -864,7 +1150,7 @@ document.addEventListener("click", function(e){
   var b = e.target.closest("button"); if (!b) return;
   if (b.dataset.mute) { e.preventDefault(); var id = b.dataset.mute; if (state.muted[id]) delete state.muted[id]; else state.muted[id] = true; applyState(); save(); }
   else if (b.dataset.fold) { var w = b.closest(".week"); if (w.classList.toggle("collapsed")) state.weeks[b.dataset.fold] = false; else delete state.weeks[b.dataset.fold]; lsSet(LS.weeks, JSON.stringify(state.weeks)); }
-  else if (b.closest("#filter")) { state.filter = b.dataset.filter; lsSet(LS.filter, state.filter); applyFilter(); }
+  else if (b.closest("#filter")) { state.filter = b.dataset.filter; lsSet(LS.filter, state.filter); if (state.view === "map") renderTerm(); else applyFilter(); }
   else if (b.closest("#views")) { state.view = b.dataset.view; lsSet(LS.view, state.view); renderTerm(); }
   else if (b.closest("#terms")) { if (b.dataset.term !== state.term) { state.term = b.dataset.term; lsSet(LS.term, state.term); renderTerm(); } }
   else if (b.id === "day-prev") { state.day = addDays(state.day || todayIso(), -1); renderTerm(); }
@@ -898,7 +1184,8 @@ state.colored = lsGet(LS.colored) !== "0";
 var th = lsGet(LS.theme); if (th === "light" || th === "dark" || th === "system") state.theme = th;
 var sh = lsJson(LS.hours); if (sh && toMin(sh.start) != null && toMin(sh.end) != null) state.hours = sh;
 state.filter = lsGet(LS.filter) || "all";
-var sv = lsGet(LS.view); if (sv === "day" || sv === "all" || sv === "week") state.view = sv;
+var sv = lsGet(LS.view); if (sv === "day" || sv === "all" || sv === "week" || sv === "map") state.view = sv;
+state.mapOpen = lsJson(LS.mapOpen);
 var savedTerm = lsGet(LS.term);
 state.term = TERMS.some(function(t){ return t.id === savedTerm; }) ? savedTerm : defaultTerm();
 applyDisplay();
