@@ -898,7 +898,7 @@ function buildForceGraph(t, roots){
     var nid = rowNodeId(t, r), target = nid && visible[nid];
     if (nid && !target) { var it = findNode(roots, nid); var p = it && it.parent; while (p && !visible[p.id]) p = p.parent; target = p ? visible[p.id] : null; }
     if (!target) target = visible["c:" + r.code];
-    if (target) edges.push({ a: n, b: target, len: 110, k: 0.02, time: true });
+    if (target) edges.push({ a: n, b: target, len: 200, k: 0.004, time: true });
   });
 
   // starting positions: remembered ones, else a ring around the parent
@@ -907,34 +907,34 @@ function buildForceGraph(t, roots){
     var p = mapPos[n.id];
     if (p) { n.x = p.x; n.y = p.y; }
     else if (!n.parent) { var ri = roots.indexOf(n); n.x = roots.length > 1 ? Math.cos(ri / roots.length * 2 * Math.PI) * 120 : 0; n.y = roots.length > 1 ? Math.sin(ri / roots.length * 2 * Math.PI) * 120 : 0; }
-    else { var sib = n.parent.children, idx = sib.indexOf(n), ang = idx / sib.length * 2 * Math.PI; var r = n.parent.kind === "course" ? 150 : 85; n.x = n.parent.x + Math.cos(ang) * r; n.y = n.parent.y + Math.sin(ang) * r; }
+    else { var sib = n.parent.children, idx = sib.indexOf(n), ang = idx / sib.length * 2 * Math.PI + n.depth; var r = n.parent.kind === "course" ? 150 : 85; n.x = n.parent.x + Math.cos(ang) * r + (Math.random() - 0.5) * 20; n.y = n.parent.y + Math.sin(ang) * r + (Math.random() - 0.5) * 20; }
     n.vx = 0; n.vy = 0;
   });
   return { nodes: nodes, edges: edges, visible: visible };
 }
 var sim = { alpha: 0, raf: null, pinned: null };
 function stepForces(){
-  var nodes = mapLayout.nodes, edges = mapLayout.edges, a = sim.alpha, R = clock.R - 80;
+  var nodes = mapLayout.nodes, edges = mapLayout.edges, a = sim.alpha, R = clock.R * 0.6;
   var i, j, n, m, dx, dy, d, f;
   for (i = 0; i < nodes.length; i++) {
     n = nodes[i];
     for (j = i + 1; j < nodes.length; j++) {
       m = nodes[j]; if (n.fixed && m.fixed) continue;
-      dx = m.x - n.x; dy = m.y - n.y; d = Math.sqrt(dx * dx + dy * dy) || 0.01;
+      dx = m.x - n.x; dy = m.y - n.y; d = Math.max(Math.sqrt(dx * dx + dy * dy), 12);
       var minD = nodeRadius(n) + nodeRadius(m);
-      f = (2400 / (d * d)) + (d < minD ? (minD - d) * 0.35 : 0);
+      f = (1800 / (d * d)) + (d < minD ? (minD - d) * 0.35 : 0);
       f *= a; dx /= d; dy /= d;
       if (!n.fixed) { n.vx -= dx * f; n.vy -= dy * f; }
       if (!m.fixed) { m.vx += dx * f; m.vy += dy * f; }
     }
     if (n.fixed) continue;
-    n.vx -= n.x * (n.parent ? 0.003 : 0.015) * a; n.vy -= n.y * (n.parent ? 0.003 : 0.015) * a;
-    // keep the structure inside the ring
+    n.vx -= n.x * (n.parent ? 0.008 : 0.04) * a; n.vy -= n.y * (n.parent ? 0.008 : 0.04) * a;
+    // keep the structure well inside the ring
     d = Math.sqrt(n.x * n.x + n.y * n.y);
-    if (d > R) { f = (d - R) * 0.08 * a; n.vx -= n.x / d * f; n.vy -= n.y / d * f; }
+    if (d > R) { f = (d - R) * 0.2 * a; n.vx -= n.x / d * f; n.vy -= n.y / d * f; }
   }
   edges.forEach(function(e){
-    dx = e.b.x - e.a.x; dy = e.b.y - e.a.y; d = Math.sqrt(dx * dx + dy * dy) || 0.01;
+    dx = e.b.x - e.a.x; dy = e.b.y - e.a.y; d = Math.max(Math.sqrt(dx * dx + dy * dy), 1);
     f = (d - e.len) * e.k * a; dx /= d; dy /= d;
     if (!e.a.fixed) { e.a.vx += dx * f; e.a.vy += dy * f; }
     if (!e.b.fixed) { e.b.vx -= dx * f; e.b.vy -= dy * f; }
@@ -942,7 +942,10 @@ function stepForces(){
   nodes.forEach(function(n){
     if (n.fixed) return;
     if (n === sim.pinned) { n.vx = 0; n.vy = 0; return; }
-    n.vx *= 0.6; n.vy *= 0.6; n.x += n.vx; n.y += n.vy;
+    n.vx *= 0.6; n.vy *= 0.6;
+    var sp = Math.sqrt(n.vx * n.vx + n.vy * n.vy), cap = 18;   // no node jumps further than this per step
+    if (sp > cap) { n.vx *= cap / sp; n.vy *= cap / sp; }
+    n.x += n.vx; n.y += n.vy;
   });
 }
 function paintForces(){
