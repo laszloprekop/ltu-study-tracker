@@ -1375,7 +1375,7 @@ function railSetZoom(t, level, focus){
   hideRailTip(); layoutRail(t);
 }
 function railCard(t){
-  if (state.railSlim) return '<div class="card rail-card slim"><button type="button" class="rail-toggle" id="rail-toggle" title="Unfold the list of coming events" aria-label="Unfold the list">' + ic("caret-right") + '</button><div class="rail-strip" id="rail" title="Scroll to zoom: study period, week, day"></div>' +
+  if (state.railSlim) return '<div class="card rail-card slim"><button type="button" class="rail-toggle" id="rail-toggle" title="Unfold the list of coming events" aria-label="Unfold the list">' + ic("caret-right") + '</button><div class="rail-strip" id="rail"></div>' +
     '<div class="rz"><button type="button" id="rz-out" data-rz="out" title="Zoom out" aria-label="Zoom out">' + ic("minus") + '</button><button type="button" id="rz-in" data-rz="in" title="Zoom in to the week, then the day" aria-label="Zoom in">' + ic("plus") + '</button>' +
     '<button type="button" id="rz-prev" data-rz="prev" title="Earlier" aria-label="Earlier"><svg class="ic" aria-hidden="true" style="transform:rotate(180deg)"><use href="#i-caret-down"/></svg></button><button type="button" id="rz-next" data-rz="next" title="Later" aria-label="Later">' + ic("caret-down") + '</button></div><div class="rz-lbl" id="rz-lbl"></div></div>';
   return '<div class="card rail-card"><h3>' + ic("calendar-dot") + 'Coming up<button type="button" class="rail-toggle" id="rail-toggle" title="Fold the list to a thin timeline over the map" aria-label="Fold the list"><svg class="ic" aria-hidden="true" style="transform:rotate(180deg)"><use href="#i-caret-right"/></svg></button></h3><div class="rail-list" id="rail">' + railList(t) + '</div></div>';
