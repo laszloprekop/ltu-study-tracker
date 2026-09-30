@@ -277,7 +277,7 @@ a.tag.feeds:hover{border-color:var(--alert)}
 .gtools button:hover{color:var(--ink)}
 .gn{cursor:pointer}
 svg.focus .gn:not(.hl){opacity:.22}
-svg.focus .ge:not(.hl){opacity:.06}
+svg.focus .ge:not(.hl):not(.tl){opacity:.06}
 svg.focus .ge.hl{opacity:1; stroke-width:2}
 svg.focus .ge.tl.hl{stroke:var(--now)}
 .gwrap svg{cursor:grab}
@@ -293,7 +293,11 @@ svg.focus .ge.tl.hl{stroke:var(--now)}
 .gn.time.task rect{stroke-dasharray:3 2}
 .gn use{fill:var(--muted)}
 .gn.sel use,.gn.cur use{fill:var(--ink)}
-.ge.tl{stroke:var(--cc); opacity:.3}
+.ge.tl{stroke:var(--cc); opacity:0}
+svg.focus .ge.tl.hl{opacity:1}
+.zones .band{fill:var(--now-soft); opacity:.35}
+.zones .disc{fill:var(--surface-2); stroke:var(--line); stroke-width:1}
+.zones text{font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; font-weight:600; fill:var(--muted)}
 .ring circle{fill:none; stroke:var(--line); stroke-width:1.5}
 .ring line{stroke:var(--line); stroke-width:1.5}
 .ring text{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:10.5px; fill:var(--muted)}
@@ -886,7 +890,7 @@ function buildForceGraph(t, roots){
   // the ring: the study period around the full circle
   var rows = timeline(t).filter(function(r){ return state.filter === "all" || r.code === state.filter; });
   clock = { start: t.start, days: Math.max(7, (day(t.end) - day(t.start)) / 864e5 + 1) };
-  var R = Math.max(420, rows.length * 26 / (2 * Math.PI), 150 + structural * 4.5);
+  var R = Math.max(420, rows.length * 26 / (2 * Math.PI), Math.sqrt(structural * 7000 / Math.PI) / 0.68 + 30);
   clock.R = R;
   // events sit just outside the ring like numerals, one slot each, in date order
   clock.pts = rows.map(function(r, i){ return { s: stamp(r.date, r.time), ang: i / rows.length * 2 * Math.PI - Math.PI / 2 }; });
@@ -914,7 +918,7 @@ function buildForceGraph(t, roots){
 }
 var sim = { alpha: 0, raf: null, pinned: null };
 function stepForces(){
-  var nodes = mapLayout.nodes, edges = mapLayout.edges, a = sim.alpha, R = clock.R * 0.6;
+  var nodes = mapLayout.nodes, edges = mapLayout.edges, a = sim.alpha, R = clock.R * 0.68 - 40;
   var i, j, n, m, dx, dy, d, f;
   for (i = 0; i < nodes.length; i++) {
     n = nodes[i];
@@ -931,7 +935,7 @@ function stepForces(){
     n.vx -= n.x * (n.parent ? 0.008 : 0.04) * a; n.vy -= n.y * (n.parent ? 0.008 : 0.04) * a;
     // keep the structure well inside the ring
     d = Math.sqrt(n.x * n.x + n.y * n.y);
-    if (d > R) { f = (d - R) * 0.2 * a; n.vx -= n.x / d * f; n.vy -= n.y / d * f; }
+    if (d > R) { f = (d - R) * 0.45 * a; n.vx -= n.x / d * f; n.vy -= n.y / d * f; }
   }
   edges.forEach(function(e){
     dx = e.b.x - e.a.x; dy = e.b.y - e.a.y; d = Math.max(Math.sqrt(dx * dx + dy * dy), 1);
@@ -966,7 +970,10 @@ function runSim(heat){
   sim.raf = requestAnimationFrame(tick);
 }
 function ringSvg(t){
-  var R = clock.R, out = '<g class="ring"><circle cx="0" cy="0" r="' + R + '"/>';
+  var R = clock.R, inner = R * 0.68;
+  var out = '<g class="zones"><circle class="band" cx="0" cy="0" r="' + (R + 48) + '"/><circle class="disc" cx="0" cy="0" r="' + inner + '"/>' +
+    '<text x="0" y="' + (-inner + 18) + '" text-anchor="middle">Canvas material</text><text x="0" y="' + (-R - 58) + '" text-anchor="middle">Sessions, deadlines, tasks, in date order</text></g>' +
+    '<g class="ring"><circle cx="0" cy="0" r="' + R + '"/>';
   var m = monday(t.start);
   if (clock.pts.length) while (m <= t.end) {
     var a = clockAngle(m, "00:00"), c = Math.cos(a), s = Math.sin(a);
@@ -1105,7 +1112,7 @@ function renderMapView(t){
     '<div class="card"><h3>' + ic("calendar-dot") + 'Coming up</h3><div class="rail-list" id="rail">' + railList(t) + '</div></div>' +
     '<div class="card"><h3>' + ic("tree-structure") + 'Canvas map <span class="why" style="display:inline;text-transform:none;letter-spacing:0;font-weight:400">hover or click a node to see its links, click a module to open it, drag to pan, scroll to zoom</span></h3>' +
       '<div class="gwrap" id="gwrap">' + svgGraph(t) + '<div class="gtools"><button type="button" id="g-fit" title="Fit the whole graph">' + ic("arrows-in", "sm") + 'Fit</button><button type="button" id="g-open" title="Open every module">' + ic("arrows-out", "sm") + 'Open all</button><button type="button" id="g-close" title="Close every module">Close all</button></div>' +
-      '<div class="gnote">Clock: sessions, deadlines and tasks sit on the ring in date order, tied to their Canvas page. Inside, nodes repel and links attract. Blue tint: this week\u2019s material. Dashed: watch before the session. Red dot: MUST.</div></div></div>' +
+      '<div class="gnote">Two zones: the outer band holds sessions, deadlines and tasks in date order, the inner disc holds the Canvas material. Hover or select to see what ties them together. Blue tint: this week\u2019s material. Dashed: watch before the session. Red dot: MUST.</div></div></div>' +
     '<div class="card"><h3>' + ic("info") + 'Details</h3><div class="detail" id="detail">' + detailFor(t, state.mapSel) + '</div></div>' +
     '</div></section>';
 }
@@ -1121,7 +1128,7 @@ function wireGraph(){
 }
 function applyMapT(){ var g = document.getElementById("gpan"); if (g) g.setAttribute("transform", "translate(" + mapT.x + " " + mapT.y + ") scale(" + mapT.s + ")"); }
 function graphBounds(){
-  var r = clock.R + 150;
+  var r = clock.R + 90;
   return { x0: -r, x1: r, y0: -r, y1: r };
 }
 // Fit the settled graph; never below a readable size, panning takes care of the rest.

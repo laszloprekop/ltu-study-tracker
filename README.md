@@ -80,7 +80,7 @@ so they live in the plan.
 ## Map view
 
 A fourth tab. Left: the coming events (sessions, deadlines, tasks) as a timeline, titles only.
-Centre: a clock. The study period runs once around a ring, starting at the top and going
+Centre: a clock in two zones: a tinted outer band for everything with a date, an inner disc for the Canvas material. The study period runs once around a ring, starting at the top and going
 clockwise, with a tick and label per week and a spoke for today. Every dated thing (session,
 deadline, task) sits just outside the ring as a small pill (day and kind icon), one slot each,
 evenly spaced in date order; week ticks and the today spoke land between their neighbours. Each
