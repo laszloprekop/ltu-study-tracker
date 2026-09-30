@@ -320,6 +320,7 @@ svg.focus .ge.tl.hl{stroke:var(--now)}
 .gn .gl{font-family:Archivo,sans-serif; font-weight:700; font-size:12px; fill:var(--on-now)}
 .gn .gl.big{font-size:13px; letter-spacing:.04em}
 .gn .gl.small{font-size:10.5px}
+.gn .gl.mod{font-size:10.5px; letter-spacing:.02em}
 .gn.module .lab{font-size:11px; font-weight:600; fill:var(--ink)}
 .gn .lab{font-size:10.5px; fill:var(--muted); paint-order:stroke; stroke:var(--surface); stroke-width:3px; stroke-linejoin:round; pointer-events:none}
 .gn.sel .lab,.gn.hover .lab{display:none}
@@ -1118,7 +1119,7 @@ function svgGraph(t){
     // inner nodes: a circle sized by depth with a glyph inside, the title underneath
     var r = n.r, glyph;
     if (n.kind === "course") glyph = '<text class="gl big" text-anchor="middle" y="5">' + esc((COURSES[n.code] || {}).prefix || n.code.slice(0, 3)) + '</text>';
-    else if (n.kind === "module") glyph = '<text class="gl" text-anchor="middle" y="4.5">' + esc(String(n.module.position)) + '</text>';
+    else if (n.kind === "module") glyph = '<text class="gl mod" text-anchor="middle" y="4">M' + esc(String(n.module.position)) + '</text>';
     else if (n.kind === "section") glyph = '<text class="gl small" text-anchor="middle" y="4">' + esc(n.label.replace(/^[^A-Za-z0-9]+/, "").charAt(0).toUpperCase()) + '</text>';
     else glyph = '<use href="#i-' + (KIND_ICON[n.item.kind] || "book-open") + '" x="-6" y="-6" width="12" height="12"/>';
     return '<g class="' + cls + '"' + ids + ' style="' + colorVars(n.code) + '"><title>' + esc(n.label) + '</title><circle class="body" r="' + r + '"/>' + glyph +
