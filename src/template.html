@@ -934,7 +934,7 @@ function buildForceGraph(t, roots){
     var nid = rowNodeId(t, r), target = nid && visible[nid];
     if (nid && !target) { var it = findNode(roots, nid); var p = it && it.parent; while (p && !visible[p.id]) p = p.parent; target = p ? visible[p.id] : null; }
     if (!target) target = visible["c:" + r.code];
-    if (target) edges.push({ a: n, b: target, len: 200, k: 0.004, time: true, loose: !(nid && visible[nid]) });
+    if (target) edges.push({ a: n, b: target, len: 60, k: 0.03, time: true, loose: !(nid && visible[nid]) });
   });
 
   // starting positions: remembered ones, else a ring around the parent
@@ -956,7 +956,7 @@ function stepForces(){
   for (i = 0; i < nodes.length; i++) {
     n = nodes[i];
     for (j = i + 1; j < nodes.length; j++) {
-      m = nodes[j]; if (n.fixed && m.fixed) continue;
+      m = nodes[j]; if (n.fixed || m.fixed) continue;
       dx = m.x - n.x; dy = m.y - n.y; d = Math.max(Math.sqrt(dx * dx + dy * dy), 12);
       var minD = nodeRadius(n) + nodeRadius(m);
       f = (3000 / (d * d)) + (d < minD ? (minD - d) * 0.35 : 0);
