@@ -314,31 +314,26 @@ svg.focus .ge.lvsection.hl{stroke-width:2.6}
 svg.focus .ge.lvitem.hl,svg.focus .ge.dep.hl{stroke-width:1.8}
 svg.focus .ge.tl.hl{stroke:var(--now)}
 .gwrap svg{cursor:grab}
-.gn rect{fill:var(--surface-2); stroke:var(--cc); stroke-width:1.2}
-.gn circle.body{fill:var(--cc-soft); stroke:var(--cc); stroke-width:1.5}
-.gn.course circle.body{stroke-width:2.5}
-.gn.section circle.body{stroke-dasharray:3 2}
-.gn .gl{font-family:Archivo,sans-serif; font-weight:700; font-size:12px; fill:var(--cc)}
+.gn rect{fill:var(--cc); stroke:none}
+.gn circle.body{fill:var(--cc); stroke:none}
+.gn.section circle.body{opacity:.8}
+.gn .gl{font-family:Archivo,sans-serif; font-weight:700; font-size:12px; fill:var(--on-now)}
 .gn .gl.big{font-size:13px; letter-spacing:.04em}
 .gn .gl.small{font-size:10.5px}
 .gn.module .lab{font-size:11px; font-weight:600; fill:var(--ink)}
 .gn .lab{font-size:10.5px; fill:var(--muted); paint-order:stroke; stroke:var(--surface); stroke-width:3px; stroke-linejoin:round; pointer-events:none}
 .gn.sel .lab,.gn.hover .lab{display:none}
-.gn.done circle.body{stroke:var(--line); fill:var(--surface-2)}
+.gn.done circle.body{fill:var(--line)}
+.gn.done .gl,.gn.done use{fill:var(--muted)}
 .gn.done .lab{text-decoration:line-through}
-.gn.cur circle.body{fill:var(--now-soft)}
-.gn.sel circle.body{stroke:var(--now); stroke-width:3}
-.gn.sel .gl{fill:var(--ink)}
+.gn.cur circle.body{stroke:var(--now); stroke-width:2}
+.gn.sel circle.body{stroke:var(--now); stroke-width:3.5}
 .gn text{font-family:"Public Sans","Helvetica Neue",Arial,sans-serif; font-size:12px; fill:var(--ink)}
-.gn.time rect{fill:var(--surface); stroke-width:1.4}
-.gn.time text{font-size:10px; font-family:"IBM Plex Mono",ui-monospace,monospace}
-.gn.time.must rect{stroke:var(--alert)}
-.gn.time.sel{z-index:1}
-.gn.time.deadline rect{stroke:var(--alert)}
-.gn.time.task rect{stroke-dasharray:3 2}
-.gn use{fill:var(--cc)}
-.gn.time use{fill:var(--muted)}
-.gn.sel use,.gn.cur use{fill:var(--ink)}
+.gn.time rect{fill:var(--cc)}
+.gn.time text{font-size:10px; font-family:"IBM Plex Mono",ui-monospace,monospace; fill:var(--on-now)}
+.gn.time.deadline rect{fill:var(--alert)}
+.gn.time.task rect{fill:var(--muted)}
+.gn use{fill:var(--on-now)}
 .ge.tl{stroke:var(--cc); opacity:0}
 svg.focus .ge.tl.hl{opacity:.5; stroke-width:1.4}
 .zones .band,.zones .disc{fill:none; stroke:none}
@@ -350,11 +345,11 @@ svg.focus .ge.tl.hl{opacity:.5; stroke-width:1.4}
 .ring .now.empty .wedge{opacity:.7}
 .ring .now text{fill:var(--now); font-weight:700; font-size:11px; letter-spacing:.06em; text-transform:uppercase}
 .gn.course text,.gn.module text{font-weight:600}
-.gn.time.done rect{stroke:var(--line)}
+.gn.time.done rect{fill:var(--line)}
 .gn.time.done text{fill:var(--muted); text-decoration:line-through}
 .gn.muted{opacity:.4}
-.gn.cur rect{fill:var(--now-soft)}
-.gn.sel rect{stroke:var(--now); stroke-width:2.5; fill:var(--now-soft)}
+.gn.cur rect{stroke:var(--now); stroke-width:2}
+.gn.sel rect{stroke:var(--now); stroke-width:3}
 .gn .must{fill:var(--alert)}
 .gn .badge{font-size:10px; fill:var(--muted); font-weight:600}
 .gn .sub{display:none; font-size:11px; font-weight:600; fill:var(--ink); paint-order:stroke; stroke:var(--surface); stroke-width:4px; stroke-linejoin:round; pointer-events:none}
@@ -374,11 +369,12 @@ svg.focus .ge.tl.hl{opacity:.5; stroke-width:1.4}
 .legend-g > div{pointer-events:none}
 .legend-g div{display:flex; flex-wrap:wrap; align-items:center; gap:3px 8px}
 .legend-g .lg{width:16px; height:16px; margin-right:2px}
-.legend-g .lg .c{fill:var(--now-soft); stroke:var(--now); stroke-width:1.5}
-.legend-g .lg .c.d{stroke-dasharray:2 1.5}
-.legend-g .lp{display:inline-flex; align-items:center; justify-content:center; width:22px; height:14px; border:1px solid var(--muted); border-radius:6px; margin-right:2px}
-.legend-g .lp.r{border-color:var(--alert)}
-.legend-g .lp.t{border-style:dashed}
+.legend-g .lg .c{fill:var(--now); stroke:none}
+.legend-g .lg .c.d{opacity:.7}
+.legend-g .lp{display:inline-flex; align-items:center; justify-content:center; width:22px; height:14px; background:var(--now); color:var(--on-now); border-radius:6px; margin-right:2px}
+.legend-g .lp .ic{fill:var(--on-now)}
+.legend-g .lp.r{background:var(--alert)}
+.legend-g .lp.t{background:var(--muted)}
 .legend-g .dot{width:7px; height:7px; border-radius:50%; background:var(--alert); display:inline-block; margin-right:2px}
 .legend-g .sw{width:14px; height:10px; display:inline-block; border-radius:2px; margin-right:2px}
 .legend-g .sw.now{background:var(--now-soft); border:1px solid var(--now)}
