@@ -291,11 +291,11 @@ svg.showall .ge.lvitem:not(.hl){opacity:.2}
 @media (prefers-reduced-motion:reduce){ .gn,.ge,.gn circle.body,.gn rect,.gn .sub,.gn .lab{transition:none} }
 svg.focus .gn:not(.hl){opacity:.22}
 svg.focus .ge:not(.hl):not(.tl){opacity:.06}
-/* a lit chain keeps the same gradient, only lifted: trunk still fainter than twigs */
-svg.focus .ge.hl{opacity:.95}
-svg.focus .ge.lvmodule.hl{stroke-width:4; opacity:.45}
-svg.focus .ge.lvsection.hl{stroke-width:2.6; opacity:.7}
-svg.focus .ge.lvitem.hl,svg.focus .ge.dep.hl{stroke-width:1.8; opacity:.95}
+/* a lit chain is fully opaque; only the widths keep the trunk-to-twig order */
+svg.focus .ge.hl{opacity:1}
+svg.focus .ge.lvmodule.hl{stroke-width:4}
+svg.focus .ge.lvsection.hl{stroke-width:2.6}
+svg.focus .ge.lvitem.hl,svg.focus .ge.dep.hl{stroke-width:1.8}
 svg.focus .ge.tl.hl{stroke:var(--now)}
 .gwrap svg{cursor:grab}
 .gn rect{fill:var(--surface-2); stroke:var(--cc); stroke-width:1.2}
