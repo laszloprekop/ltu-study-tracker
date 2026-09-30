@@ -299,14 +299,14 @@ body.mapview footer p{margin:0 0 2px}
 svg.showall .gn.section:not(.hl):not(.sel):not(.hover):not(.cur){opacity:.35}
 svg.showall .gn.item:not(.hl):not(.sel):not(.hover):not(.cur){opacity:.22}
 svg.showall .gn.item:not(.hl):not(.sel):not(.hover):not(.cur) .lab,svg.showall .gn.section:not(.hl):not(.sel):not(.hover) .lab{display:none}
-svg.showall .ge.lvsection:not(.hl),svg.showall .ge.lvitem:not(.hl){opacity:.15}
+svg.showall .ge.lvsection:not(.hl),svg.showall .ge.lvitem:not(.hl){opacity:.08}
 .gn{cursor:pointer; transition:opacity .4s ease}
 .ge{transition:opacity .45s ease, stroke-width .3s ease}
 .gn circle.body,.gn rect{transition:stroke .3s ease, fill .3s ease, stroke-width .3s ease}
 .gn .sub,.gn .lab{transition:opacity .3s ease}
 @media (prefers-reduced-motion:reduce){ .gn,.ge,.gn circle.body,.gn rect,.gn .sub,.gn .lab{transition:none} }
 svg.focus .gn:not(.hl){opacity:.22}
-svg.focus .ge:not(.hl):not(.tl){opacity:.06}
+svg.focus .ge:not(.hl):not(.tl){opacity:.04}
 /* a lit chain is fully opaque; only the widths keep the trunk-to-twig order */
 svg.focus .ge.hl{opacity:1}
 svg.focus .ge.lvmodule.hl{stroke-width:4}
@@ -356,10 +356,10 @@ svg.focus .ge.tl.hl{opacity:.5; stroke-width:1.4}
 .gn.sel .sub,.gn.hover .sub{display:block}
 .ge{stroke:var(--muted); stroke-width:1.2; fill:none; opacity:.7}
 /* thick and faint near the trunk, thin and firmer toward the leaves */
-.ge.lvmodule{stroke-width:3.2; opacity:.15}
-.ge.lvsection{stroke-width:2; opacity:.15}
-.ge.lvitem{stroke-width:1; opacity:.15}
-.ge.dep{stroke:var(--now); stroke-dasharray:4 3; opacity:.15}
+.ge.lvmodule{stroke-width:3.2; opacity:.08}
+.ge.lvsection{stroke-width:2; opacity:.08}
+.ge.lvitem{stroke-width:1; opacity:.08}
+.ge.dep{stroke:var(--now); stroke-dasharray:4 3; opacity:.08}
 .legend-g{position:absolute; left:10px; top:10px; background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:5px 9px; font-size:11px; color:var(--muted); display:flex; flex-direction:column; gap:4px; max-width:300px}
 .legend-g[open]{padding:8px 10px}
 .legend-g .lt{font-size:10px; letter-spacing:.08em; text-transform:uppercase; font-weight:600; cursor:pointer; list-style:none; display:flex; align-items:center; gap:4px}
