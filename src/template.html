@@ -279,6 +279,21 @@ a.tag.feeds:hover{border-color:var(--alert)}
 .gn rect{fill:var(--surface-2); stroke:var(--cc); stroke-width:1.2}
 .gn text{font-family:"Public Sans","Helvetica Neue",Arial,sans-serif; font-size:12px; fill:var(--ink)}
 .gn.course rect{fill:var(--cc-soft); stroke-width:1.6}
+.gn.section rect{stroke-dasharray:4 3}
+.gn.time rect{fill:var(--surface); stroke-width:1.4}
+.gn.time text{font-size:11px}
+.gn.time.sel{z-index:1}
+.gn.time.deadline rect{stroke:var(--alert)}
+.gn.time.task rect{stroke-dasharray:3 2}
+.gn use{fill:var(--muted)}
+.gn.sel use,.gn.cur use{fill:var(--ink)}
+.ge.tl{stroke:var(--cc); opacity:.3}
+.ring circle{fill:none; stroke:var(--line); stroke-width:1.5}
+.ring line{stroke:var(--line); stroke-width:1.5}
+.ring text{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:10.5px; fill:var(--muted)}
+.ring .now line{stroke:var(--now); stroke-width:1; stroke-dasharray:4 4; opacity:.6}
+.ring .now circle{fill:var(--now); stroke:var(--bg); stroke-width:3}
+.ring .now text{fill:var(--now); font-weight:700; font-size:11px; letter-spacing:.06em; text-transform:uppercase}
 .gn.course text,.gn.module text{font-weight:600}
 .gn.done rect{stroke:var(--line)}
 .gn.done text{fill:var(--muted); text-decoration:line-through}
@@ -792,21 +807,27 @@ function renderTerm(){
   applyFilter();
 }
 
-/* ---------- Map view: rail of coming events, graph of Canvas entities, details ---------- */
+/* ---------- Map view: rail of coming events, clock graph of Canvas entities, details ---------- */
 function nodeIdOf(code, item){ return "i:" + code + ":" + item.id; }
+// course -> module -> section (Canvas's own headings, when a module has more than one) -> item
 function graphModel(t){
   var f = state.filter;
   return t.courses.filter(function(c){ return INV.courses[c] && (f === "all" || f === c); }).map(function(c){
     var inv = INV.courses[c];
     return { id: "c:" + c, kind: "course", code: c, label: COURSES[c].name, children: inv.modules.map(function(m){
-      return { id: "m:" + c + ":" + m.id, kind: "module", code: c, label: m.name, module: m, children: m.items.map(function(i){
-        return { id: nodeIdOf(c, i), kind: "item", code: c, label: (i.number ? i.number + " " : "") + i.title, item: i, module: m, tick: "m:" + c + ":" + i.id };
-      }) };
+      var itemNode = function(i){ return { id: nodeIdOf(c, i), kind: "item", code: c, label: (i.number ? i.number + " " : "") + i.title, item: i, module: m, tick: "m:" + c + ":" + i.id }; };
+      var sections = [], bySec = {};
+      m.items.forEach(function(i){ var s = i.section || ""; if (!bySec[s]) { bySec[s] = []; sections.push(s); } bySec[s].push(i); });
+      var kids = sections.length > 1
+        ? sections.map(function(s, n){ return { id: "g:" + c + ":" + m.id + ":" + n, kind: "section", code: c, label: s || "Other", module: m, children: bySec[s].map(itemNode) }; })
+        : m.items.map(itemNode);
+      return { id: "m:" + c + ":" + m.id, kind: "module", code: c, label: m.name, module: m, children: kids };
     }) };
   });
 }
 function allNodes(roots){ var out = []; (function walk(n){ out.push(n); (n.children || []).forEach(walk); })({ children: roots }); return out.slice(1); }
 function findNode(roots, id){ return roots ? allNodes(roots).find(function(n){ return n.id === id; }) || null : null; }
+function leafItems(n){ return n.kind === "item" ? [n] : (n.children || []).reduce(function(a, k){ return a.concat(leafItems(k)); }, []); }
 // Items in this week's study blocks: the "current" set, tinted blue in the graph.
 function currentSet(t){
   var mon = monday(todayIso()), set = {};
@@ -815,7 +836,7 @@ function currentSet(t){
 }
 function defaultOpen(t, roots){
   var open = {}, cur = currentSet(t);
-  roots.forEach(function(c){ open[c.id] = true; c.children.forEach(function(m){ if (m.children.some(function(i){ return cur[i.id]; })) open[m.id] = true; }); });
+  (function walk(n){ if (n.kind === "item") return; var has = leafItems(n).some(function(i){ return cur[i.id]; }); if (n.kind === "course" || has) open[n.id] = true; (n.children || []).forEach(walk); })({ children: roots, kind: "root" });
   return open;
 }
 // Dashed edges: what a session's page depends on (prep), between items that are both on screen.
@@ -829,61 +850,94 @@ function depEdges(t, visible){
   });
   return out;
 }
-// Force layout: every node repels every other, edges pull like springs, a weak pull to the
-// centre keeps the picture round. Positions persist across redraws so opening a module only
-// moves what has to move.
-var mapPos = {};
+function trunc(s, n){ return s.length > n ? s.slice(0, n - 1) + "\u2026" : s; }
+
+// ---- the clock: dated nodes pinned on a ring, in date order, starting at the top and running clockwise
+var mapPos = {}, mapT = { x: 0, y: 0, s: 1 }, mapRoots = null, mapLayout = null, clock = null;
+function clockAngle(isoDate, time){
+  var f = (day(isoDate) - day(clock.start)) / 864e5 + (time ? toMin(time) / 1440 : 0.5);
+  return f / clock.days * 2 * Math.PI - Math.PI / 2;
+}
 function nodeRadius(n){ return n.w / 2 + 6; }
-function buildForceGraph(roots){
+function buildForceGraph(t, roots){
   var nodes = [], edges = [];
-  function width(n){ var chars = Math.min(n.label.length, n.kind === "item" ? 26 : 24); return Math.max(chars * 6.4 + 26, 64); }
-  roots.forEach(function(r, i){ (function walk(n, parent, depth){
+  function width(n){ var chars = Math.min(n.label.length, n.kind === "item" ? 26 : n.kind === "time" ? 22 : 24); return Math.max(chars * 6.4 + (n.kind === "item" ? 40 : 26), 64); }
+  roots.forEach(function(r){ (function walk(n, parent, depth){
     n.depth = depth; n.w = width(n); n.open = n.kind !== "item" && !!state.mapOpen[n.id]; n.parent = parent;
     nodes.push(n);
-    if (parent) edges.push({ a: parent, b: n, len: parent.kind === "course" ? 170 : 95, k: parent.kind === "course" ? 0.02 : 0.05 });
+    if (parent) edges.push({ a: parent, b: n, len: parent.kind === "course" ? 150 : 85, k: parent.kind === "course" ? 0.02 : 0.05 });
     if (n.open) n.children.forEach(function(k){ walk(k, n, depth + 1); });
   })(r, null, 0); });
+  var structural = nodes.length, visible = {};
+  nodes.forEach(function(n){ visible[n.id] = n; });
+
+  // the ring: the study period around the full circle
+  var rows = timeline(t).filter(function(r){ return state.filter === "all" || r.code === state.filter; });
+  clock = { start: t.start, days: Math.max(7, (day(t.end) - day(t.start)) / 864e5 + 1) };
+  var R = Math.max(440, rows.length * 30 / (2 * Math.PI), 150 + structural * 4.5);
+  clock.R = R;
+  // events sit just outside the ring like numerals; near-simultaneous ones step outward a lane
+  var lastAng = -10, lane = 0;
+  rows.forEach(function(r){
+    var key = r.id || r.key, ang = clockAngle(r.date, r.time);
+    if (ang - lastAng < 34 / R) lane = (lane + 1) % 3; else lane = 0;
+    lastAng = ang;
+    var rr = R + 26 + lane * 32;
+    var n = { id: "t:" + key, kind: "time", code: r.code, row: r, key: key, label: dayLabel(r.date) + " " + r.title, short: dayLabel(r.date), fixed: true, x: Math.cos(ang) * rr, y: Math.sin(ang) * rr, vx: 0, vy: 0 };
+    n.w = 80; nodes.push(n);
+    // tie it to the page it points at, or to the deepest visible ancestor of that page
+    var nid = rowNodeId(t, r), target = nid && visible[nid];
+    if (nid && !target) { var it = findNode(roots, nid); var p = it && it.parent; while (p && !visible[p.id]) p = p.parent; target = p ? visible[p.id] : null; }
+    if (!target) target = visible["c:" + r.code];
+    if (target) edges.push({ a: n, b: target, len: 110, k: 0.02, time: true });
+  });
+
   // starting positions: remembered ones, else a ring around the parent
-  var rootsN = roots.length;
-  nodes.forEach(function(n, i){
+  nodes.forEach(function(n){
+    if (n.fixed) return;
     var p = mapPos[n.id];
-    if (p) { n.x = p.x; n.y = p.y; return; }
-    if (!n.parent) { var ri = roots.indexOf(n); n.x = rootsN > 1 ? Math.cos(ri / rootsN * 2 * Math.PI) * 260 : 0; n.y = rootsN > 1 ? Math.sin(ri / rootsN * 2 * Math.PI) * 260 : 0; }
-    else { var sib = n.parent.children, idx = sib.indexOf(n), ang = idx / sib.length * 2 * Math.PI + (n.parent.x || 0) * 0.001; var r = n.parent.kind === "course" ? 170 : 95; n.x = n.parent.x + Math.cos(ang) * r; n.y = n.parent.y + Math.sin(ang) * r; }
+    if (p) { n.x = p.x; n.y = p.y; }
+    else if (!n.parent) { var ri = roots.indexOf(n); n.x = roots.length > 1 ? Math.cos(ri / roots.length * 2 * Math.PI) * 120 : 0; n.y = roots.length > 1 ? Math.sin(ri / roots.length * 2 * Math.PI) * 120 : 0; }
+    else { var sib = n.parent.children, idx = sib.indexOf(n), ang = idx / sib.length * 2 * Math.PI; var r = n.parent.kind === "course" ? 150 : 85; n.x = n.parent.x + Math.cos(ang) * r; n.y = n.parent.y + Math.sin(ang) * r; }
     n.vx = 0; n.vy = 0;
   });
-  nodes.forEach(function(n){ n.vx = n.vx || 0; n.vy = n.vy || 0; });
-  return { nodes: nodes, edges: edges };
+  return { nodes: nodes, edges: edges, visible: visible };
 }
 var sim = { alpha: 0, raf: null, pinned: null };
 function stepForces(){
-  var nodes = mapLayout.nodes, edges = mapLayout.edges, a = sim.alpha;
+  var nodes = mapLayout.nodes, edges = mapLayout.edges, a = sim.alpha, R = clock.R - 80;
   var i, j, n, m, dx, dy, d, f;
   for (i = 0; i < nodes.length; i++) {
     n = nodes[i];
     for (j = i + 1; j < nodes.length; j++) {
-      m = nodes[j]; dx = m.x - n.x; dy = m.y - n.y; d = Math.sqrt(dx * dx + dy * dy) || 0.01;
+      m = nodes[j]; if (n.fixed && m.fixed) continue;
+      dx = m.x - n.x; dy = m.y - n.y; d = Math.sqrt(dx * dx + dy * dy) || 0.01;
       var minD = nodeRadius(n) + nodeRadius(m);
-      f = (2600 / (d * d)) + (d < minD ? (minD - d) * 0.35 : 0);   // repulsion, plus a shove when boxes overlap
+      f = (2400 / (d * d)) + (d < minD ? (minD - d) * 0.35 : 0);
       f *= a; dx /= d; dy /= d;
-      n.vx -= dx * f; n.vy -= dy * f; m.vx += dx * f; m.vy += dy * f;
+      if (!n.fixed) { n.vx -= dx * f; n.vy -= dy * f; }
+      if (!m.fixed) { m.vx += dx * f; m.vy += dy * f; }
     }
-    // gravity to the centre, stronger for the roots
-    n.vx -= n.x * (n.parent ? 0.004 : 0.02) * a; n.vy -= n.y * (n.parent ? 0.004 : 0.02) * a;
+    if (n.fixed) continue;
+    n.vx -= n.x * (n.parent ? 0.003 : 0.015) * a; n.vy -= n.y * (n.parent ? 0.003 : 0.015) * a;
+    // keep the structure inside the ring
+    d = Math.sqrt(n.x * n.x + n.y * n.y);
+    if (d > R) { f = (d - R) * 0.08 * a; n.vx -= n.x / d * f; n.vy -= n.y / d * f; }
   }
   edges.forEach(function(e){
     dx = e.b.x - e.a.x; dy = e.b.y - e.a.y; d = Math.sqrt(dx * dx + dy * dy) || 0.01;
     f = (d - e.len) * e.k * a; dx /= d; dy /= d;
-    e.a.vx += dx * f; e.a.vy += dy * f; e.b.vx -= dx * f; e.b.vy -= dy * f;
+    if (!e.a.fixed) { e.a.vx += dx * f; e.a.vy += dy * f; }
+    if (!e.b.fixed) { e.b.vx -= dx * f; e.b.vy -= dy * f; }
   });
   nodes.forEach(function(n){
+    if (n.fixed) return;
     if (n === sim.pinned) { n.vx = 0; n.vy = 0; return; }
     n.vx *= 0.6; n.vy *= 0.6; n.x += n.vx; n.y += n.vy;
   });
 }
 function paintForces(){
-  var nodes = mapLayout.nodes;
-  nodes.forEach(function(n){ var g = n.el; if (g) g.setAttribute("transform", "translate(" + (n.x - n.w / 2) + " " + (n.y - 14) + ")"); mapPos[n.id] = { x: n.x, y: n.y }; });
+  mapLayout.nodes.forEach(function(n){ if (n.el) n.el.setAttribute("transform", "translate(" + (n.x - n.w / 2) + " " + (n.y - 14) + ")"); if (!n.fixed) mapPos[n.id] = { x: n.x, y: n.y }; });
   mapLayout.edges.forEach(function(e){ if (e.el) e.el.setAttribute("d", "M" + e.a.x + " " + e.a.y + " L" + e.b.x + " " + e.b.y); });
   mapLayout.deps.forEach(function(e){ if (e.el) { var mx = (e.a.x + e.b.x) / 2, my = (e.a.y + e.b.y) / 2 - 30; e.el.setAttribute("d", "M" + e.a.x + " " + e.a.y + " Q" + mx + " " + my + " " + e.b.x + " " + e.b.y); } });
 }
@@ -899,28 +953,49 @@ function runSim(heat){
   };
   sim.raf = requestAnimationFrame(tick);
 }
-function trunc(s, n){ return s.length > n ? s.slice(0, n - 1) + "\u2026" : s; }
-var mapT = { x: 0, y: 0, s: 1 }, mapRoots = null, mapLayout = null;
+function ringSvg(t){
+  var R = clock.R, out = '<g class="ring"><circle cx="0" cy="0" r="' + R + '"/>';
+  var m = monday(t.start);
+  while (m <= t.end) {
+    var a = clockAngle(m, "00:00"), c = Math.cos(a), s = Math.sin(a);
+    out += '<line x1="' + (c * (R - 8)) + '" y1="' + (s * (R - 8)) + '" x2="' + (c * (R + 8)) + '" y2="' + (s * (R + 8)) + '"/>' +
+      '<text x="' + (c * (R - 26)) + '" y="' + (s * (R - 26) + 4) + '" text-anchor="middle">v' + isoWeek(m) + '</text>';
+    m = addDays(m, 7);
+  }
+  var today = todayIso();
+  if (today >= t.start && today <= t.end) {
+    var ta = clockAngle(today, "12:00"), tc = Math.cos(ta), ts = Math.sin(ta);
+    out += '<g class="now"><line x1="0" y1="0" x2="' + (tc * R) + '" y2="' + (ts * R) + '"/><circle cx="' + (tc * R) + '" cy="' + (ts * R) + '" r="7"/><text x="' + (tc * (R + 46)) + '" y="' + (ts * (R + 46) + 4) + '" text-anchor="middle">Today</text></g>';
+  }
+  return out + '</g>';
+}
 function svgGraph(t){
   mapRoots = graphModel(t);
   if (!state.mapOpen) state.mapOpen = defaultOpen(t, mapRoots);
-  var g = buildForceGraph(mapRoots), visible = {};
-  g.nodes.forEach(function(n){ visible[n.id] = n; });
-  g.deps = depEdges(t, visible).map(function(e){ return { a: e[0], b: e[1] }; });
+  var g = buildForceGraph(t, mapRoots);
+  g.deps = depEdges(t, g.visible).map(function(e){ return { a: e[0], b: e[1] }; });
   mapLayout = g;
   var cur = currentSet(t), sel = resolveSel(t);
-  var edges = g.edges.map(function(e, i){ return '<path class="ge" data-edge="' + i + '" d="M0 0"/>'; }).join("");
+  var edges = g.edges.map(function(e, i){ return '<path class="ge' + (e.time ? ' tl' : '') + '" data-edge="' + i + '" style="' + colorVars(e.a.code) + '" d="M0 0"/>'; }).join("");
   var dep = g.deps.map(function(e, i){ return '<path class="ge dep" data-dep="' + i + '" marker-end="url(#arrb)" d="M0 0"><title>Watch before the session</title></path>'; }).join("");
   var nodes = g.nodes.map(function(n){
-    var cls = "gn " + n.kind + (n.id === sel.node ? " sel" : "") + (cur[n.id] ? " cur" : "") + (n.tick && state.checked[n.tick] ? " done" : "") + (n.tick && state.muted[n.tick] ? " muted" : "");
-    var must = n.item && itemLevel(n.code, n.item) === "must";
-    var badge = n.kind !== "item" && !n.open ? '<text class="badge" x="' + (n.w - 8) + '" y="18" text-anchor="end">' + n.children.length + '</text>' : "";
-    return '<g class="' + cls + '" data-node="' + esc(n.id) + '"' + (n.tick ? ' data-id="' + esc(n.tick) + '"' : '') + ' style="' + colorVars(n.code) + '">' +
-      '<title>' + esc(n.label) + '</title><rect rx="14" width="' + n.w + '" height="28"/>' + (must ? '<circle class="must" cx="10" cy="14" r="3"/>' : '') +
-      '<text x="' + (must ? 18 : 12) + '" y="18">' + esc(trunc(n.label, n.kind === "item" ? 26 : 24)) + '</text>' + badge + '</g>';
+    var isSel = n.kind === "time" ? !!sel.rows[n.key] : n.id === sel.node;
+    if (n.kind === "time") n.w = isSel ? Math.max(80, Math.min(n.label.length, 30) * 6.4 + 40) : 80;
+    var cls = "gn " + n.kind + (isSel ? " sel" : "") + (cur[n.id] ? " cur" : "") + (n.tick && state.checked[n.tick] ? " done" : "") + (n.tick && state.muted[n.tick] ? " muted" : "") +
+      (n.kind === "time" ? " " + n.row.kind + (n.row.id && state.checked[n.row.id] ? " done" : "") + (n.row.id && state.muted[n.row.id] ? " muted" : "") : "");
+    var must = (n.item && itemLevel(n.code, n.item) === "must") || (n.kind === "time" && n.row.level === "must");
+    var badge = n.kind !== "item" && n.kind !== "time" && !n.open ? '<text class="badge" x="' + (n.w - 8) + '" y="18" text-anchor="end">' + leafItems(n).length + '</text>' : "";
+    var icon = n.kind === "item" ? '<use href="#i-' + (KIND_ICON[n.item.kind] || "book-open") + '" x="' + (must ? 16 : 8) + '" y="7" width="14" height="14"/>'
+      : n.kind === "time" ? '<use href="#i-' + (n.row.kind === "session" ? (SESSION_ICON[n.row.skind] || "calendar") : n.row.kind === "deadline" ? (KIND_ICON[n.row.akind] || "upload-simple") : "clipboard-text") + '" x="' + (must ? 16 : 8) + '" y="7" width="14" height="14"/>' : "";
+    var tx = n.kind === "item" || n.kind === "time" ? (must ? 34 : 26) : (must ? 18 : 12);
+    var rx = n.kind === "course" ? 14 : n.kind === "module" ? 5 : n.kind === "section" ? 9 : 14;
+    var ids = ' data-node="' + esc(n.id) + '"' + (n.tick ? ' data-id="' + esc(n.tick) + '"' : n.kind === "time" && n.row.id ? ' data-id="' + esc(n.row.id) + '"' : '');
+    return '<g class="' + cls + '"' + ids + ' style="' + colorVars(n.code) + '">' +
+      '<title>' + esc(n.label) + '</title><rect rx="' + rx + '" width="' + n.w + '" height="28"/>' + (must ? '<circle class="must" cx="10" cy="14" r="3"/>' : '') + icon +
+      '<text x="' + tx + '" y="18">' + esc(n.kind === "time" && !isSel ? n.short : trunc(n.label, n.kind === "item" ? 26 : n.kind === "time" ? 30 : 24)) + '</text>' + badge + '</g>';
   }).join("");
   return '<svg id="gsvg" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--now)"/></marker></defs>' +
-    '<g id="gpan">' + edges + dep + nodes + '</g></svg>';
+    '<g id="gpan">' + ringSvg(t) + edges + dep + nodes + '</g></svg>';
 }
 function railList(t){
   var today = todayIso(), rows = timeline(t).filter(function(r){ return r.date >= today; }), sel = resolveSel(t);
@@ -982,11 +1057,15 @@ function detailFor(t, key){
       var k = COURSES[node.code];
       html += chip(node.code) + '<div class="dt">' + esc(k.name) + '</div>' + teachers(k.teachers) + '<ul class="rel">' + (k.rules || []).map(function(r){ return '<li>' + esc(r) + '</li>'; }).join("") + '</ul>' +
         '<div class="sec">Modules</div><ul class="rel">' + node.children.map(function(m){ return '<li><button type="button" data-goto="' + esc(m.id) + '">' + esc(m.label) + '</button> <span class="why" style="display:inline">' + m.children.length + ' items</span></li>'; }).join("") + '</ul>';
-    } else if (node.kind === "module") {
-      var done = node.children.filter(function(i){ return state.checked[i.tick]; }).length;
-      html += chip(node.code) + '<div class="dt">' + esc(node.label) + '</div><div class="kv"><span>Items</span><b>' + node.children.length + ', ' + done + ' ticked</b><span>Time</span><b>' + (fmtMin(matMinutes(node.children.map(function(i){ return i.item; }))) || "-") + '</b></div>' +
-        '<span class="links"><a href="' + esc(node.module.url) + '" target="_blank" rel="noopener">Open module' + ext(node.module.url) + '</a></span>' +
+    } else if (node.kind === "section") {
+      var sdone = leafItems(node).filter(function(i){ return state.checked[i.tick]; }).length;
+      html += chip(node.code) + '<div class="dt">' + esc(node.label) + '</div><div class="kv"><span>In</span><b>' + esc(node.module.name) + '</b><span>Items</span><b>' + leafItems(node).length + ', ' + sdone + ' ticked</b></div>' +
         '<div class="sec">Items</div><ul class="rel">' + node.children.map(function(i){ return '<li' + (state.checked[i.tick] ? ' style="opacity:.55"' : '') + '><button type="button" data-goto="' + esc(i.id) + '">' + ic(KIND_ICON[i.item.kind] || "book-open", "sm kic") + esc(i.label) + '</button></li>'; }).join("") + '</ul>';
+    } else if (node.kind === "module") {
+      var leaves = leafItems(node), done = leaves.filter(function(i){ return state.checked[i.tick]; }).length;
+      html += chip(node.code) + '<div class="dt">' + esc(node.label) + '</div><div class="kv"><span>Items</span><b>' + leaves.length + ', ' + done + ' ticked</b><span>Time</span><b>' + (fmtMin(matMinutes(leaves.map(function(i){ return i.item; }))) || "-") + '</b></div>' +
+        '<span class="links"><a href="' + esc(node.module.url) + '" target="_blank" rel="noopener">Open module' + ext(node.module.url) + '</a></span>' +
+        '<div class="sec">' + (node.children[0] && node.children[0].kind === "section" ? "Sections" : "Items") + '</div><ul class="rel">' + node.children.map(function(i){ return '<li' + (i.tick && state.checked[i.tick] ? ' style="opacity:.55"' : '') + '><button type="button" data-goto="' + esc(i.id) + '">' + (i.item ? ic(KIND_ICON[i.item.kind] || "book-open", "sm kic") : '') + esc(i.label) + (i.kind === "section" ? ' <span class="why" style="display:inline">' + leafItems(i).length + ' items</span>' : '') + '</button></li>'; }).join("") + '</ul>';
     } else {
       var i = node.item, level = itemLevel(node.code, i), mid = "m:" + node.code + ":" + node.module.id;
       html += chip(node.code) + lvl(level) + '<div class="dt">' + ic(KIND_ICON[i.kind] || "book-open", "kic") + esc((i.number ? i.number + " " : "") + i.title) + '</div>';
@@ -1015,7 +1094,7 @@ function renderMapView(t){
     '<div class="card"><h3>' + ic("calendar-dot") + 'Coming up</h3><div class="rail-list" id="rail">' + railList(t) + '</div></div>' +
     '<div class="card"><h3>' + ic("tree-structure") + 'Canvas map <span class="why" style="display:inline;text-transform:none;letter-spacing:0;font-weight:400">click a module to open it, drag a node to move it, drag the background to pan, scroll to zoom</span></h3>' +
       '<div class="gwrap" id="gwrap">' + svgGraph(t) + '<div class="gtools"><button type="button" id="g-fit" title="Fit the whole graph">' + ic("arrows-in", "sm") + 'Fit</button><button type="button" id="g-open" title="Open every module">' + ic("arrows-out", "sm") + 'Open all</button><button type="button" id="g-close" title="Close every module">Close all</button></div>' +
-      '<div class="gnote">Nodes repel, links attract. Blue tint: this week\u2019s material. Dashed: watch before the session. Red dot: MUST.</div></div></div>' +
+      '<div class="gnote">Clock: sessions, deadlines and tasks sit on the ring in date order, tied to their Canvas page. Inside, nodes repel and links attract. Blue tint: this week\u2019s material. Dashed: watch before the session. Red dot: MUST.</div></div></div>' +
     '<div class="card"><h3>' + ic("info") + 'Details</h3><div class="detail" id="detail">' + detailFor(t, state.mapSel) + '</div></div>' +
     '</div></section>';
 }
@@ -1029,14 +1108,14 @@ function wireGraph(){
 }
 function applyMapT(){ var g = document.getElementById("gpan"); if (g) g.setAttribute("transform", "translate(" + mapT.x + " " + mapT.y + ") scale(" + mapT.s + ")"); }
 function graphBounds(){
-  var xs = mapLayout.nodes.map(function(n){ return n.x; }), ys = mapLayout.nodes.map(function(n){ return n.y; });
-  return { x0: Math.min.apply(null, xs) - 90, x1: Math.max.apply(null, xs) + 90, y0: Math.min.apply(null, ys) - 40, y1: Math.max.apply(null, ys) + 40 };
+  var r = clock.R + 150;
+  return { x0: -r, x1: r, y0: -r, y1: r };
 }
 // Fit the settled graph; never below a readable size, panning takes care of the rest.
 function fitMap(){
   var w = document.getElementById("gwrap"); if (!w || !mapLayout) return;
   var b = graphBounds(), W = w.clientWidth, H = w.clientHeight, gw = b.x1 - b.x0, gh = b.y1 - b.y0;
-  var s = Math.max(Math.min(W / gw, H / gh, 1.15), 0.55);
+  var s = Math.max(Math.min(W / gw, H / gh, 1.15), 0.4);
   mapT = { s: s, x: W / 2 - (b.x0 + gw / 2) * s, y: H / 2 - (b.y0 + gh / 2) * s }; applyMapT();
 }
 function centerMapOn(id){
@@ -1069,13 +1148,13 @@ function bindSvg(){
     if (e.button !== 0) return;
     var g = e.target.closest("[data-node]"), n = g && mapLayout.nodes.find(function(x){ return x.id === g.dataset.node; });
     drag = { x: e.clientX, y: e.clientY, tx: mapT.x, ty: mapT.y, moved: false, node: n || null };
-    if (n) { sim.pinned = n; runSim(0.3); }
+    if (n && !n.fixed) { sim.pinned = n; runSim(0.3); }
     svg.setPointerCapture(e.pointerId); svg.classList.add("drag");
   });
   svg.addEventListener("pointermove", function(e){
     if (!drag) return;
     var dx = e.clientX - drag.x, dy = e.clientY - drag.y; if (Math.abs(dx) + Math.abs(dy) > 3) drag.moved = true;
-    if (drag.node) { var p = toGraph(e); drag.node.x = p.x; drag.node.y = p.y; sim.alpha = Math.max(sim.alpha, 0.3); }
+    if (drag.node && !drag.node.fixed) { var p = toGraph(e); drag.node.x = p.x; drag.node.y = p.y; sim.alpha = Math.max(sim.alpha, 0.3); }
     else { mapT.x = drag.tx + dx; mapT.y = drag.ty + dy; applyMapT(); }
   });
   svg.addEventListener("pointerup", function(e){
@@ -1083,6 +1162,7 @@ function bindSvg(){
     sim.pinned = null; if (node) runSim(0.3);
     if (wasDrag || !node) return;
     var id = node.id, t = term();
+    if (node.kind === "time") { state.mapSel = node.key; var nid = rowNodeId(t, node.row); if (nid) openPathTo(nid); refreshMap(t, nid); return; }
     if (id.charAt(0) !== "i") { state.mapOpen[id] = !state.mapOpen[id]; lsSet(LS.mapOpen, JSON.stringify(state.mapOpen)); }
     state.mapSel = id; refreshMap(t);
   });
@@ -1102,7 +1182,7 @@ function bindMap(t){
     if (b.dataset.ev) gotoKey(t, b.dataset.ev);
     else if (b.dataset.goto) gotoKey(t, b.dataset.goto);
     else if (b.id === "g-fit") fitMap();
-    else if (b.id === "g-open" || b.id === "g-close") { allNodes(mapRoots).forEach(function(n){ if (n.kind !== "item") state.mapOpen[n.id] = b.id === "g-open" || n.kind === "course"; }); lsSet(LS.mapOpen, JSON.stringify(state.mapOpen)); refreshMap(t); setTimeout(fitMap, 700); }
+    else if (b.id === "g-open" || b.id === "g-close") { allNodes(mapRoots).forEach(function(n){ if (n.kind !== "item" && n.kind !== "time") state.mapOpen[n.id] = b.id === "g-open" || n.kind === "course"; }); lsSet(LS.mapOpen, JSON.stringify(state.mapOpen)); refreshMap(t); setTimeout(fitMap, 700); }
   });
 }
 

@@ -80,10 +80,15 @@ so they live in the plan.
 ## Map view
 
 A fourth tab. Left: the coming events (sessions, deadlines, tasks) as a timeline, titles only.
-Centre: the Canvas entities, course to module to item, in a force layout: every node repels every
-other, links pull connected nodes together, and a weak pull to the centre keeps it round. Drag a
-node to move it, drag the background to pan, scroll to zoom, click a module to open it. Positions
-are kept while the tab is open, so opening a module only moves what has to move. Dashed blue edges
+Centre: a clock. The study period runs once around a ring, starting at the top and going
+clockwise, with a tick and label per week and a spoke for today. Every dated thing (session,
+deadline, task) sits just outside the ring at its date as a short pill (day and kind icon; the
+full title when selected), tied by a spring to the Canvas page it points at. Inside the ring the
+Canvas structure floats in a force layout: course to module to section (Canvas's own headings,
+when a module has several) to item; nodes repel, links attract, and the springs to the ring pull
+each module toward the time it is taught. Item nodes show their kind icon. Drag a node to move it,
+drag the background to pan, scroll to zoom, click a module or section to open it. Positions are
+kept while the tab is open. Dashed blue edges
 show what a session's page depends on (its `prep`), a red dot marks MUST, a blue tint marks this
 week's material. Right: details of the chosen event or node, with the tick box, mute, Canvas links
 and everything connected to it. The selection is shared: a node lights the events that point at it
