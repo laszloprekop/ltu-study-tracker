@@ -1203,6 +1203,8 @@ function chainOf(id){
   // a loose tie (an event whose page is folded away) only counts when starting from that event
   (function up(x){ (ins[x.id] || []).forEach(function(e){ if (e.loose) return; edges[e.a.id + ">" + e.b.id] = true; if (!nodes[e.a.id]) { nodes[e.a.id] = true; up(e.a); } }); })(n);
   (function down(x){ (outs[x.id] || []).forEach(function(e){ if (e.loose && x !== n) return; edges[e.a.id + ">" + e.b.id] = true; if (!nodes[e.b.id]) { nodes[e.b.id] = true; down(e.b); } }); })(n);
+  // one more hop: the events (ring pills) tied to anything in the chain, so a module shows when its material is taught or due
+  Object.keys(nodes).forEach(function(id){ (ins[id] || []).forEach(function(e){ if (e.time && !e.loose) { nodes[e.a.id] = true; edges[e.a.id + ">" + e.b.id] = true; } }); });
   return { nodes: nodes, edges: edges };
 }
 function highlight(id){

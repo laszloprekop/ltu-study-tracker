@@ -92,7 +92,7 @@ the background to pan, scroll to zoom, click a module or section to open it. Sel
 the layout, positions are remembered per viewer, and when a module opens only its new nodes
 settle while everything already placed stays put. The full title replaces the short one under a hovered or selected node. Hovering or selecting highlights the whole chain in
 both directions, as far as the links keep pointing the same way: up through parents,
-prerequisites and the events pointing in, down through children and what depends on it. Ties
+prerequisites and the events pointing in, down through children and what depends on it, plus every event on the ring tied to anything in the chain. Ties
 from events to a folded module do not count. **Show all** (toolbar, on by default) opens every module
 and section and fades sections and items, labels hidden, until they join a hovered or selected
 chain; the viewer's own open/closed choices are kept for when it is off. Hovering a node also
