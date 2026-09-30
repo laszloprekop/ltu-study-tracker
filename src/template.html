@@ -346,9 +346,10 @@ svg.focus .ge.tl.hl{opacity:.5; stroke-width:1.4}
 .ring text{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:10.5px; fill:var(--muted)}
 .ring .now line.glow{stroke:var(--now); stroke-width:7; opacity:.45; filter:url(#glow)}
 .ring .now line.core{stroke:var(--now); stroke-width:.8; opacity:.9}
-.ring .now .arc{filter:url(#glow)}
 .ring .now .wedge{fill:var(--now); opacity:.16; stroke:none}
-.ring .now .arc{fill:none; stroke:var(--now); stroke-width:5; stroke-linecap:round}
+.ring .now .arc{fill:none; stroke:var(--now); stroke-linecap:round}
+.ring .now .arc.glow{stroke-width:6; opacity:.4; filter:url(#glow)}
+.ring .now .arc.core{stroke-width:1.5; opacity:.95}
 .ring .now text{fill:var(--now); font-weight:700; font-size:11px; letter-spacing:.06em; text-transform:uppercase}
 .gn.course text,.gn.module text{font-weight:600}
 .gn.time.done rect{stroke:var(--line)}
@@ -1087,7 +1088,7 @@ function ringSvg(t){
     var P = function(r, a){ return (Math.cos(a) * r).toFixed(1) + " " + (Math.sin(a) * r).toFixed(1); };
     out += '<g class="now">' +
       '<path class="wedge" d="M' + P(r0, a0) + ' L' + P(r1, a0) + ' A' + r1 + ' ' + r1 + ' 0 ' + large + ' 1 ' + P(r1, a1) + ' L' + P(r0, a1) + ' A' + r0 + ' ' + r0 + ' 0 ' + large + ' 0 ' + P(r0, a0) + ' Z"/>' +
-      '<path class="arc" d="M' + P(R, a0) + ' A' + R + ' ' + R + ' 0 ' + large + ' 1 ' + P(R, a1) + '"/>' +
+      '<path class="arc glow" d="M' + P(R, a0) + ' A' + R + ' ' + R + ' 0 ' + large + ' 1 ' + P(R, a1) + '"/><path class="arc core" d="M' + P(R, a0) + ' A' + R + ' ' + R + ' 0 ' + large + ' 1 ' + P(R, a1) + '"/>' +
       '<line class="glow" x1="0" y1="0" x2="' + (Math.cos(mid) * r0) + '" y2="' + (Math.sin(mid) * r0) + '"/><line class="core" x1="0" y1="0" x2="' + (Math.cos(mid) * r0) + '" y2="' + (Math.sin(mid) * r0) + '"/>' +
       '<text x="' + (Math.cos(mid) * (R + 62)) + '" y="' + (Math.sin(mid) * (R + 62) + 4) + '" text-anchor="middle">Today' + (idx.length ? ", " + idx.length + (idx.length === 1 ? " event" : " events") : "") + '</text></g>';
   }
