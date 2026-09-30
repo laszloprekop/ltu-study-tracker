@@ -345,7 +345,7 @@ svg.focus .ge.tl.hl{opacity:.5; stroke-width:1.4}
 .ring text{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:10.5px; fill:var(--muted)}
 .ring .now .wedge{fill:var(--now); opacity:.22; stroke:none}
 .ring .now.empty .wedge{opacity:.7}
-.ring .now text{fill:var(--now); font-weight:700; font-size:11px; letter-spacing:.06em; text-transform:uppercase}
+.ring .now text{fill:var(--now); font-weight:700; font-size:11px; letter-spacing:.06em; text-transform:uppercase; paint-order:stroke; stroke:var(--bg); stroke-width:3px; stroke-linejoin:round}
 .gn.course text,.gn.module text{font-weight:600}
 .gn.time.done rect{fill:var(--line)}
 .gn.time.done text{fill:var(--muted); text-decoration:line-through}
@@ -1081,11 +1081,13 @@ function ringSvg(t){
     if (idx.length) { var pad = Math.PI / clock.rows.length * 0.9; a0 = clock.pts[idx[0]].ang - pad; a1 = clock.pts[idx[idx.length - 1]].ang + pad; }
     else { var ta = clockAngle(today, "12:00"); a0 = ta - 0.0025; a1 = ta + 0.0025; }
     // the wedge lives in the gap between the material and the pills, never under them
-    var mid = (a0 + a1) / 2, r0 = inner + 6, r1 = R + 6, large = (a1 - a0) > Math.PI ? 1 : 0;
+    var mid = (a0 + a1) / 2, r0 = inner + 6, r1 = r0 + (R + 6 - r0) * 0.3, large = (a1 - a0) > Math.PI ? 1 : 0;
+    // the title runs along the wedge, upright on both halves of the clock, and may overhang it
+    var rm = (r0 + r1) / 2, rot = mid * 180 / Math.PI + (Math.cos(mid) < 0 ? -90 : 90);
     var P = function(r, a){ return (Math.cos(a) * r).toFixed(1) + " " + (Math.sin(a) * r).toFixed(1); };
     out += '<g class="now' + (idx.length ? '' : ' empty') + '">' +
       '<path class="wedge" d="M' + P(r0, a0) + ' L' + P(r1, a0) + ' A' + r1 + ' ' + r1 + ' 0 ' + large + ' 1 ' + P(r1, a1) + ' L' + P(r0, a1) + ' A' + r0 + ' ' + r0 + ' 0 ' + large + ' 0 ' + P(r0, a0) + ' Z"/>' +
-      '<text x="' + (Math.cos(mid) * (R + 62)) + '" y="' + (Math.sin(mid) * (R + 62) + 4) + '" text-anchor="middle">Today' + (idx.length ? ", " + idx.length + (idx.length === 1 ? " event" : " events") : "") + '</text></g>';
+      '<text transform="translate(' + (Math.cos(mid) * rm).toFixed(1) + ' ' + (Math.sin(mid) * rm).toFixed(1) + ') rotate(' + rot.toFixed(1) + ')" text-anchor="middle" dominant-baseline="middle">Today' + (idx.length ? ", " + idx.length + (idx.length === 1 ? " event" : " events") : "") + '</text></g>';
   }
   return out + '</g>';
 }
