@@ -270,18 +270,24 @@ a.tag.feeds:hover{border-color:var(--alert)}
 .rail-list .ev.done .tt{text-decoration:line-through; color:var(--muted)}
 .rail-list .ev.muted{opacity:.45}
 .gwrap{position:relative; flex:1 1 auto; min-height:0; overflow:hidden; border-radius:0 0 10px 10px}
-.gwrap svg{width:100%; height:100%; display:block; cursor:grab; touch-action:none}
+.gwrap svg{width:100%; height:100%; display:block; touch-action:none}
 .gwrap svg.drag{cursor:grabbing}
 .gtools{position:absolute; top:10px; right:10px; display:flex; gap:4px}
 .gtools button{display:inline-flex; align-items:center; gap:4px; font-size:12px; font-weight:600; color:var(--muted); background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:4px 7px; cursor:pointer}
 .gtools button:hover{color:var(--ink)}
 .gn{cursor:pointer}
+svg.focus .gn:not(.hl){opacity:.22}
+svg.focus .ge:not(.hl){opacity:.06}
+svg.focus .ge.hl{opacity:1; stroke-width:2}
+svg.focus .ge.tl.hl{stroke:var(--now)}
+.gwrap svg{cursor:grab}
 .gn rect{fill:var(--surface-2); stroke:var(--cc); stroke-width:1.2}
 .gn text{font-family:"Public Sans","Helvetica Neue",Arial,sans-serif; font-size:12px; fill:var(--ink)}
 .gn.course rect{fill:var(--cc-soft); stroke-width:1.6}
 .gn.section rect{stroke-dasharray:4 3}
 .gn.time rect{fill:var(--surface); stroke-width:1.4}
-.gn.time text{font-size:11px}
+.gn.time text{font-size:10px; font-family:"IBM Plex Mono",ui-monospace,monospace}
+.gn.time.must rect{stroke:var(--alert)}
 .gn.time.sel{z-index:1}
 .gn.time.deadline rect{stroke:var(--alert)}
 .gn.time.task rect{stroke-dasharray:3 2}
@@ -854,9 +860,15 @@ function trunc(s, n){ return s.length > n ? s.slice(0, n - 1) + "\u2026" : s; }
 
 // ---- the clock: dated nodes pinned on a ring, in date order, starting at the top and running clockwise
 var mapPos = {}, mapT = { x: 0, y: 0, s: 1 }, mapRoots = null, mapLayout = null, clock = null;
+// Events are spaced evenly around the ring in date order; any other date lands between its neighbours.
+function stamp(isoDate, time){ return day(isoDate) / 864e5 + (time ? toMin(time) / 1440 : 0.5); }
 function clockAngle(isoDate, time){
-  var f = (day(isoDate) - day(clock.start)) / 864e5 + (time ? toMin(time) / 1440 : 0.5);
-  return f / clock.days * 2 * Math.PI - Math.PI / 2;
+  var s = stamp(isoDate, time), pts = clock.pts;
+  if (!pts.length) return -Math.PI / 2;
+  if (s <= pts[0].s) return pts[0].ang - (pts[0].s - s) / clock.days * 2 * Math.PI * 0.15;
+  if (s >= pts[pts.length - 1].s) return pts[pts.length - 1].ang + (s - pts[pts.length - 1].s) / clock.days * 2 * Math.PI * 0.15;
+  for (var i = 1; i < pts.length; i++) if (s <= pts[i].s) { var a = pts[i - 1], b = pts[i]; return b.s === a.s ? a.ang : a.ang + (b.ang - a.ang) * (s - a.s) / (b.s - a.s); }
+  return -Math.PI / 2;
 }
 function nodeRadius(n){ return n.w / 2 + 6; }
 function buildForceGraph(t, roots){
@@ -874,17 +886,14 @@ function buildForceGraph(t, roots){
   // the ring: the study period around the full circle
   var rows = timeline(t).filter(function(r){ return state.filter === "all" || r.code === state.filter; });
   clock = { start: t.start, days: Math.max(7, (day(t.end) - day(t.start)) / 864e5 + 1) };
-  var R = Math.max(440, rows.length * 30 / (2 * Math.PI), 150 + structural * 4.5);
+  var R = Math.max(420, rows.length * 26 / (2 * Math.PI), 150 + structural * 4.5);
   clock.R = R;
-  // events sit just outside the ring like numerals; near-simultaneous ones step outward a lane
-  var lastAng = -10, lane = 0;
-  rows.forEach(function(r){
-    var key = r.id || r.key, ang = clockAngle(r.date, r.time);
-    if (ang - lastAng < 34 / R) lane = (lane + 1) % 3; else lane = 0;
-    lastAng = ang;
-    var rr = R + 26 + lane * 32;
+  // events sit just outside the ring like numerals, one slot each, in date order
+  clock.pts = rows.map(function(r, i){ return { s: stamp(r.date, r.time), ang: i / rows.length * 2 * Math.PI - Math.PI / 2 }; });
+  rows.forEach(function(r, i){
+    var key = r.id || r.key, ang = clock.pts[i].ang, rr = R + 20;
     var n = { id: "t:" + key, kind: "time", code: r.code, row: r, key: key, label: dayLabel(r.date) + " " + r.title, short: dayLabel(r.date), fixed: true, x: Math.cos(ang) * rr, y: Math.sin(ang) * rr, vx: 0, vy: 0 };
-    n.w = 80; nodes.push(n);
+    n.w = 60; n.h = 20; nodes.push(n);
     // tie it to the page it points at, or to the deepest visible ancestor of that page
     var nid = rowNodeId(t, r), target = nid && visible[nid];
     if (nid && !target) { var it = findNode(roots, nid); var p = it && it.parent; while (p && !visible[p.id]) p = p.parent; target = p ? visible[p.id] : null; }
@@ -937,7 +946,7 @@ function stepForces(){
   });
 }
 function paintForces(){
-  mapLayout.nodes.forEach(function(n){ if (n.el) n.el.setAttribute("transform", "translate(" + (n.x - n.w / 2) + " " + (n.y - 14) + ")"); if (!n.fixed) mapPos[n.id] = { x: n.x, y: n.y }; });
+  mapLayout.nodes.forEach(function(n){ if (n.el) n.el.setAttribute("transform", "translate(" + (n.x - n.w / 2) + " " + (n.y - (n.h || 28) / 2) + ")"); if (!n.fixed) mapPos[n.id] = { x: n.x, y: n.y }; });
   mapLayout.edges.forEach(function(e){ if (e.el) e.el.setAttribute("d", "M" + e.a.x + " " + e.a.y + " L" + e.b.x + " " + e.b.y); });
   mapLayout.deps.forEach(function(e){ if (e.el) { var mx = (e.a.x + e.b.x) / 2, my = (e.a.y + e.b.y) / 2 - 30; e.el.setAttribute("d", "M" + e.a.x + " " + e.a.y + " Q" + mx + " " + my + " " + e.b.x + " " + e.b.y); } });
 }
@@ -956,7 +965,7 @@ function runSim(heat){
 function ringSvg(t){
   var R = clock.R, out = '<g class="ring"><circle cx="0" cy="0" r="' + R + '"/>';
   var m = monday(t.start);
-  while (m <= t.end) {
+  if (clock.pts.length) while (m <= t.end) {
     var a = clockAngle(m, "00:00"), c = Math.cos(a), s = Math.sin(a);
     out += '<line x1="' + (c * (R - 8)) + '" y1="' + (s * (R - 8)) + '" x2="' + (c * (R + 8)) + '" y2="' + (s * (R + 8)) + '"/>' +
       '<text x="' + (c * (R - 26)) + '" y="' + (s * (R - 26) + 4) + '" text-anchor="middle">v' + isoWeek(m) + '</text>';
@@ -976,23 +985,22 @@ function svgGraph(t){
   g.deps = depEdges(t, g.visible).map(function(e){ return { a: e[0], b: e[1] }; });
   mapLayout = g;
   var cur = currentSet(t), sel = resolveSel(t);
-  var edges = g.edges.map(function(e, i){ return '<path class="ge' + (e.time ? ' tl' : '') + '" data-edge="' + i + '" style="' + colorVars(e.a.code) + '" d="M0 0"/>'; }).join("");
-  var dep = g.deps.map(function(e, i){ return '<path class="ge dep" data-dep="' + i + '" marker-end="url(#arrb)" d="M0 0"><title>Watch before the session</title></path>'; }).join("");
+  var edges = g.edges.map(function(e, i){ return '<path class="ge' + (e.time ? ' tl' : '') + '" data-edge="' + i + '" data-a="' + esc(e.a.id) + '" data-b="' + esc(e.b.id) + '" style="' + colorVars(e.a.code) + '" d="M0 0"/>'; }).join("");
+  var dep = g.deps.map(function(e, i){ return '<path class="ge dep" data-dep="' + i + '" data-a="' + esc(e.a.id) + '" data-b="' + esc(e.b.id) + '" marker-end="url(#arrb)" d="M0 0"><title>Watch before the session</title></path>'; }).join("");
   var nodes = g.nodes.map(function(n){
     var isSel = n.kind === "time" ? !!sel.rows[n.key] : n.id === sel.node;
-    if (n.kind === "time") n.w = isSel ? Math.max(80, Math.min(n.label.length, 30) * 6.4 + 40) : 80;
-    var cls = "gn " + n.kind + (isSel ? " sel" : "") + (cur[n.id] ? " cur" : "") + (n.tick && state.checked[n.tick] ? " done" : "") + (n.tick && state.muted[n.tick] ? " muted" : "") +
+    var cls = "gn " + n.kind + (isSel ? " sel" : "") + (cur[n.id] ? " cur" : "") + (n.kind === "time" && n.row.level === "must" ? " must" : "") + (n.tick && state.checked[n.tick] ? " done" : "") + (n.tick && state.muted[n.tick] ? " muted" : "") +
       (n.kind === "time" ? " " + n.row.kind + (n.row.id && state.checked[n.row.id] ? " done" : "") + (n.row.id && state.muted[n.row.id] ? " muted" : "") : "");
     var must = (n.item && itemLevel(n.code, n.item) === "must") || (n.kind === "time" && n.row.level === "must");
     var badge = n.kind !== "item" && n.kind !== "time" && !n.open ? '<text class="badge" x="' + (n.w - 8) + '" y="18" text-anchor="end">' + leafItems(n).length + '</text>' : "";
     var icon = n.kind === "item" ? '<use href="#i-' + (KIND_ICON[n.item.kind] || "book-open") + '" x="' + (must ? 16 : 8) + '" y="7" width="14" height="14"/>'
-      : n.kind === "time" ? '<use href="#i-' + (n.row.kind === "session" ? (SESSION_ICON[n.row.skind] || "calendar") : n.row.kind === "deadline" ? (KIND_ICON[n.row.akind] || "upload-simple") : "clipboard-text") + '" x="' + (must ? 16 : 8) + '" y="7" width="14" height="14"/>' : "";
-    var tx = n.kind === "item" || n.kind === "time" ? (must ? 34 : 26) : (must ? 18 : 12);
+      : n.kind === "time" ? '<use href="#i-' + (n.row.kind === "session" ? (SESSION_ICON[n.row.skind] || "calendar") : n.row.kind === "deadline" ? (KIND_ICON[n.row.akind] || "upload-simple") : "clipboard-text") + '" x="6" y="4" width="12" height="12"/>' : "";
+    var tx = n.kind === "time" ? 21 : n.kind === "item" ? (must ? 34 : 26) : (must ? 18 : 12);
     var rx = n.kind === "course" ? 14 : n.kind === "module" ? 5 : n.kind === "section" ? 9 : 14;
     var ids = ' data-node="' + esc(n.id) + '"' + (n.tick ? ' data-id="' + esc(n.tick) + '"' : n.kind === "time" && n.row.id ? ' data-id="' + esc(n.row.id) + '"' : '');
     return '<g class="' + cls + '"' + ids + ' style="' + colorVars(n.code) + '">' +
-      '<title>' + esc(n.label) + '</title><rect rx="' + rx + '" width="' + n.w + '" height="28"/>' + (must ? '<circle class="must" cx="10" cy="14" r="3"/>' : '') + icon +
-      '<text x="' + tx + '" y="18">' + esc(n.kind === "time" && !isSel ? n.short : trunc(n.label, n.kind === "item" ? 26 : n.kind === "time" ? 30 : 24)) + '</text>' + badge + '</g>';
+      '<title>' + esc(n.label) + '</title><rect rx="' + rx + '" width="' + n.w + '" height="' + (n.h || 28) + '"/>' + (must && n.kind !== "time" ? '<circle class="must" cx="10" cy="14" r="3"/>' : '') + icon +
+      '<text x="' + tx + '" y="' + (n.kind === "time" ? 14 : 18) + '">' + esc(n.kind === "time" ? n.short : trunc(n.label, n.kind === "item" ? 26 : 24)) + '</text>' + badge + '</g>';
   }).join("");
   return '<svg id="gsvg" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--now)"/></marker></defs>' +
     '<g id="gpan">' + ringSvg(t) + edges + dep + nodes + '</g></svg>';
@@ -1092,7 +1100,7 @@ function detailFor(t, key){
 function renderMapView(t){
   return '<section><div class="map">' +
     '<div class="card"><h3>' + ic("calendar-dot") + 'Coming up</h3><div class="rail-list" id="rail">' + railList(t) + '</div></div>' +
-    '<div class="card"><h3>' + ic("tree-structure") + 'Canvas map <span class="why" style="display:inline;text-transform:none;letter-spacing:0;font-weight:400">click a module to open it, drag a node to move it, drag the background to pan, scroll to zoom</span></h3>' +
+    '<div class="card"><h3>' + ic("tree-structure") + 'Canvas map <span class="why" style="display:inline;text-transform:none;letter-spacing:0;font-weight:400">hover or click a node to see its links, click a module to open it, drag to pan, scroll to zoom</span></h3>' +
       '<div class="gwrap" id="gwrap">' + svgGraph(t) + '<div class="gtools"><button type="button" id="g-fit" title="Fit the whole graph">' + ic("arrows-in", "sm") + 'Fit</button><button type="button" id="g-open" title="Open every module">' + ic("arrows-out", "sm") + 'Open all</button><button type="button" id="g-close" title="Close every module">Close all</button></div>' +
       '<div class="gnote">Clock: sessions, deadlines and tasks sit on the ring in date order, tied to their Canvas page. Inside, nodes repel and links attract. Blue tint: this week\u2019s material. Dashed: watch before the session. Red dot: MUST.</div></div></div>' +
     '<div class="card"><h3>' + ic("info") + 'Details</h3><div class="detail" id="detail">' + detailFor(t, state.mapSel) + '</div></div>' +
@@ -1105,6 +1113,8 @@ function wireGraph(){
   mapLayout.edges.forEach(function(e, i){ e.el = svg.querySelector('[data-edge="' + i + '"]'); });
   mapLayout.deps.forEach(function(e, i){ e.el = svg.querySelector('[data-dep="' + i + '"]'); });
   paintForces();
+  svg.addEventListener("pointerover", function(e){ var g = e.target.closest("[data-node]"); if (g) highlight(g.dataset.node); });
+  svg.addEventListener("pointerout", function(e){ var g = e.target.closest("[data-node]"); if (g) applySel(term()); });
 }
 function applyMapT(){ var g = document.getElementById("gpan"); if (g) g.setAttribute("transform", "translate(" + mapT.x + " " + mapT.y + ") scale(" + mapT.s + ")"); }
 function graphBounds(){
@@ -1124,21 +1134,57 @@ function centerMapOn(id){
   mapT.x = w.clientWidth / 2 - n.x * mapT.s; mapT.y = w.clientHeight / 2 - n.y * mapT.s; applyMapT();
 }
 function openPathTo(id){
-  if (!mapRoots) return;
-  (function walk(n, path){ if (n.id === id) { path.forEach(function(p){ if (p.id) state.mapOpen[p.id] = true; }); return true; } return (n.children || []).some(function(k){ return walk(k, path.concat([n])); }); })({ children: mapRoots, id: "" }, []);
-  lsSet(LS.mapOpen, JSON.stringify(state.mapOpen));
+  if (!mapRoots) return false;
+  var changed = false;
+  (function walk(n, path){ if (n.id === id) { path.forEach(function(p){ if (p.id && !state.mapOpen[p.id]) { state.mapOpen[p.id] = true; changed = true; } }); return true; } return (n.children || []).some(function(k){ return walk(k, path.concat([n])); }); })({ children: mapRoots, id: "" }, []);
+  if (changed) lsSet(LS.mapOpen, JSON.stringify(state.mapOpen));
+  return changed;
 }
-// Redraw graph and details without rebuilding the whole view, keeping the pan and zoom.
-function refreshMap(t, center){
-  var w = document.getElementById("gwrap"); if (!w) return;
-  w.querySelector("svg").outerHTML = svgGraph(t);
-  document.getElementById("detail").innerHTML = detailFor(t, state.mapSel);
+// Everything a node is linked to, up and down: ancestors, visible descendants, its events, its prep links.
+function chainOf(id){
+  var nodes = {}, edges = {}, n = mapLayout.nodes.find(function(x){ return x.id === id; });
+  if (!n) return { nodes: nodes, edges: edges };
+  function mark(x){ nodes[x.id] = true; }
+  mark(n);
+  var p = n.parent; while (p) { mark(p); p = p.parent; }
+  (function down(x){ (x.open ? x.children : []).forEach(function(k){ mark(k); down(k); }); })(n);
+  mapLayout.edges.concat(mapLayout.deps).forEach(function(e, i){
+    var touches = e.a === n || e.b === n, inChain = nodes[e.a.id] && nodes[e.b.id];
+    if (touches) { mark(e.a); mark(e.b); }
+    if (touches || inChain) edges[e.a.id + ">" + e.b.id] = true;
+  });
+  // an event's chain continues into its page's ancestors
+  if (n.kind === "time") mapLayout.edges.forEach(function(e){ if (e.a === n) { var q = e.b; while (q) { mark(q); if (q.parent) edges[q.parent.id + ">" + q.id] = true; q = q.parent; } } });
+  return { nodes: nodes, edges: edges };
+}
+function highlight(id){
+  var svg = document.getElementById("gsvg"); if (!svg) return;
+  if (!id) { svg.classList.remove("focus"); svg.querySelectorAll(".hl").forEach(function(el){ el.classList.remove("hl"); }); return; }
+  var c = chainOf(id);
+  svg.classList.add("focus");
+  mapLayout.nodes.forEach(function(n){ if (n.el) n.el.classList.toggle("hl", !!c.nodes[n.id]); });
+  mapLayout.edges.concat(mapLayout.deps).forEach(function(e){ if (e.el) e.el.classList.toggle("hl", !!c.edges[e.a.id + ">" + e.b.id]); });
+}
+// Apply the current selection to the three panes without touching the layout.
+function applySel(t){
   var sel = resolveSel(t);
+  mapLayout.nodes.forEach(function(n){ if (!n.el) return; n.el.classList.toggle("sel", n.kind === "time" ? !!sel.rows[n.key] : n.id === sel.node); });
+  document.getElementById("detail").innerHTML = detailFor(t, state.mapSel);
   document.querySelectorAll("#rail .ev").forEach(function(b){ b.setAttribute("aria-current", String(!!sel.rows[b.dataset.ev])); b.classList.toggle("rel", !!sel.related[b.dataset.ev]); });
   var cur = document.querySelector('#rail .ev[aria-current="true"], #rail .ev.rel'); if (cur && cur.scrollIntoView) cur.scrollIntoView({ block: "nearest" });
-  wireGraph(); applyMapT(); bindSvg(); applyState();
-  runSim(0.8);
-  if (center) setTimeout(function(){ centerMapOn(center); }, 350);
+  var focusId = sel.node || (state.mapSel && mapLayout.nodes.some(function(n){ return n.kind === "time" && n.key === state.mapSel; }) ? "t:" + state.mapSel : null);
+  highlight(focusId);
+  applyState();
+}
+// Rebuild the graph only when its structure changed (a module opened or closed); otherwise just re-mark.
+function refreshMap(t, center, structural){
+  var w = document.getElementById("gwrap"); if (!w) return;
+  if (structural) {
+    w.querySelector("svg").outerHTML = svgGraph(t);
+    wireGraph(); applyMapT(); bindSvg(); runSim(0.8);
+  }
+  applySel(t);
+  if (center) setTimeout(function(){ centerMapOn(center); }, structural ? 350 : 0);
 }
 function bindSvg(){
   var svg = document.getElementById("gsvg"); if (!svg) return;
@@ -1148,41 +1194,39 @@ function bindSvg(){
     if (e.button !== 0) return;
     var g = e.target.closest("[data-node]"), n = g && mapLayout.nodes.find(function(x){ return x.id === g.dataset.node; });
     drag = { x: e.clientX, y: e.clientY, tx: mapT.x, ty: mapT.y, moved: false, node: n || null };
-    if (n && !n.fixed) { sim.pinned = n; runSim(0.3); }
     svg.setPointerCapture(e.pointerId); svg.classList.add("drag");
   });
   svg.addEventListener("pointermove", function(e){
     if (!drag) return;
     var dx = e.clientX - drag.x, dy = e.clientY - drag.y; if (Math.abs(dx) + Math.abs(dy) > 3) drag.moved = true;
-    if (drag.node && !drag.node.fixed) { var p = toGraph(e); drag.node.x = p.x; drag.node.y = p.y; sim.alpha = Math.max(sim.alpha, 0.3); }
-    else { mapT.x = drag.tx + dx; mapT.y = drag.ty + dy; applyMapT(); }
+    mapT.x = drag.tx + dx; mapT.y = drag.ty + dy; applyMapT();
   });
   svg.addEventListener("pointerup", function(e){
     var wasDrag = drag && drag.moved, node = drag && drag.node; drag = null; svg.classList.remove("drag");
-    sim.pinned = null; if (node) runSim(0.3);
     if (wasDrag || !node) return;
     var id = node.id, t = term();
-    if (node.kind === "time") { state.mapSel = node.key; var nid = rowNodeId(t, node.row); if (nid) openPathTo(nid); refreshMap(t, nid); return; }
-    if (id.charAt(0) !== "i") { state.mapOpen[id] = !state.mapOpen[id]; lsSet(LS.mapOpen, JSON.stringify(state.mapOpen)); }
-    state.mapSel = id; refreshMap(t);
+    if (node.kind === "time") { state.mapSel = node.key; var nid = rowNodeId(t, node.row), opened = nid ? openPathTo(nid) : false; refreshMap(t, null, opened); return; }
+    var structural = false;
+    if (id.charAt(0) !== "i") { state.mapOpen[id] = !state.mapOpen[id]; lsSet(LS.mapOpen, JSON.stringify(state.mapOpen)); structural = true; }
+    state.mapSel = id; refreshMap(t, null, structural);
   });
   svg.addEventListener("wheel", function(e){ e.preventDefault(); var r = svg.getBoundingClientRect(), px = e.clientX - r.left, py = e.clientY - r.top, f = e.deltaY < 0 ? 1.12 : 1 / 1.12, s = Math.min(3, Math.max(.25, mapT.s * f)); mapT.x = px - (px - mapT.x) * (s / mapT.s); mapT.y = py - (py - mapT.y) * (s / mapT.s); mapT.s = s; applyMapT(); }, { passive: false });
 }
 function gotoKey(t, key){
   var row = timeline(t).find(function(r){ return (r.id || r.key) === key; });
   var nid = row ? rowNodeId(t, row) : (findNode(mapRoots, key) ? key : null);
-  if (nid) openPathTo(nid);
+  var opened = nid ? openPathTo(nid) : false;
   state.mapSel = key;
-  refreshMap(t, nid);
+  refreshMap(t, nid, opened);
 }
 function bindMap(t){
-  wireGraph(); bindSvg(); runSim(1); setTimeout(fitMap, 700);
+  wireGraph(); bindSvg(); applySel(t); runSim(1); setTimeout(fitMap, 700);
   document.getElementById("termbody").addEventListener("click", function(e){
     var b = e.target.closest("button"); if (!b) return;
     if (b.dataset.ev) gotoKey(t, b.dataset.ev);
     else if (b.dataset.goto) gotoKey(t, b.dataset.goto);
     else if (b.id === "g-fit") fitMap();
-    else if (b.id === "g-open" || b.id === "g-close") { allNodes(mapRoots).forEach(function(n){ if (n.kind !== "item" && n.kind !== "time") state.mapOpen[n.id] = b.id === "g-open" || n.kind === "course"; }); lsSet(LS.mapOpen, JSON.stringify(state.mapOpen)); refreshMap(t); setTimeout(fitMap, 700); }
+    else if (b.id === "g-open" || b.id === "g-close") { allNodes(mapRoots).forEach(function(n){ if (n.kind !== "item" && n.kind !== "time") state.mapOpen[n.id] = b.id === "g-open" || n.kind === "course"; }); lsSet(LS.mapOpen, JSON.stringify(state.mapOpen)); refreshMap(t, null, true); setTimeout(fitMap, 700); }
   });
 }
 
