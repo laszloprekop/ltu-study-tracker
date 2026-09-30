@@ -148,11 +148,11 @@ body:not(.noping) .endangered:not(.done):not(.muted) .box .ring{display:block}
 .tag{display:inline-block; font-size:10.5px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:var(--muted); background:var(--bg); padding:0 5px; margin-left:6px; vertical-align:1px; white-space:nowrap}
 .tag.expected{color:var(--now); border-color:transparent; background:var(--now-soft)}
 .tag.pts{color:var(--ink)}
-a.tag.feeds{text-decoration:none; color:var(--alert); border-color:var(--alert-soft); background:var(--alert-soft)}
-a.tag.feeds:hover{border-color:var(--alert)}
+a.tag.feeds{text-decoration:none; color:var(--alert); background:var(--alert-soft)}
+a.tag.feeds:hover{text-decoration:underline}
 .lvl{display:inline-block; font-size:9.5px; font-weight:700; letter-spacing:.08em; padding:0 4px; margin-right:7px; vertical-align:1px; line-height:1.5}
-.lvl.must{color:var(--alert); border:1px solid var(--alert)}
-.lvl.nice{color:var(--muted); border:1px dashed var(--muted); opacity:.75}
+.lvl.must{color:var(--alert); background:var(--alert-soft)}
+.lvl.nice{color:var(--muted); background:var(--bg); opacity:.85}
 .est{color:var(--muted); font-size:12px; white-space:nowrap}
 .mute{flex:0 0 auto; display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; border:0; background:none; color:var(--muted); opacity:.4; cursor:pointer; border-radius:50%; padding:0}
 .mute:hover,.muted .mute{opacity:1}
@@ -392,7 +392,7 @@ svg.focus .ge.tl.hl{opacity:.5; stroke-width:1.4}
 .ge.lvitem{stroke-width:1; opacity:.08}
 .ge.dep{stroke:var(--now); stroke-dasharray:4 3; opacity:.08}
 .ge.dep.need{stroke:var(--alert); stroke-dasharray:2 3}
-.legend-g{position:absolute; left:10px; top:10px; background:var(--bg); padding:5px 9px; font-size:11px; color:var(--muted); display:flex; flex-direction:column; gap:4px; max-width:300px}
+.legend-g{position:absolute; left:10px; top:10px; background:color-mix(in srgb, var(--bg) 78%, transparent); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); padding:5px 9px; font-size:11px; color:var(--muted); display:flex; flex-direction:column; gap:4px; max-width:300px}
 .legend-g[open]{padding:8px 10px}
 .legend-g .lt{font-size:10px; letter-spacing:.08em; text-transform:uppercase; font-weight:600; cursor:pointer; list-style:none; display:flex; align-items:center; gap:4px}
 .legend-g .lt::-webkit-details-marker{display:none}
@@ -409,7 +409,7 @@ svg.focus .ge.tl.hl{opacity:.5; stroke-width:1.4}
 .legend-g .lp.t{background:var(--muted)}
 .legend-g .dot{width:7px; height:7px; border-radius:50%; background:var(--alert); display:inline-block; margin-right:2px}
 .legend-g .sw{width:14px; height:10px; display:inline-block; margin-right:2px}
-.legend-g .sw.now{background:var(--now-soft); border:1px solid var(--now)}
+.legend-g .sw.now{background:var(--now-soft)}
 .legend-g .sw.wedge{background:var(--now); opacity:.35}
 .legend-g .ln{width:18px; height:0; border-top:1.5px solid var(--muted); display:inline-block; margin-right:2px}
 .legend-g .ln.dep{border-top:1.5px dashed var(--now)}
@@ -442,12 +442,9 @@ svg.focus .ge.tl.hl{opacity:.5; stroke-width:1.4}
 .pop .panel{filter:drop-shadow(0 6px 14px rgba(0,0,0,.18))}
 .rail-card.slim{background:none}
 .rail-card.slim::before{background:color-mix(in srgb, var(--surface) 86%, transparent); clip-path:none}
-/* Everything else is cut directly; --bev is the size of the cut. */
-.seg,.pop summary,.gtools button,.gtools .reach,.legend-g,.detail .multi button,.dayctl input[type=date],.dayctl button,.hours input[type=time],.rail-tip,.ann,.tag,.lvl,.chip,.flag,.links a,.quick a,.rail-list .ev{clip-path:polygon(0 0, calc(100% - var(--bev, 7px)) 0, 100% var(--bev, 7px), 100% 100%, 0 100%)}
+/* Only large surfaces get the cut; on a button or a label it reads as a glitch, so those stay plain squares. */
+.legend-g,.ann{clip-path:polygon(0 0, calc(100% - var(--bev, 8px)) 0, 100% var(--bev, 8px), 100% 100%, 0 100%)}
 .legend-g{--bev:10px}
-.ann{--bev:8px}
-.tag,.lvl,.chip,.flag,.links a{--bev:4px}
-.rail-list .ev{--bev:6px}
 
 @media (max-width:900px){ body.mapview{overflow:auto} body.mapview .wrap{height:auto} .map,.map.rail-slim{grid-template-columns:1fr; height:auto} .map .rail-list{max-height:220px} .gwrap{height:50vh} .detail{max-height:60vh}
   .rail-card.slim{position:static; width:auto; flex-direction:row; padding:0 6px} .rail-dots{flex-direction:row; height:40px; padding:0 8px} .rail-dots::before{left:10px; right:10px; top:50%; bottom:auto; width:auto; height:2px; margin:-1px 0 0} .rail-dots .dot{flex:0 1 16px; min-height:0; min-width:7px; width:auto; height:100%} .rail-dots .dot.gap{margin:0 0 0 3px} .rail-dots .dot.now::before{left:-2px; right:auto; top:8px; bottom:8px; width:2px; height:auto} }
