@@ -1080,7 +1080,8 @@ function ringSvg(t){
     var a0, a1;
     if (idx.length) { var pad = Math.PI / clock.rows.length * 0.9; a0 = clock.pts[idx[0]].ang - pad; a1 = clock.pts[idx[idx.length - 1]].ang + pad; }
     else { var ta = clockAngle(today, "12:00"); a0 = ta - 0.0025; a1 = ta + 0.0025; }
-    var mid = (a0 + a1) / 2, r0 = inner + 4, r1 = R + 48, large = (a1 - a0) > Math.PI ? 1 : 0;
+    // the wedge lives in the gap between the material and the pills, never under them
+    var mid = (a0 + a1) / 2, r0 = inner + 6, r1 = R + 6, large = (a1 - a0) > Math.PI ? 1 : 0;
     var P = function(r, a){ return (Math.cos(a) * r).toFixed(1) + " " + (Math.sin(a) * r).toFixed(1); };
     out += '<g class="now' + (idx.length ? '' : ' empty') + '">' +
       '<path class="wedge" d="M' + P(r0, a0) + ' L' + P(r1, a0) + ' A' + r1 + ' ' + r1 + ' 0 ' + large + ' 1 ' + P(r1, a1) + ' L' + P(r0, a1) + ' A' + r0 + ' ' + r0 + ' 0 ' + large + ' 0 ' + P(r0, a0) + ' Z"/>' +
