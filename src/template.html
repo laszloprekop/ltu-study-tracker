@@ -76,6 +76,7 @@ h1{font-size:20px; letter-spacing:-.015em; margin-right:6px}
 .seg button:first-child{border-left:0}
 .seg button[aria-pressed="true"]{color:var(--on-now); background:var(--now); box-shadow:none}
 .seg button[aria-pressed="true"] .ic{fill:var(--on-now)}
+#filter button[data-filter]:not([data-filter="all"])[aria-pressed="true"]{background:var(--cc)}
 .seg.tools button{padding-inline:8px}
 .seg.tools .lbl + button{border-left:0}
 .seg.tools button[aria-pressed="true"]{color:var(--on-now); background:var(--now)}
@@ -873,7 +874,7 @@ function renderTabs(){
 function renderFilter(t){
   var el = document.getElementById("filter");
   el.hidden = t.courses.length < 2;
-  el.innerHTML = '<button type="button" id="f-all" data-filter="all">All</button>' + t.courses.map(function(c){ return '<button type="button" id="f-' + c + '" data-filter="' + c + '">' + esc(label(c)) + '</button>'; }).join("");
+  el.innerHTML = '<button type="button" id="f-all" data-filter="all">All</button>' + t.courses.map(function(c){ return '<button type="button" id="f-' + c + '" data-filter="' + c + '" style="' + colorVars(c) + '">' + esc(label(c)) + '</button>'; }).join("");
   if (state.filter !== "all" && t.courses.indexOf(state.filter) < 0) state.filter = "all";
 }
 function renderTermLine(t){
