@@ -325,8 +325,8 @@ svg.focus .ge.tl.hl{stroke:var(--now)}
 .gn .gl.big{font-size:13px; letter-spacing:.04em}
 .gn .gl.small{font-size:10.5px}
 .gn .gl.mod{font-size:10.5px; letter-spacing:.02em}
-.gn.module .lab{font-size:11px; font-weight:600; fill:var(--ink)}
-.gn .lab{font-size:10.5px; fill:var(--muted); paint-order:stroke; stroke:var(--surface); stroke-width:3px; stroke-linejoin:round; pointer-events:none}
+.gn.module .lab{font-size:calc(11px * var(--labscale, 1)); font-weight:600; fill:var(--ink)}
+.gn .lab{font-size:calc(10.5px * var(--labscale, 1)); fill:var(--muted); paint-order:stroke; stroke:var(--surface); stroke-width:3px; stroke-linejoin:round; pointer-events:none}
 .gn.sel .lab,.gn.hover .lab{display:none}
 .gn.item .lab,.gn.section .lab{display:none}
 .gn.item.hl .lab,.gn.section.hl .lab{display:block}
@@ -359,7 +359,7 @@ svg.focus .ge.tl.hl{opacity:.5; stroke-width:1.4}
 .gn.sel rect{stroke:var(--now); stroke-width:3}
 .gn .must{fill:var(--alert)}
 .gn .badge{font-size:10px; fill:var(--muted); font-weight:600}
-.gn .sub,.gn.time .sub{display:none; font-size:11px; font-weight:600; fill:var(--ink); paint-order:stroke; stroke:var(--surface); stroke-width:4px; stroke-linejoin:round; pointer-events:none}
+.gn .sub,.gn.time .sub{display:none; font-size:calc(11px * var(--labscale, 1)); font-weight:600; fill:var(--ink); paint-order:stroke; stroke:var(--surface); stroke-width:4px; stroke-linejoin:round; pointer-events:none}
 .gn.sel .sub,.gn.hover .sub{display:block}
 .ge{stroke:var(--muted); stroke-width:1.2; fill:none; opacity:.7}
 /* thick and faint near the trunk, thin and firmer toward the leaves */
@@ -1274,7 +1274,13 @@ function wireGraph(){
   });
   svg.addEventListener("pointerout", function(e){ var g = e.target.closest("[data-node]"); if (g) { g.classList.remove("hover"); document.getElementById("detail").classList.remove("preview"); applySel(term()); } });
 }
-function applyMapT(){ var g = document.getElementById("gpan"); if (g) g.setAttribute("transform", "translate(" + mapT.x + " " + mapT.y + ") scale(" + mapT.s + ")"); }
+function applyMapT(){
+  var g = document.getElementById("gpan"); if (!g) return;
+  g.setAttribute("transform", "translate(" + mapT.x + " " + mapT.y + ") scale(" + mapT.s + ")");
+  // label size in graph units follows zoom^-0.65: at 2x zoom the titles grow only ~1.3x on screen, so they stop colliding
+  var ls = Math.min(1.6, Math.max(0.45, Math.pow(mapT.s, -0.65)));
+  g.style.setProperty("--labscale", ls.toFixed(3));
+}
 function graphBounds(){
   var r = clock.R + 90;
   return { x0: -r, x1: r, y0: -r, y1: r };
