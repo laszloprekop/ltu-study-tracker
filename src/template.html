@@ -585,7 +585,7 @@ function deadlineRows(t){
     Object.keys(groups).forEach(function(g){
       var q = groups[g]; q.list.sort(function(x, y){ return (x.number || "").localeCompare(y.number || "", undefined, { numeric: true }); });
       var total = q.list.reduce(function(s, a){ return s + (a.points || 0); }, 0);
-      rows.push({ kind: "deadline", level: "must", id: "d:" + g, code: q.code, date: q.due, time: q.dueTime, akind: "quiz",
+      rows.push({ kind: "deadline", level: "must", id: "d:" + g, code: q.code, date: q.due, time: q.dueTime, akind: "quiz", aids: q.list.map(function(a){ return a.id; }),
         title: "All " + q.list.length + " module quizzes close " + q.dueTime, pts: total ? total + " p" : "", why: t.notes[q.code + ":quizzes"] || "",
         links: q.list.map(function(a){ return [a.title.replace(/module (\d+) quiz/i, "Quiz $1"), a.url]; }) });
     });
@@ -932,10 +932,13 @@ function buildForceGraph(t, roots){
     var n = { id: "t:" + key, kind: "time", code: r.code, row: r, key: key, label: dayLabel(r.date) + " " + r.title, short: dayLabel(r.date), fixed: true, x: Math.cos(ang) * rr, y: Math.sin(ang) * rr, vx: 0, vy: 0 };
     n.w = 60; n.h = 20; nodes.push(n);
     // tie it to the page it points at, or to the deepest visible ancestor of that page
-    var nid = rowNodeId(t, r), target = nid && visible[nid];
-    if (nid && !target) { var it = findNode(roots, nid); var p = it && it.parent; while (p && !visible[p.id]) p = p.parent; target = p ? visible[p.id] : null; }
-    if (!target) target = visible["c:" + r.code];
-    if (target) edges.push({ a: n, b: target, len: 60, k: 0.03, time: true, loose: !(nid && visible[nid]) });
+    var nids = rowNodeIds(t, r);
+    if (!nids.length) { var c0 = visible["c:" + r.code]; if (c0) edges.push({ a: n, b: c0, len: 60, k: 0.03, time: true, loose: true }); }
+    nids.forEach(function(nid){
+      var target = visible[nid];
+      if (!target) { var it = findNode(roots, nid); var p = it && it.parent; while (p && !visible[p.id]) p = p.parent; target = p ? visible[p.id] : visible["c:" + r.code]; }
+      if (target) edges.push({ a: n, b: target, len: 60, k: 0.03 / nids.length, time: true, loose: !visible[nid] });
+    });
   });
 
   // starting positions: remembered ones, else a ring around the parent
@@ -1073,6 +1076,10 @@ function railList(t){
   return out || '<div class="none" style="padding:10px 14px">Nothing ahead in this study period.</div>';
 }
 // What the rail's event points at in the graph: a session's page, a deadline's assignment, a task's target.
+function rowNodeIds(t, r){
+  if (r.kind === "deadline" && r.aids) return items(r.code).filter(function(i){ return r.aids.indexOf(i.assignmentId) >= 0; }).map(function(i){ return nodeIdOf(r.code, i); });
+  var one = rowNodeId(t, r); return one ? [one] : [];
+}
 function rowNodeId(t, r){
   if (r.kind === "session" && r.ref) { var it = itemByNumber(r.code, r.ref); return it ? nodeIdOf(r.code, it) : null; }
   if (r.kind === "deadline" && r.id.indexOf(":quizzes:") < 0) {
@@ -1089,10 +1096,10 @@ function resolveSel(t){
   var node = row ? null : findNode(mapRoots, key);
   out.node = row ? rowNodeId(t, row) : (node ? key : null);
   if (row) out.rows[key] = true;
-  if (out.node) rows.forEach(function(r){ if (rowNodeId(t, r) === out.node) out.rows[r.id || r.key] = true; });
+  if (out.node) rows.forEach(function(r){ if (rowNodeIds(t, r).indexOf(out.node) >= 0) out.rows[r.id || r.key] = true; });
   // related, shown lighter: sessions that need the item first; for a module, every event inside it
   if (node && node.kind === "item") rows.forEach(function(r){ if (r.kind === "session" && r.prep && r.prep.indexOf(node.item) >= 0) out.related[r.key] = true; });
-  if (node && node.kind === "module") rows.forEach(function(r){ var nid = rowNodeId(t, r); if (nid && node.children.some(function(c){ return c.id === nid; })) out.related[r.id || r.key] = true; });
+  if (node && node.kind === "module") rows.forEach(function(r){ var ids = rowNodeIds(t, r); if (ids.some(function(nid){ return leafItems(node).some(function(c){ return c.id === nid; }); })) out.related[r.id || r.key] = true; });
   return out;
 }
 function sessionKeyOf(s){ return "s:" + s.course + ":" + s.date + ":" + (s.start || ""); }
@@ -1113,7 +1120,7 @@ function detailFor(t, key){
     var nid = rowNodeId(t, row); if (nid && !node) node = findNode(mapRoots, nid);
     if (node) html += '<div class="sec">In Canvas</div>';
   } else if (node) {
-    var pointing = timeline(t).filter(function(r){ return rowNodeId(t, r) === node.id; });
+    var pointing = timeline(t).filter(function(r){ return rowNodeIds(t, r).indexOf(node.id) >= 0; });
     if (pointing.length) html += '<div class="sec">On the timeline</div><ul class="rel">' + pointing.map(function(r){ return '<li><button type="button" data-goto="' + esc(r.id || r.key) + '">' + esc(longDay(r.date) + (r.time ? " " + r.time : "") + ", " + r.title) + '</button></li>'; }).join("") + '</ul>'; 
   }
   if (node) {
