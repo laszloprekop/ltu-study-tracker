@@ -292,6 +292,9 @@ body.mapview footer p{margin:0 0 2px}
 .gtools button:disabled{opacity:.4; cursor:default}
 .gtools button:disabled:hover{color:var(--muted)}
 .gtools button[aria-pressed="true"]{color:var(--on-now); background:var(--now); border-color:var(--now)}
+.gtools .seg.mode{border-radius:6px}
+.gtools .seg.mode button{border-radius:0; border:0; border-left:1px solid var(--line); padding:4px 8px}
+.gtools .seg.mode button:first-child{border-left:0}
 .gtools button[aria-pressed="true"] .ic{fill:var(--on-now)}
 .gtools .reach{display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:var(--muted); background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:3px 8px}
 .gtools .reach input{width:70px; accent-color:var(--now); margin:0}
@@ -522,8 +525,8 @@ footer p{margin:0 0 6px}
 
 /* ---------- Helpers ---------- */
 const P = DATA.plan, INV = DATA.inventory, COURSES = P.COURSES, TEACHERS = P.TEACHERS, TERMS = P.TERMS, PROGRESS = DATA.progress || null;
-const LS = { hours: "ltu-plan-hours", ticks: "ltu-plan-ticks", muted: "ltu-plan-muted", filter: "ltu-plan-filter", term: "ltu-plan-term", view: "ltu-plan-view", open: "ltu-plan-open", weeks: "ltu-plan-weeks", size: "ltu-plan-size", ping: "ltu-plan-ping", colored: "ltu-plan-colored", theme: "ltu-plan-theme", mapOpen: "ltu-plan-map-open", mapPos: "ltu-plan-map-pos", mapAll: "ltu-plan-map-all", mapHops: "ltu-plan-map-hops", legacy: "lp2-shared-ticks" };
-const state = { checked: {}, muted: {}, filter: "all", term: null, view: "week", day: null, open: {}, weeks: {}, size: 100, ping: true, colored: true, theme: "system", hours: { start: "09:00", end: "17:00" }, mapOpen: null, mapSel: null, mapSels: [], mapAll: false, mapHops: 5 };
+const LS = { hours: "ltu-plan-hours", ticks: "ltu-plan-ticks", muted: "ltu-plan-muted", filter: "ltu-plan-filter", term: "ltu-plan-term", view: "ltu-plan-view", open: "ltu-plan-open", weeks: "ltu-plan-weeks", size: "ltu-plan-size", ping: "ltu-plan-ping", colored: "ltu-plan-colored", theme: "ltu-plan-theme", mapOpen: "ltu-plan-map-open", mapPos: "ltu-plan-map-pos", mapAll: "ltu-plan-map-all", mapHops: "ltu-plan-map-hops", mapMode: "ltu-plan-map-mode", legacy: "lp2-shared-ticks" };
+const state = { checked: {}, muted: {}, filter: "all", term: null, view: "week", day: null, open: {}, weeks: {}, size: 100, ping: true, colored: true, theme: "system", hours: { start: "09:00", end: "17:00" }, mapOpen: null, mapSel: null, mapSels: [], mapAll: false, mapHops: 5, mapMode: "select" };
 let store = null, saveTimer = null;
 
 function esc(s){ return String(s == null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
@@ -1242,8 +1245,9 @@ function renderMapView(t){
   if (!state.mapSel) { var today = todayIso(), first = timeline(t).find(function(r){ return r.date >= today; }); if (first) selectKey(first.id || first.key, false); }
   return '<section><div class="map">' +
     '<div class="card"><h3>' + ic("calendar-dot") + 'Coming up</h3><div class="rail-list" id="rail">' + railList(t) + '</div></div>' +
-    '<div class="card"><h3>' + ic("tree-structure") + 'Canvas map <span class="why" style="display:inline;text-transform:none;letter-spacing:0;font-weight:400">hover or click a node to see its links, shift-click to select several, click a module to open it, drag to pan, scroll to zoom</span></h3>' +
-      '<div class="gwrap" id="gwrap">' + svgGraph(t) + '<div class="gtools"><button type="button" id="g-fit" title="Fit the whole graph">' + ic("arrows-in", "sm") + 'Fit</button><button type="button" id="g-open" title="Open every module"' + (state.mapAll ? ' disabled' : '') + '>Open all</button><button type="button" id="g-close" title="Close every module"' + (state.mapAll ? ' disabled' : '') + '>Close all</button><button type="button" id="g-settle" title="Forget the saved positions and lay the material out afresh">Re-settle</button><button type="button" id="g-all" title="Draw closed modules and sections open too; their contents stay faded until they join a chain" aria-pressed="' + (state.mapAll ? "true" : "false") + '">Unhide closed</button>' +
+    '<div class="card"><h3>' + ic("tree-structure") + 'Canvas map <span class="why" style="display:inline;text-transform:none;letter-spacing:0;font-weight:400">hover or click a node to see its links, shift-click to select several, drag to pan, scroll to zoom</span></h3>' +
+      '<div class="gwrap" id="gwrap">' + svgGraph(t) + '<div class="gtools"><button type="button" id="g-fit" title="Fit the whole graph">' + ic("arrows-in", "sm") + 'Fit</button><button type="button" id="g-open" title="Open every module"' + (state.mapAll ? ' disabled' : '') + '>Open all</button><button type="button" id="g-close" title="Close every module"' + (state.mapAll ? ' disabled' : '') + '>Close all</button><button type="button" id="g-settle" title="Forget the saved positions and lay the material out afresh">Re-settle</button><span class="seg mode" role="group" aria-label="What a click on a module does"><button type="button" id="g-mode-select" data-mode="select" title="Clicking a module or section selects it" aria-pressed="' + (state.mapMode === "select" ? "true" : "false") + '">Select</button><button type="button" id="g-mode-fold" data-mode="fold" title="Clicking a module or section opens or closes it" aria-pressed="' + (state.mapMode === "fold" ? "true" : "false") + '"' + (state.mapAll ? ' disabled' : '') + '>Close</button></span>' +
+      '<button type="button" id="g-all" title="Draw closed modules and sections open too; their contents stay faded until they join a chain" aria-pressed="' + (state.mapAll ? "true" : "false") + '">' + ic(state.mapAll ? "eye" : "eye-slash") + '</button>' +
       '<label class="reach" title="How far a highlighted chain reaches from the node: link steps in either direction, the jump to the ring counts as one"><span>Reach</span><input type="range" id="g-hops" min="1" max="5" step="1" value="' + state.mapHops + '"><b id="g-hops-v">' + hopsLabel() + '</b></label></div>' +
       '<details class="legend-g" data-key="legend"' + (state.open.legend === false ? '' : ' open') + '><summary class="lt">' + ic("caret-down", "sm caret") + 'Legend</summary>' +
         '<div><svg class="lg" viewBox="-14 -14 28 28"><circle r="11" class="c"/></svg>course <svg class="lg" viewBox="-14 -14 28 28"><circle r="8" class="c"/></svg>module <svg class="lg" viewBox="-14 -14 28 28"><circle r="6" class="c d"/></svg>section <svg class="lg" viewBox="-14 -14 28 28"><circle r="4.5" class="c"/></svg>item</div>' +
@@ -1363,7 +1367,7 @@ function bindSvg(){
     var add = e.shiftKey || e.metaKey || e.ctrlKey;
     if (node.kind === "time") { selectKey(node.key, add); var nid = rowNodeId(t, node.row), opened = nid ? openPathTo(nid) : false; refreshMap(t, null, opened); return; }
     var structural = false;
-    if (id.charAt(0) !== "i" && !state.mapAll && !add) { state.mapOpen[id] = !state.mapOpen[id]; lsSet(LS.mapOpen, JSON.stringify(state.mapOpen)); structural = true; }
+    if (id.charAt(0) !== "i" && state.mapMode === "fold" && !state.mapAll && !add) { state.mapOpen[id] = !state.mapOpen[id]; lsSet(LS.mapOpen, JSON.stringify(state.mapOpen)); structural = true; }
     selectKey(id, add); refreshMap(t, null, structural);
   });
   svg.addEventListener("wheel", function(e){ e.preventDefault(); var r = svg.getBoundingClientRect(), px = e.clientX - r.left, py = e.clientY - r.top, f = e.deltaY < 0 ? 1.12 : 1 / 1.12, s = Math.min(3, Math.max(.25, mapT.s * f)); mapT.x = px - (px - mapT.x) * (s / mapT.s); mapT.y = py - (py - mapT.y) * (s / mapT.s); mapT.s = s; applyMapT(); }, { passive: false });
@@ -1389,7 +1393,8 @@ function bindMap(t){
     else if (b.id === "sel-clear") { selectKey(null, false); refreshMap(t, null, false); }
     else if (b.id === "g-fit") fitMap();
     else if (b.id === "g-settle") { mapPos = {}; lsSet(LS.mapPos, "{}"); refreshMap(t, null, true); runSim(1); setTimeout(fitMap, 900); }
-    else if (b.id === "g-all") { state.mapAll = !state.mapAll; lsSet(LS.mapAll, state.mapAll ? "1" : "0"); b.setAttribute("aria-pressed", String(state.mapAll)); document.getElementById("g-open").disabled = state.mapAll; document.getElementById("g-close").disabled = state.mapAll; refreshMap(t, null, true); setTimeout(fitMap, 700); }
+    else if (b.id === "g-all") { state.mapAll = !state.mapAll; lsSet(LS.mapAll, state.mapAll ? "1" : "0"); b.setAttribute("aria-pressed", String(state.mapAll)); b.innerHTML = ic(state.mapAll ? "eye" : "eye-slash"); document.getElementById("g-open").disabled = state.mapAll; document.getElementById("g-close").disabled = state.mapAll; document.getElementById("g-mode-fold").disabled = state.mapAll; if (state.mapAll && state.mapMode === "fold") { state.mapMode = "select"; lsSet(LS.mapMode, "select"); document.getElementById("g-mode-select").setAttribute("aria-pressed", "true"); document.getElementById("g-mode-fold").setAttribute("aria-pressed", "false"); } refreshMap(t, null, true); setTimeout(fitMap, 700); }
+    else if (b.dataset.mode) { state.mapMode = b.dataset.mode; lsSet(LS.mapMode, state.mapMode); document.querySelectorAll("#gwrap .mode button").forEach(function(x){ x.setAttribute("aria-pressed", String(x.dataset.mode === state.mapMode)); }); }
     else if (b.id === "g-open" || b.id === "g-close") { allNodes(mapRoots).forEach(function(n){ if (n.kind !== "item" && n.kind !== "time") state.mapOpen[n.id] = b.id === "g-open" || n.kind === "course"; }); lsSet(LS.mapOpen, JSON.stringify(state.mapOpen)); refreshMap(t, null, true); setTimeout(fitMap, 700); }
   });
 }
@@ -1581,6 +1586,7 @@ var sv = lsGet(LS.view); if (sv === "day" || sv === "all" || sv === "week" || sv
 state.mapOpen = lsJson(LS.mapOpen);
 state.mapAll = lsGet(LS.mapAll) !== "0";   // on unless the viewer switched it off
 var hp = Number(lsGet(LS.mapHops)); if (hp >= 1 && hp <= 5) state.mapHops = hp;   // 5 means no limit
+if (lsGet(LS.mapMode) === "fold") state.mapMode = "fold";   // what a click on a module does: select it, or open/close it
 var savedTerm = lsGet(LS.term);
 state.term = TERMS.some(function(t){ return t.id === savedTerm; }) ? savedTerm : defaultTerm();
 applyDisplay();
