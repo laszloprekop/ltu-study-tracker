@@ -57,7 +57,7 @@ button{font:inherit}
 .ic.sm{width:1em; height:1em; vertical-align:-.15em}
 
 /* ---------- Header ---------- */
-header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; background:var(--bg); border-bottom:1px solid var(--line); padding-block:10px 8px; margin-bottom:12px; display:flex; flex-direction:column; gap:8px}
+header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; background:var(--bg); padding-block:10px 8px; margin-bottom:12px; display:flex; flex-direction:column; gap:8px}
 .hrow{display:flex; flex-wrap:wrap; gap:8px 14px; align-items:center}
 h1{font-size:20px; letter-spacing:-.015em; margin-right:6px}
 .terms{display:flex; flex-wrap:wrap; gap:4px 16px; align-items:baseline}
@@ -70,8 +70,8 @@ h1{font-size:20px; letter-spacing:-.015em; margin-right:6px}
 .bar{width:90px; height:5px; border-radius:99px; background:var(--line); overflow:hidden}
 .bar span{display:block; height:100%; width:0; background:var(--ok); transition:width .25s ease}
 .bar.matbar span{background:var(--now)}
-.seg{display:inline-flex; flex-wrap:wrap; border:1px solid var(--line); border-radius:7px; overflow:hidden; background:var(--surface)}
-.seg button,.seg .lbl{display:inline-flex; align-items:center; gap:5px; font-size:12.5px; font-weight:600; color:var(--muted); background:transparent; border:0; border-left:1px solid var(--line); padding:5px 10px; cursor:pointer}
+.seg{display:inline-flex; flex-wrap:wrap; border-radius:7px; overflow:hidden; background:var(--surface)}
+.seg button,.seg .lbl{display:inline-flex; align-items:center; gap:5px; font-size:12.5px; font-weight:600; color:var(--muted); background:transparent; border:0; padding:5px 10px; cursor:pointer}
 .seg .lbl{cursor:default; padding-inline:4px; border-left:0}
 .seg button:first-child{border-left:0}
 .seg button[aria-pressed="true"]{color:var(--on-now); background:var(--now); box-shadow:none}
@@ -80,17 +80,17 @@ h1{font-size:20px; letter-spacing:-.015em; margin-right:6px}
 .seg.tools button{padding-inline:8px}
 .seg.tools .lbl + button{border-left:0}
 .seg.tools button[aria-pressed="true"]{color:var(--on-now); background:var(--now)}
-.seg button:focus-visible,.jump:focus-visible,.terms button:focus-visible,input:focus-visible,.dayctl button:focus-visible,.mute:focus-visible,.fold:focus-visible,summary:focus-visible{outline:2px solid var(--now); outline-offset:1px}
+.seg button:focus-visible,.jump:focus-visible,.terms button:focus-visible,input:focus-visible,.dayctl button:focus-visible,.mute:focus-visible,.fold:focus-visible,summary:focus-visible{outline:2px solid var(--now); outline-offset:-2px}
 .pop{position:relative}
-.pop summary{list-style:none; display:inline-flex; align-items:center; gap:5px; font-size:12.5px; font-weight:600; color:var(--muted); background:var(--surface); border:1px solid var(--line); border-radius:7px; padding:5px 8px; cursor:pointer}
+.pop summary{list-style:none; display:inline-flex; align-items:center; gap:5px; font-size:12.5px; font-weight:600; color:var(--muted); background:var(--surface); border-radius:7px; padding:5px 8px; cursor:pointer}
 .pop summary::-webkit-details-marker{display:none}
 .pop[open] summary{color:var(--on-now); background:var(--now); border-color:var(--now)}
-.pop .panel{position:absolute; right:0; top:calc(100% + 6px); z-index:30; background:var(--surface); border:1px solid var(--line); border-radius:8px; box-shadow:0 6px 18px rgba(0,0,0,.14); padding:10px 12px; width:max-content; font-size:12.5px; color:var(--muted)}
+.pop .panel{position:absolute; right:0; top:calc(100% + 6px); z-index:30; background:var(--surface); border-radius:8px; box-shadow:0 6px 18px rgba(0,0,0,.14); padding:10px 12px; width:max-content; font-size:12.5px; color:var(--muted)}
 .pop .panel p{margin:0 0 6px}
 .pop.about .panel{width:min(540px, calc(100vw - 32px)); white-space:normal; font-size:13px; line-height:1.5; padding:14px 16px}
 .pop.about .panel h3{font-size:14px; color:var(--ink); margin-bottom:6px}
 .pop.about .panel p + p{margin-top:6px}
-.hours input[type=time]{font:inherit; font-size:12.5px; padding:2px 4px; border:1px solid var(--line); border-radius:5px; background:var(--surface); color:var(--ink)}
+.hours input[type=time]{font:inherit; font-size:12.5px; padding:2px 4px; border-radius:5px; background:var(--bg); color:var(--ink)}
 .jump{display:inline-flex; align-items:center; gap:4px; font-size:12.5px; font-weight:600; color:var(--now); text-decoration:none}
 .jump:hover{text-decoration:underline}
 
@@ -111,14 +111,14 @@ section{margin-bottom:30px}
 .sechead{display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; margin-bottom:12px}
 .sechead h2{font-size:17px; letter-spacing:-.01em}
 .sechead .note{color:var(--muted); font-size:13px}
-.card{background:var(--surface); border:1px solid var(--line); border-radius:10px; box-shadow:var(--shadow)}
+.card{background:var(--surface); border-radius:10px; box-shadow:var(--shadow)}
 .empty{padding:22px 18px; color:var(--muted)}
 .empty h3{color:var(--ink); font-size:15px; margin-bottom:6px}
 .empty p{margin:0; max-width:62ch}
 
 /* ---------- Rows ---------- */
 .rows{padding:6px 16px 10px}
-.dayhead{display:flex; flex-wrap:wrap; align-items:baseline; gap:4px 10px; font-size:11.5px; letter-spacing:.06em; text-transform:uppercase; font-weight:600; color:var(--muted); padding:12px 0 2px; border-top:1px solid var(--line); margin-top:4px}
+.dayhead{display:flex; flex-wrap:wrap; align-items:baseline; gap:4px 10px; font-size:11.5px; letter-spacing:.06em; text-transform:uppercase; font-weight:600; color:var(--muted); padding:12px 0 2px; margin-top:8px}
 .dayhead:first-child,.ann + .dayhead,.playhead + .dayhead{border-top:0; margin-top:0}
 .dayhead.today{color:var(--now)}
 .dayhead .free{display:inline-flex; align-items:center; gap:5px; font-weight:500; text-transform:none; letter-spacing:0; color:var(--muted)}
@@ -145,7 +145,7 @@ body.colored .row:not(.done) .tt,body.colored .mat li:not(.done) .tt{color:var(-
 body:not(.noping) .endangered:not(.done):not(.muted) .box .ring{display:block}
 @keyframes pingring{0%{transform:scale(.55); opacity:.95} 100%{transform:scale(2.1); opacity:0}}
 @media (prefers-reduced-motion:reduce){ .bar span{transition:none} .box .ring{animation:none; inset:-3px; opacity:.8} }
-.tag{display:inline-block; font-size:10.5px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:var(--muted); background:var(--surface-2); border:1px solid var(--line); border-radius:4px; padding:0 5px; margin-left:6px; vertical-align:1px; white-space:nowrap}
+.tag{display:inline-block; font-size:10.5px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:var(--muted); background:var(--bg); border-radius:4px; padding:0 5px; margin-left:6px; vertical-align:1px; white-space:nowrap}
 .tag.expected{color:var(--now); border-color:transparent; background:var(--now-soft)}
 .tag.pts{color:var(--ink)}
 a.tag.feeds{text-decoration:none; color:var(--alert); border-color:var(--alert-soft); background:var(--alert-soft)}
@@ -166,16 +166,16 @@ a.tag.feeds:hover{border-color:var(--alert)}
 .faces .ph:first-child{margin-left:0}
 
 .links{display:flex; flex-wrap:wrap; gap:6px; margin-top:5px}
-.links a{display:inline-flex; align-items:center; gap:4px; font-size:11.5px; line-height:1.4; text-decoration:none; color:var(--ink); background:var(--surface-2); border:1px solid var(--line); border-radius:5px; padding:2px 7px}
+.links a{display:inline-flex; align-items:center; gap:4px; font-size:11.5px; line-height:1.4; text-decoration:none; color:var(--ink); background:var(--bg); border-radius:5px; padding:2px 7px}
 .links a .ic{color:var(--muted)}
 .links a.io{padding:3px 6px; gap:1px}
 .links a.io:hover .ic{color:var(--ink)}
 .links a.io .ic.ext{width:.7em; height:.7em; margin-left:0}
 .ic.ext{width:.85em; height:.85em; color:var(--muted); margin-left:2px; vertical-align:-.1em}
 .links a:hover{border-color:var(--ink)}
-.links a:focus-visible,.quick a:focus-visible{outline:2px solid var(--ok); outline-offset:1px}
+.links a:focus-visible,.quick a:focus-visible{outline:2px solid var(--ok); outline-offset:-2px}
 .quick{display:flex; flex-wrap:wrap; gap:8px}
-.quick a{font-size:13px; text-decoration:none; color:var(--ink); background:var(--surface-2); border:1px solid var(--line); border-radius:6px; padding:6px 10px}
+.quick a{font-size:13px; text-decoration:none; color:var(--ink); background:var(--bg); border-radius:6px; padding:6px 10px}
 .quick a:hover{border-color:var(--ink)}
 .quick a .k{display:flex; align-items:center; font-size:10.5px; letter-spacing:.05em; text-transform:uppercase; color:var(--cc); margin-bottom:2px}
 .quick .faces{vertical-align:0}
@@ -185,7 +185,7 @@ a.tag.feeds:hover{border-color:var(--alert)}
 .weeks{--rail:132px; display:flex; flex-direction:column; gap:14px}
 .week{display:grid; grid-template-columns:var(--rail) minmax(0,1fr); gap:0; scroll-margin-top:130px}
 .week.now{border-color:var(--now); box-shadow:0 0 0 1px var(--now)}
-.week .rail{padding:14px 12px 14px 16px; border-right:1px solid var(--line)}
+.week .rail{padding:14px 12px 14px 16px; background:var(--surface-2); border-radius:10px 0 0 10px}
 .week .rail .wk{font-size:17px; font-family:Archivo,sans-serif; font-weight:700; letter-spacing:-.01em; display:flex; align-items:center; gap:4px}
 .week .rail .dates{font-size:11.5px; color:var(--muted); margin-top:2px}
 .week .rail .load{display:flex; align-items:center; gap:4px; font-family:Archivo,"Arial Narrow",sans-serif; font-stretch:78%; font-size:12.5px; letter-spacing:.01em; color:var(--muted); margin-top:6px; cursor:help; white-space:nowrap}
@@ -213,7 +213,7 @@ a.tag.feeds:hover{border-color:var(--alert)}
 .ann > .ic{color:var(--now); margin-top:2px}
 .ann .k{font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; font-weight:600; color:var(--now); margin-right:8px}
 .ann a{color:inherit}
-.mat{margin-top:8px; border-top:1px solid var(--line); padding-top:8px}
+.mat{margin-top:12px; padding-top:8px}
 .mat summary{cursor:pointer; font-size:13px; font-weight:600; list-style:none; display:flex; gap:8px; align-items:center; flex-wrap:wrap}
 .mat summary::-webkit-details-marker{display:none}
 .mat summary > .caret{color:var(--muted); transition:transform .15s; transform:rotate(-90deg)}
@@ -239,8 +239,8 @@ a.tag.feeds:hover{border-color:var(--alert)}
 
 /* ---------- Day view ---------- */
 .dayctl{display:flex; flex-wrap:wrap; gap:8px 12px; align-items:center; margin-bottom:12px}
-.dayctl input[type=date]{font:inherit; font-size:13.5px; padding:4px 8px; border:1px solid var(--line); border-radius:6px; background:var(--surface); color:var(--ink)}
-.dayctl button{font-size:12.5px; font-weight:600; background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:4px 10px; cursor:pointer; color:var(--ink)}
+.dayctl input[type=date]{font:inherit; font-size:13.5px; padding:4px 8px; border-radius:6px; background:var(--surface); color:var(--ink)}
+.dayctl button{font-size:12.5px; font-weight:600; background:var(--surface); border-radius:6px; padding:4px 10px; cursor:pointer; color:var(--ink)}
 .day{display:grid; grid-template-columns:1fr 1fr; gap:14px}
 .day .card{padding-bottom:4px}
 .day h3{font-size:13.5px; padding:12px 16px 4px; display:flex; gap:8px; align-items:center}
@@ -250,7 +250,8 @@ a.tag.feeds:hover{border-color:var(--alert)}
 .day .mat{border-top:0; padding:0 16px 8px; margin-top:0}
 .day .mat li{padding-left:0}
 .freeday{padding:4px 16px 12px; font-size:13.5px}
-.freeday .w{display:flex; justify-content:space-between; gap:12px; padding:5px 0; border-top:1px solid var(--line)}
+.freeday .w{display:flex; justify-content:space-between; gap:12px; padding:5px 8px; margin:0 -8px}
+.freeday .w:nth-child(even){background:var(--surface-2)}
 .freeday .w:first-child{border-top:0}
 .freeday .w.best{color:var(--ok); font-weight:600}
 .freeday .w small{color:var(--muted); font-weight:400}
@@ -267,12 +268,13 @@ body.mapview #termbody section{flex:1 1 auto; min-height:0; margin-bottom:12px; 
 /* Collapsed rail: the map takes its column and the rail sits over the map's left edge as a thin timeline of dots */
 .map.rail-slim{grid-template-columns:minmax(0,1fr) clamp(340px, 26vw, 460px)}
 .map.rail-slim .legend-g{left:46px}
-.rail-toggle{margin-left:auto; display:inline-flex; align-items:center; gap:4px; font-size:12px; font-weight:600; letter-spacing:0; text-transform:none; color:var(--muted); background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:3px 7px; cursor:pointer; line-height:1.2}
-.rail-toggle:hover{color:var(--ink); border-color:var(--muted)}
-.rail-toggle .ic{width:14px; height:14px; transition:transform .15s}
+.map.rail-slim .mapcard h3{padding-left:48px}
+.map h3 .t{white-space:nowrap}
+.rail-toggle{margin-left:auto; display:inline-flex; align-items:center; color:var(--muted); background:none; border:0; padding:0 2px; cursor:pointer; line-height:1}
+.rail-toggle:hover{color:var(--ink)}
+.rail-toggle .ic{width:20px; height:20px; transition:transform .15s}
 .rail-card.slim{position:absolute; left:0; top:0; bottom:0; width:36px; z-index:3; border-radius:10px 0 0 10px; align-items:center; padding:6px 0 8px; background:color-mix(in srgb, var(--surface) 86%, transparent); backdrop-filter:blur(4px)}
-.rail-card.slim .rail-toggle{margin:0; padding:4px 5px}
-.rail-card.slim .rail-toggle .ic{width:16px; height:16px}
+.rail-card.slim .rail-toggle{margin:0; padding:4px 0}
 .rail-dots{flex:1 1 auto; min-height:0; width:100%; position:relative; display:flex; flex-direction:column; align-items:center; justify-content:space-evenly; padding:8px 0; overflow:hidden}
 .rail-dots::before{content:""; position:absolute; left:50%; top:10px; bottom:10px; width:2px; margin-left:-1px; background:var(--line)}
 .rail-dots .dot{position:relative; flex:0 1 16px; min-height:7px; width:100%; background:none; border:0; padding:0; cursor:pointer; display:flex; align-items:center; justify-content:center}
@@ -309,17 +311,17 @@ body.mapview #termbody section{flex:1 1 auto; min-height:0; margin-bottom:12px; 
 .gwrap svg{width:100%; height:100%; display:block; touch-action:none}
 .gwrap svg.drag{cursor:grabbing}
 .gtools{position:absolute; top:10px; right:10px; display:flex; gap:4px}
-.gtools button{display:inline-flex; align-items:center; gap:4px; font-size:12px; font-weight:600; color:var(--muted); background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:4px 7px; cursor:pointer; line-height:1.2}
+.gtools button{display:inline-flex; align-items:center; gap:4px; font-size:12px; font-weight:600; color:var(--muted); background:var(--bg); border-radius:6px; padding:4px 7px; cursor:pointer; line-height:1.2}
 .gtools button .ic{width:14px; height:14px}
 .gtools button:hover{color:var(--ink)}
 .gtools button:disabled{opacity:.4; cursor:default}
 .gtools button:disabled:hover{color:var(--muted)}
 .gtools button[aria-pressed="true"]{color:var(--on-now); background:var(--now); border-color:var(--now)}
-.gtools .seg.mode{border-radius:6px}
-.gtools .seg.mode button{border-radius:0; border:0; border-left:1px solid var(--line); padding:4px 8px}
+.gtools .seg.mode{border-radius:6px; background:var(--bg)}
+.gtools .seg.mode button{border-radius:0; border:0; padding:4px 8px}
 .gtools .seg.mode button:first-child{border-left:0}
 .gtools button[aria-pressed="true"] .ic{fill:var(--on-now)}
-.gtools .reach{display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:var(--muted); background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:3px 8px}
+.gtools .reach{display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:var(--muted); background:var(--bg); border-radius:6px; padding:3px 8px}
 .gtools .reach input{width:70px; accent-color:var(--now); margin:0}
 .gtools .reach b{color:var(--ink); min-width:42px}
 svg.showall .gn.section:not(.hl):not(.sel):not(.hover):not(.cur){opacity:.35}
@@ -390,7 +392,7 @@ svg.focus .ge.tl.hl{opacity:.5; stroke-width:1.4}
 .ge.lvitem{stroke-width:1; opacity:.08}
 .ge.dep{stroke:var(--now); stroke-dasharray:4 3; opacity:.08}
 .ge.dep.need{stroke:var(--alert); stroke-dasharray:2 3}
-.legend-g{position:absolute; left:10px; top:10px; background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:5px 9px; font-size:11px; color:var(--muted); display:flex; flex-direction:column; gap:4px; max-width:300px}
+.legend-g{position:absolute; left:10px; top:10px; background:var(--bg); border-radius:8px; padding:5px 9px; font-size:11px; color:var(--muted); display:flex; flex-direction:column; gap:4px; max-width:300px}
 .legend-g[open]{padding:8px 10px}
 .legend-g .lt{font-size:10px; letter-spacing:.08em; text-transform:uppercase; font-weight:600; cursor:pointer; list-style:none; display:flex; align-items:center; gap:4px}
 .legend-g .lt::-webkit-details-marker{display:none}
@@ -420,26 +422,43 @@ svg.focus .ge.tl.hl{opacity:.5; stroke-width:1.4}
 .detail .kv b{color:var(--ink); font-weight:500}
 .detail .sec{font-size:11px; letter-spacing:.06em; text-transform:uppercase; font-weight:600; color:var(--muted); margin:14px 0 6px}
 .detail .rel{list-style:none; margin:0; padding:0}
-.detail .rel li{padding:4px 0; border-top:1px solid var(--line)}
+.detail .rel li{padding:4px 0}
 .detail .rel button{background:none; border:0; padding:0; font:inherit; color:var(--ink); cursor:pointer; text-align:left}
 .detail .rel button:hover{text-decoration:underline}
 .detail .act{display:flex; align-items:center; gap:10px; margin:10px 0}
 .detail .act label{cursor:pointer}
 .detail .none{color:var(--muted); padding:8px 0}
 .detail .multi{font-size:12px; color:var(--muted); margin:8px 0 4px; display:flex; align-items:center; gap:8px}
-.detail .multi button{font-size:11.5px; font-weight:600; background:var(--surface); border:1px solid var(--line); border-radius:5px; padding:2px 8px; cursor:pointer; color:var(--ink)}
+.detail .multi button{font-size:11.5px; font-weight:600; background:var(--bg); border-radius:5px; padding:2px 8px; cursor:pointer; color:var(--ink)}
 .detail .peek{font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; font-weight:600; color:var(--now); margin:8px 0 2px}
 .detail.preview{outline:2px solid var(--now-soft); outline-offset:-2px; border-radius:0 0 10px 10px}
 .detail .why{color:var(--muted); font-size:12.5px; margin:4px 0}
 .detail .lnk{background:none; border:0; padding:0; font:inherit; color:inherit; cursor:pointer; text-decoration:underline}
+/* ---------- Shape: no hairlines; every rounded box gets a cut top-right corner instead ---------- */
+/* Cards and popups carry the shape on a pseudo-element, so the Today playhead can still peek out of the week card and a popup keeps its shadow. */
+.card,.pop .panel{isolation:isolate; background:none; border:0; box-shadow:none}
+.card{position:relative}
+.card::before,.pop .panel::before{content:""; position:absolute; inset:0; z-index:-1; background:var(--surface); border-radius:10px 0 10px 10px; clip-path:polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%)}
+.pop .panel{filter:drop-shadow(0 6px 14px rgba(0,0,0,.18))}
+.pop .panel::before{border-radius:8px 0 8px 8px}
+.rail-card.slim{background:none}
+.rail-card.slim::before{background:color-mix(in srgb, var(--surface) 86%, transparent); border-radius:10px 0 0 10px; clip-path:none}
+/* Everything else is cut directly; --bev is the size of the cut. */
+.seg,.pop summary,.gtools button,.gtools .reach,.legend-g,.detail .multi button,.dayctl input[type=date],.dayctl button,.hours input[type=time],.rail-tip,.ann,.tag,.lvl,.chip,.flag,.links a,.quick a,.rail-list .ev{border-top-right-radius:0; clip-path:polygon(0 0, calc(100% - var(--bev, 7px)) 0, 100% var(--bev, 7px), 100% 100%, 0 100%)}
+.legend-g{--bev:10px}
+.ann{--bev:8px}
+.tag,.lvl,.chip,.flag,.links a{--bev:4px}
+.rail-list .ev{--bev:6px}
+
 @media (max-width:900px){ body.mapview{overflow:auto} body.mapview .wrap{height:auto} .map,.map.rail-slim{grid-template-columns:1fr; height:auto} .map .rail-list{max-height:220px} .gwrap{height:50vh} .detail{max-height:60vh}
   .rail-card.slim{position:static; width:auto; flex-direction:row; padding:0 6px; border-radius:10px} .rail-dots{flex-direction:row; height:40px; padding:0 8px} .rail-dots::before{left:10px; right:10px; top:50%; bottom:auto; width:auto; height:2px; margin:-1px 0 0} .rail-dots .dot{flex:0 1 16px; min-height:0; min-width:7px; width:auto; height:100%} .rail-dots .dot.gap{margin:0 0 0 3px} .rail-dots .dot.now::before{left:-2px; right:auto; top:8px; bottom:8px; width:2px; height:auto} }
 
 /* ---------- All deadlines ---------- */
 .tablewrap{overflow-x:auto}
 table.all{width:100%; border-collapse:collapse; font-size:13.5px}
-table.all th{text-align:left; font-size:11px; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); font-weight:600; padding:10px 12px; border-bottom:1px solid var(--line)}
-table.all td{padding:8px 12px; border-bottom:1px solid var(--line); vertical-align:top}
+table.all th{text-align:left; font-size:11px; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); font-weight:600; padding:10px 12px}
+table.all td{padding:8px 12px; vertical-align:top}
+table.all tbody tr:nth-child(even) td{background:var(--surface-2)}
 table.all tr:last-child td{border-bottom:0}
 table.all td.d{white-space:nowrap}
 table.all tr.past td{color:var(--muted)}
@@ -463,10 +482,10 @@ body.colored table.all tr:not(.done) .tt{color:var(--cc)}
 .teacher small{display:block; color:var(--muted); font-size:11.5px}
 .teacher:hover .tn{text-decoration:underline}
 .rhythm li{margin:6px 0}
-.pop.about .src{margin:12px 0 0; padding-top:10px; border-top:1px solid var(--line); font-size:11.5px; color:var(--muted)}
+.pop.about .src{margin:14px 0 0; font-size:11.5px; color:var(--muted)}
 @media (max-width:680px){
   .week{grid-template-columns:1fr}
-  .week .rail{border-right:0; border-bottom:1px solid var(--line); display:flex; flex-wrap:wrap; gap:4px 12px; align-items:baseline; padding:12px 16px}
+  .week .rail{border-radius:10px 0 0 0; clip-path:polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%); display:flex; flex-wrap:wrap; gap:4px 12px; align-items:baseline; padding:12px 16px}
   .week .rail .dates,.week .rail .load,.flag{margin-top:0}
   .playhead{margin-left:-26px}
   .row .when{flex-basis:64px}
@@ -1138,7 +1157,7 @@ function runSim(heat){
 function ringSvg(t){
   var R = clock.R, inner = R * 0.9;
   var out = '<g class="zones"><circle class="band" cx="0" cy="0" r="' + (R + 48) + '"/><circle class="disc" cx="0" cy="0" r="' + inner + '"/>' +
-    '<text x="0" y="' + (-inner + 18) + '" text-anchor="middle">Canvas material</text><text x="0" y="' + (-R - 58) + '" text-anchor="middle">Sessions, deadlines, tasks, in date order</text></g>' +
+    '<text x="0" y="' + (-inner + 18) + '" text-anchor="middle">Canvas material</text></g>' +
     '<g class="ring"><circle cx="0" cy="0" r="' + R + '"/>';
   var m = monday(t.start);
   if (clock.pts.length) while (m <= t.end) {
@@ -1230,8 +1249,8 @@ function railDots(t){
   return out;
 }
 function railCard(t){
-  if (state.railSlim) return '<div class="card rail-card slim"><button type="button" class="rail-toggle" id="rail-toggle" title="Unfold the list of coming events">' + ic("caret-right") + '</button><div class="rail-dots" id="rail">' + railDots(t) + '</div></div>';
-  return '<div class="card rail-card"><h3>' + ic("calendar-dot") + 'Coming up<button type="button" class="rail-toggle" id="rail-toggle" title="Fold the list to a thin timeline over the map"><svg class="ic" aria-hidden="true" style="transform:rotate(180deg)"><use href="#i-caret-right"/></svg>Fold</button></h3><div class="rail-list" id="rail">' + railList(t) + '</div></div>';
+  if (state.railSlim) return '<div class="card rail-card slim"><button type="button" class="rail-toggle" id="rail-toggle" title="Unfold the list of coming events" aria-label="Unfold the list">' + ic("caret-right") + '</button><div class="rail-dots" id="rail">' + railDots(t) + '</div></div>';
+  return '<div class="card rail-card"><h3>' + ic("calendar-dot") + 'Coming up<button type="button" class="rail-toggle" id="rail-toggle" title="Fold the list to a thin timeline over the map" aria-label="Fold the list"><svg class="ic" aria-hidden="true" style="transform:rotate(180deg)"><use href="#i-caret-right"/></svg></button></h3><div class="rail-list" id="rail">' + railList(t) + '</div></div>';
 }
 function showRailTip(d){
   var tip = document.getElementById("rail-tip"); if (!tip) return;
@@ -1352,7 +1371,7 @@ function renderMapView(t){
   // Nothing chosen yet: start on today's first event, or the next one coming up.
   if (!state.mapSel) { var today = todayIso(), first = timeline(t).find(function(r){ return r.date >= today; }); if (first) selectKey(first.id || first.key, false); }
   return '<section><div class="map' + (state.railSlim ? ' rail-slim' : '') + '">' + railCard(t) + '<div class="rail-tip" id="rail-tip" hidden></div>' +
-    '<div class="card"><h3>' + ic("tree-structure") + 'Canvas map <span class="why" style="display:inline;text-transform:none;letter-spacing:0;font-weight:400">hover or click a node to see its links, shift-click to select several, drag to pan, scroll to zoom</span></h3>' +
+    '<div class="card mapcard"><h3>' + ic("tree-structure") + '<span class="t">Canvas map</span><span class="why" style="display:inline;text-transform:none;letter-spacing:0;font-weight:400">material inside, sessions, deadlines and tasks around the ring in date order. Hover or click a node to see its links, shift-click to select several, drag to pan, scroll to zoom</span></h3>' +
       '<div class="gwrap" id="gwrap">' + svgGraph(t) + '<div class="gtools"><button type="button" id="g-fit" title="Fit the whole graph">' + ic("arrows-in", "sm") + 'Fit</button><button type="button" id="g-open" title="Open every module"' + (state.mapAll ? ' disabled' : '') + '>Open all</button><button type="button" id="g-close" title="Close every module"' + (state.mapAll ? ' disabled' : '') + '>Close all</button><button type="button" id="g-settle" title="Forget the saved positions and lay the material out afresh">Re-settle</button><span class="seg mode" role="group" aria-label="What a click on a module does"><button type="button" id="g-mode-select" data-mode="select" title="Clicking a module or section selects it" aria-pressed="' + (state.mapMode === "select" ? "true" : "false") + '">Select</button><button type="button" id="g-mode-fold" data-mode="fold" title="Clicking a module or section opens or closes it" aria-pressed="' + (state.mapMode === "fold" ? "true" : "false") + '"' + (state.mapAll ? ' disabled' : '') + '>Close</button></span>' +
       '<button type="button" id="g-all" title="Draw closed modules and sections open too; their contents stay faded until they join a chain" aria-pressed="' + (state.mapAll ? "true" : "false") + '">' + ic(state.mapAll ? "eye" : "eye-slash", "sm") + '</button>' +
       '<label class="reach" title="How far a highlighted chain reaches from the node: link steps in either direction, the jump to the ring counts as one"><span>Reach</span><input type="range" id="g-hops" min="1" max="5" step="1" value="' + state.mapHops + '"><b id="g-hops-v">' + hopsLabel() + '</b></label></div>' +
