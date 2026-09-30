@@ -288,6 +288,8 @@ body.mapview #termbody section{flex:1 1 auto; min-height:0; margin-bottom:12px; 
 .rail-strip .ev{position:absolute; background:none; border:0; padding:0; margin:0; cursor:pointer; display:block; transition:top .35s ease, left .35s ease, width .35s ease, height .35s ease, opacity .3s ease}
 .rail-strip .ev i{position:absolute; left:0; width:var(--sq); height:var(--sq); background:var(--cc); transition:top .35s ease, width .35s ease, height .35s ease}
 .rail-strip .gapc,.rail-strip .nowline{transition:opacity .3s ease}
+.rail-strip.pan{cursor:grab}
+.rail-strip.dragging,.rail-strip.dragging .ev{cursor:grabbing}
 .rail-strip .in,.rail-strip .out{opacity:0}
 .rail-card.slim{transition:width .35s ease}
 .map.rail-slim .legend-g{transition:left .35s ease}
@@ -1294,15 +1296,22 @@ function railEvents(t){
     var key = r.id || r.key;
     out.push({ r: r, row: row, rows: rows, key: key, sel: !!sel.rows[key], rel: !!sel.related[key] });
   });
+  // level 0: one lane, a day's events stacked top to bottom in time order (half-height bars), so the
+  // vertical order already matches the zoomed levels and the morph is easy to follow
+  if (level === 0) {
+    var stack = {};
+    out.forEach(function(e){ e.lane = 0; e.sub = stack[e.row] || 0; stack[e.row] = e.sub + 1; });
+    return { level: level, span: span, per: per, events: out, lanes: 1, stack: stack };
+  }
   // lanes: the first lane free from this row on; the last lane takes any overflow
   out.sort(function(a, b){ return a.row - b.row || b.rows - a.rows; });
   var laneEnd = [];
   out.forEach(function(e){
     var l = 0; while (l < laneEnd.length && laneEnd[l] >= e.row) l++;
     if (l >= RAIL.maxLanes) l = RAIL.maxLanes - 1;
-    laneEnd[l] = Math.max(laneEnd[l] == null ? -1 : laneEnd[l], e.row + e.rows - 1); e.lane = l;
+    laneEnd[l] = Math.max(laneEnd[l] == null ? -1 : laneEnd[l], e.row + e.rows - 1); e.lane = l; e.sub = 0;
   });
-  return { level: level, span: span, per: per, events: out, lanes: Math.max(1, laneEnd.length) };
+  return { level: level, span: span, per: per, events: out, lanes: Math.max(1, laneEnd.length), stack: {} };
 }
 function nowHHMM(){ var d = new Date(); return String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0"); }
 // Measure the strip, size the squares to fill it, and place every event. Runs of empty rows collapse
@@ -1323,12 +1332,12 @@ function layoutRail(t){
   var used = []; for (i = 0; i < total; i++) used.push(false);
   d.events.forEach(function(e){ for (k = e.row; k < e.row + e.rows; k++) used[k] = true; });
   if (nowRow >= 0) used[nowRow] = true;
-  // a wider gap before each Monday at level 0, each day at level 1, each hour at level 2
+  // one wider gap where a week (level 0) or a day (level 1) begins; inside a day every gap is 1px
   var extraAt = function(row){
     if (row === 0) return 0;
-    if (level === 0) return new Date(addDays(span.start, row) + "T00:00:00").getDay() === 1 ? 3 : 0;
+    if (level === 0) return new Date(addDays(span.start, row) + "T00:00:00").getDay() === 1 ? 4 : 0;
     if (level === 1) return row % per === 0 ? 4 : 0;
-    return row % 4 === 0 ? 2 : 0;
+    return 0;
   };
   // segments: a row, or a connector standing for a run of empty rows
   var minRun = level === 2 ? 3 : 2, segs = [];
@@ -1338,16 +1347,20 @@ function layoutRail(t){
     if (j - i >= minRun) segs.push({ gap: true, from: i, rows: j - i }); else for (k = i; k < j; k++) segs.push({ row: k });
     i = j;
   }
-  var nRows = 0, nConn = 0, extras = 0;
-  segs.forEach(function(g){ if (g.gap) nConn++; else { nRows++; extras += extraAt(g.row); } });
-  var H = strip.clientHeight, sq = Math.max(3, Math.min(level === 0 ? 16 : 22, Math.floor((H - extras - nConn * (RAIL_CONN + gap) - (nRows - 1) * gap) / Math.max(1, nRows))));
+  // at level 0 a row is as tall as its stack of half-height bars; the bar height comes from what fits
+  var nRows = 0, nConn = 0, extras = 0, bars = 0;
+  segs.forEach(function(g){ if (g.gap) nConn++; else { nRows++; extras += extraAt(g.row); bars += Math.max(1, d.stack[g.row] || 0); } });
+  var H = strip.clientHeight, room = H - extras - nConn * (RAIL_CONN + gap) - (nRows - 1) * gap, sq, hh;
+  if (level === 0) { hh = Math.max(3, Math.min(8, Math.floor((room - (bars - nRows) * gap) / Math.max(1, bars)))); sq = hh * 2; }
+  else { sq = Math.max(3, Math.min(22, Math.floor(room / Math.max(1, nRows)))); hh = sq; }
+  var rowH = function(row){ return level === 0 ? Math.max(1, d.stack[row] || 0) * (hh + gap) - gap : sq; };
   var ys = [], y = 0, conns = [];
   segs.forEach(function(g){
     if (g.gap) { conns.push({ y: y, rows: g.rows }); for (k = g.from; k < g.from + g.rows; k++) ys[k] = y; y += RAIL_CONN + gap; }
-    else { y += extraAt(g.row); ys[g.row] = y; y += sq + gap; }
+    else { y += extraAt(g.row); ys[g.row] = y; y += rowH(g.row) + gap; }
   });
   var pad = 6, width = pad * 2 + d.lanes * (sq + gap) - gap;
-  railGeom = { ys: ys, per: per, span: span, level: level, sq: sq };
+  railGeom = { ys: ys, per: per, span: span, level: level, sq: sq, hh: hh };
   strip.style.setProperty("--sq", sq + "px");
   var map = strip.closest(".map"); if (map) map.style.setProperty("--rail-w", Math.max(36, width) + "px");
   // Morph rather than rebuild: an event that stays keeps its button and slides to its new place,
@@ -1364,7 +1377,7 @@ function layoutRail(t){
   d.events.forEach(function(e){
     var r = e.r, title = r.title.replace(/ due \d\d:\d\d$/, "").replace(/ close \d\d:\d\d$/, " close");
     var when = dayLabel(r.date) + (r.time ? " " + r.time + (r.end ? "\u2013" + r.end : "") : "") + ", " + (r.kind === "session" ? (SESSION_KIND[r.skind] || "") : r.kind === "deadline" ? "deadline" : "task");
-    var top = ys[e.row], h = ys[e.row + e.rows - 1] + sq - top;
+    var top = ys[e.row] + e.sub * (hh + gap), h = level === 0 ? hh : ys[e.row + e.rows - 1] + sq - top;
     var btn = old[e.key], isNew = !btn;
     if (isNew) { btn = document.createElement("button"); btn.type = "button"; btn.className = "ev in"; btn.dataset.ev = e.key; strip.appendChild(btn); fresh.push(btn); }
     keep[e.key] = true;
@@ -1378,12 +1391,13 @@ function layoutRail(t){
     for (k = cells.length; k < n; k++) { var c = document.createElement("i"); c.style.top = lastTop; btn.appendChild(c); }
     for (k = cells.length - 1; k >= n; k--) cells[k].remove();
     cells = btn.querySelectorAll("i");
-    for (k = 0; k < n; k++) cells[k].style.top = (ys[e.row + k] - top) + "px";
+    for (k = 0; k < n; k++) { cells[k].style.top = (level === 0 ? 0 : ys[e.row + k] - top) + "px"; cells[k].style.height = (level === 0 ? hh : sq) + "px"; }
   });
   Object.keys(old).forEach(function(key){ if (!keep[key]) { var b = old[key]; b.classList.add("out"); b.style.pointerEvents = "none"; setTimeout(function(){ b.remove(); }, 400); } });
   if (nowRow >= 0) { var nl = document.createElement("div"); nl.className = "nowline in"; nl.style.top = (ys[nowRow] - 2) + "px"; strip.appendChild(nl); fresh.push(nl); }
   // next frame: let the arrivals fade in and the squares slide, after their start state has painted
   if (fresh.length) { void strip.offsetWidth; requestAnimationFrame(function(){ fresh.forEach(function(el){ el.classList.remove("in"); }); }); }
+  strip.classList.toggle("pan", level > 0);
   var lbl = document.getElementById("rz-lbl"); if (lbl) lbl.textContent = level === 0 ? t.label : level === 1 ? "v" + isoWeek(span.start) : dayLabel(span.start);
   var zin = document.getElementById("rz-in"), zout = document.getElementById("rz-out"); if (zin) zin.disabled = level === 2; if (zout) zout.disabled = level === 0;
   ["rz-prev", "rz-next"].forEach(function(id){ var b = document.getElementById(id); if (b) b.disabled = level === 0; });
@@ -1684,13 +1698,33 @@ function bindMap(t){
     var focus = railDateAt(e.clientY - strip.getBoundingClientRect().top);
     railSetZoom(term(), railZoom.level + dir, dir > 0 ? focus : null);
   }, { passive: false });
+  // drag the zoomed strip: the content follows the pointer, and past a threshold it steps a day or a week
+  var drag = null, railDragged = false;
+  tb.addEventListener("pointerdown", function(e){
+    var strip = e.target.closest && e.target.closest(".rail-strip"); if (!strip || railZoom.level === 0 || e.button !== 0) return;
+    drag = { strip: strip, y: e.clientY, dy: 0, moved: false }; strip.classList.add("dragging"); strip.style.transition = "none";
+    try { strip.setPointerCapture(e.pointerId); } catch (x) {}
+  });
+  tb.addEventListener("pointermove", function(e){
+    if (!drag) return;
+    drag.dy = e.clientY - drag.y; if (Math.abs(drag.dy) > 4) drag.moved = true;
+    if (drag.moved) drag.strip.style.transform = "translateY(" + (drag.dy * 0.5) + "px)";
+  });
+  var endDrag = function(e){
+    if (!drag) return;
+    var strip = drag.strip, dy = drag.dy, moved = drag.moved; drag = null;
+    strip.classList.remove("dragging"); strip.style.transition = "transform .25s ease"; strip.style.transform = "";
+    railDragged = moved; setTimeout(function(){ railDragged = false; }, 0);
+    if (moved && Math.abs(dy) > 40) { var t2 = term(), step = railZoom.level === 1 ? 7 : 1, f = railZoom.focus || todayIso(); railSetZoom(t2, railZoom.level, addDays(railZoom.level === 1 ? monday(f) : f, dy < 0 ? step : -step)); }
+  };
+  tb.addEventListener("pointerup", endDrag); tb.addEventListener("pointercancel", endDrag);
   var resizeTimer = null;
   window.addEventListener("resize", function(){ clearTimeout(resizeTimer); resizeTimer = setTimeout(function(){ if (state.view === "map") layoutRail(term()); }, 120); });
   tb.addEventListener("click", function(e){
     if (state.view !== "map") return;
     var t = term(), b = e.target.closest("button"); if (!b) return;
     var add = e.shiftKey || e.metaKey || e.ctrlKey;
-    if (b.dataset.ev) gotoKey(t, b.dataset.ev, add);
+    if (b.dataset.ev) { if (!railDragged) gotoKey(t, b.dataset.ev, add); }
     else if (b.dataset.goto) gotoKey(t, b.dataset.goto, add);
     else if (b.id === "rail-toggle") {
       // swap only the rail card and refit the map to its new width; the graph itself stays as it is
