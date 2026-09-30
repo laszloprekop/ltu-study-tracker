@@ -284,7 +284,8 @@ body.mapview #termbody section{flex:1 1 auto; min-height:0; margin-bottom:12px; 
 .rail-card.slim{position:absolute; left:0; top:0; bottom:0; width:var(--rail-w, 36px); z-index:3; align-items:center; padding:6px 0 6px; background:color-mix(in srgb, var(--surface) 86%, transparent); backdrop-filter:blur(4px)}
 .rail-card.slim .rail-toggle{margin:0; padding:4px 0}
 /* The folded rail as a timeline: rows of squares, one square per unit of time an event covers; overlaps sit in the next lane */
-.rail-strip{flex:1 1 auto; min-height:0; width:100%; position:relative; margin:4px 0; --sq:8px}
+.rail-strip{flex:1 1 auto; min-height:0; width:100%; position:relative; margin:4px 0; overflow:hidden; --sq:8px}
+.rail-inner{position:absolute; left:0; right:0; top:0; transition:transform .35s ease; will-change:transform}
 .rail-strip .ev{position:absolute; background:none; border:0; padding:0; margin:0; cursor:pointer; display:block; transition:top .35s ease, left .35s ease, width .35s ease, height .35s ease, opacity .3s ease}
 .rail-strip .ev i{position:absolute; left:0; width:var(--sq); height:var(--sq); background:var(--cc); transition:top .35s ease, width .35s ease, height .35s ease}
 .rail-strip .gapc,.rail-strip .nowline{transition:opacity .3s ease}
@@ -357,7 +358,7 @@ svg.showall .ge.lvsection:not(.hl),svg.showall .ge.lvitem:not(.hl){opacity:.08}
 .ge{transition:opacity .45s ease, stroke-width .3s ease}
 .gn circle.body,.gn path.pill{transition:stroke .3s ease, fill .3s ease, stroke-width .3s ease}
 .gn .sub,.gn .lab{transition:opacity .3s ease}
-@media (prefers-reduced-motion:reduce){ .gn,.ge,.gn circle.body,.gn path.pill,.gn .sub,.gn .lab,.rail-strip .ev,.rail-strip .ev i,.rail-strip .gapc,.rail-strip .nowline,.rail-card.slim{transition:none} }
+@media (prefers-reduced-motion:reduce){ .gn,.ge,.gn circle.body,.gn path.pill,.gn .sub,.gn .lab,.rail-strip .ev,.rail-strip .ev i,.rail-strip .gapc,.rail-strip .nowline,.rail-card.slim,.rail-inner{transition:none} }
 svg.focus .gn:not(.hl){opacity:.22}
 svg.focus .ge:not(.hl):not(.tl){opacity:.04}
 /* a lit chain is fully opaque; only the widths keep the trunk-to-twig order */
@@ -1259,29 +1260,30 @@ function railList(t){
   });
   return out || '<div class="none" style="padding:10px 14px">Nothing ahead in this study period.</div>';
 }
-/* ---------- The folded rail: a timeline in three zoom levels ---------- */
-// Level 0: one row per day, the whole study period. Level 1: one row per hour, one week. Level 2: one
-// row per quarter hour, one day. The day band runs 07:00 to 19:00, plus one "later" row per day for
-// what falls after it (the 23:59 deadlines). An event covers one square per row; overlapping events
-// go to the next lane to the right. Hover, click and selection work as in the list.
-var RAIL = { from: 7 * 60, to: 19 * 60, maxLanes: 4 };
-var railZoom = { level: 0, focus: null }, railGeom = null;
+/* ---------- The folded rail: one continuous timeline, three zoom levels ---------- */
+// The strip is a window onto the whole study period laid out at the current level: one row per day,
+// per hour, or per quarter hour (07:00 to 19:00 plus a "later" row per day for the 23:59 deadlines).
+// Zooming changes the row size and keeps the moment under the pointer where it is, like the map; the
+// rest of the period stays around it and can be dragged into view. Runs of empty rows collapse into a
+// zig-zag connector labelled with the time it stands for. Hover, click and selection work as in the list.
+var RAIL = { from: 7 * 60, to: 19 * 60, maxLanes: 4, conn: 18, sq: [16, 14, 18] };
+var railZoom = { level: 0 }, railGeom = null, railOff = 0;
 function railUnit(level){ return level === 0 ? 1440 : level === 1 ? 60 : 15; }
 function railPerDay(level){ return level === 0 ? 1 : (RAIL.to - RAIL.from) / railUnit(level) + 1; }
-function railSpan(t){
-  var f = railZoom.focus || todayIso();
-  if (f < t.start || f > t.end) f = t.start;
-  if (railZoom.level === 0) return { start: t.start, days: Math.round((day(t.end) - day(t.start)) / 864e5) + 1 };
-  if (railZoom.level === 1) return { start: monday(f), days: 7 };
-  return { start: f, days: 1 };
-}
-// the row of a moment inside the span, or -1 when outside; no time means the top of the day
+function railSpan(t){ return { start: t.start, days: Math.round((day(t.end) - day(t.start)) / 864e5) + 1 }; }
+// the row of a moment, or -1 when outside the period; no time means the top of the day
 function railRow(level, span, date, time){
   var d = Math.round((day(date) - day(span.start)) / 864e5), per = railPerDay(level);
   if (d < 0 || d >= span.days) return -1;
   if (level === 0 || time == null) return d * per;
   var m = toMin(time);
   return d * per + (m < RAIL.from ? 0 : m >= RAIL.to ? per - 1 : Math.floor((m - RAIL.from) / railUnit(level)));
+}
+// the moment a row stands for, to carry an anchor from one level to the next
+function railMoment(level, span, row){
+  var per = railPerDay(level), d = Math.floor(row / per), w = row % per;
+  var min = level === 0 ? null : w === per - 1 ? RAIL.to : RAIL.from + w * railUnit(level);
+  return { date: addDays(span.start, d), time: min == null ? null : String(Math.floor(min / 60)).padStart(2, "0") + ":" + String(min % 60).padStart(2, "0") };
 }
 function railEvents(t){
   var level = railZoom.level, span = railSpan(t), per = railPerDay(level), sel = resolveSel(t), out = [];
@@ -1314,9 +1316,6 @@ function railEvents(t){
   return { level: level, span: span, per: per, events: out, lanes: Math.max(1, laneEnd.length), stack: {} };
 }
 function nowHHMM(){ var d = new Date(); return String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0"); }
-// Measure the strip, size the squares to fill it, and place every event. Runs of empty rows collapse
-// into a short connector (a zig-zag with the time it stands for), so the busy hours get the space.
-var RAIL_CONN = 18;   // height of a connector, px
 function railGapLabel(level, rows){
   var per = railPerDay(level);
   if (level === 0 || rows >= per) return Math.round(rows / per) + " d";
@@ -1324,20 +1323,34 @@ function railGapLabel(level, rows){
   if (min >= 60) { var h = min / 60; return (Math.floor(h) + (h % 1 >= 0.5 ? "\u00bd" : "")) + " h"; }
   return min + " min";
 }
-function layoutRail(t){
+// The row at a y inside the content (rows inside a connector share its y).
+function railRowAt(y){ if (!railGeom) return 0; var ys = railGeom.ys, i = 0; while (i + 1 < ys.length && ys[i + 1] <= y) i++; return i; }
+function railViewH(){ var strip = document.getElementById("rail"); return strip ? strip.clientHeight : 0; }
+function railClampOff(off){ var max = railGeom ? Math.max(0, railGeom.contentH - railViewH()) : 0; return Math.max(0, Math.min(max, off)); }
+function railApplyOff(animate){
+  var inner = document.getElementById("rail-inner"); if (!inner) return;
+  inner.style.transition = animate ? "" : "none"; inner.style.transform = "translateY(" + (-railOff) + "px)";
+  if (!animate) void inner.offsetWidth;
+  var lbl = document.getElementById("rz-lbl");
+  if (lbl && railGeom) { var m = railMoment(railGeom.level, railGeom.span, railRowAt(railOff + railViewH() / 2)); lbl.textContent = railGeom.level === 0 ? term().label : railGeom.level === 1 ? "v" + isoWeek(m.date) : dayLabel(m.date); }
+}
+// Lay the whole period out at the current level and place every event. `anchor` is what must stay
+// put on screen across the change: an event (key) or a moment, and the screen y it had.
+function layoutRail(t, anchor){
   var strip = document.getElementById("rail"); if (!strip || !strip.classList.contains("rail-strip")) return;
+  var inner = document.getElementById("rail-inner");
+  if (!inner) { inner = document.createElement("div"); inner.id = "rail-inner"; inner.className = "rail-inner"; strip.appendChild(inner); }
   var d = railEvents(t), level = d.level, span = d.span, per = d.per, total = span.days * per, gap = 1, i, k;
   var today = todayIso(), nowRow = railRow(level, span, today, level === 0 ? null : nowHHMM());
   // which rows hold something; the "now" row always stays visible
   var used = []; for (i = 0; i < total; i++) used.push(false);
   d.events.forEach(function(e){ for (k = e.row; k < e.row + e.rows; k++) used[k] = true; });
   if (nowRow >= 0) used[nowRow] = true;
-  // one wider gap where a week (level 0) or a day (level 1) begins; inside a day every gap is 1px
+  // one wider gap where a week (level 0) or a day (level 1, 2) begins; inside a day every gap is 1px
   var extraAt = function(row){
     if (row === 0) return 0;
     if (level === 0) return new Date(addDays(span.start, row) + "T00:00:00").getDay() === 1 ? 4 : 0;
-    if (level === 1) return row % per === 0 ? 4 : 0;
-    return 0;
+    return row % per === 0 ? 4 : 0;
   };
   // segments: a row, or a connector standing for a run of empty rows
   var minRun = level === 2 ? 3 : 2, segs = [];
@@ -1347,39 +1360,43 @@ function layoutRail(t){
     if (j - i >= minRun) segs.push({ gap: true, from: i, rows: j - i }); else for (k = i; k < j; k++) segs.push({ row: k });
     i = j;
   }
-  // at level 0 a row is as tall as its stack of half-height bars; the bar height comes from what fits
+  // level 0 fits the window: a row is as tall as its stack of half-height bars, sized by what fits.
+  // Zoomed levels have fixed squares and grow past the window; the window is dragged over them.
   var nRows = 0, nConn = 0, extras = 0, bars = 0;
   segs.forEach(function(g){ if (g.gap) nConn++; else { nRows++; extras += extraAt(g.row); bars += Math.max(1, d.stack[g.row] || 0); } });
-  var H = strip.clientHeight, room = H - extras - nConn * (RAIL_CONN + gap) - (nRows - 1) * gap, sq, hh;
-  if (level === 0) { hh = Math.max(3, Math.min(8, Math.floor((room - (bars - nRows) * gap) / Math.max(1, bars)))); sq = hh * 2; }
-  else { sq = Math.max(3, Math.min(22, Math.floor(room / Math.max(1, nRows)))); hh = sq; }
+  var H = strip.clientHeight, sq, hh;
+  if (level === 0) { var room = H - extras - nConn * (RAIL.conn + gap) - (nRows - 1) * gap; hh = Math.max(3, Math.min(8, Math.floor((room - (bars - nRows) * gap) / Math.max(1, bars)))); sq = hh * 2; }
+  else { sq = RAIL.sq[level]; hh = sq; }
   var rowH = function(row){ return level === 0 ? Math.max(1, d.stack[row] || 0) * (hh + gap) - gap : sq; };
   var ys = [], y = 0, conns = [];
   segs.forEach(function(g){
-    if (g.gap) { conns.push({ y: y, rows: g.rows }); for (k = g.from; k < g.from + g.rows; k++) ys[k] = y; y += RAIL_CONN + gap; }
+    if (g.gap) { conns.push({ y: y, rows: g.rows }); for (k = g.from; k < g.from + g.rows; k++) ys[k] = y; y += RAIL.conn + gap; }
     else { y += extraAt(g.row); ys[g.row] = y; y += rowH(g.row) + gap; }
   });
   var pad = 6, width = pad * 2 + d.lanes * (sq + gap) - gap;
-  railGeom = { ys: ys, per: per, span: span, level: level, sq: sq, hh: hh };
+  railGeom = { ys: ys, per: per, span: span, level: level, sq: sq, hh: hh, contentH: y };
+  inner.style.height = y + "px";
   strip.style.setProperty("--sq", sq + "px");
   var map = strip.closest(".map"); if (map) map.style.setProperty("--rail-w", Math.max(36, width) + "px");
   // Morph rather than rebuild: an event that stays keeps its button and slides to its new place,
   // one that leaves fades out, one that arrives fades in. Connectors and the now line cross-fade.
   var keep = {}, old = {};
-  strip.querySelectorAll(".ev").forEach(function(b){ old[b.dataset.ev] = b; });
-  strip.querySelectorAll(".gapc, .nowline").forEach(function(el){ if (!el.classList.contains("out")) { el.classList.add("out"); setTimeout(function(){ el.remove(); }, 400); } });
+  inner.querySelectorAll(".ev").forEach(function(b){ old[b.dataset.ev] = b; });
+  inner.querySelectorAll(".gapc, .nowline").forEach(function(el){ if (!el.classList.contains("out")) { el.classList.add("out"); setTimeout(function(){ el.remove(); }, 400); } });
   var fresh = [];
   conns.forEach(function(c){
-    var el = document.createElement("div"); el.className = "gapc in"; el.style.top = c.y + "px"; el.style.height = RAIL_CONN + "px"; el.title = railGapLabel(level, c.rows) + " with nothing in it";
+    var el = document.createElement("div"); el.className = "gapc in"; el.style.top = c.y + "px"; el.style.height = RAIL.conn + "px"; el.title = railGapLabel(level, c.rows) + " with nothing in it";
     el.innerHTML = '<svg viewBox="0 0 8 18" width="8" height="18" aria-hidden="true"><polyline points="4,0 1,4 7,8 1,12 7,16 4,18"/></svg><span>' + esc(railGapLabel(level, c.rows)) + '</span>';
-    strip.appendChild(el); fresh.push(el);
+    inner.appendChild(el); fresh.push(el);
   });
+  var topOf = {};
   d.events.forEach(function(e){
     var r = e.r, title = r.title.replace(/ due \d\d:\d\d$/, "").replace(/ close \d\d:\d\d$/, " close");
     var when = dayLabel(r.date) + (r.time ? " " + r.time + (r.end ? "\u2013" + r.end : "") : "") + ", " + (r.kind === "session" ? (SESSION_KIND[r.skind] || "") : r.kind === "deadline" ? "deadline" : "task");
     var top = ys[e.row] + e.sub * (hh + gap), h = level === 0 ? hh : ys[e.row + e.rows - 1] + sq - top;
+    topOf[e.key] = top;
     var btn = old[e.key], isNew = !btn;
-    if (isNew) { btn = document.createElement("button"); btn.type = "button"; btn.className = "ev in"; btn.dataset.ev = e.key; strip.appendChild(btn); fresh.push(btn); }
+    if (isNew) { btn = document.createElement("button"); btn.type = "button"; btn.className = "ev in"; btn.dataset.ev = e.key; inner.appendChild(btn); fresh.push(btn); }
     keep[e.key] = true;
     btn.className = "ev" + (isNew ? " in" : "") + (r.level === "must" ? " must" : "") + (r.id ? hostClass(r.id, "") : "") + (r.date < today ? " past" : "");
     btn.setAttribute("style", colorVars(r.code) + ";top:" + top + "px;left:" + (pad + e.lane * (sq + gap)) + "px;width:" + sq + "px;height:" + h + "px");
@@ -1394,24 +1411,32 @@ function layoutRail(t){
     for (k = 0; k < n; k++) { cells[k].style.top = (level === 0 ? 0 : ys[e.row + k] - top) + "px"; cells[k].style.height = (level === 0 ? hh : sq) + "px"; }
   });
   Object.keys(old).forEach(function(key){ if (!keep[key]) { var b = old[key]; b.classList.add("out"); b.style.pointerEvents = "none"; setTimeout(function(){ b.remove(); }, 400); } });
-  if (nowRow >= 0) { var nl = document.createElement("div"); nl.className = "nowline in"; nl.style.top = (ys[nowRow] - 2) + "px"; strip.appendChild(nl); fresh.push(nl); }
+  if (nowRow >= 0) { var nl = document.createElement("div"); nl.className = "nowline in"; nl.style.top = (ys[nowRow] - 2) + "px"; inner.appendChild(nl); fresh.push(nl); }
+  // the window: keep the anchor where it was on screen, or hold the current offset
+  if (anchor) {
+    var newY = anchor.key && topOf[anchor.key] != null ? topOf[anchor.key] : ys[Math.max(0, railRow(level, span, anchor.date, anchor.time))];
+    railOff = newY - anchor.screenY;
+  }
+  railOff = railClampOff(railOff);
+  railApplyOff(true);
   // next frame: let the arrivals fade in and the squares slide, after their start state has painted
-  if (fresh.length) { void strip.offsetWidth; requestAnimationFrame(function(){ fresh.forEach(function(el){ el.classList.remove("in"); }); }); }
-  strip.classList.toggle("pan", level > 0);
-  var lbl = document.getElementById("rz-lbl"); if (lbl) lbl.textContent = level === 0 ? t.label : level === 1 ? "v" + isoWeek(span.start) : dayLabel(span.start);
+  if (fresh.length) { void inner.offsetWidth; requestAnimationFrame(function(){ fresh.forEach(function(el){ el.classList.remove("in"); }); }); }
+  strip.classList.toggle("pan", railGeom.contentH > H);
   var zin = document.getElementById("rz-in"), zout = document.getElementById("rz-out"); if (zin) zin.disabled = level === 2; if (zout) zout.disabled = level === 0;
-  ["rz-prev", "rz-next"].forEach(function(id){ var b = document.getElementById(id); if (b) b.disabled = level === 0; });
+  ["rz-prev", "rz-next"].forEach(function(id){ var el = document.getElementById(id); if (el) el.disabled = railGeom.contentH <= H; });
 }
-// The date under a point in the strip, for zooming in where the pointer is.
-function railDateAt(y){
-  if (!railGeom) return null;
-  var i = 0; while (i + 1 < railGeom.ys.length && railGeom.ys[i + 1] <= y) i++;
-  return addDays(railGeom.span.start, Math.floor(i / railGeom.per));
+// What sits at a screen y in the strip: the event there, or the moment of the row there.
+function railAnchorAt(strip, clientY, target){
+  var top = strip.getBoundingClientRect().top, screenY = clientY - top, ev = target && target.closest && target.closest(".ev");
+  // no square under the pointer: the one at that height, if any, still makes the better anchor
+  if (!ev) strip.querySelectorAll(".ev").forEach(function(b){ if (ev) return; var r = b.getBoundingClientRect(); if (clientY >= r.top - 1 && clientY <= r.bottom + 1) ev = b; });
+  if (ev && ev.dataset.ev) return { key: ev.dataset.ev, screenY: ev.getBoundingClientRect().top - top };
+  var m = railMoment(railGeom.level, railGeom.span, railRowAt(screenY + railOff));
+  return { date: m.date, time: m.time, screenY: screenY };
 }
-function railSetZoom(t, level, focus){
-  railZoom.level = Math.max(0, Math.min(2, level));
-  if (focus) railZoom.focus = focus;
-  hideRailTip(); layoutRail(t);
+function railSetZoom(t, level, anchor){
+  var next = Math.max(0, Math.min(2, level)); if (next === railZoom.level) return;
+  railZoom.level = next; hideRailTip(); layoutRail(t, anchor);
 }
 function railCard(t){
   if (state.railSlim) return '<div class="card rail-card slim"><button type="button" class="rail-toggle" id="rail-toggle" title="Unfold the list of coming events" aria-label="Unfold the list">' + ic("caret-right") + '</button><div class="rail-strip" id="rail"></div>' +
@@ -1687,7 +1712,7 @@ function bindMap(t){
   var tb = document.getElementById("termbody");
   ["pointerover", "focusin"].forEach(function(ev){ tb.addEventListener(ev, function(e){ var d = e.target.closest && e.target.closest(".rail-strip .ev"); if (d) showRailTip(d); }); });
   ["pointerout", "focusout"].forEach(function(ev){ tb.addEventListener(ev, function(e){ if (e.target.closest && e.target.closest(".rail-strip .ev")) hideRailTip(); }); });
-  // wheel over the strip zooms in at the row under the pointer, or out
+  // wheel over the strip zooms in at the moment under the pointer, or out, like the map
   var wheelAcc = 0, wheelLock = false;
   tb.addEventListener("wheel", function(e){
     var strip = e.target.closest && e.target.closest(".rail-strip"); if (!strip) return;
@@ -1695,27 +1720,25 @@ function bindMap(t){
     if (wheelLock) return;
     wheelAcc += e.deltaY; if (Math.abs(wheelAcc) < 30) return;
     var dir = wheelAcc < 0 ? 1 : -1; wheelAcc = 0; wheelLock = true; setTimeout(function(){ wheelLock = false; }, 420);
-    var focus = railDateAt(e.clientY - strip.getBoundingClientRect().top);
-    railSetZoom(term(), railZoom.level + dir, dir > 0 ? focus : null);
+    railSetZoom(term(), railZoom.level + dir, railAnchorAt(strip, e.clientY, e.target));
   }, { passive: false });
-  // drag the zoomed strip: the content follows the pointer, and past a threshold it steps a day or a week
+  // drag the strip: the window slides over the period with the pointer
   var drag = null, railDragged = false;
   tb.addEventListener("pointerdown", function(e){
-    var strip = e.target.closest && e.target.closest(".rail-strip"); if (!strip || railZoom.level === 0 || e.button !== 0) return;
-    drag = { strip: strip, y: e.clientY, dy: 0, moved: false }; strip.classList.add("dragging"); strip.style.transition = "none";
+    var strip = e.target.closest && e.target.closest(".rail-strip"); if (!strip || !strip.classList.contains("pan") || e.button !== 0) return;
+    drag = { strip: strip, y: e.clientY, off: railOff, moved: false }; strip.classList.add("dragging");
     try { strip.setPointerCapture(e.pointerId); } catch (x) {}
   });
   tb.addEventListener("pointermove", function(e){
     if (!drag) return;
-    drag.dy = e.clientY - drag.y; if (Math.abs(drag.dy) > 4) drag.moved = true;
-    if (drag.moved) drag.strip.style.transform = "translateY(" + (drag.dy * 0.5) + "px)";
+    var dy = e.clientY - drag.y; if (Math.abs(dy) > 4) drag.moved = true;
+    if (drag.moved) { railOff = railClampOff(drag.off - dy); railApplyOff(false); }
   });
-  var endDrag = function(e){
+  var endDrag = function(){
     if (!drag) return;
-    var strip = drag.strip, dy = drag.dy, moved = drag.moved; drag = null;
-    strip.classList.remove("dragging"); strip.style.transition = "transform .25s ease"; strip.style.transform = "";
+    var strip = drag.strip, moved = drag.moved; drag = null;
+    strip.classList.remove("dragging");
     railDragged = moved; setTimeout(function(){ railDragged = false; }, 0);
-    if (moved && Math.abs(dy) > 40) { var t2 = term(), step = railZoom.level === 1 ? 7 : 1, f = railZoom.focus || todayIso(); railSetZoom(t2, railZoom.level, addDays(railZoom.level === 1 ? monday(f) : f, dy < 0 ? step : -step)); }
   };
   tb.addEventListener("pointerup", endDrag); tb.addEventListener("pointercancel", endDrag);
   var resizeTimer = null;
@@ -1732,10 +1755,10 @@ function bindMap(t){
       var map = b.closest(".map"); map.classList.toggle("rail-slim", state.railSlim); map.querySelector(".rail-card").outerHTML = railCard(t); layoutRail(t); applyState(); setTimeout(fitMap, 50);
     }
     else if (b.dataset.rz) {
-      var z = b.dataset.rz, step = railZoom.level === 1 ? 7 : 1, f = railZoom.focus || todayIso();
-      if (z === "in") railSetZoom(t, railZoom.level + 1, railZoom.level === 0 ? (state.mapSel && (timeline(t).find(function(r){ return (r.id || r.key) === state.mapSel; }) || {}).date) || todayIso() : null);
-      else if (z === "out") railSetZoom(t, railZoom.level - 1);
-      else railSetZoom(t, railZoom.level, addDays(railZoom.level === 1 ? monday(f) : f, z === "next" ? step : -step));
+      // zoom around the middle of the window; the arrows slide the window most of its height
+      var strip = document.getElementById("rail"), z = b.dataset.rz, mid = railViewH() / 2;
+      if (z === "in" || z === "out") railSetZoom(t, railZoom.level + (z === "in" ? 1 : -1), railAnchorAt(strip, strip.getBoundingClientRect().top + mid, null));
+      else { railOff = railClampOff(railOff + (z === "next" ? 1 : -1) * railViewH() * 0.7); railApplyOff(true); }
     }
     else if (b.id === "sel-clear") { selectKey(null, false); refreshMap(t, null, false); }
     else if (b.id === "g-fit") fitMap();
