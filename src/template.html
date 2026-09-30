@@ -371,6 +371,8 @@ svg.focus .ge.tl.hl{opacity:1}
 .detail .act{display:flex; align-items:center; gap:10px; margin:10px 0}
 .detail .act label{cursor:pointer}
 .detail .none{color:var(--muted); padding:8px 0}
+.detail .multi{font-size:12px; color:var(--muted); margin:8px 0 4px; display:flex; align-items:center; gap:8px}
+.detail .multi button{font-size:11.5px; font-weight:600; background:var(--surface); border:1px solid var(--line); border-radius:5px; padding:2px 8px; cursor:pointer; color:var(--ink)}
 .detail .peek{font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; font-weight:600; color:var(--now); margin:8px 0 2px}
 .detail.preview{outline:2px solid var(--now-soft); outline-offset:-2px; border-radius:0 0 10px 10px}
 .detail .why{color:var(--muted); font-size:12.5px; margin:4px 0}
@@ -494,7 +496,7 @@ footer p{margin:0 0 6px}
 /* ---------- Helpers ---------- */
 const P = DATA.plan, INV = DATA.inventory, COURSES = P.COURSES, TEACHERS = P.TEACHERS, TERMS = P.TERMS, PROGRESS = DATA.progress || null;
 const LS = { hours: "ltu-plan-hours", ticks: "ltu-plan-ticks", muted: "ltu-plan-muted", filter: "ltu-plan-filter", term: "ltu-plan-term", view: "ltu-plan-view", open: "ltu-plan-open", weeks: "ltu-plan-weeks", size: "ltu-plan-size", ping: "ltu-plan-ping", colored: "ltu-plan-colored", theme: "ltu-plan-theme", mapOpen: "ltu-plan-map-open", mapPos: "ltu-plan-map-pos", mapAll: "ltu-plan-map-all", mapHops: "ltu-plan-map-hops", legacy: "lp2-shared-ticks" };
-const state = { checked: {}, muted: {}, filter: "all", term: null, view: "week", day: null, open: {}, weeks: {}, size: 100, ping: true, colored: true, theme: "system", hours: { start: "09:00", end: "17:00" }, mapOpen: null, mapSel: null, mapAll: false, mapHops: 5 };
+const state = { checked: {}, muted: {}, filter: "all", term: null, view: "week", day: null, open: {}, weeks: {}, size: 100, ping: true, colored: true, theme: "system", hours: { start: "09:00", end: "17:00" }, mapOpen: null, mapSel: null, mapSels: [], mapAll: false, mapHops: 5 };
 let store = null, saveTimer = null;
 
 function esc(s){ return String(s == null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
@@ -1071,7 +1073,7 @@ function svgGraph(t){
   var edges = g.edges.map(function(e, i){ if (e.steer) return ''; return '<path class="ge' + (e.time ? ' tl' : '') + ' lv' + e.b.kind + '" data-edge="' + i + '" data-a="' + esc(e.a.id) + '" data-b="' + esc(e.b.id) + '" style="' + colorVars(e.a.code) + '" d="M0 0"/>'; }).join("");
   var dep = g.deps.map(function(e, i){ return '<path class="ge dep" data-dep="' + i + '" data-a="' + esc(e.a.id) + '" data-b="' + esc(e.b.id) + '" marker-end="url(#arrb)" d="M0 0"><title>Watch before the session</title></path>'; }).join("");
   var nodes = g.nodes.map(function(n){
-    var isSel = n.kind === "time" ? !!sel.rows[n.key] : n.id === sel.node;
+    var isSel = n.kind === "time" ? !!sel.rows[n.key] : !!sel.nodes[n.id];
     var cls = "gn " + n.kind + (isSel ? " sel" : "") + (cur[n.id] ? " cur" : "") + (n.kind === "time" && n.row.level === "must" ? " must" : "") + (n.tick && state.checked[n.tick] ? " done" : "") + (n.tick && state.muted[n.tick] ? " muted" : "") +
       (n.kind === "time" ? " " + n.row.kind + (n.row.id && state.checked[n.row.id] ? " done" : "") + (n.row.id && state.muted[n.row.id] ? " muted" : "") : "");
     var must = (n.item && itemLevel(n.code, n.item) === "must") || (n.kind === "time" && n.row.level === "must");
@@ -1121,18 +1123,27 @@ function rowNodeId(t, r){
   if (r.kind === "task" && r.feeds) { var a = assignments(r.code).find(function(x){ return x.url === r.feeds.url; }), it3 = a && items(r.code).find(function(i){ return i.assignmentId === a.id; }); return it3 ? nodeIdOf(r.code, it3) : null; }
   return null;
 }
-// The selection is one key (a rail event or a graph node); every pane derives its own highlight from it.
-function resolveSel(t){
-  var key = state.mapSel, out = { node: null, rows: {}, related: {} };
-  if (!key) return out;
+// The selection is a list of keys (rail events or graph nodes); the last one is the primary shown in details.
+// Shift, Cmd or Ctrl with a click adds or removes; a plain click replaces.
+function selectKey(key, additive){
+  if (additive) { var i = state.mapSels.indexOf(key); if (i >= 0) state.mapSels.splice(i, 1); else state.mapSels.push(key); }
+  else state.mapSels = key ? [key] : [];
+  state.mapSel = state.mapSels.length ? state.mapSels[state.mapSels.length - 1] : null;
+}
+function resolveOne(t, key, out){
   var rows = timeline(t), row = rows.find(function(r){ return (r.id || r.key) === key; });
-  var node = row ? null : findNode(mapRoots, key);
-  out.node = row ? rowNodeId(t, row) : (node ? key : null);
+  var node = row ? null : findNode(mapRoots, key), nid = row ? rowNodeId(t, row) : (node ? key : null);
+  if (nid) out.nodes[nid] = true;
   if (row) out.rows[key] = true;
-  if (out.node) rows.forEach(function(r){ if (rowNodeIds(t, r).indexOf(out.node) >= 0) out.rows[r.id || r.key] = true; });
-  // related, shown lighter: sessions that need the item first; for a module, every event inside it
+  if (nid) rows.forEach(function(r){ if (rowNodeIds(t, r).indexOf(nid) >= 0) out.rows[r.id || r.key] = true; });
   if (node && node.kind === "item") rows.forEach(function(r){ if (r.kind === "session" && r.prep && r.prep.indexOf(node.item) >= 0) out.related[r.key] = true; });
-  if (node && node.kind === "module") rows.forEach(function(r){ var ids = rowNodeIds(t, r); if (ids.some(function(nid){ return leafItems(node).some(function(c){ return c.id === nid; }); })) out.related[r.id || r.key] = true; });
+  if (node && node.kind === "module") rows.forEach(function(r){ var ids = rowNodeIds(t, r); if (ids.some(function(x){ return leafItems(node).some(function(c){ return c.id === x; }); })) out.related[r.id || r.key] = true; });
+  return nid;
+}
+function resolveSel(t){
+  var out = { node: null, nodes: {}, rows: {}, related: {}, keys: state.mapSels.slice() };
+  if (!state.mapSels.length && state.mapSel) state.mapSels = [state.mapSel];
+  state.mapSels.forEach(function(k){ var nid = resolveOne(t, k, out); if (k === state.mapSel) out.node = nid; });
   return out;
 }
 function sessionKeyOf(s){ return "s:" + s.course + ":" + s.date + ":" + (s.start || ""); }
@@ -1196,10 +1207,10 @@ function detailFor(t, key){
 function hopsLabel(){ return state.mapHops >= 5 ? "all" : state.mapHops + (state.mapHops === 1 ? " hop" : " hops"); }
 function renderMapView(t){
   // Nothing chosen yet: start on today's first event, or the next one coming up.
-  if (!state.mapSel) { var today = todayIso(), first = timeline(t).find(function(r){ return r.date >= today; }); if (first) state.mapSel = first.id || first.key; }
+  if (!state.mapSel) { var today = todayIso(), first = timeline(t).find(function(r){ return r.date >= today; }); if (first) selectKey(first.id || first.key, false); }
   return '<section><div class="map">' +
     '<div class="card"><h3>' + ic("calendar-dot") + 'Coming up</h3><div class="rail-list" id="rail">' + railList(t) + '</div></div>' +
-    '<div class="card"><h3>' + ic("tree-structure") + 'Canvas map <span class="why" style="display:inline;text-transform:none;letter-spacing:0;font-weight:400">hover or click a node to see its links, click a module to open it, drag to pan, scroll to zoom</span></h3>' +
+    '<div class="card"><h3>' + ic("tree-structure") + 'Canvas map <span class="why" style="display:inline;text-transform:none;letter-spacing:0;font-weight:400">hover or click a node to see its links, shift-click to select several, click a module to open it, drag to pan, scroll to zoom</span></h3>' +
       '<div class="gwrap" id="gwrap">' + svgGraph(t) + '<div class="gtools"><button type="button" id="g-fit" title="Fit the whole graph">' + ic("arrows-in", "sm") + 'Fit</button><button type="button" id="g-open" title="Open every module">' + ic("arrows-out", "sm") + 'Open all</button><button type="button" id="g-close" title="Close every module">Close all</button><button type="button" id="g-settle" title="Forget the saved positions and lay the material out afresh">Re-settle</button><button type="button" id="g-all" title="Show every node; lower levels fade until they join a chain" aria-pressed="' + (state.mapAll ? "true" : "false") + '">Show all</button>' +
       '<label class="reach" title="How far a highlighted chain reaches from the node: link steps in either direction, the jump to the ring counts as one"><span>Reach</span><input type="range" id="g-hops" min="1" max="5" step="1" value="' + state.mapHops + '"><b id="g-hops-v">' + hopsLabel() + '</b></label></div>' +
       '<div class="legend-g"><div class="lt">Legend</div>' +
@@ -1222,7 +1233,7 @@ function wireGraph(){
     var g = e.target.closest("[data-node]"); if (!g) return;
     g.classList.add("hover"); highlight(g.dataset.node);
     var n = mapLayout.nodes.find(function(x){ return x.id === g.dataset.node; }), key = n && (n.kind === "time" ? n.key : n.id);
-    if (key && key !== state.mapSel) { var d = document.getElementById("detail"); d.classList.add("preview"); d.innerHTML = '<div class="peek">Hovering. Click to keep.</div>' + detailFor(term(), key); }
+    if (key && state.mapSels.indexOf(key) < 0) { var d = document.getElementById("detail"); d.classList.add("preview"); d.innerHTML = '<div class="peek">Hovering. Click to keep.</div>' + detailFor(term(), key); }
   });
   svg.addEventListener("pointerout", function(e){ var g = e.target.closest("[data-node]"); if (g) { g.classList.remove("hover"); document.getElementById("detail").classList.remove("preview"); applySel(term()); } });
 }
@@ -1267,10 +1278,11 @@ function chainOf(id){
   Object.keys(nodes).forEach(function(id){ if (depth[id] + 1 > limit) return; (ins[id] || []).forEach(function(e){ if (e.time && !e.loose) { nodes[e.a.id] = true; edges[e.a.id + ">" + e.b.id] = true; } }); });
   return { nodes: nodes, edges: edges };
 }
-function highlight(id){
+function highlight(ids){
   var svg = document.getElementById("gsvg"); if (!svg) return;
-  if (!id) { svg.classList.remove("focus"); svg.querySelectorAll(".hl").forEach(function(el){ el.classList.remove("hl"); }); return; }
-  var c = chainOf(id);
+  if (!ids || !ids.length) { svg.classList.remove("focus"); svg.querySelectorAll(".hl").forEach(function(el){ el.classList.remove("hl"); }); return; }
+  var c = { nodes: {}, edges: {} };
+  (Array.isArray(ids) ? ids : [ids]).forEach(function(id){ var one = chainOf(id); Object.assign(c.nodes, one.nodes); Object.assign(c.edges, one.edges); });
   svg.classList.add("focus");
   mapLayout.nodes.forEach(function(n){ if (n.el) n.el.classList.toggle("hl", !!c.nodes[n.id]); });
   mapLayout.edges.concat(mapLayout.deps).forEach(function(e){ if (e.el) e.el.classList.toggle("hl", !!c.edges[e.a.id + ">" + e.b.id]); });
@@ -1278,12 +1290,13 @@ function highlight(id){
 // Apply the current selection to the three panes without touching the layout.
 function applySel(t){
   var sel = resolveSel(t);
-  mapLayout.nodes.forEach(function(n){ if (!n.el) return; n.el.classList.toggle("sel", n.kind === "time" ? !!sel.rows[n.key] : n.id === sel.node); });
-  document.getElementById("detail").innerHTML = detailFor(t, state.mapSel);
+  mapLayout.nodes.forEach(function(n){ if (!n.el) return; n.el.classList.toggle("sel", n.kind === "time" ? !!sel.rows[n.key] : !!sel.nodes[n.id]); });
+  document.getElementById("detail").innerHTML = (state.mapSels.length > 1 ? '<div class="multi">' + state.mapSels.length + ' selected, showing the last. <button type="button" id="sel-clear">Clear</button></div>' : '') + detailFor(t, state.mapSel);
   document.querySelectorAll("#rail .ev").forEach(function(b){ b.setAttribute("aria-current", String(!!sel.rows[b.dataset.ev])); b.classList.toggle("rel", !!sel.related[b.dataset.ev]); });
   var cur = document.querySelector('#rail .ev[aria-current="true"], #rail .ev.rel'); if (cur && cur.scrollIntoView) cur.scrollIntoView({ block: "nearest" });
-  var focusId = sel.node || (state.mapSel && mapLayout.nodes.some(function(n){ return n.kind === "time" && n.key === state.mapSel; }) ? "t:" + state.mapSel : null);
-  highlight(focusId);
+  var focus = Object.keys(sel.nodes);
+  state.mapSels.forEach(function(k){ if (mapLayout.nodes.some(function(n){ return n.kind === "time" && n.key === k; })) focus.push("t:" + k); });
+  highlight(focus.length ? focus : null);
   applyState();
 }
 // Rebuild the graph only when its structure changed (a module opened or closed); otherwise just re-mark.
@@ -1315,19 +1328,20 @@ function bindSvg(){
     var wasDrag = drag && drag.moved, node = drag && drag.node; drag = null; svg.classList.remove("drag");
     if (wasDrag || !node) return;
     var id = node.id, t = term();
-    if (node.kind === "time") { state.mapSel = node.key; var nid = rowNodeId(t, node.row), opened = nid ? openPathTo(nid) : false; refreshMap(t, null, opened); return; }
+    var add = e.shiftKey || e.metaKey || e.ctrlKey;
+    if (node.kind === "time") { selectKey(node.key, add); var nid = rowNodeId(t, node.row), opened = nid ? openPathTo(nid) : false; refreshMap(t, null, opened); return; }
     var structural = false;
-    if (id.charAt(0) !== "i" && !state.mapAll) { state.mapOpen[id] = !state.mapOpen[id]; lsSet(LS.mapOpen, JSON.stringify(state.mapOpen)); structural = true; }
-    state.mapSel = id; refreshMap(t, null, structural);
+    if (id.charAt(0) !== "i" && !state.mapAll && !add) { state.mapOpen[id] = !state.mapOpen[id]; lsSet(LS.mapOpen, JSON.stringify(state.mapOpen)); structural = true; }
+    selectKey(id, add); refreshMap(t, null, structural);
   });
   svg.addEventListener("wheel", function(e){ e.preventDefault(); var r = svg.getBoundingClientRect(), px = e.clientX - r.left, py = e.clientY - r.top, f = e.deltaY < 0 ? 1.12 : 1 / 1.12, s = Math.min(3, Math.max(.25, mapT.s * f)); mapT.x = px - (px - mapT.x) * (s / mapT.s); mapT.y = py - (py - mapT.y) * (s / mapT.s); mapT.s = s; applyMapT(); }, { passive: false });
 }
-function gotoKey(t, key){
+function gotoKey(t, key, additive){
   var row = timeline(t).find(function(r){ return (r.id || r.key) === key; });
   var nid = row ? rowNodeId(t, row) : (findNode(mapRoots, key) ? key : null);
   var opened = nid ? openPathTo(nid) : false;
-  state.mapSel = key;
-  refreshMap(t, nid, opened);
+  selectKey(key, additive);
+  refreshMap(t, additive ? null : nid, opened);
 }
 var mapClicksBound = false;
 function bindMap(t){
@@ -1337,8 +1351,10 @@ function bindMap(t){
   document.getElementById("termbody").addEventListener("click", function(e){
     if (state.view !== "map") return;
     var t = term(), b = e.target.closest("button"); if (!b) return;
-    if (b.dataset.ev) gotoKey(t, b.dataset.ev);
-    else if (b.dataset.goto) gotoKey(t, b.dataset.goto);
+    var add = e.shiftKey || e.metaKey || e.ctrlKey;
+    if (b.dataset.ev) gotoKey(t, b.dataset.ev, add);
+    else if (b.dataset.goto) gotoKey(t, b.dataset.goto, add);
+    else if (b.id === "sel-clear") { selectKey(null, false); refreshMap(t, null, false); }
     else if (b.id === "g-fit") fitMap();
     else if (b.id === "g-settle") { mapPos = {}; lsSet(LS.mapPos, "{}"); refreshMap(t, null, true); runSim(1); setTimeout(fitMap, 900); }
     else if (b.id === "g-all") { state.mapAll = !state.mapAll; lsSet(LS.mapAll, state.mapAll ? "1" : "0"); b.setAttribute("aria-pressed", String(state.mapAll)); refreshMap(t, null, true); setTimeout(fitMap, 700); }
