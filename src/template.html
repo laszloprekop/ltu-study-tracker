@@ -282,16 +282,28 @@ svg.focus .ge.hl{opacity:1; stroke-width:2}
 svg.focus .ge.tl.hl{stroke:var(--now)}
 .gwrap svg{cursor:grab}
 .gn rect{fill:var(--surface-2); stroke:var(--cc); stroke-width:1.2}
+.gn circle.body{fill:var(--cc-soft); stroke:var(--cc); stroke-width:1.5}
+.gn.course circle.body{stroke-width:2.5}
+.gn.section circle.body{stroke-dasharray:3 2}
+.gn .gl{font-family:Archivo,sans-serif; font-weight:700; font-size:12px; fill:var(--cc)}
+.gn .gl.big{font-size:13px; letter-spacing:.04em}
+.gn .gl.small{font-size:10.5px}
+.gn .lab{font-size:10.5px; fill:var(--muted); paint-order:stroke; stroke:var(--surface); stroke-width:3px; stroke-linejoin:round; pointer-events:none}
+.gn.sel .lab,.gn.hover .lab{display:none}
+.gn.done circle.body{stroke:var(--line); fill:var(--surface-2)}
+.gn.done .lab{text-decoration:line-through}
+.gn.cur circle.body{fill:var(--now-soft)}
+.gn.sel circle.body{stroke:var(--now); stroke-width:3}
+.gn.sel .gl{fill:var(--ink)}
 .gn text{font-family:"Public Sans","Helvetica Neue",Arial,sans-serif; font-size:12px; fill:var(--ink)}
-.gn.course rect{fill:var(--cc-soft); stroke-width:1.6}
-.gn.section rect{stroke-dasharray:4 3}
 .gn.time rect{fill:var(--surface); stroke-width:1.4}
 .gn.time text{font-size:10px; font-family:"IBM Plex Mono",ui-monospace,monospace}
 .gn.time.must rect{stroke:var(--alert)}
 .gn.time.sel{z-index:1}
 .gn.time.deadline rect{stroke:var(--alert)}
 .gn.time.task rect{stroke-dasharray:3 2}
-.gn use{fill:var(--muted)}
+.gn use{fill:var(--cc)}
+.gn.time use{fill:var(--muted)}
 .gn.sel use,.gn.cur use{fill:var(--ink)}
 .ge.tl{stroke:var(--cc); opacity:0}
 svg.focus .ge.tl.hl{opacity:1}
@@ -305,14 +317,14 @@ svg.focus .ge.tl.hl{opacity:1}
 .ring .now circle{fill:var(--now); stroke:var(--bg); stroke-width:3}
 .ring .now text{fill:var(--now); font-weight:700; font-size:11px; letter-spacing:.06em; text-transform:uppercase}
 .gn.course text,.gn.module text{font-weight:600}
-.gn.done rect{stroke:var(--line)}
-.gn.done text{fill:var(--muted); text-decoration:line-through}
+.gn.time.done rect{stroke:var(--line)}
+.gn.time.done text{fill:var(--muted); text-decoration:line-through}
 .gn.muted{opacity:.4}
 .gn.cur rect{fill:var(--now-soft)}
 .gn.sel rect{stroke:var(--now); stroke-width:2.5; fill:var(--now-soft)}
 .gn .must{fill:var(--alert)}
 .gn .badge{font-size:10px; fill:var(--muted); font-weight:600}
-.gn .sub{display:none; font-size:11px; fill:var(--ink); paint-order:stroke; stroke:var(--surface); stroke-width:4px; stroke-linejoin:round; pointer-events:none}
+.gn .sub{display:none; font-size:11px; font-weight:600; fill:var(--ink); paint-order:stroke; stroke:var(--surface); stroke-width:4px; stroke-linejoin:round; pointer-events:none}
 .gn.sel .sub,.gn.hover .sub{display:block}
 .ge{stroke:var(--muted); stroke-width:1.2; fill:none; opacity:.7}
 .ge.dep{stroke:var(--now); stroke-dasharray:4 3; opacity:.9}
@@ -862,7 +874,8 @@ function depEdges(t, visible){
   });
   return out;
 }
-var LABEL_MAX = { course: 22, module: 18, section: 16, item: 16, time: 6 };
+var LABEL_MAX = { course: 24, module: 22, section: 20, item: 20, time: 6 };
+var RADIUS = { course: 26, module: 17, section: 12, item: 9 };
 function trunc(s, n){ return s.length > n ? s.slice(0, n - 1) + "\u2026" : s; }
 
 // ---- the clock: dated nodes pinned on a ring, in date order, starting at the top and running clockwise
@@ -879,10 +892,10 @@ function clockAngle(isoDate, time){
   for (var i = 1; i < pts.length; i++) if (s <= pts[i].s) { var a = pts[i - 1], b = pts[i]; return b.s === a.s ? a.ang : a.ang + (b.ang - a.ang) * (s - a.s) / (b.s - a.s); }
   return -Math.PI / 2;
 }
-function nodeRadius(n){ return n.w / 2 + 6; }
+function nodeRadius(n){ return n.w / 2 + (n.kind === "time" ? 6 : 14); }
 function buildForceGraph(t, roots){
   var nodes = [], edges = [];
-  function width(n){ var chars = Math.min(n.label.length, LABEL_MAX[n.kind] || 18); return Math.max(chars * 6.4 + (n.kind === "item" ? 40 : 26), 56); }
+  function width(n){ n.r = RADIUS[n.kind] || 10; return n.r * 2; }
   roots.forEach(function(r){ (function walk(n, parent, depth){
     n.depth = depth; n.w = width(n); n.open = n.kind !== "item" && !!state.mapOpen[n.id]; n.parent = parent;
     nodes.push(n);
@@ -960,7 +973,7 @@ function stepForces(){
   });
 }
 function paintForces(){
-  mapLayout.nodes.forEach(function(n){ if (n.el) n.el.setAttribute("transform", "translate(" + (n.x - n.w / 2) + " " + (n.y - (n.h || 28) / 2) + ")"); if (!n.fixed) mapPos[n.id] = { x: n.x, y: n.y }; });
+  mapLayout.nodes.forEach(function(n){ if (n.el) n.el.setAttribute("transform", n.kind === "time" ? "translate(" + (n.x - n.w / 2) + " " + (n.y - (n.h || 28) / 2) + ")" : "translate(" + n.x + " " + n.y + ")"); if (!n.fixed) mapPos[n.id] = { x: n.x, y: n.y }; });
   mapLayout.edges.forEach(function(e){ if (e.el) e.el.setAttribute("d", "M" + e.a.x + " " + e.a.y + " L" + e.b.x + " " + e.b.y); });
   mapLayout.deps.forEach(function(e){ if (e.el) { var mx = (e.a.x + e.b.x) / 2, my = (e.a.y + e.b.y) / 2 - 30; e.el.setAttribute("d", "M" + e.a.x + " " + e.a.y + " Q" + mx + " " + my + " " + e.b.x + " " + e.b.y); } });
 }
@@ -1009,16 +1022,24 @@ function svgGraph(t){
     var cls = "gn " + n.kind + (isSel ? " sel" : "") + (cur[n.id] ? " cur" : "") + (n.kind === "time" && n.row.level === "must" ? " must" : "") + (n.tick && state.checked[n.tick] ? " done" : "") + (n.tick && state.muted[n.tick] ? " muted" : "") +
       (n.kind === "time" ? " " + n.row.kind + (n.row.id && state.checked[n.row.id] ? " done" : "") + (n.row.id && state.muted[n.row.id] ? " muted" : "") : "");
     var must = (n.item && itemLevel(n.code, n.item) === "must") || (n.kind === "time" && n.row.level === "must");
-    var badge = n.kind !== "item" && n.kind !== "time" && !n.open ? '<text class="badge" x="' + (n.w - 8) + '" y="18" text-anchor="end">' + leafItems(n).length + '</text>' : "";
-    var icon = n.kind === "item" ? '<use href="#i-' + (KIND_ICON[n.item.kind] || "book-open") + '" x="' + (must ? 16 : 8) + '" y="7" width="14" height="14"/>'
-      : n.kind === "time" ? '<use href="#i-' + (n.row.kind === "session" ? (SESSION_ICON[n.row.skind] || "calendar") : n.row.kind === "deadline" ? (KIND_ICON[n.row.akind] || "upload-simple") : "clipboard-text") + '" x="6" y="4" width="12" height="12"/>' : "";
-    var tx = n.kind === "time" ? 21 : n.kind === "item" ? (must ? 34 : 26) : (must ? 18 : 12);
-    var rx = n.kind === "course" ? 14 : n.kind === "module" ? 5 : n.kind === "section" ? 9 : 14;
+    var badge = n.kind !== "item" && n.kind !== "time" && !n.open;
     var ids = ' data-node="' + esc(n.id) + '"' + (n.tick ? ' data-id="' + esc(n.tick) + '"' : n.kind === "time" && n.row.id ? ' data-id="' + esc(n.row.id) + '"' : '');
-    return '<g class="' + cls + '"' + ids + ' style="' + colorVars(n.code) + '">' +
-      '<title>' + esc(n.label) + '</title><rect rx="' + rx + '" width="' + n.w + '" height="' + (n.h || 28) + '"/>' + (must && n.kind !== "time" ? '<circle class="must" cx="10" cy="14" r="3"/>' : '') + icon +
-      '<text class="sub" x="' + (n.w / 2) + '" y="' + ((n.h || 28) + 13) + '" text-anchor="middle">' + esc(trunc(n.kind === "time" ? n.label : n.label, 70)) + '</text>' +
-      '<text x="' + tx + '" y="' + (n.kind === "time" ? 14 : 18) + '">' + esc(n.kind === "time" ? n.short : trunc(n.label, LABEL_MAX[n.kind] || 18)) + '</text>' + badge + '</g>';
+    if (n.kind === "time") {
+      var ticon = '<use href="#i-' + (n.row.kind === "session" ? (SESSION_ICON[n.row.skind] || "calendar") : n.row.kind === "deadline" ? (KIND_ICON[n.row.akind] || "upload-simple") : "clipboard-text") + '" x="6" y="4" width="12" height="12"/>';
+      return '<g class="' + cls + '"' + ids + ' style="' + colorVars(n.code) + '"><title>' + esc(n.label) + '</title><rect rx="10" width="' + n.w + '" height="' + n.h + '"/>' + ticon +
+        '<text class="sub" x="' + (n.w / 2) + '" y="' + (n.h + 13) + '" text-anchor="middle">' + esc(trunc(n.label, 70)) + '</text><text x="21" y="14">' + esc(n.short) + '</text></g>';
+    }
+    // inner nodes: a circle sized by depth with a glyph inside, the title underneath
+    var r = n.r, glyph;
+    if (n.kind === "course") glyph = '<text class="gl big" text-anchor="middle" y="5">' + esc((COURSES[n.code] || {}).prefix || n.code.slice(0, 3)) + '</text>';
+    else if (n.kind === "module") glyph = '<text class="gl" text-anchor="middle" y="4.5">' + esc(String(n.module.position)) + '</text>';
+    else if (n.kind === "section") glyph = '<text class="gl small" text-anchor="middle" y="4">' + esc(n.label.replace(/^[^A-Za-z0-9]+/, "").charAt(0).toUpperCase()) + '</text>';
+    else glyph = '<use href="#i-' + (KIND_ICON[n.item.kind] || "book-open") + '" x="-6" y="-6" width="12" height="12"/>';
+    return '<g class="' + cls + '"' + ids + ' style="' + colorVars(n.code) + '"><title>' + esc(n.label) + '</title><circle class="body" r="' + r + '"/>' + glyph +
+      (must ? '<circle class="must" cx="' + (r * 0.72) + '" cy="' + (-r * 0.72) + '" r="3.5"/>' : '') +
+      (badge ? '<text class="badge" x="' + (r + 3) + '" y="' + (-r + 6) + '">' + leafItems(n).length + '</text>' : '') +
+      '<text class="lab" y="' + (r + 12) + '" text-anchor="middle">' + esc(trunc(n.label, LABEL_MAX[n.kind] || 18)) + '</text>' +
+      '<text class="sub" y="' + (r + 12) + '" text-anchor="middle">' + esc(trunc(n.label, 70)) + '</text></g>';
   }).join("");
   return '<svg id="gsvg" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--now)"/></marker></defs>' +
     '<g id="gpan">' + ringSvg(t) + edges + dep + nodes + '</g></svg>';

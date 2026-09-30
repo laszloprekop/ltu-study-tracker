@@ -87,11 +87,10 @@ evenly spaced in date order; week ticks and the today spoke land between their n
 pill is tied by a spring to the Canvas page it points at. Inside the ring the
 Canvas structure floats in a force layout: course to module to section (Canvas's own headings,
 when a module has several) to item; nodes repel, links attract, and the springs to the ring pull
-each module toward the time it is taught. Item nodes show their kind icon. Nodes are not draggable; drag
+each module toward the time it is taught. Inner nodes are circles sized by level: the course (its prefix letters), modules (their number), sections (a letter), items (their kind icon), with the title underneath. Nodes are not draggable; drag
 the background to pan, scroll to zoom, click a module or section to open it. Selecting never moves
 the layout, positions are remembered per viewer, and when a module opens only its new nodes
-settle while everything already placed stays put. Nodes are short; the full title appears as a
-sublabel under a hovered or selected node. Hovering or selecting highlights the whole chain in
+settle while everything already placed stays put. The full title replaces the short one under a hovered or selected node. Hovering or selecting highlights the whole chain in
 both directions, as far as the links keep pointing the same way: up through parents,
 prerequisites and the events pointing in, down through children and what depends on it. Ties
 from events to a folded module do not count. Dashed blue edges
