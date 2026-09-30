@@ -283,7 +283,11 @@ svg.showall .gn.section:not(.hl):not(.sel):not(.hover):not(.cur){opacity:.35}
 svg.showall .gn.item:not(.hl):not(.sel):not(.hover):not(.cur){opacity:.22}
 svg.showall .gn.item:not(.hl):not(.sel):not(.hover):not(.cur) .lab,svg.showall .gn.section:not(.hl):not(.sel):not(.hover) .lab{display:none}
 svg.showall .ge.lvsection:not(.hl),svg.showall .ge.lvitem:not(.hl){opacity:.1}
-.gn{cursor:pointer}
+.gn{cursor:pointer; transition:opacity .4s ease}
+.ge{transition:opacity .45s ease, stroke-width .3s ease}
+.gn circle.body,.gn rect{transition:stroke .3s ease, fill .3s ease, stroke-width .3s ease}
+.gn .sub,.gn .lab{transition:opacity .3s ease}
+@media (prefers-reduced-motion:reduce){ .gn,.ge,.gn circle.body,.gn rect,.gn .sub,.gn .lab{transition:none} }
 svg.focus .gn:not(.hl){opacity:.22}
 svg.focus .ge:not(.hl):not(.tl){opacity:.06}
 svg.focus .ge.hl{opacity:1; stroke-width:2}
