@@ -149,12 +149,14 @@ body.colored .row:not(.done) .tt,body.colored .mat li:not(.done) .tt{color:var(-
 body:not(.noping) .endangered:not(.done):not(.muted) .box .ring{display:block}
 @keyframes pingring{0%{transform:scale(.55); opacity:.95} 100%{transform:scale(2.1); opacity:0}}
 @media (prefers-reduced-motion:reduce){ .bar span{transition:none} .box .ring{animation:none; inset:-3px; opacity:.8} }
-.tag{display:inline-block; font-size:10.5px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:var(--muted); background:var(--bg); padding:0 5px; margin-left:6px; vertical-align:1px; white-space:nowrap}
+/* Labels: chip (course), lvl (MUST/NICE) and tag share one size, so they sit level in a row. */
+.tag,.lvl,.chip{display:inline-block; font-size:10.5px; line-height:1.5; letter-spacing:.05em; text-transform:uppercase; padding:1px 6px; vertical-align:1px; white-space:nowrap}
+.tag{font-weight:600; color:var(--muted); background:var(--bg); margin-left:6px}
 .tag.expected{color:var(--now); border-color:transparent; background:var(--now-soft)}
 .tag.pts{color:var(--ink)}
 a.tag.feeds{text-decoration:none; color:var(--alert); background:var(--alert-soft)}
 a.tag.feeds:hover{text-decoration:underline}
-.lvl{display:inline-block; font-size:9.5px; font-weight:700; letter-spacing:.08em; padding:0 4px; margin-right:7px; vertical-align:1px; line-height:1.5}
+.lvl{font-weight:700; margin-right:7px}
 .lvl.must{color:var(--alert); background:var(--alert-soft)}
 .lvl.nice{color:var(--muted); background:var(--bg); opacity:.85}
 .est{color:var(--muted); font-size:12px; white-space:nowrap}
@@ -162,7 +164,7 @@ a.tag.feeds:hover{text-decoration:underline}
 .mute:hover,.muted .mute{opacity:1}
 .muted .mute{color:var(--alert)}
 
-.chip{display:inline-block; font-size:10.5px; font-weight:600; letter-spacing:.05em; text-transform:uppercase; padding:1px 6px; margin-right:7px; vertical-align:1px; white-space:nowrap; color:var(--cc); background:var(--cc-soft)}
+.chip{font-weight:600; margin-right:7px; color:var(--cc); background:var(--cc-soft)}
 .ph{display:inline-block; flex:0 0 auto; line-height:0; border-radius:50%; overflow:hidden; isolation:isolate; background:#fff; background:color-mix(in srgb, var(--cc) 32%, #fff)}
 .ph img{display:block; width:100%; height:100%; object-fit:cover; mix-blend-mode:multiply}
 .faces{display:inline-flex; vertical-align:-4px; margin-right:5px}
