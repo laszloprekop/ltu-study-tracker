@@ -28,9 +28,11 @@
     --alert:#f19089; --alert-soft:#33191a;
     --ok:#7fc492; --now:#8fb4f2; --now-soft:#18253a; --on-now:#0f1319;
     --shadow:0 1px 2px rgba(0,0,0,.4);
+    color-scheme:dark;
   }
 }
 :root[data-theme="dark"]{
+  color-scheme:dark;
   --bg:#0f1319; --surface:#161d25; --surface-2:#1b232c;
   --ink:#e6edf4; --muted:#95a3b2; --line:#27313c;
   --c1:#ef9a68; --c1-soft:#33231a;
@@ -42,8 +44,9 @@
   --ok:#7fc492; --now:#8fb4f2; --now-soft:#18253a; --on-now:#0f1319;
   --shadow:0 1px 2px rgba(0,0,0,.4);
 }
-*{box-sizing:border-box}
-body{background:var(--bg); color:var(--ink); font-family:"Public Sans","Helvetica Neue",Arial,sans-serif; font-size:15px; line-height:1.55}
+*{box-sizing:border-box; scrollbar-color:var(--line) transparent}
+:root[data-theme="light"]{color-scheme:light}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:"Public Sans","Helvetica Neue",Arial,sans-serif; font-size:15px; line-height:1.55}
 .wrap{max-width:none; margin:0; padding-inline:clamp(16px, 2vw, 28px); padding-block:0 56px}
 h1,h2,h3{font-family:Archivo,"Helvetica Neue",Arial,sans-serif; text-wrap:balance; margin:0}
 .mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace; font-variant-numeric:tabular-nums}
@@ -252,7 +255,16 @@ a.tag.feeds:hover{border-color:var(--alert)}
 .freeday .w small{color:var(--muted); font-weight:400}
 
 /* ---------- Map view ---------- */
-.map{display:grid; grid-template-columns:clamp(230px, 18vw, 300px) minmax(0,1fr) clamp(340px, 26vw, 460px); gap:14px; height:calc(100vh - 150px); min-height:520px}
+html,body{height:100%}
+body.mapview{overflow:hidden}
+body.mapview .wrap{height:100%; display:flex; flex-direction:column; padding-bottom:10px}
+body.mapview header.top{position:static; flex:0 0 auto}
+body.mapview .termline{flex:0 0 auto}
+body.mapview #termbody{flex:1 1 auto; min-height:0; display:flex; flex-direction:column}
+body.mapview #termbody section{flex:1 1 auto; min-height:0; margin-bottom:12px; display:flex}
+body.mapview footer{flex:0 0 auto; padding-top:8px; font-size:11.5px}
+body.mapview footer p{margin:0 0 2px}
+.map{display:grid; grid-template-columns:clamp(230px, 18vw, 300px) minmax(0,1fr) clamp(340px, 26vw, 460px); gap:14px; flex:1 1 auto; min-height:0; width:100%}
 .map > .card{min-height:0; display:flex; flex-direction:column}
 .map h3{font-size:12px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); padding:12px 14px 6px; display:flex; align-items:center; gap:6px}
 .map h3 .ic{color:var(--muted)}
@@ -387,7 +399,7 @@ svg.focus .ge.tl.hl{opacity:.5; stroke-width:1.4}
 .detail.preview{outline:2px solid var(--now-soft); outline-offset:-2px; border-radius:0 0 10px 10px}
 .detail .why{color:var(--muted); font-size:12.5px; margin:4px 0}
 .detail .lnk{background:none; border:0; padding:0; font:inherit; color:inherit; cursor:pointer; text-decoration:underline}
-@media (max-width:900px){ .map{grid-template-columns:1fr; height:auto} .map .rail-list{max-height:220px} .gwrap{height:50vh} .detail{max-height:60vh} }
+@media (max-width:900px){ body.mapview{overflow:auto} body.mapview .wrap{height:auto} .map{grid-template-columns:1fr; height:auto} .map .rail-list{max-height:220px} .gwrap{height:50vh} .detail{max-height:60vh} }
 
 /* ---------- All deadlines ---------- */
 .tablewrap{overflow-x:auto}
@@ -865,6 +877,7 @@ function renderTerm(){
   document.getElementById("asof").textContent = "Deadlines and module items read from Canvas on " + longDay(INV.generatedAt.slice(0, 10)) + " " + INV.generatedAt.slice(0, 4) + "." + (t.extra ? " " + t.extra : "") + (PROGRESS ? " This is a private build: the Canvas marks are your own account's." : "");
   renderTabs(); renderFilter(t);
   document.querySelectorAll("#views button").forEach(function(b){ b.setAttribute("aria-pressed", String(b.dataset.view === state.view)); });
+  document.body.classList.toggle("mapview", state.view === "map");
   var body;
   if (t.upcoming && !t.courses.length) { body = '<section><div class="card empty"><h3>' + esc(t.label + ", " + t.period) + '</h3><p>' + esc(t.upcoming) + '</p></div></section>'; document.getElementById("jump").hidden = true; }
   else if (state.view === "map") body = renderMapView(t);
