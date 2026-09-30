@@ -275,6 +275,11 @@ a.tag.feeds:hover{border-color:var(--alert)}
 .gtools{position:absolute; top:10px; right:10px; display:flex; gap:4px}
 .gtools button{display:inline-flex; align-items:center; gap:4px; font-size:12px; font-weight:600; color:var(--muted); background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:4px 7px; cursor:pointer}
 .gtools button:hover{color:var(--ink)}
+.gtools button[aria-pressed="true"]{color:var(--now); border-color:var(--now)}
+svg.showall .gn.section:not(.hl):not(.sel):not(.hover):not(.cur){opacity:.35}
+svg.showall .gn.item:not(.hl):not(.sel):not(.hover):not(.cur){opacity:.22}
+svg.showall .gn.item:not(.hl):not(.sel):not(.hover):not(.cur) .lab,svg.showall .gn.section:not(.hl):not(.sel):not(.hover) .lab{display:none}
+svg.showall .ge.lvsection:not(.hl),svg.showall .ge.lvitem:not(.hl){opacity:.1}
 .gn{cursor:pointer}
 svg.focus .gn:not(.hl){opacity:.22}
 svg.focus .ge:not(.hl):not(.tl){opacity:.06}
@@ -461,8 +466,8 @@ footer p{margin:0 0 6px}
 
 /* ---------- Helpers ---------- */
 const P = DATA.plan, INV = DATA.inventory, COURSES = P.COURSES, TEACHERS = P.TEACHERS, TERMS = P.TERMS, PROGRESS = DATA.progress || null;
-const LS = { hours: "ltu-plan-hours", ticks: "ltu-plan-ticks", muted: "ltu-plan-muted", filter: "ltu-plan-filter", term: "ltu-plan-term", view: "ltu-plan-view", open: "ltu-plan-open", weeks: "ltu-plan-weeks", size: "ltu-plan-size", ping: "ltu-plan-ping", colored: "ltu-plan-colored", theme: "ltu-plan-theme", mapOpen: "ltu-plan-map-open", mapPos: "ltu-plan-map-pos", legacy: "lp2-shared-ticks" };
-const state = { checked: {}, muted: {}, filter: "all", term: null, view: "week", day: null, open: {}, weeks: {}, size: 100, ping: true, colored: true, theme: "system", hours: { start: "09:00", end: "17:00" }, mapOpen: null, mapSel: null };
+const LS = { hours: "ltu-plan-hours", ticks: "ltu-plan-ticks", muted: "ltu-plan-muted", filter: "ltu-plan-filter", term: "ltu-plan-term", view: "ltu-plan-view", open: "ltu-plan-open", weeks: "ltu-plan-weeks", size: "ltu-plan-size", ping: "ltu-plan-ping", colored: "ltu-plan-colored", theme: "ltu-plan-theme", mapOpen: "ltu-plan-map-open", mapPos: "ltu-plan-map-pos", mapAll: "ltu-plan-map-all", legacy: "lp2-shared-ticks" };
+const state = { checked: {}, muted: {}, filter: "all", term: null, view: "week", day: null, open: {}, weeks: {}, size: 100, ping: true, colored: true, theme: "system", hours: { start: "09:00", end: "17:00" }, mapOpen: null, mapSel: null, mapAll: false };
 let store = null, saveTimer = null;
 
 function esc(s){ return String(s == null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
@@ -897,7 +902,7 @@ function buildForceGraph(t, roots){
   var nodes = [], edges = [];
   function width(n){ n.r = RADIUS[n.kind] || 10; return n.r * 2; }
   roots.forEach(function(r){ (function walk(n, parent, depth){
-    n.depth = depth; n.w = width(n); n.open = n.kind !== "item" && !!state.mapOpen[n.id]; n.parent = parent;
+    n.depth = depth; n.w = width(n); n.open = n.kind !== "item" && (state.mapAll || !!state.mapOpen[n.id]); n.parent = parent;
     nodes.push(n);
     if (parent) edges.push({ a: parent, b: n, len: parent.kind === "course" ? 150 : 85, k: parent.kind === "course" ? 0.02 : 0.05 });
     if (n.open) n.children.forEach(function(k){ walk(k, n, depth + 1); });
@@ -908,7 +913,7 @@ function buildForceGraph(t, roots){
   // the ring: the study period around the full circle
   var rows = timeline(t).filter(function(r){ return state.filter === "all" || r.code === state.filter; });
   clock = { start: t.start, days: Math.max(7, (day(t.end) - day(t.start)) / 864e5 + 1) };
-  var R = Math.max(420, rows.length * 26 / (2 * Math.PI), Math.sqrt(structural * 7000 / Math.PI) / 0.68 + 30);
+  var R = Math.max(420, rows.length * 26 / (2 * Math.PI), Math.sqrt(structural * 2600 / Math.PI) / 0.68 + 30);
   clock.R = R;
   // events sit just outside the ring like numerals, one slot each, in date order
   clock.pts = rows.map(function(r, i){ return { s: stamp(r.date, r.time), ang: i / rows.length * 2 * Math.PI - Math.PI / 2 }; });
@@ -1015,7 +1020,7 @@ function svgGraph(t){
   g.deps = depEdges(t, g.visible).map(function(e){ return { a: e[0], b: e[1] }; });
   mapLayout = g;
   var cur = currentSet(t), sel = resolveSel(t);
-  var edges = g.edges.map(function(e, i){ return '<path class="ge' + (e.time ? ' tl' : '') + '" data-edge="' + i + '" data-a="' + esc(e.a.id) + '" data-b="' + esc(e.b.id) + '" style="' + colorVars(e.a.code) + '" d="M0 0"/>'; }).join("");
+  var edges = g.edges.map(function(e, i){ return '<path class="ge' + (e.time ? ' tl' : '') + ' lv' + e.b.kind + '" data-edge="' + i + '" data-a="' + esc(e.a.id) + '" data-b="' + esc(e.b.id) + '" style="' + colorVars(e.a.code) + '" d="M0 0"/>'; }).join("");
   var dep = g.deps.map(function(e, i){ return '<path class="ge dep" data-dep="' + i + '" data-a="' + esc(e.a.id) + '" data-b="' + esc(e.b.id) + '" marker-end="url(#arrb)" d="M0 0"><title>Watch before the session</title></path>'; }).join("");
   var nodes = g.nodes.map(function(n){
     var isSel = n.kind === "time" ? !!sel.rows[n.key] : n.id === sel.node;
@@ -1041,7 +1046,7 @@ function svgGraph(t){
       '<text class="lab" y="' + (r + 12) + '" text-anchor="middle">' + esc(trunc(n.label, LABEL_MAX[n.kind] || 18)) + '</text>' +
       '<text class="sub" y="' + (r + 12) + '" text-anchor="middle">' + esc(trunc(n.label, 70)) + '</text></g>';
   }).join("");
-  return '<svg id="gsvg" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--now)"/></marker></defs>' +
+  return '<svg id="gsvg" class="' + (state.mapAll ? 'showall' : '') + '" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--now)"/></marker></defs>' +
     '<g id="gpan">' + ringSvg(t) + edges + dep + nodes + '</g></svg>';
 }
 function railList(t){
@@ -1140,7 +1145,7 @@ function renderMapView(t){
   return '<section><div class="map">' +
     '<div class="card"><h3>' + ic("calendar-dot") + 'Coming up</h3><div class="rail-list" id="rail">' + railList(t) + '</div></div>' +
     '<div class="card"><h3>' + ic("tree-structure") + 'Canvas map <span class="why" style="display:inline;text-transform:none;letter-spacing:0;font-weight:400">hover or click a node to see its links, click a module to open it, drag to pan, scroll to zoom</span></h3>' +
-      '<div class="gwrap" id="gwrap">' + svgGraph(t) + '<div class="gtools"><button type="button" id="g-fit" title="Fit the whole graph">' + ic("arrows-in", "sm") + 'Fit</button><button type="button" id="g-open" title="Open every module">' + ic("arrows-out", "sm") + 'Open all</button><button type="button" id="g-close" title="Close every module">Close all</button></div>' +
+      '<div class="gwrap" id="gwrap">' + svgGraph(t) + '<div class="gtools"><button type="button" id="g-fit" title="Fit the whole graph">' + ic("arrows-in", "sm") + 'Fit</button><button type="button" id="g-open" title="Open every module">' + ic("arrows-out", "sm") + 'Open all</button><button type="button" id="g-close" title="Close every module">Close all</button><button type="button" id="g-all" title="Show every node; lower levels fade until they join a chain" aria-pressed="' + (state.mapAll ? "true" : "false") + '">Show all</button></div>' +
       '<div class="gnote">Two zones: the outer band holds sessions, deadlines and tasks in date order, the inner disc holds the Canvas material. Hover or select to see what ties them together. Blue tint: this week\u2019s material. Dashed: watch before the session. Red dot: MUST.</div></div></div>' +
     '<div class="card"><h3>' + ic("info") + 'Details</h3><div class="detail" id="detail">' + detailFor(t, state.mapSel) + '</div></div>' +
     '</div></section>';
@@ -1243,7 +1248,7 @@ function bindSvg(){
     var id = node.id, t = term();
     if (node.kind === "time") { state.mapSel = node.key; var nid = rowNodeId(t, node.row), opened = nid ? openPathTo(nid) : false; refreshMap(t, null, opened); return; }
     var structural = false;
-    if (id.charAt(0) !== "i") { state.mapOpen[id] = !state.mapOpen[id]; lsSet(LS.mapOpen, JSON.stringify(state.mapOpen)); structural = true; }
+    if (id.charAt(0) !== "i" && !state.mapAll) { state.mapOpen[id] = !state.mapOpen[id]; lsSet(LS.mapOpen, JSON.stringify(state.mapOpen)); structural = true; }
     state.mapSel = id; refreshMap(t, null, structural);
   });
   svg.addEventListener("wheel", function(e){ e.preventDefault(); var r = svg.getBoundingClientRect(), px = e.clientX - r.left, py = e.clientY - r.top, f = e.deltaY < 0 ? 1.12 : 1 / 1.12, s = Math.min(3, Math.max(.25, mapT.s * f)); mapT.x = px - (px - mapT.x) * (s / mapT.s); mapT.y = py - (py - mapT.y) * (s / mapT.s); mapT.s = s; applyMapT(); }, { passive: false });
@@ -1255,13 +1260,18 @@ function gotoKey(t, key){
   state.mapSel = key;
   refreshMap(t, nid, opened);
 }
+var mapClicksBound = false;
 function bindMap(t){
   wireGraph(); bindSvg(); applySel(t); runSim(Object.keys(mapPos).length ? 0.3 : 1); setTimeout(fitMap, 700);
+  if (mapClicksBound) return;
+  mapClicksBound = true;
   document.getElementById("termbody").addEventListener("click", function(e){
-    var b = e.target.closest("button"); if (!b) return;
+    if (state.view !== "map") return;
+    var t = term(), b = e.target.closest("button"); if (!b) return;
     if (b.dataset.ev) gotoKey(t, b.dataset.ev);
     else if (b.dataset.goto) gotoKey(t, b.dataset.goto);
     else if (b.id === "g-fit") fitMap();
+    else if (b.id === "g-all") { state.mapAll = !state.mapAll; lsSet(LS.mapAll, state.mapAll ? "1" : "0"); b.setAttribute("aria-pressed", String(state.mapAll)); refreshMap(t, null, true); setTimeout(fitMap, 700); }
     else if (b.id === "g-open" || b.id === "g-close") { allNodes(mapRoots).forEach(function(n){ if (n.kind !== "item" && n.kind !== "time") state.mapOpen[n.id] = b.id === "g-open" || n.kind === "course"; }); lsSet(LS.mapOpen, JSON.stringify(state.mapOpen)); refreshMap(t, null, true); setTimeout(fitMap, 700); }
   });
 }
@@ -1449,6 +1459,7 @@ var sh = lsJson(LS.hours); if (sh && toMin(sh.start) != null && toMin(sh.end) !=
 state.filter = lsGet(LS.filter) || "all";
 var sv = lsGet(LS.view); if (sv === "day" || sv === "all" || sv === "week" || sv === "map") state.view = sv;
 state.mapOpen = lsJson(LS.mapOpen);
+state.mapAll = lsGet(LS.mapAll) === "1";
 var savedTerm = lsGet(LS.term);
 state.term = TERMS.some(function(t){ return t.id === savedTerm; }) ? savedTerm : defaultTerm();
 applyDisplay();
