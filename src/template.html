@@ -44,7 +44,7 @@
 }
 *{box-sizing:border-box}
 body{background:var(--bg); color:var(--ink); font-family:"Public Sans","Helvetica Neue",Arial,sans-serif; font-size:15px; line-height:1.55}
-.wrap{max-width:1000px; margin:0 auto; padding-inline:16px; padding-block:0 56px}
+.wrap{max-width:none; margin:0; padding-inline:clamp(16px, 2vw, 28px); padding-block:0 56px}
 h1,h2,h3{font-family:Archivo,"Helvetica Neue",Arial,sans-serif; text-wrap:balance; margin:0}
 .mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace; font-variant-numeric:tabular-nums}
 a{color:inherit}
@@ -248,7 +248,7 @@ a.tag.feeds:hover{border-color:var(--alert)}
 .freeday .w small{color:var(--muted); font-weight:400}
 
 /* ---------- Map view ---------- */
-.map{display:grid; grid-template-columns:230px minmax(0,1fr) 340px; gap:14px; height:calc(100vh - 150px); min-height:520px}
+.map{display:grid; grid-template-columns:clamp(230px, 18vw, 300px) minmax(0,1fr) clamp(340px, 26vw, 460px); gap:14px; height:calc(100vh - 150px); min-height:520px}
 .map > .card{min-height:0; display:flex; flex-direction:column}
 .map h3{font-size:12px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); padding:12px 14px 6px; display:flex; align-items:center; gap:6px}
 .map h3 .ic{color:var(--muted)}
