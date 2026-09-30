@@ -80,8 +80,10 @@ so they live in the plan.
 ## Map view
 
 A fourth tab. Left: the coming events (sessions, deadlines, tasks) as a timeline, titles only.
-Centre: the Canvas entities as a tree, course to module to item, laid out by module order with a
-readable minimum zoom; drag to pan, scroll to zoom, click a module to open it. Dashed blue edges
+Centre: the Canvas entities, course to module to item, in a force layout: every node repels every
+other, links pull connected nodes together, and a weak pull to the centre keeps it round. Drag a
+node to move it, drag the background to pan, scroll to zoom, click a module to open it. Positions
+are kept while the tab is open, so opening a module only moves what has to move. Dashed blue edges
 show what a session's page depends on (its `prep`), a red dot marks MUST, a blue tint marks this
 week's material. Right: details of the chosen event or node, with the tick box, mute, Canvas links
 and everything connected to it. Which modules are open is remembered per viewer.

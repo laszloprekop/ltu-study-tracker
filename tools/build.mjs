@@ -10,6 +10,9 @@ import { TEACHERS, COURSES, TERMS, LEGACY_IDS } from "../data/plan.mjs";
 
 const root = p => fileURLToPath(new URL("../" + p, import.meta.url));
 const template = readFileSync(root("src/template.html"), "utf8");
+// The page must stay ASCII (see the JSON escaping below), so a stray typed character stops the build.
+const stray = /[^\x00-\x7e]/.exec(template);
+if (stray) { const line = template.slice(0, stray.index).split("\n").length; console.error(`src/template.html has a non-ASCII character on line ${line}: use a \\uXXXX escape or an HTML entity.`); process.exit(1); }
 const inventory = JSON.parse(readFileSync(root("data/canvas-inventory.json"), "utf8"));
 
 const teachers = {};

@@ -285,8 +285,6 @@ a.tag.feeds:hover{border-color:var(--alert)}
 .gn .badge{font-size:10px; fill:var(--muted); font-weight:600}
 .ge{stroke:var(--muted); stroke-width:1.2; fill:none; opacity:.7}
 .ge.dep{stroke:var(--now); stroke-dasharray:4 3; opacity:.9}
-.gaxis text{font-size:10.5px; fill:var(--muted); letter-spacing:.06em; text-transform:uppercase}
-.gaxis line{stroke:var(--muted); stroke-width:1}
 .gnote{position:absolute; left:10px; bottom:8px; font-size:11px; color:var(--muted); pointer-events:none}
 .detail{overflow:auto; padding:0 16px 16px; font-size:13.5px}
 .detail .dt{font-size:16px; font-weight:600; line-height:1.3; margin:4px 0 8px; font-family:Archivo,sans-serif}
@@ -803,27 +801,6 @@ function defaultOpen(t, roots){
   roots.forEach(function(c){ open[c.id] = true; c.children.forEach(function(m){ if (m.children.some(function(i){ return cur[i.id]; })) open[m.id] = true; }); });
   return open;
 }
-// Tree layout: depth is the row, leaves take slots left to right, a parent sits over the middle of its children.
-function layoutGraph(roots){
-  var nodes = [], edges = [], rowH = 96, gap = 12;
-  function width(n){ var chars = Math.min(n.label.length, n.kind === "item" ? 26 : 24); return Math.max(chars * 6.4 + 26, 64); }
-  function measure(n, depth){
-    n.depth = depth; n.w = width(n); n.open = n.kind !== "item" && !!state.mapOpen[n.id];
-    var kids = n.open ? n.children : [];
-    n.kidsSpan = kids.reduce(function(s, k){ return s + measure(k, depth + 1); }, 0);
-    n.span = Math.max(n.kidsSpan, n.w + gap);
-    return n.span;
-  }
-  function place(n, x0){
-    var kids = n.open ? n.children : [];
-    if (kids.length) { var x = x0 + (n.span - n.kidsSpan) / 2; kids.forEach(function(k){ place(k, x); x += k.span; }); n.x = (kids[0].x + kids[kids.length - 1].x) / 2; }
-    else n.x = x0 + n.span / 2;
-    n.y = n.depth * rowH + 50; nodes.push(n); kids.forEach(function(k){ edges.push([n, k]); });
-  }
-  var x = 0; roots.forEach(function(r){ measure(r, 0); place(r, x); x += r.span + 60; });
-  var depth = nodes.reduce(function(m, n){ return Math.max(m, n.depth); }, 0);
-  return { nodes: nodes, edges: edges, width: Math.max(x - 60, 200), height: (depth + 1) * rowH + 60 };
-}
 // Dashed edges: what a session's page depends on (prep), between items that are both on screen.
 function depEdges(t, visible){
   var out = [];
@@ -835,28 +812,98 @@ function depEdges(t, visible){
   });
   return out;
 }
+// Force layout: every node repels every other, edges pull like springs, a weak pull to the
+// centre keeps the picture round. Positions persist across redraws so opening a module only
+// moves what has to move.
+var mapPos = {};
+function nodeRadius(n){ return n.w / 2 + 6; }
+function buildForceGraph(roots){
+  var nodes = [], edges = [];
+  function width(n){ var chars = Math.min(n.label.length, n.kind === "item" ? 26 : 24); return Math.max(chars * 6.4 + 26, 64); }
+  roots.forEach(function(r, i){ (function walk(n, parent, depth){
+    n.depth = depth; n.w = width(n); n.open = n.kind !== "item" && !!state.mapOpen[n.id]; n.parent = parent;
+    nodes.push(n);
+    if (parent) edges.push({ a: parent, b: n, len: parent.kind === "course" ? 170 : 95, k: parent.kind === "course" ? 0.02 : 0.05 });
+    if (n.open) n.children.forEach(function(k){ walk(k, n, depth + 1); });
+  })(r, null, 0); });
+  // starting positions: remembered ones, else a ring around the parent
+  var rootsN = roots.length;
+  nodes.forEach(function(n, i){
+    var p = mapPos[n.id];
+    if (p) { n.x = p.x; n.y = p.y; return; }
+    if (!n.parent) { var ri = roots.indexOf(n); n.x = rootsN > 1 ? Math.cos(ri / rootsN * 2 * Math.PI) * 260 : 0; n.y = rootsN > 1 ? Math.sin(ri / rootsN * 2 * Math.PI) * 260 : 0; }
+    else { var sib = n.parent.children, idx = sib.indexOf(n), ang = idx / sib.length * 2 * Math.PI + (n.parent.x || 0) * 0.001; var r = n.parent.kind === "course" ? 170 : 95; n.x = n.parent.x + Math.cos(ang) * r; n.y = n.parent.y + Math.sin(ang) * r; }
+    n.vx = 0; n.vy = 0;
+  });
+  nodes.forEach(function(n){ n.vx = n.vx || 0; n.vy = n.vy || 0; });
+  return { nodes: nodes, edges: edges };
+}
+var sim = { alpha: 0, raf: null, pinned: null };
+function stepForces(){
+  var nodes = mapLayout.nodes, edges = mapLayout.edges, a = sim.alpha;
+  var i, j, n, m, dx, dy, d, f;
+  for (i = 0; i < nodes.length; i++) {
+    n = nodes[i];
+    for (j = i + 1; j < nodes.length; j++) {
+      m = nodes[j]; dx = m.x - n.x; dy = m.y - n.y; d = Math.sqrt(dx * dx + dy * dy) || 0.01;
+      var minD = nodeRadius(n) + nodeRadius(m);
+      f = (2600 / (d * d)) + (d < minD ? (minD - d) * 0.35 : 0);   // repulsion, plus a shove when boxes overlap
+      f *= a; dx /= d; dy /= d;
+      n.vx -= dx * f; n.vy -= dy * f; m.vx += dx * f; m.vy += dy * f;
+    }
+    // gravity to the centre, stronger for the roots
+    n.vx -= n.x * (n.parent ? 0.004 : 0.02) * a; n.vy -= n.y * (n.parent ? 0.004 : 0.02) * a;
+  }
+  edges.forEach(function(e){
+    dx = e.b.x - e.a.x; dy = e.b.y - e.a.y; d = Math.sqrt(dx * dx + dy * dy) || 0.01;
+    f = (d - e.len) * e.k * a; dx /= d; dy /= d;
+    e.a.vx += dx * f; e.a.vy += dy * f; e.b.vx -= dx * f; e.b.vy -= dy * f;
+  });
+  nodes.forEach(function(n){
+    if (n === sim.pinned) { n.vx = 0; n.vy = 0; return; }
+    n.vx *= 0.6; n.vy *= 0.6; n.x += n.vx; n.y += n.vy;
+  });
+}
+function paintForces(){
+  var nodes = mapLayout.nodes;
+  nodes.forEach(function(n){ var g = n.el; if (g) g.setAttribute("transform", "translate(" + (n.x - n.w / 2) + " " + (n.y - 14) + ")"); mapPos[n.id] = { x: n.x, y: n.y }; });
+  mapLayout.edges.forEach(function(e){ if (e.el) e.el.setAttribute("d", "M" + e.a.x + " " + e.a.y + " L" + e.b.x + " " + e.b.y); });
+  mapLayout.deps.forEach(function(e){ if (e.el) { var mx = (e.a.x + e.b.x) / 2, my = (e.a.y + e.b.y) / 2 - 30; e.el.setAttribute("d", "M" + e.a.x + " " + e.a.y + " Q" + mx + " " + my + " " + e.b.x + " " + e.b.y); } });
+}
+function runSim(heat){
+  sim.alpha = Math.max(sim.alpha, heat || 1);
+  if (sim.raf) return;
+  var tick = function(){
+    if (!document.getElementById("gsvg")) { sim.raf = null; return; }
+    for (var k = 0; k < 3; k++) stepForces();
+    paintForces();
+    sim.alpha *= 0.96;
+    if (sim.alpha > 0.005 || sim.pinned) sim.raf = requestAnimationFrame(tick); else { sim.raf = null; sim.alpha = 0; }
+  };
+  sim.raf = requestAnimationFrame(tick);
+}
 function trunc(s, n){ return s.length > n ? s.slice(0, n - 1) + "\u2026" : s; }
-var mapT = { x: 20, y: 10, s: 1 }, mapRoots = null, mapLayout = null;
+var mapT = { x: 0, y: 0, s: 1 }, mapRoots = null, mapLayout = null;
 function svgGraph(t){
   mapRoots = graphModel(t);
   if (!state.mapOpen) state.mapOpen = defaultOpen(t, mapRoots);
-  mapLayout = layoutGraph(mapRoots);
-  var cur = currentSet(t), visible = {};
-  mapLayout.nodes.forEach(function(n){ visible[n.id] = n; });
-  var deps = depEdges(t, visible);
-  var edges = mapLayout.edges.map(function(e){ var a = e[0], b = e[1]; return '<path class="ge" marker-end="url(#arr)" d="M' + a.x + ' ' + (a.y + 14) + ' C ' + a.x + ' ' + (a.y + 50) + ', ' + b.x + ' ' + (b.y - 50) + ', ' + b.x + ' ' + (b.y - 15) + '"/>'; }).join("");
-  var dep = deps.map(function(e){ var a = e[0], b = e[1]; return '<path class="ge dep" marker-end="url(#arrb)" d="M' + a.x + ' ' + (a.y - 14) + ' C ' + a.x + ' ' + (a.y - 40) + ', ' + b.x + ' ' + (b.y - 40) + ', ' + b.x + ' ' + (b.y - 15) + '"><title>Watch before the session</title></path>'; }).join("");
-  var nodes = mapLayout.nodes.map(function(n){
+  var g = buildForceGraph(mapRoots), visible = {};
+  g.nodes.forEach(function(n){ visible[n.id] = n; });
+  g.deps = depEdges(t, visible).map(function(e){ return { a: e[0], b: e[1] }; });
+  mapLayout = g;
+  var cur = currentSet(t);
+  var edges = g.edges.map(function(e, i){ return '<path class="ge" data-edge="' + i + '" d="M0 0"/>'; }).join("");
+  var dep = g.deps.map(function(e, i){ return '<path class="ge dep" data-dep="' + i + '" marker-end="url(#arrb)" d="M0 0"><title>Watch before the session</title></path>'; }).join("");
+  var nodes = g.nodes.map(function(n){
     var cls = "gn " + n.kind + (n.id === state.mapSel ? " sel" : "") + (cur[n.id] ? " cur" : "") + (n.tick && state.checked[n.tick] ? " done" : "") + (n.tick && state.muted[n.tick] ? " muted" : "");
     var must = n.item && itemLevel(n.code, n.item) === "must";
     var badge = n.kind !== "item" && !n.open ? '<text class="badge" x="' + (n.w - 8) + '" y="18" text-anchor="end">' + n.children.length + '</text>' : "";
-    return '<g class="' + cls + '" data-node="' + esc(n.id) + '"' + (n.tick ? ' data-id="' + esc(n.tick) + '"' : '') + ' style="' + colorVars(n.code) + '" transform="translate(' + (n.x - n.w / 2) + ' ' + (n.y - 14) + ')">' +
+    return '<g class="' + cls + '" data-node="' + esc(n.id) + '"' + (n.tick ? ' data-id="' + esc(n.tick) + '"' : '') + ' style="' + colorVars(n.code) + '">' +
       '<title>' + esc(n.label) + '</title><rect rx="14" width="' + n.w + '" height="28"/>' + (must ? '<circle class="must" cx="10" cy="14" r="3"/>' : '') +
       '<text x="' + (must ? 18 : 12) + '" y="18">' + esc(trunc(n.label, n.kind === "item" ? 26 : 24)) + '</text>' + badge + '</g>';
   }).join("");
-  var axis = '<g class="gaxis"><line x1="0" y1="' + (mapLayout.height - 20) + '" x2="' + mapLayout.width + '" y2="' + (mapLayout.height - 20) + '" marker-end="url(#arr)"/><text x="0" y="' + (mapLayout.height - 26) + '">Course order, earlier to later</text></g>';
-  return '<svg id="gsvg" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--muted)"/></marker><marker id="arrb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--now)"/></marker></defs>' +
-    '<g id="gpan">' + axis + edges + dep + nodes + '</g></svg>';
+  return '<svg id="gsvg" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--now)"/></marker></defs>' +
+    '<g id="gpan">' + edges + dep + nodes + '</g></svg>';
 }
 function railList(t){
   var today = todayIso(), rows = timeline(t).filter(function(r){ return r.date >= today; });
@@ -932,28 +979,36 @@ function detailFor(t, key){
 function renderMapView(t){
   return '<section><div class="map">' +
     '<div class="card"><h3>' + ic("calendar-dot") + 'Coming up</h3><div class="rail-list" id="rail">' + railList(t) + '</div></div>' +
-    '<div class="card"><h3>' + ic("tree-structure") + 'Canvas map <span class="why" style="display:inline;text-transform:none;letter-spacing:0;font-weight:400">click a module to open it, drag to pan, scroll to zoom</span></h3>' +
+    '<div class="card"><h3>' + ic("tree-structure") + 'Canvas map <span class="why" style="display:inline;text-transform:none;letter-spacing:0;font-weight:400">click a module to open it, drag a node to move it, drag the background to pan, scroll to zoom</span></h3>' +
       '<div class="gwrap" id="gwrap">' + svgGraph(t) + '<div class="gtools"><button type="button" id="g-fit" title="Fit the whole graph">' + ic("arrows-in", "sm") + 'Fit</button><button type="button" id="g-open" title="Open every module">' + ic("arrows-out", "sm") + 'Open all</button><button type="button" id="g-close" title="Close every module">Close all</button></div>' +
-      '<div class="gnote">Blue tint: this week\u2019s material. Dashed: watch before the session. Red dot: MUST.</div></div></div>' +
+      '<div class="gnote">Nodes repel, links attract. Blue tint: this week\u2019s material. Dashed: watch before the session. Red dot: MUST.</div></div></div>' +
     '<div class="card"><h3>' + ic("info") + 'Details</h3><div class="detail" id="detail">' + detailFor(t, state.mapSel) + '</div></div>' +
     '</div></section>';
 }
+// After the SVG is in the DOM: attach elements to the model, paint, and start the simulation.
+function wireGraph(){
+  var svg = document.getElementById("gsvg"); if (!svg || !mapLayout) return;
+  mapLayout.nodes.forEach(function(n){ n.el = svg.querySelector('[data-node="' + CSS.escape(n.id) + '"]'); });
+  mapLayout.edges.forEach(function(e, i){ e.el = svg.querySelector('[data-edge="' + i + '"]'); });
+  mapLayout.deps.forEach(function(e, i){ e.el = svg.querySelector('[data-dep="' + i + '"]'); });
+  paintForces();
+}
 function applyMapT(){ var g = document.getElementById("gpan"); if (g) g.setAttribute("transform", "translate(" + mapT.x + " " + mapT.y + ") scale(" + mapT.s + ")"); }
-// Fit never shrinks below a readable size; a wide graph is panned instead, starting at what matters now.
+function graphBounds(){
+  var xs = mapLayout.nodes.map(function(n){ return n.x; }), ys = mapLayout.nodes.map(function(n){ return n.y; });
+  return { x0: Math.min.apply(null, xs) - 90, x1: Math.max.apply(null, xs) + 90, y0: Math.min.apply(null, ys) - 40, y1: Math.max.apply(null, ys) + 40 };
+}
+// Fit the settled graph; never below a readable size, panning takes care of the rest.
 function fitMap(){
   var w = document.getElementById("gwrap"); if (!w || !mapLayout) return;
-  var W = w.clientWidth, H = w.clientHeight, s = Math.min((W - 30) / mapLayout.width, (H - 30) / mapLayout.height, 1.15);
-  s = Math.max(s, 0.6);
-  mapT = { s: s, x: (W - mapLayout.width * s) / 2, y: Math.max(10, (H - mapLayout.height * s) / 2) }; applyMapT();
-  var focus = state.mapSel && findNode(mapRoots, state.mapSel) ? state.mapSel : (mapLayout.nodes.find(function(n){ return n.kind === "module" && n.open; }) || {}).id;
-  if (mapLayout.width * s > W && focus) centerMapOn(focus, true);
+  var b = graphBounds(), W = w.clientWidth, H = w.clientHeight, gw = b.x1 - b.x0, gh = b.y1 - b.y0;
+  var s = Math.max(Math.min(W / gw, H / gh, 1.15), 0.55);
+  mapT = { s: s, x: W / 2 - (b.x0 + gw / 2) * s, y: H / 2 - (b.y0 + gh / 2) * s }; applyMapT();
 }
-function centerMapOn(id, topAligned){
+function centerMapOn(id){
   var w = document.getElementById("gwrap"), n = mapLayout && mapLayout.nodes.find(function(x){ return x.id === id; }); if (!w || !n) return;
   if (mapT.s < 0.85) mapT.s = 0.85;
-  mapT.x = w.clientWidth / 2 - n.x * mapT.s;
-  mapT.y = topAligned ? 10 : w.clientHeight / 2 - n.y * mapT.s;
-  applyMapT();
+  mapT.x = w.clientWidth / 2 - n.x * mapT.s; mapT.y = w.clientHeight / 2 - n.y * mapT.s; applyMapT();
 }
 function openPathTo(id){
   if (!mapRoots) return;
@@ -966,16 +1021,30 @@ function refreshMap(t, center){
   w.querySelector("svg").outerHTML = svgGraph(t);
   document.getElementById("detail").innerHTML = detailFor(t, state.mapSel);
   document.querySelectorAll("#rail .ev").forEach(function(b){ b.setAttribute("aria-current", String(b.dataset.ev === state.mapSel)); });
-  applyMapT(); if (center) centerMapOn(center);
-  bindSvg(); applyState();
+  wireGraph(); applyMapT(); bindSvg(); applyState();
+  runSim(0.8);
+  if (center) setTimeout(function(){ centerMapOn(center); }, 350);
 }
 function bindSvg(){
   var svg = document.getElementById("gsvg"); if (!svg) return;
   var drag = null;
-  svg.addEventListener("pointerdown", function(e){ if (e.button !== 0) return; drag = { x: e.clientX, y: e.clientY, tx: mapT.x, ty: mapT.y, moved: false }; svg.setPointerCapture(e.pointerId); svg.classList.add("drag"); });
-  svg.addEventListener("pointermove", function(e){ if (!drag) return; var dx = e.clientX - drag.x, dy = e.clientY - drag.y; if (Math.abs(dx) + Math.abs(dy) > 3) drag.moved = true; mapT.x = drag.tx + dx; mapT.y = drag.ty + dy; applyMapT(); });
+  function toGraph(e){ var r = svg.getBoundingClientRect(); return { x: (e.clientX - r.left - mapT.x) / mapT.s, y: (e.clientY - r.top - mapT.y) / mapT.s }; }
+  svg.addEventListener("pointerdown", function(e){
+    if (e.button !== 0) return;
+    var g = e.target.closest("[data-node]"), n = g && mapLayout.nodes.find(function(x){ return x.id === g.dataset.node; });
+    drag = { x: e.clientX, y: e.clientY, tx: mapT.x, ty: mapT.y, moved: false, node: n || null };
+    if (n) { sim.pinned = n; runSim(0.3); }
+    svg.setPointerCapture(e.pointerId); svg.classList.add("drag");
+  });
+  svg.addEventListener("pointermove", function(e){
+    if (!drag) return;
+    var dx = e.clientX - drag.x, dy = e.clientY - drag.y; if (Math.abs(dx) + Math.abs(dy) > 3) drag.moved = true;
+    if (drag.node) { var p = toGraph(e); drag.node.x = p.x; drag.node.y = p.y; sim.alpha = Math.max(sim.alpha, 0.3); }
+    else { mapT.x = drag.tx + dx; mapT.y = drag.ty + dy; applyMapT(); }
+  });
   svg.addEventListener("pointerup", function(e){
-    var wasDrag = drag && drag.moved; drag = null; svg.classList.remove("drag");
+    var wasDrag = drag && drag.moved, node = drag && drag.node; drag = null; svg.classList.remove("drag");
+    sim.pinned = null; if (node) runSim(0.3);
     if (wasDrag) return;
     var g = e.target.closest("[data-node]"); if (!g) return;
     var id = g.dataset.node, t = term();
@@ -993,13 +1062,13 @@ function gotoKey(t, key){
   if (nid && nid !== key) { var g = document.querySelector('[data-node="' + nid + '"]'); if (g) g.classList.add("sel"); }
 }
 function bindMap(t){
-  bindSvg(); requestAnimationFrame(fitMap);
+  wireGraph(); bindSvg(); runSim(1); setTimeout(fitMap, 700);
   document.getElementById("termbody").addEventListener("click", function(e){
     var b = e.target.closest("button"); if (!b) return;
     if (b.dataset.ev) gotoKey(t, b.dataset.ev);
     else if (b.dataset.goto) gotoKey(t, b.dataset.goto);
     else if (b.id === "g-fit") fitMap();
-    else if (b.id === "g-open" || b.id === "g-close") { allNodes(mapRoots).forEach(function(n){ if (n.kind !== "item") state.mapOpen[n.id] = b.id === "g-open" || n.kind === "course"; }); lsSet(LS.mapOpen, JSON.stringify(state.mapOpen)); refreshMap(t); fitMap(); }
+    else if (b.id === "g-open" || b.id === "g-close") { allNodes(mapRoots).forEach(function(n){ if (n.kind !== "item") state.mapOpen[n.id] = b.id === "g-open" || n.kind === "course"; }); lsSet(LS.mapOpen, JSON.stringify(state.mapOpen)); refreshMap(t); setTimeout(fitMap, 700); }
   });
 }
 
