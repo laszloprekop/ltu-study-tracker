@@ -909,7 +909,7 @@ function buildForceGraph(t, roots){
   roots.forEach(function(r){ (function walk(n, parent, depth){
     n.depth = depth; n.w = width(n); n.open = n.kind !== "item" && (state.mapAll || !!state.mapOpen[n.id]); n.parent = parent;
     nodes.push(n);
-    if (parent) edges.push({ a: parent, b: n, len: parent.kind === "course" ? 150 : 85, k: parent.kind === "course" ? 0.02 : 0.05 });
+    if (parent) edges.push({ a: parent, b: n, len: parent.kind === "course" ? 230 : (parent.kind === "module" ? 110 : 80), k: parent.kind === "course" ? 0.02 : 0.05 });
     if (n.open) n.children.forEach(function(k){ walk(k, n, depth + 1); });
   })(r, null, 0); });
   var structural = nodes.length, visible = {};
@@ -918,7 +918,7 @@ function buildForceGraph(t, roots){
   // the ring: the study period around the full circle
   var rows = timeline(t).filter(function(r){ return state.filter === "all" || r.code === state.filter; });
   clock = { start: t.start, days: Math.max(7, (day(t.end) - day(t.start)) / 864e5 + 1) };
-  var R = Math.max(420, rows.length * 26 / (2 * Math.PI), Math.sqrt(structural * 2600 / Math.PI) / 0.68 + 30);
+  var R = Math.max(420, rows.length * 26 / (2 * Math.PI), Math.sqrt(structural * 2000 / Math.PI) / 0.82 + 30);
   clock.R = R;
   // events sit just outside the ring like numerals, one slot each, in date order
   clock.pts = rows.map(function(r, i){ return { s: stamp(r.date, r.time), ang: i / rows.length * 2 * Math.PI - Math.PI / 2 }; });
@@ -947,7 +947,7 @@ function buildForceGraph(t, roots){
 }
 var sim = { alpha: 0, raf: null, pinned: null };
 function stepForces(){
-  var nodes = mapLayout.nodes, edges = mapLayout.edges, a = sim.alpha, R = clock.R * 0.68 - 40;
+  var nodes = mapLayout.nodes, edges = mapLayout.edges, a = sim.alpha, R = clock.R * 0.82 - 30;
   var i, j, n, m, dx, dy, d, f;
   for (i = 0; i < nodes.length; i++) {
     n = nodes[i];
@@ -955,13 +955,13 @@ function stepForces(){
       m = nodes[j]; if (n.fixed && m.fixed) continue;
       dx = m.x - n.x; dy = m.y - n.y; d = Math.max(Math.sqrt(dx * dx + dy * dy), 12);
       var minD = nodeRadius(n) + nodeRadius(m);
-      f = (1800 / (d * d)) + (d < minD ? (minD - d) * 0.35 : 0);
+      f = (3000 / (d * d)) + (d < minD ? (minD - d) * 0.35 : 0);
       f *= a; dx /= d; dy /= d;
       if (!n.fixed) { n.vx -= dx * f; n.vy -= dy * f; }
       if (!m.fixed) { m.vx += dx * f; m.vy += dy * f; }
     }
     if (n.fixed) continue;
-    n.vx -= n.x * (n.parent ? 0.008 : 0.04) * a; n.vy -= n.y * (n.parent ? 0.008 : 0.04) * a;
+    n.vx -= n.x * (n.parent ? 0.002 : 0.03) * a; n.vy -= n.y * (n.parent ? 0.002 : 0.03) * a;
     // keep the structure well inside the ring
     d = Math.sqrt(n.x * n.x + n.y * n.y);
     if (d > R) { f = (d - R) * 0.45 * a; n.vx -= n.x / d * f; n.vy -= n.y / d * f; }
@@ -1000,7 +1000,7 @@ function runSim(heat){
   sim.raf = requestAnimationFrame(tick);
 }
 function ringSvg(t){
-  var R = clock.R, inner = R * 0.68;
+  var R = clock.R, inner = R * 0.82;
   var out = '<g class="zones"><circle class="band" cx="0" cy="0" r="' + (R + 48) + '"/><circle class="disc" cx="0" cy="0" r="' + inner + '"/>' +
     '<text x="0" y="' + (-inner + 18) + '" text-anchor="middle">Canvas material</text><text x="0" y="' + (-R - 58) + '" text-anchor="middle">Sessions, deadlines, tasks, in date order</text></g>' +
     '<g class="ring"><circle cx="0" cy="0" r="' + R + '"/>';
