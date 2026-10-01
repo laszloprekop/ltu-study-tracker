@@ -284,10 +284,12 @@ body.mapview #termbody section{flex:1 1 auto; min-height:0; margin-bottom:12px; 
 .rail-card.slim{position:absolute; left:0; top:0; bottom:0; width:var(--rail-w, 36px); z-index:3; align-items:center; padding:6px 0 6px; background:color-mix(in srgb, var(--surface) 86%, transparent); backdrop-filter:blur(4px)}
 .rail-card.slim .rail-toggle{margin:0; padding:4px 0}
 /* The folded rail as a timeline: rows of squares, one square per unit of time an event covers; overlaps sit in the next lane */
-.rail-strip{flex:1 1 auto; min-height:0; width:100%; position:relative; margin:4px 0; overflow:hidden; --sq:8px}
+.rail-strip{flex:1 1 auto; min-height:0; width:100%; position:relative; margin:4px 0; overflow:hidden; --sq:8px; --cbev:max(3px, calc(var(--sq) * .3))}
 .rail-inner{position:absolute; left:0; right:0; top:0; transition:transform .35s ease; will-change:transform}
 .rail-strip .ev{position:absolute; background:none; border:0; padding:0; margin:0; cursor:pointer; display:block; transition:top .35s ease, left .35s ease, width .35s ease, height .35s ease, opacity .3s ease}
 .rail-strip .ev i{position:absolute; left:0; width:var(--sq); height:var(--sq); background:var(--cc); transition:top .35s ease, width .35s ease, height .35s ease}
+/* the first cell of an event is its start at every level, and carries the page's cut corner */
+.rail-strip .ev i:first-child{clip-path:polygon(0 0, calc(100% - var(--cbev)) 0, 100% var(--cbev), 100% 100%, 0 100%)}
 .rail-strip .gapc{overflow:hidden}
 .rail-strip .gapc.hid{opacity:0; pointer-events:none}
 .rail-strip .gapc,.rail-strip .nowline{transition:opacity .3s ease, top .35s ease, height .35s ease}
