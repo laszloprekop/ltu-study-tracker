@@ -299,16 +299,20 @@ body.mapview #termbody section{flex:1 1 auto; min-height:0; margin-bottom:12px; 
 .rail-card.slim{transition:width .35s ease}
 .map.rail-slim .legend-g{transition:left .35s ease}
 .map.rail-slim .mapcard h3{transition:padding-left .35s ease}
-.rail-strip .ev.done i{background:transparent; box-shadow:inset 0 0 0 1px var(--cc)}
+.rail-strip .ev.done i{background:var(--surface); box-shadow:inset 0 0 0 1px var(--cc)}
 .rail-strip .ev.muted{opacity:.35}
 .rail-strip .ev.past{opacity:.45}
 .rail-strip .ev.in,.rail-strip .ev.out{opacity:0}
-.rail-strip .ev:hover,.rail-strip .ev:focus-visible{z-index:2; box-shadow:0 0 0 1px var(--ink)}
-.rail-strip .ev[aria-current="true"]{z-index:3; box-shadow:0 0 0 2px var(--now-tint)}
-.rail-strip .ev.rel,.rail-strip .ev[data-rel]{z-index:2; box-shadow:0 0 0 1px var(--now-tint)}
+/* Rings are drawn per cell, as a layer behind it that is a little larger and cut the same way, so they follow the corner */
+.rail-strip .ev i::after{content:""; position:absolute; inset:calc(-1 * var(--ring, 0px)); z-index:-1; background:var(--ring-c, transparent); opacity:0; transition:opacity .15s}
+.rail-strip .ev i:first-child::after{clip-path:polygon(0 0, calc(100% - var(--cbev) - var(--ring, 0px)) 0, 100% calc(var(--cbev) + var(--ring, 0px)), 100% 100%, 0 100%)}
+.rail-strip .ev:hover,.rail-strip .ev:focus-visible{z-index:2; --ring:1px; --ring-c:var(--ink)}
+.rail-strip .ev.rel,.rail-strip .ev[data-rel]{z-index:2; --ring:1px; --ring-c:var(--now-tint)}
+.rail-strip .ev[aria-current="true"]{z-index:3; --ring:2px; --ring-c:var(--now-tint)}
+.rail-strip .ev:hover i::after,.rail-strip .ev:focus-visible i::after,.rail-strip .ev.rel i::after,.rail-strip .ev[data-rel] i::after,.rail-strip .ev[aria-current="true"] i::after{opacity:1}
 .rail-strip .gapc{position:absolute; left:4px; right:2px; display:flex; align-items:center; gap:3px; pointer-events:auto; cursor:help}
 .rail-strip .gapc svg{flex:0 0 auto}
-.rail-strip .gapc polyline{fill:none; stroke:var(--muted); stroke-width:1.2}
+.rail-strip .gapc path{fill:none; stroke:var(--muted); stroke-width:1.3; stroke-linecap:round}
 .rail-strip .gapc span{font-size:9px; font-weight:600; color:var(--muted); letter-spacing:.02em; white-space:nowrap}
 .rail-strip .nowline{position:absolute; left:2px; right:2px; height:2px; background:var(--now-tint); box-shadow:0 0 6px var(--now-tint); pointer-events:none; z-index:4}
 .rz{display:flex; gap:2px; flex-wrap:wrap; justify-content:center; width:100%; padding:0 3px}
@@ -1333,7 +1337,7 @@ function buildRail(inner, d, runs){
   inner.innerHTML = ""; inner.dataset.built = d.span.start + ":" + d.events.length;
   runs.forEach(function(g){
     var el = document.createElement("div"); el.className = "gapc"; el.dataset.from = g.from;
-    el.innerHTML = '<svg viewBox="0 0 8 18" width="8" height="18" aria-hidden="true"><polyline points="4,0 1,4 7,8 1,12 7,16 4,18"/></svg><span></span>';
+    el.innerHTML = '<svg viewBox="0 0 8 18" width="8" height="18" aria-hidden="true"><path d="M4 0C6.6 1.5 6.6 4.5 4 6C1.4 7.5 1.4 10.5 4 12C6.6 13.5 6.6 16.5 4 18"/></svg><span></span>';
     inner.appendChild(el);
   });
   d.events.forEach(function(e){
