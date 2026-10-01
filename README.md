@@ -82,6 +82,17 @@ workshops are MUST that way). Tasks take `"must"` as their last argument, and a 
 Material listed as `prep` for a MUST session is MUST too. Canvas records none of these links,
 so they live in the plan.
 
+## Where progress lives
+
+Ticks and muted items are saved in the viewer's browser (`localStorage` under the artifact's own
+origin, keys `ltu-plan-ticks`, `ltu-plan-muted`, `ltu-plan-snaps`) and, for a viewer signed in with
+an id from the owner's organisation, also in the artifact database at `data/users/<id>/progress`,
+a subtree private to that viewer. Every save also stores the day's state under its date; the last
+seven days are kept. The About panel shows the count and last save, copies an export code (ticks,
+muted items, snapshots) to the clipboard, brings a pasted code in (ticks are added, snapshots
+merged by date, nothing removed), and restores a snapshot day; the state before a restore is kept
+as "before the last restore", so a restore can be undone. Loading never removes a tick.
+
 ## What an assessment needs
 
 Every dated quiz, lab hand-in and exam is linked to the material it tests, so a walk from the

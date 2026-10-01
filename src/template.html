@@ -518,6 +518,10 @@ body.colored table.all tr:not(.done) .tt{color:var(--cc)}
 .teacher:hover .tn{text-decoration:underline}
 .rhythm li{margin:6px 0}
 .pop.about .src{margin:14px 0 0; font-size:11.5px; color:var(--muted)}
+.pop.about .prog{display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin:6px 0}
+.pop.about .prog button,.pop.about .prog select{font:inherit; font-size:12px; font-weight:600; color:var(--ink); background:var(--bg); border:0; padding:4px 8px; cursor:pointer}
+.pop.about .prog button:disabled{opacity:.4; cursor:default}
+.pop.about .prog textarea{flex:1 1 200px; font:inherit; font-size:11.5px; background:var(--bg); color:var(--ink); border:0; padding:4px 6px; resize:vertical; min-height:30px}
 @media (max-width:680px){
   .week{grid-template-columns:1fr}
   .week .rail{ clip-path:polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%); display:flex; flex-wrap:wrap; gap:4px 12px; align-items:baseline; padding:12px 16px}
@@ -563,6 +567,14 @@ body.colored table.all tr:not(.done) .tt{color:var(--cc)}
               <span><svg class="ic sm"><use href="#i-beach-ball"/></svg> course colours &nbsp;<svg class="ic sm"><use href="#i-clock"/></svg> working hours &nbsp;<svg class="ic sm"><use href="#i-sun"/></svg><svg class="ic sm"><use href="#i-moon"/></svg><svg class="ic sm"><use href="#i-desktop"/></svg> theme</span>
               <span>Progress: green is deadlines and tasks, blue is material.</span>
             </div>
+            <h3 style="margin-top:12px">Your progress</h3>
+            <p id="prog-info"></p>
+            <div class="prog">
+              <button type="button" id="prog-export" title="Copy a code with your ticks and the last seven days to the clipboard">Copy export code</button>
+              <select id="prog-snaps" aria-label="Snapshot day"></select><button type="button" id="prog-restore" title="Go back to how your ticks stood at the end of that day; today is snapshotted first, so this can be undone">Restore that day</button>
+            </div>
+            <div class="prog"><textarea id="prog-code" rows="2" placeholder="Paste an export code here" aria-label="Export code"></textarea><button type="button" id="prog-import" title="Add the ticks and snapshots from the code; nothing is removed">Bring in</button></div>
+            <p class="src" id="prog-msg" style="margin-top:4px"></p>
             <p class="src">Unofficial, made by a student. <span id="asof"></span> Canvas is always right when the two disagree. Sessions come from the course schedule pages. Minutes are rough estimates from page length and video count, or the course's own figure where it gives one. Times are Stockholm time. Icons: Phosphor (MIT).</p>
           </div>
         </details>
@@ -601,7 +613,7 @@ body.colored table.all tr:not(.done) .tt{color:var(--cc)}
 
 /* ---------- Helpers ---------- */
 const P = DATA.plan, INV = DATA.inventory, COURSES = P.COURSES, TEACHERS = P.TEACHERS, TERMS = P.TERMS, PROGRESS = DATA.progress || null;
-const LS = { hours: "ltu-plan-hours", ticks: "ltu-plan-ticks", muted: "ltu-plan-muted", filter: "ltu-plan-filter", term: "ltu-plan-term", view: "ltu-plan-view", open: "ltu-plan-open", weeks: "ltu-plan-weeks", size: "ltu-plan-size", ping: "ltu-plan-ping", colored: "ltu-plan-colored", theme: "ltu-plan-theme", mapOpen: "ltu-plan-map-open", mapPos: "ltu-plan-map-pos", mapAll: "ltu-plan-map-all", mapHops: "ltu-plan-map-hops", mapMode: "ltu-plan-map-mode", railSlim: "ltu-plan-map-rail", legacy: "lp2-shared-ticks" };
+const LS = { hours: "ltu-plan-hours", ticks: "ltu-plan-ticks", muted: "ltu-plan-muted", filter: "ltu-plan-filter", term: "ltu-plan-term", view: "ltu-plan-view", open: "ltu-plan-open", weeks: "ltu-plan-weeks", size: "ltu-plan-size", ping: "ltu-plan-ping", colored: "ltu-plan-colored", theme: "ltu-plan-theme", mapOpen: "ltu-plan-map-open", mapPos: "ltu-plan-map-pos", mapAll: "ltu-plan-map-all", mapHops: "ltu-plan-map-hops", mapMode: "ltu-plan-map-mode", railSlim: "ltu-plan-map-rail", snaps: "ltu-plan-snaps", legacy: "lp2-shared-ticks" };
 const state = { checked: {}, muted: {}, filter: "all", term: null, view: "week", day: null, open: {}, weeks: {}, size: 100, ping: true, colored: true, theme: "system", hours: { start: "09:00", end: "17:00" }, mapOpen: null, mapSel: null, mapSels: [], mapAll: false, mapHops: 5, mapMode: "select", railSlim: false };
 let store = null, saveTimer = null;
 
@@ -1917,9 +1929,64 @@ function applyDisplay(){
 function save(){
   lsSet(LS.ticks, JSON.stringify(state.checked));
   lsSet(LS.muted, JSON.stringify(state.muted));
+  snapshot();
   if (!store) return;
   clearTimeout(saveTimer);
-  saveTimer = setTimeout(function(){ store.set({ checked: state.checked, muted: state.muted, updated: new Date().toISOString() }).catch(function(){ store = null; }); }, 400);
+  saveTimer = setTimeout(function(){ store.set({ checked: state.checked, muted: state.muted, snaps: state.snaps, updated: new Date().toISOString() }).catch(function(){ store = null; }); }, 400);
+}
+/* ---------- Snapshots, export and import ---------- */
+// Every save also stores the day's state under its date, so a day's snapshot is how it ended; the
+// last seven days are kept. A snapshot can be restored, exported with the ticks, or brought in.
+var SNAP_KEEP = 7;
+var isDay = function(k){ return /^\d{4}-\d{2}-\d{2}$/.test(k); };
+function pruneSnaps(){ Object.keys(state.snaps).filter(isDay).sort().slice(0, -SNAP_KEEP).forEach(function(k){ delete state.snaps[k]; }); }
+function snapshot(){
+  state.snaps = state.snaps || {};
+  state.snaps[todayIso()] = { checked: Object.assign({}, state.checked), muted: Object.assign({}, state.muted), at: new Date().toISOString() };
+  pruneSnaps(); lsSet(LS.snaps, JSON.stringify(state.snaps));
+}
+function ticks(n){ return n + (n === 1 ? " tick" : " ticks"); }
+function mergeSnaps(snaps){
+  Object.keys(snaps || {}).forEach(function(k){
+    var sn = snaps[k]; if (!sn || typeof sn !== "object" || !isDay(k)) return;
+    var mine = state.snaps[k];
+    if (!mine || String(sn.at || "") > String(mine.at || "")) state.snaps[k] = { checked: migrate(sn.checked || {}), muted: Object.assign({}, sn.muted || {}), at: sn.at || "" };
+  });
+  pruneSnaps(); lsSet(LS.snaps, JSON.stringify(state.snaps));
+}
+function exportCode(){ var days = {}; Object.keys(state.snaps || {}).filter(isDay).forEach(function(k){ days[k] = state.snaps[k]; }); return JSON.stringify({ ltu: 1, at: new Date().toISOString(), checked: state.checked, muted: state.muted, snaps: days }); }
+// Bring a code in: ticks and muted items are added, snapshots merged by date. Nothing is removed.
+function importCode(text){
+  var o; try { o = JSON.parse(String(text || "").trim()); } catch (e) { return "That is not a progress code."; }
+  if (!o || o.ltu !== 1) return "That is not a progress code.";
+  var before = Object.keys(state.checked).length;
+  Object.keys(migrate(o.checked || {})).forEach(function(k){ state.checked[k] = true; });
+  Object.keys(o.muted || {}).forEach(function(k){ state.muted[k] = true; });
+  mergeSnaps(o.snaps);
+  save(); applyState();
+  var added = Object.keys(state.checked).length - before;
+  return "Brought in " + ticks(added) + (added === 1 ? " that was" : " that were") + " not here, and " + Object.keys(o.snaps || {}).length + " snapshot days.";
+}
+// Go back to a snapshot. The state before it is kept in its own slot ("before the last restore"),
+// so a restore can itself be undone; that slot stays in this browser and is not exported.
+function restoreSnap(key){
+  var sn = state.snaps && state.snaps[key]; if (!sn) return "No snapshot for that day.";
+  state.snaps.undo = { checked: Object.assign({}, state.checked), muted: Object.assign({}, state.muted), at: new Date().toISOString() };
+  state.checked = migrate(sn.checked || {}); state.muted = Object.assign({}, sn.muted || {});
+  save(); applyState();
+  return "Restored " + (key === "undo" ? "the state before the last restore" : longDay(key)) + ": " + ticks(Object.keys(state.checked).length) + ".";
+}
+function renderProgressPanel(msg){
+  var info = document.getElementById("prog-info"), sel = document.getElementById("prog-snaps"); if (!info || !sel) return;
+  var n = Object.keys(state.checked).length, m = Object.keys(state.muted).length, keys = Object.keys(state.snaps || {}).filter(isDay).sort().reverse();
+  var last = keys.length && state.snaps[keys[0]].at ? new Date(state.snaps[keys[0]].at) : null;
+  var hhmm = function(d){ return String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0"); };
+  info.textContent = ticks(n) + " and " + m + " muted in this browser" + (last ? ", last saved " + longDay(iso(last)) + " " + hhmm(last) : "") + (store ? ", also kept with your account." : ".");
+  var opts = keys.map(function(k){ return '<option value="' + k + '">' + esc(longDay(k)) + ', ' + ticks(Object.keys(state.snaps[k].checked || {}).length) + '</option>'; });
+  if (state.snaps && state.snaps.undo) opts.unshift('<option value="undo">Before the last restore (' + hhmm(new Date(state.snaps.undo.at)) + '), ' + ticks(Object.keys(state.snaps.undo.checked || {}).length) + '</option>');
+  sel.innerHTML = opts.length ? opts.join("") : '<option value="">no snapshots yet</option>';
+  document.getElementById("prog-restore").disabled = !opts.length;
+  var out = document.getElementById("prog-msg"); if (out) out.textContent = msg || "";
 }
 // Old tick ids from earlier page versions map onto the new ones.
 function migrate(checked){
@@ -1928,6 +1995,18 @@ function migrate(checked){
   return out;
 }
 
+document.getElementById("about-pop").addEventListener("toggle", function(){ if (this.open) renderProgressPanel(""); });
+document.addEventListener("click", function(e){
+  var b = e.target.closest && e.target.closest("button"); if (!b) return;
+  if (b.id === "prog-export") {
+    var code = exportCode(), box = document.getElementById("prog-code");
+    (navigator.clipboard && navigator.clipboard.writeText ? navigator.clipboard.writeText(code) : Promise.reject())
+      .then(function(){ renderProgressPanel("Copied. Paste it into the same box on another device, or keep it somewhere safe."); })
+      .catch(function(){ box.value = code; box.select(); renderProgressPanel("Clipboard not available: the code is in the box, copy it from there."); });
+  }
+  else if (b.id === "prog-import") { var box2 = document.getElementById("prog-code"); renderProgressPanel(importCode(box2.value)); if (/^Brought/.test(document.getElementById("prog-msg").textContent)) box2.value = ""; }
+  else if (b.id === "prog-restore") { var sel = document.getElementById("prog-snaps"); renderProgressPanel(restoreSnap(sel.value)); }
+});
 document.addEventListener("input", function(e){ var b = e.target; if (b && b.id === "g-hops") { state.mapHops = Number(b.value); document.getElementById("g-hops-v").textContent = hopsLabel(); applySel(term()); } });
 document.addEventListener("change", function(e){
   var b = e.target;
@@ -1972,6 +2051,7 @@ function defaultTerm(){
 }
 state.checked = migrate(lsJson(LS.ticks) || lsJson(LS.legacy) || {});
 state.muted = lsJson(LS.muted) || {};
+state.snaps = lsJson(LS.snaps) || {};
 state.open = lsJson(LS.open) || {};
 state.weeks = lsJson(LS.weeks) || {};
 state.size = Number(lsGet(LS.size)) || 100;
@@ -2006,6 +2086,7 @@ renderTerm();
     if (snap && snap.data) {
       Object.keys(migrate(snap.data.checked || {})).forEach(function(k){ state.checked[k] = true; });
       Object.keys(snap.data.muted || {}).forEach(function(k){ state.muted[k] = true; });
+      mergeSnaps(snap.data.snaps);
       lsSet(LS.ticks, JSON.stringify(state.checked)); lsSet(LS.muted, JSON.stringify(state.muted));
       applyState();
     }
