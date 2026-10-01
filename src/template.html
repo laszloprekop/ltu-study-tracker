@@ -299,16 +299,19 @@ body.mapview #termbody section{flex:1 1 auto; min-height:0; margin-bottom:12px; 
 .rail-card.slim{transition:width .35s ease}
 .map.rail-slim .legend-g{transition:left .35s ease}
 .map.rail-slim .mapcard h3{transition:padding-left .35s ease}
-.rail-strip .ev.done i{background:var(--surface); box-shadow:inset 0 0 0 1px var(--cc)}
+.rail-strip .ev.done i::before{content:""; position:absolute; inset:1px; background:var(--surface)}
+.rail-strip .ev.done i:first-child::before{clip-path:polygon(0 0, calc(100% - var(--cbev) + 1px) 0, 100% calc(var(--cbev) - 1px), 100% 100%, 0 100%)}
 .rail-strip .ev.muted{opacity:.35}
 .rail-strip .ev.past{opacity:.45}
 .rail-strip .ev.in,.rail-strip .ev.out{opacity:0}
 /* Rings are drawn per cell, as a layer behind it that is a little larger and cut the same way, so they follow the corner */
-.rail-strip .ev i::after{content:""; position:absolute; inset:calc(-1 * var(--ring, 0px)); z-index:-1; background:var(--ring-c, transparent); opacity:0; transition:opacity .15s}
-.rail-strip .ev i:first-child::after{clip-path:polygon(0 0, calc(100% - var(--cbev) - var(--ring, 0px)) 0, 100% calc(var(--cbev) + var(--ring, 0px)), 100% 100%, 0 100%)}
+.rail-strip .ev i::after{content:""; position:absolute; left:calc(-1 * var(--ring, 0px)); right:calc(-1 * var(--ring, 0px)); top:0; bottom:-1px; z-index:-1; background:var(--ring-c, transparent); opacity:0; transition:opacity .15s}
+.rail-strip .ev i:first-child::after{top:calc(-1 * var(--ring, 0px)); clip-path:polygon(0 0, calc(100% - var(--cbev) - var(--ring, 0px)) 0, 100% calc(var(--cbev) + var(--ring, 0px)), 100% 100%, 0 100%)}
+.rail-strip .ev i:last-child::after{bottom:calc(-1 * var(--ring, 0px))}
+.rail-strip .ev i.z::before,.rail-strip .ev i.z::after{display:none}
 .rail-strip .ev:hover,.rail-strip .ev:focus-visible{z-index:2; --ring:1px; --ring-c:var(--ink)}
 .rail-strip .ev.rel,.rail-strip .ev[data-rel]{z-index:2; --ring:1px; --ring-c:var(--now-tint)}
-.rail-strip .ev[aria-current="true"]{z-index:3; --ring:2px; --ring-c:var(--now-tint)}
+.rail-strip .ev[aria-current="true"]{z-index:3; --ring:var(--ringsel, 2px); --ring-c:var(--now-tint)}
 .rail-strip .ev:hover i::after,.rail-strip .ev:focus-visible i::after,.rail-strip .ev.rel i::after,.rail-strip .ev[data-rel] i::after,.rail-strip .ev[aria-current="true"] i::after{opacity:1}
 .rail-strip .gapc{position:absolute; left:4px; right:2px; display:flex; align-items:center; gap:3px; pointer-events:auto; cursor:help}
 .rail-strip .gapc svg{flex:0 0 auto}
@@ -1387,20 +1390,20 @@ function layoutRail(t, anchor){
   var H = strip.clientHeight, sq, hh;
   if (level === 0) {
     var vis = 0, conn = 0, extras = 0, pend = false;
-    for (i = 0; i < total; i++) { if (marks(i)) pend = true; var h0 = heightOf(i, 0, 1); if (h0 > 0) { if (pend) { extras += 4; pend = false; } if (runOf[i] && runOf[i].mode === "conn") conn++; else vis++; } }
+    for (i = 0; i < total; i++) { if (marks(i)) pend = true; var h0 = heightOf(i, 0, 1); if (h0 > 0) { var isConn = runOf[i] && runOf[i].mode === "conn"; if (pend) { if (!isConn) extras += 4; pend = false; } if (isConn) conn++; else vis++; } }
     hh = Math.max(3, Math.min(8, Math.floor((H - extras - conn * (RAIL.conn + gap) - (vis - 1) * gap) / Math.max(1, vis)))); sq = hh * 2;
   } else { sq = RAIL.sq[level]; hh = sq; }
   var ys = [], hs = [], y = 0, pending = false;
   for (i = 0; i < total; i++) {
     if (marks(i)) pending = true;
     var h = heightOf(i, sq, hh);
-    if (h > 0 && pending) { y += 4; pending = false; }
+    if (h > 0 && pending) { if (!(runOf[i] && runOf[i].mode === "conn")) y += 4; pending = false; }
     ys.push(y); hs.push(h); if (h > 0) y += h + gap;
   }
   var pad = 6, width = pad * 2 + d.lanes * (sq + gap) - gap;
   railGeom = { ys: ys, span: span, level: level, sq: sq, hh: hh, contentH: y };
   inner.style.height = y + "px";
-  strip.style.setProperty("--sq", sq + "px");
+  strip.style.setProperty("--sq", sq + "px"); strip.style.setProperty("--ringsel", level === 0 ? "1px" : "2px");
   var map = strip.closest(".map"); if (map) map.style.setProperty("--rail-w", Math.max(36, width) + "px");
   // the window: keep the anchor where it was on screen, or hold the current offset
   if (anchor) {
@@ -1424,7 +1427,7 @@ function layoutRail(t, anchor){
     var when = dayLabel(r.date) + (r.time ? " " + r.time + (r.end ? "\u2013" + r.end : "") : "") + ", " + (r.kind === "session" ? (SESSION_KIND[r.skind] || "") : r.kind === "deadline" ? "deadline" : "task");
     var top = ys[e.row], bottom = top;
     var cells = btn.querySelectorAll("i");
-    for (k = 0; k < e.rows; k++) { var row = e.row + k, ch = hs[row]; cells[k].style.top = (ys[row] - top) + "px"; cells[k].style.height = ch + "px"; if (ch > 0) bottom = ys[row] + ch; }
+    for (k = 0; k < e.rows; k++) { var row = e.row + k, ch = hs[row]; cells[k].style.top = (ys[row] - top) + "px"; cells[k].style.height = ch + "px"; cells[k].classList.toggle("z", ch === 0); if (ch > 0) bottom = ys[row] + ch; }
     btn.className = "ev" + (r.level === "must" ? " must" : "") + (r.id ? hostClass(r.id, "") : "") + (r.date < today ? " past" : "");
     btn.setAttribute("style", colorVars(r.code) + ";top:" + top + "px;left:" + (pad + e.lane * (sq + gap)) + "px;width:" + sq + "px;height:" + Math.max(0, bottom - top) + "px");
     btn.dataset.course = r.code; if (r.id) btn.dataset.id = r.id; else delete btn.dataset.id;
