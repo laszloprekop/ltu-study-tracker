@@ -288,7 +288,7 @@ body.mapview #termbody section{flex:1 1 auto; min-height:0; margin-bottom:12px; 
 .rail-inner{position:absolute; left:0; right:0; top:0; transition:transform .35s ease; will-change:transform}
 .rail-strip .ev{position:absolute; background:none; border:0; padding:0; margin:0; cursor:pointer; display:block; transition:top .35s ease, left .35s ease, width .35s ease, height .35s ease, opacity .3s ease}
 .rail-strip .ev i{position:absolute; left:0; width:var(--sq); height:var(--sq); background:var(--cc); transition:top .35s ease, width .35s ease, height .35s ease}
-.rail-strip .gapc,.rail-strip .nowline{transition:opacity .3s ease}
+.rail-strip .gapc,.rail-strip .nowline{transition:opacity .3s ease, top .35s ease}
 .rail-strip.pan{cursor:grab}
 .rail-strip.dragging,.rail-strip.dragging .ev{cursor:grabbing}
 .rail-strip .in,.rail-strip .out{opacity:0}
@@ -1370,7 +1370,7 @@ function layoutRail(t, anchor){
   var rowH = function(row){ return level === 0 ? Math.max(1, d.stack[row] || 0) * (hh + gap) - gap : sq; };
   var ys = [], y = 0, conns = [];
   segs.forEach(function(g){
-    if (g.gap) { conns.push({ y: y, rows: g.rows }); for (k = g.from; k < g.from + g.rows; k++) ys[k] = y; y += RAIL.conn + gap; }
+    if (g.gap) { conns.push({ y: y, rows: g.rows, from: g.from }); for (k = g.from; k < g.from + g.rows; k++) ys[k] = y; y += RAIL.conn + gap; }
     else { y += extraAt(g.row); ys[g.row] = y; y += rowH(g.row) + gap; }
   });
   var pad = 6, width = pad * 2 + d.lanes * (sq + gap) - gap;
@@ -1378,23 +1378,38 @@ function layoutRail(t, anchor){
   inner.style.height = y + "px";
   strip.style.setProperty("--sq", sq + "px");
   var map = strip.closest(".map"); if (map) map.style.setProperty("--rail-w", Math.max(36, width) + "px");
-  // Morph rather than rebuild: an event that stays keeps its button and slides to its new place,
-  // one that leaves fades out, one that arrives fades in. Connectors and the now line cross-fade.
-  var keep = {}, old = {};
-  inner.querySelectorAll(".ev").forEach(function(b){ old[b.dataset.ev] = b; });
-  inner.querySelectorAll(".gapc, .nowline").forEach(function(el){ if (!el.classList.contains("out")) { el.classList.add("out"); setTimeout(function(){ el.remove(); }, 400); } });
-  var fresh = [];
-  conns.forEach(function(c){
-    var el = document.createElement("div"); el.className = "gapc in"; el.style.top = c.y + "px"; el.style.height = RAIL.conn + "px"; el.title = railGapLabel(level, c.rows) + " with nothing in it";
-    el.innerHTML = '<svg viewBox="0 0 8 18" width="8" height="18" aria-hidden="true"><polyline points="4,0 1,4 7,8 1,12 7,16 4,18"/></svg><span>' + esc(railGapLabel(level, c.rows)) + '</span>';
-    inner.appendChild(el); fresh.push(el);
-  });
+  // Where everything lands, before touching the DOM, so the window offset is known first.
   var topOf = {};
+  d.events.forEach(function(e){ topOf[e.key] = ys[e.row] + e.sub * (hh + gap); });
+  // the window: keep the anchor where it was on screen, or hold the current offset
+  var oldOff = railOff;
+  if (anchor) {
+    var newY = anchor.key && topOf[anchor.key] != null ? topOf[anchor.key] : ys[Math.max(0, railRow(level, span, anchor.date, anchor.time))];
+    railOff = newY - anchor.screenY;
+  }
+  railOff = railClampOff(railOff);
+  var delta = railOff - oldOff;   // what the pane slides by; anything that only fades must slide along, or it drifts on screen
+  // Morph rather than rebuild: an event that stays keeps its button and slides to its new place,
+  // one that leaves fades out where it is on screen, one that arrives fades in. A connector that
+  // stands for the same empty time at both levels keeps its element and slides; others cross-fade.
+  var keep = {}, old = {}, fresh = [];
+  inner.querySelectorAll(".ev").forEach(function(b){ old[b.dataset.ev] = b; });
+  // connectors are matched by the stretch of time they cover, in minutes from the start of the period
+  var absOf = function(row){ var m = railMoment(level, span, row); return Math.round((day(m.date) - day(span.start)) / 864e5) * 1440 + (m.time ? toMin(m.time) : 0); };
+  var oldConns = [].slice.call(inner.querySelectorAll(".gapc:not(.out)"));
+  conns.forEach(function(c){
+    var a = absOf(c.from), z = absOf(c.from + c.rows - 1), el = null;
+    for (var q = 0; q < oldConns.length && !el; q++) { var o = oldConns[q]; if (Number(o.dataset.a) <= z && Number(o.dataset.z) >= a) { el = o; oldConns.splice(q, 1); } }
+    if (!el) { el = document.createElement("div"); el.className = "gapc in"; el.style.height = RAIL.conn + "px"; inner.appendChild(el); fresh.push(el); }
+    el.dataset.a = a; el.dataset.z = z; el.style.top = c.y + "px"; el.title = railGapLabel(level, c.rows) + " with nothing in it";
+    el.innerHTML = '<svg viewBox="0 0 8 18" width="8" height="18" aria-hidden="true"><polyline points="4,0 1,4 7,8 1,12 7,16 4,18"/></svg><span>' + esc(railGapLabel(level, c.rows)) + '</span>';
+  });
+  oldConns.forEach(function(el){ el.classList.add("out"); el.style.top = (parseFloat(el.style.top) + delta) + "px"; setTimeout(function(){ el.remove(); }, 400); });
+  inner.querySelectorAll(".nowline").forEach(function(el){ if (!el.classList.contains("out")) { el.classList.add("out"); el.style.top = (parseFloat(el.style.top) + delta) + "px"; setTimeout(function(){ el.remove(); }, 400); } });
   d.events.forEach(function(e){
     var r = e.r, title = r.title.replace(/ due \d\d:\d\d$/, "").replace(/ close \d\d:\d\d$/, " close");
     var when = dayLabel(r.date) + (r.time ? " " + r.time + (r.end ? "\u2013" + r.end : "") : "") + ", " + (r.kind === "session" ? (SESSION_KIND[r.skind] || "") : r.kind === "deadline" ? "deadline" : "task");
-    var top = ys[e.row] + e.sub * (hh + gap), h = level === 0 ? hh : ys[e.row + e.rows - 1] + sq - top;
-    topOf[e.key] = top;
+    var top = topOf[e.key], h = level === 0 ? hh : ys[e.row + e.rows - 1] + sq - top;
     var btn = old[e.key], isNew = !btn;
     if (isNew) { btn = document.createElement("button"); btn.type = "button"; btn.className = "ev in"; btn.dataset.ev = e.key; inner.appendChild(btn); fresh.push(btn); }
     keep[e.key] = true;
@@ -1410,14 +1425,8 @@ function layoutRail(t, anchor){
     cells = btn.querySelectorAll("i");
     for (k = 0; k < n; k++) { cells[k].style.top = (level === 0 ? 0 : ys[e.row + k] - top) + "px"; cells[k].style.height = (level === 0 ? hh : sq) + "px"; }
   });
-  Object.keys(old).forEach(function(key){ if (!keep[key]) { var b = old[key]; b.classList.add("out"); b.style.pointerEvents = "none"; setTimeout(function(){ b.remove(); }, 400); } });
+  Object.keys(old).forEach(function(key){ if (!keep[key]) { var b = old[key]; b.classList.add("out"); b.style.pointerEvents = "none"; b.style.top = (parseFloat(b.style.top) + delta) + "px"; setTimeout(function(){ b.remove(); }, 400); } });
   if (nowRow >= 0) { var nl = document.createElement("div"); nl.className = "nowline in"; nl.style.top = (ys[nowRow] - 2) + "px"; inner.appendChild(nl); fresh.push(nl); }
-  // the window: keep the anchor where it was on screen, or hold the current offset
-  if (anchor) {
-    var newY = anchor.key && topOf[anchor.key] != null ? topOf[anchor.key] : ys[Math.max(0, railRow(level, span, anchor.date, anchor.time))];
-    railOff = newY - anchor.screenY;
-  }
-  railOff = railClampOff(railOff);
   railApplyOff(true);
   // next frame: let the arrivals fade in and the squares slide, after their start state has painted
   if (fresh.length) { void inner.offsetWidth; requestAnimationFrame(function(){ fresh.forEach(function(el){ el.classList.remove("in"); }); }); }
