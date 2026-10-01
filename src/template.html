@@ -288,7 +288,9 @@ body.mapview #termbody section{flex:1 1 auto; min-height:0; margin-bottom:12px; 
 .rail-inner{position:absolute; left:0; right:0; top:0; transition:transform .35s ease; will-change:transform}
 .rail-strip .ev{position:absolute; background:none; border:0; padding:0; margin:0; cursor:pointer; display:block; transition:top .35s ease, left .35s ease, width .35s ease, height .35s ease, opacity .3s ease}
 .rail-strip .ev i{position:absolute; left:0; width:var(--sq); height:var(--sq); background:var(--cc); transition:top .35s ease, width .35s ease, height .35s ease}
-.rail-strip .gapc,.rail-strip .nowline{transition:opacity .3s ease, top .35s ease}
+.rail-strip .gapc{overflow:hidden}
+.rail-strip .gapc.hid{opacity:0; pointer-events:none}
+.rail-strip .gapc,.rail-strip .nowline{transition:opacity .3s ease, top .35s ease, height .35s ease}
 .rail-strip.pan{cursor:grab}
 .rail-strip.dragging,.rail-strip.dragging .ev{cursor:grabbing}
 .rail-strip .in,.rail-strip .out{opacity:0}
@@ -1261,69 +1263,58 @@ function railList(t){
   return out || '<div class="none" style="padding:10px 14px">Nothing ahead in this study period.</div>';
 }
 /* ---------- The folded rail: one continuous timeline, three zoom levels ---------- */
-// The strip is a window onto the whole study period laid out at the current level: one row per day,
-// per hour, or per quarter hour (07:00 to 19:00 plus a "later" row per day for the 23:59 deadlines).
-// Zooming changes the row size and keeps the moment under the pointer where it is, like the map; the
-// rest of the period stays around it and can be dragged into view. Runs of empty rows collapse into a
-// zig-zag connector labelled with the time it stands for. Hover, click and selection work as in the list.
-var RAIL = { from: 7 * 60, to: 19 * 60, maxLanes: 4, conn: 18, sq: [16, 14, 18] };
+// The whole study period is laid out once at the finest grain: 49 rows a day, one per quarter hour
+// from 07:00 to 19:00 plus a "later" row for what falls after it (the 23:59 deadlines). Every event
+// is always its full run of cells and every empty stretch always one connector; a zoom level is only
+// a rule for how tall each row is. Zooming out sets rows to zero height, zooming in grows them back,
+// so nothing is created or removed and the transition is heights tweening. The window keeps the
+// moment under the pointer where it is, like the map; the rest can be dragged into view.
+var RAIL = { from: 7 * 60, to: 19 * 60, unit: 15, per: 49, maxLanes: 4, conn: 18, sq: [0, 14, 18] };
 var railZoom = { level: 0 }, railGeom = null, railOff = 0;
-function railUnit(level){ return level === 0 ? 1440 : level === 1 ? 60 : 15; }
-function railPerDay(level){ return level === 0 ? 1 : (RAIL.to - RAIL.from) / railUnit(level) + 1; }
 function railSpan(t){ return { start: t.start, days: Math.round((day(t.end) - day(t.start)) / 864e5) + 1 }; }
-// the row of a moment, or -1 when outside the period; no time means the top of the day
-function railRow(level, span, date, time){
-  var d = Math.round((day(date) - day(span.start)) / 864e5), per = railPerDay(level);
+// the finest row of a moment, or -1 outside the period; no time means the top of the day
+function railRow(span, date, time){
+  var d = Math.round((day(date) - day(span.start)) / 864e5);
   if (d < 0 || d >= span.days) return -1;
-  if (level === 0 || time == null) return d * per;
+  if (time == null) return d * RAIL.per;
   var m = toMin(time);
-  return d * per + (m < RAIL.from ? 0 : m >= RAIL.to ? per - 1 : Math.floor((m - RAIL.from) / railUnit(level)));
+  return d * RAIL.per + (m < RAIL.from ? 0 : m >= RAIL.to ? RAIL.per - 1 : Math.floor((m - RAIL.from) / RAIL.unit));
 }
-// the moment a row stands for, to carry an anchor from one level to the next
-function railMoment(level, span, row){
-  var per = railPerDay(level), d = Math.floor(row / per), w = row % per;
-  var min = level === 0 ? null : w === per - 1 ? RAIL.to : RAIL.from + w * railUnit(level);
-  return { date: addDays(span.start, d), time: min == null ? null : String(Math.floor(min / 60)).padStart(2, "0") + ":" + String(min % 60).padStart(2, "0") };
+function railMoment(span, row){
+  var d = Math.floor(row / RAIL.per), w = row % RAIL.per, min = w === RAIL.per - 1 ? RAIL.to : RAIL.from + w * RAIL.unit;
+  return { date: addDays(span.start, d), time: String(Math.floor(min / 60)).padStart(2, "0") + ":" + String(min % 60).padStart(2, "0") };
 }
+// Events as runs of finest rows, with lanes for overlaps. None of this depends on the zoom level.
 function railEvents(t){
-  var level = railZoom.level, span = railSpan(t), per = railPerDay(level), sel = resolveSel(t), out = [];
+  var span = railSpan(t), sel = resolveSel(t), out = [];
   timeline(t).forEach(function(r){
-    var row = railRow(level, span, r.date, r.time); if (row < 0) return;
+    var row = railRow(span, r.date, r.time); if (row < 0) return;
     var rows = 1;
-    if (level > 0 && r.kind === "session" && r.time && r.end && toMin(r.time) < RAIL.to) {
+    if (r.kind === "session" && r.time && r.end && toMin(r.time) < RAIL.to) {
       var a = Math.max(toMin(r.time), RAIL.from), b = Math.min(toMin(r.end), RAIL.to);
-      if (b > a) rows = Math.ceil((b - a) / railUnit(level));
-      rows = Math.max(1, Math.min(rows, Math.floor(row / per) * per + per - 1 - row));
+      if (b > a) rows = Math.ceil((b - a) / RAIL.unit);
+      rows = Math.max(1, Math.min(rows, Math.floor(row / RAIL.per) * RAIL.per + RAIL.per - 1 - row));
     }
     var key = r.id || r.key;
     out.push({ r: r, row: row, rows: rows, key: key, sel: !!sel.rows[key], rel: !!sel.related[key] });
   });
-  // level 0: one lane, a day's events stacked top to bottom in time order (half-height bars), so the
-  // vertical order already matches the zoomed levels and the morph is easy to follow
-  if (level === 0) {
-    var stack = {};
-    out.forEach(function(e){ e.lane = 0; e.sub = stack[e.row] || 0; stack[e.row] = e.sub + 1; });
-    return { level: level, span: span, per: per, events: out, lanes: 1, stack: stack };
-  }
-  // lanes: the first lane free from this row on; the last lane takes any overflow
   out.sort(function(a, b){ return a.row - b.row || b.rows - a.rows; });
   var laneEnd = [];
   out.forEach(function(e){
     var l = 0; while (l < laneEnd.length && laneEnd[l] >= e.row) l++;
     if (l >= RAIL.maxLanes) l = RAIL.maxLanes - 1;
-    laneEnd[l] = Math.max(laneEnd[l] == null ? -1 : laneEnd[l], e.row + e.rows - 1); e.lane = l; e.sub = 0;
+    laneEnd[l] = Math.max(laneEnd[l] == null ? -1 : laneEnd[l], e.row + e.rows - 1); e.lane = l;
   });
-  return { level: level, span: span, per: per, events: out, lanes: Math.max(1, laneEnd.length), stack: {} };
+  return { span: span, events: out, lanes: Math.max(1, laneEnd.length) };
 }
 function nowHHMM(){ var d = new Date(); return String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0"); }
+// What a connector says at this level: the time its run stands for, in the level's own unit.
 function railGapLabel(level, rows){
-  var per = railPerDay(level);
-  if (level === 0 || rows >= per) return Math.round(rows / per) + " d";
-  var min = rows * railUnit(level);
+  if (level === 0 || rows >= RAIL.per) return Math.max(1, Math.round(rows / RAIL.per)) + " d";
+  var min = rows * RAIL.unit;
   if (min >= 60) { var h = min / 60; return (Math.floor(h) + (h % 1 >= 0.5 ? "\u00bd" : "")) + " h"; }
   return min + " min";
 }
-// The row at a y inside the content (rows inside a connector share its y).
 function railRowAt(y){ if (!railGeom) return 0; var ys = railGeom.ys, i = 0; while (i + 1 < ys.length && ys[i + 1] <= y) i++; return i; }
 function railViewH(){ var strip = document.getElementById("rail"); return strip ? strip.clientHeight : 0; }
 function railClampOff(off){ var max = railGeom ? Math.max(0, railGeom.contentH - railViewH()) : 0; return Math.max(0, Math.min(max, off)); }
@@ -1332,104 +1323,109 @@ function railApplyOff(animate){
   inner.style.transition = animate ? "" : "none"; inner.style.transform = "translateY(" + (-railOff) + "px)";
   if (!animate) void inner.offsetWidth;
   var lbl = document.getElementById("rz-lbl");
-  if (lbl && railGeom) { var m = railMoment(railGeom.level, railGeom.span, railRowAt(railOff + railViewH() / 2)); lbl.textContent = railGeom.level === 0 ? term().label : railGeom.level === 1 ? "v" + isoWeek(m.date) : dayLabel(m.date); }
+  if (lbl && railGeom) { var m = railMoment(railGeom.span, railRowAt(railOff + railViewH() / 2)); lbl.textContent = railGeom.level === 0 ? term().label : railGeom.level === 1 ? "v" + isoWeek(m.date) : dayLabel(m.date); }
 }
-// Lay the whole period out at the current level and place every event. `anchor` is what must stay
-// put on screen across the change: an event (key) or a moment, and the screen y it had.
+// Build the strip's elements once per study period: a button with one cell per quarter hour for
+// every event, a connector for every empty run, the now line. Layout only moves and sizes them.
+function buildRail(inner, d, runs){
+  inner.innerHTML = ""; inner.dataset.built = d.span.start + ":" + d.events.length;
+  runs.forEach(function(g){
+    var el = document.createElement("div"); el.className = "gapc"; el.dataset.from = g.from;
+    el.innerHTML = '<svg viewBox="0 0 8 18" width="8" height="18" aria-hidden="true"><polyline points="4,0 1,4 7,8 1,12 7,16 4,18"/></svg><span></span>';
+    inner.appendChild(el);
+  });
+  d.events.forEach(function(e){
+    var btn = document.createElement("button"); btn.type = "button"; btn.dataset.ev = e.key;
+    for (var k = 0; k < e.rows; k++) btn.appendChild(document.createElement("i"));
+    inner.appendChild(btn);
+  });
+  var nl = document.createElement("div"); nl.className = "nowline"; inner.appendChild(nl);
+}
+// Lay the period out at the current level and place everything. `anchor` is what must stay put on
+// screen across the change: an event (key) or a moment, and the screen y it had.
 function layoutRail(t, anchor){
   var strip = document.getElementById("rail"); if (!strip || !strip.classList.contains("rail-strip")) return;
   var inner = document.getElementById("rail-inner");
   if (!inner) { inner = document.createElement("div"); inner.id = "rail-inner"; inner.className = "rail-inner"; strip.appendChild(inner); }
-  var d = railEvents(t), level = d.level, span = d.span, per = d.per, total = span.days * per, gap = 1, i, k;
-  var today = todayIso(), nowRow = railRow(level, span, today, level === 0 ? null : nowHHMM());
-  // which rows hold something; the "now" row always stays visible
-  var used = []; for (i = 0; i < total; i++) used.push(false);
-  d.events.forEach(function(e){ for (k = e.row; k < e.row + e.rows; k++) used[k] = true; });
+  var d = railEvents(t), level = railZoom.level, span = d.span, per = RAIL.per, total = span.days * per, gap = 1, i, k;
+  var today = todayIso(), nowRow = railRow(span, today, nowHHMM());
+  // what each row holds
+  var used = [], starts = []; for (i = 0; i < total; i++) { used.push(false); starts.push(false); }
+  d.events.forEach(function(e){ starts[e.row] = true; for (k = e.row; k < e.row + e.rows; k++) used[k] = true; });
   if (nowRow >= 0) used[nowRow] = true;
-  // one wider gap where a week (level 0) or a day (level 1, 2) begins; inside a day every gap is 1px
-  var extraAt = function(row){
-    if (row === 0) return 0;
-    if (level === 0) return new Date(addDays(span.start, row) + "T00:00:00").getDay() === 1 ? 4 : 0;
-    return row % per === 0 ? 4 : 0;
-  };
-  // segments: a row, or a connector standing for a run of empty rows
-  var minRun = level === 2 ? 3 : 2, segs = [];
-  for (i = 0; i < total; ) {
-    if (used[i]) { segs.push({ row: i }); i++; continue; }
-    var j = i; while (j < total && !used[j]) j++;
-    if (j - i >= minRun) segs.push({ gap: true, from: i, rows: j - i }); else for (k = i; k < j; k++) segs.push({ row: k });
-    i = j;
-  }
-  // level 0 fits the window: a row is as tall as its stack of half-height bars, sized by what fits.
-  // Zoomed levels have fixed squares and grow past the window; the window is dragged over them.
-  var nRows = 0, nConn = 0, extras = 0, bars = 0;
-  segs.forEach(function(g){ if (g.gap) nConn++; else { nRows++; extras += extraAt(g.row); bars += Math.max(1, d.stack[g.row] || 0); } });
-  var H = strip.clientHeight, sq, hh;
-  if (level === 0) { var room = H - extras - nConn * (RAIL.conn + gap) - (nRows - 1) * gap; hh = Math.max(3, Math.min(8, Math.floor((room - (bars - nRows) * gap) / Math.max(1, bars)))); sq = hh * 2; }
-  else { sq = RAIL.sq[level]; hh = sq; }
-  var rowH = function(row){ return level === 0 ? Math.max(1, d.stack[row] || 0) * (hh + gap) - gap : sq; };
-  var ys = [], y = 0, conns = [];
-  segs.forEach(function(g){
-    if (g.gap) { conns.push({ y: y, rows: g.rows, from: g.from }); for (k = g.from; k < g.from + g.rows; k++) ys[k] = y; y += RAIL.conn + gap; }
-    else { y += extraAt(g.row); ys[g.row] = y; y += rowH(g.row) + gap; }
+  // the empty runs, each one connector forever; how it shows depends on the level
+  var runs = [], runOf = []; for (i = 0; i < total; i++) runOf.push(null);
+  for (i = 0; i < total; ) { if (used[i]) { i++; continue; } var j = i; while (j < total && !used[j]) j++; var g = { from: i, rows: j - i }; runs.push(g); for (k = i; k < j; k++) runOf[k] = g; i = j; }
+  var fullDays = function(g){ var n = 0; for (var dd = Math.ceil(g.from / per); (dd + 1) * per <= g.from + g.rows; dd++) n++; return n; };
+  runs.forEach(function(g){
+    if (level === 2) g.mode = g.rows >= 3 ? "conn" : "rows";
+    else if (level === 1) g.mode = g.rows >= 8 ? "conn" : "rows";
+    else { var fd = fullDays(g); g.mode = fd >= 2 ? "conn" : fd === 1 ? "blank" : "none"; }
   });
+  if (inner.dataset.built !== span.start + ":" + d.events.length) buildRail(inner, d, runs);
+  // the height rule: what a row is at this level
+  var onGrid = function(w){ return w % 4 === 0 || w === per - 1; };
+  var heightOf = function(row, sq, hh){
+    var w = row % per, g = runOf[row];
+    if (!g) return level === 2 ? sq : level === 1 ? (onGrid(w) || starts[row] ? sq : 0) : (starts[row] ? hh : 0);
+    var first = row === g.from;
+    if (g.mode === "conn") return first ? RAIL.conn : 0;
+    if (g.mode === "blank") return first ? hh : 0;
+    if (g.mode === "none") return 0;
+    return level === 2 ? sq : onGrid(w) ? sq : 0;
+  };
+  // the wider gap: before the first visible row of each week (level 0) or day (levels 1 and 2)
+  var weekStart = function(row){ return row % per === 0 && new Date(addDays(span.start, row / per) + "T00:00:00").getDay() === 1; };
+  var marks = function(row){ return row % per === 0 && row > 0 && (level > 0 || weekStart(row)); };
+  // level 0 fits the window: the half-bar height comes from what is visible there
+  var H = strip.clientHeight, sq, hh;
+  if (level === 0) {
+    var vis = 0, conn = 0, extras = 0, pend = false;
+    for (i = 0; i < total; i++) { if (marks(i)) pend = true; var h0 = heightOf(i, 0, 1); if (h0 > 0) { if (pend) { extras += 4; pend = false; } if (runOf[i] && runOf[i].mode === "conn") conn++; else vis++; } }
+    hh = Math.max(3, Math.min(8, Math.floor((H - extras - conn * (RAIL.conn + gap) - (vis - 1) * gap) / Math.max(1, vis)))); sq = hh * 2;
+  } else { sq = RAIL.sq[level]; hh = sq; }
+  var ys = [], hs = [], y = 0, pending = false;
+  for (i = 0; i < total; i++) {
+    if (marks(i)) pending = true;
+    var h = heightOf(i, sq, hh);
+    if (h > 0 && pending) { y += 4; pending = false; }
+    ys.push(y); hs.push(h); if (h > 0) y += h + gap;
+  }
   var pad = 6, width = pad * 2 + d.lanes * (sq + gap) - gap;
-  railGeom = { ys: ys, per: per, span: span, level: level, sq: sq, hh: hh, contentH: y };
+  railGeom = { ys: ys, span: span, level: level, sq: sq, hh: hh, contentH: y };
   inner.style.height = y + "px";
   strip.style.setProperty("--sq", sq + "px");
   var map = strip.closest(".map"); if (map) map.style.setProperty("--rail-w", Math.max(36, width) + "px");
-  // Where everything lands, before touching the DOM, so the window offset is known first.
-  var topOf = {};
-  d.events.forEach(function(e){ topOf[e.key] = ys[e.row] + e.sub * (hh + gap); });
   // the window: keep the anchor where it was on screen, or hold the current offset
-  var oldOff = railOff;
   if (anchor) {
-    var newY = anchor.key && topOf[anchor.key] != null ? topOf[anchor.key] : ys[Math.max(0, railRow(level, span, anchor.date, anchor.time))];
-    railOff = newY - anchor.screenY;
+    var newY = anchor.key ? null : ys[Math.max(0, railRow(span, anchor.date, anchor.time))];
+    if (anchor.key) d.events.forEach(function(e){ if (e.key === anchor.key) newY = ys[e.row]; });
+    if (newY != null) railOff = newY - anchor.screenY;
   }
   railOff = railClampOff(railOff);
-  var delta = railOff - oldOff;   // what the pane slides by; anything that only fades must slide along, or it drifts on screen
-  // Morph rather than rebuild: an event that stays keeps its button and slides to its new place,
-  // one that leaves fades out where it is on screen, one that arrives fades in. A connector that
-  // stands for the same empty time at both levels keeps its element and slides; others cross-fade.
-  var keep = {}, old = {}, fresh = [];
-  inner.querySelectorAll(".ev").forEach(function(b){ old[b.dataset.ev] = b; });
-  // connectors are matched by the stretch of time they cover, in minutes from the start of the period
-  var absOf = function(row){ var m = railMoment(level, span, row); return Math.round((day(m.date) - day(span.start)) / 864e5) * 1440 + (m.time ? toMin(m.time) : 0); };
-  var oldConns = [].slice.call(inner.querySelectorAll(".gapc:not(.out)"));
-  conns.forEach(function(c){
-    var a = absOf(c.from), z = absOf(c.from + c.rows - 1), el = null;
-    for (var q = 0; q < oldConns.length && !el; q++) { var o = oldConns[q]; if (Number(o.dataset.a) <= z && Number(o.dataset.z) >= a) { el = o; oldConns.splice(q, 1); } }
-    if (!el) { el = document.createElement("div"); el.className = "gapc in"; el.style.height = RAIL.conn + "px"; inner.appendChild(el); fresh.push(el); }
-    el.dataset.a = a; el.dataset.z = z; el.style.top = c.y + "px"; el.title = railGapLabel(level, c.rows) + " with nothing in it";
-    el.innerHTML = '<svg viewBox="0 0 8 18" width="8" height="18" aria-hidden="true"><polyline points="4,0 1,4 7,8 1,12 7,16 4,18"/></svg><span>' + esc(railGapLabel(level, c.rows)) + '</span>';
+  // place everything: only styles change, so every move and resize is a transition
+  var conns = inner.querySelectorAll(".gapc");
+  runs.forEach(function(g, n){
+    var el = conns[n], show = g.mode === "conn";
+    el.style.top = ys[g.from] + "px"; el.style.height = (show ? RAIL.conn : 0) + "px"; el.classList.toggle("hid", !show);
+    el.querySelector("span").textContent = railGapLabel(level, g.rows); el.title = railGapLabel(level, g.rows) + " with nothing in it";
   });
-  oldConns.forEach(function(el){ el.classList.add("out"); el.style.top = (parseFloat(el.style.top) + delta) + "px"; setTimeout(function(){ el.remove(); }, 400); });
-  inner.querySelectorAll(".nowline").forEach(function(el){ if (!el.classList.contains("out")) { el.classList.add("out"); el.style.top = (parseFloat(el.style.top) + delta) + "px"; setTimeout(function(){ el.remove(); }, 400); } });
+  var btns = {}; inner.querySelectorAll("button").forEach(function(b){ btns[b.dataset.ev] = b; });
   d.events.forEach(function(e){
-    var r = e.r, title = r.title.replace(/ due \d\d:\d\d$/, "").replace(/ close \d\d:\d\d$/, " close");
+    var r = e.r, btn = btns[e.key]; if (!btn) return;
+    var title = r.title.replace(/ due \d\d:\d\d$/, "").replace(/ close \d\d:\d\d$/, " close");
     var when = dayLabel(r.date) + (r.time ? " " + r.time + (r.end ? "\u2013" + r.end : "") : "") + ", " + (r.kind === "session" ? (SESSION_KIND[r.skind] || "") : r.kind === "deadline" ? "deadline" : "task");
-    var top = topOf[e.key], h = level === 0 ? hh : ys[e.row + e.rows - 1] + sq - top;
-    var btn = old[e.key], isNew = !btn;
-    if (isNew) { btn = document.createElement("button"); btn.type = "button"; btn.className = "ev in"; btn.dataset.ev = e.key; inner.appendChild(btn); fresh.push(btn); }
-    keep[e.key] = true;
-    btn.className = "ev" + (isNew ? " in" : "") + (r.level === "must" ? " must" : "") + (r.id ? hostClass(r.id, "") : "") + (r.date < today ? " past" : "");
-    btn.setAttribute("style", colorVars(r.code) + ";top:" + top + "px;left:" + (pad + e.lane * (sq + gap)) + "px;width:" + sq + "px;height:" + h + "px");
+    var top = ys[e.row], bottom = top;
+    var cells = btn.querySelectorAll("i");
+    for (k = 0; k < e.rows; k++) { var row = e.row + k, ch = hs[row]; cells[k].style.top = (ys[row] - top) + "px"; cells[k].style.height = ch + "px"; if (ch > 0) bottom = ys[row] + ch; }
+    btn.className = "ev" + (r.level === "must" ? " must" : "") + (r.id ? hostClass(r.id, "") : "") + (r.date < today ? " past" : "");
+    btn.setAttribute("style", colorVars(r.code) + ";top:" + top + "px;left:" + (pad + e.lane * (sq + gap)) + "px;width:" + sq + "px;height:" + Math.max(0, bottom - top) + "px");
     btn.dataset.course = r.code; if (r.id) btn.dataset.id = r.id; else delete btn.dataset.id;
     btn.setAttribute("aria-current", e.sel ? "true" : "false"); if (e.rel) btn.dataset.rel = "1"; else delete btn.dataset.rel;
     btn.dataset.tip = title; btn.dataset.when = when; btn.setAttribute("aria-label", when + " " + title);
-    // one square per row: keep the ones there, add the missing at the end, drop the surplus
-    var cells = btn.querySelectorAll("i"), n = e.rows, lastTop = cells.length ? cells[cells.length - 1].style.top : "0px";
-    for (k = cells.length; k < n; k++) { var c = document.createElement("i"); c.style.top = lastTop; btn.appendChild(c); }
-    for (k = cells.length - 1; k >= n; k--) cells[k].remove();
-    cells = btn.querySelectorAll("i");
-    for (k = 0; k < n; k++) { cells[k].style.top = (level === 0 ? 0 : ys[e.row + k] - top) + "px"; cells[k].style.height = (level === 0 ? hh : sq) + "px"; }
   });
-  Object.keys(old).forEach(function(key){ if (!keep[key]) { var b = old[key]; b.classList.add("out"); b.style.pointerEvents = "none"; b.style.top = (parseFloat(b.style.top) + delta) + "px"; setTimeout(function(){ b.remove(); }, 400); } });
-  if (nowRow >= 0) { var nl = document.createElement("div"); nl.className = "nowline in"; nl.style.top = (ys[nowRow] - 2) + "px"; inner.appendChild(nl); fresh.push(nl); }
+  var nl = inner.querySelector(".nowline"); if (nl) { nl.hidden = nowRow < 0; if (nowRow >= 0) nl.style.top = (ys[nowRow] - 2) + "px"; }
   railApplyOff(true);
-  // next frame: let the arrivals fade in and the squares slide, after their start state has painted
-  if (fresh.length) { void inner.offsetWidth; requestAnimationFrame(function(){ fresh.forEach(function(el){ el.classList.remove("in"); }); }); }
   strip.classList.toggle("pan", railGeom.contentH > H);
   var zin = document.getElementById("rz-in"), zout = document.getElementById("rz-out"); if (zin) zin.disabled = level === 2; if (zout) zout.disabled = level === 0;
   ["rz-prev", "rz-next"].forEach(function(id){ var el = document.getElementById(id); if (el) el.disabled = railGeom.contentH <= H; });
@@ -1438,9 +1434,9 @@ function layoutRail(t, anchor){
 function railAnchorAt(strip, clientY, target){
   var top = strip.getBoundingClientRect().top, screenY = clientY - top, ev = target && target.closest && target.closest(".ev");
   // no square under the pointer: the one at that height, if any, still makes the better anchor
-  if (!ev) strip.querySelectorAll(".ev").forEach(function(b){ if (ev) return; var r = b.getBoundingClientRect(); if (clientY >= r.top - 1 && clientY <= r.bottom + 1) ev = b; });
+  if (!ev) strip.querySelectorAll(".ev").forEach(function(b){ if (ev) return; var r = b.getBoundingClientRect(); if (r.height > 0 && clientY >= r.top - 1 && clientY <= r.bottom + 1) ev = b; });
   if (ev && ev.dataset.ev) return { key: ev.dataset.ev, screenY: ev.getBoundingClientRect().top - top };
-  var m = railMoment(railGeom.level, railGeom.span, railRowAt(screenY + railOff));
+  var m = railMoment(railGeom.span, railRowAt(screenY + railOff));
   return { date: m.date, time: m.time, screenY: screenY };
 }
 function railSetZoom(t, level, anchor){
