@@ -1337,7 +1337,7 @@ function buildRail(inner, d, runs){
   inner.innerHTML = ""; inner.dataset.built = d.span.start + ":" + d.events.length;
   runs.forEach(function(g){
     var el = document.createElement("div"); el.className = "gapc"; el.dataset.from = g.from;
-    el.innerHTML = '<svg viewBox="0 0 8 18" width="8" height="18" aria-hidden="true"><path d="M4 0C6.6 1.5 6.6 4.5 4 6C1.4 7.5 1.4 10.5 4 12C6.6 13.5 6.6 16.5 4 18"/></svg><span></span>';
+    el.innerHTML = '<svg viewBox="0 0 8 20" width="8" height="20" aria-hidden="true"><path d="M4 0C6.6 1.7 6.6 5 4 6.67C1.4 8.3 1.4 11.7 4 13.33C6.6 15 6.6 18.3 4 20"/></svg><span></span>';
     inner.appendChild(el);
   });
   d.events.forEach(function(e){
@@ -1413,7 +1413,8 @@ function layoutRail(t, anchor){
   var conns = inner.querySelectorAll(".gapc");
   runs.forEach(function(g, n){
     var el = conns[n], show = g.mode === "conn";
-    el.style.top = ys[g.from] + "px"; el.style.height = (show ? RAIL.conn : 0) + "px"; el.classList.toggle("hid", !show);
+    // one pixel taller at each end than its row, so the wave touches the squares above and below
+    el.style.top = (ys[g.from] - (show ? 1 : 0)) + "px"; el.style.height = (show ? RAIL.conn + 2 : 0) + "px"; el.classList.toggle("hid", !show);
     el.querySelector("span").textContent = railGapLabel(level, g.rows); el.title = railGapLabel(level, g.rows) + " with nothing in it";
   });
   var btns = {}; inner.querySelectorAll("button").forEach(function(b){ btns[b.dataset.ev] = b; });
