@@ -1754,10 +1754,10 @@ function bindMap(t){
   var drag = null, railDragged = false;
   tb.addEventListener("pointerdown", function(e){
     var strip = e.target.closest && e.target.closest(".rail-strip"); if (!strip || !strip.classList.contains("pan") || e.button !== 0) return;
+    // no pointer capture: it would retarget the pointer-up to the strip and the click would never reach the square
     drag = { strip: strip, y: e.clientY, off: railOff, moved: false }; strip.classList.add("dragging");
-    try { strip.setPointerCapture(e.pointerId); } catch (x) {}
   });
-  tb.addEventListener("pointermove", function(e){
+  window.addEventListener("pointermove", function(e){
     if (!drag) return;
     var dy = e.clientY - drag.y; if (Math.abs(dy) > 4) drag.moved = true;
     if (drag.moved) { railOff = railClampOff(drag.off - dy); railApplyOff(false); }
@@ -1768,7 +1768,7 @@ function bindMap(t){
     strip.classList.remove("dragging");
     railDragged = moved; setTimeout(function(){ railDragged = false; }, 0);
   };
-  tb.addEventListener("pointerup", endDrag); tb.addEventListener("pointercancel", endDrag);
+  window.addEventListener("pointerup", endDrag); window.addEventListener("pointercancel", endDrag);
   var resizeTimer = null;
   window.addEventListener("resize", function(){ clearTimeout(resizeTimer); resizeTimer = setTimeout(function(){ if (state.view === "map") layoutRail(term()); }, 120); });
   tb.addEventListener("click", function(e){
