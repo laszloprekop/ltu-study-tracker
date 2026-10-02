@@ -180,3 +180,9 @@ because the two courses run in parallel and interleave around the ring. What wou
 course filter, or one radial band per course. Also measured: event-to-page alignment went from
 126° mean (worse than random) to 23° once the ring pills stopped repelling the material and the
 event springs were strengthened; layering then held it at 19°.
+
+## Deep scan 2026-10-02
+
+Per-course catalogues of every dated, booked or "do this before" thing, and the Canvas completion
+signals: `docs/scan/z7005e.md`, `docs/scan/z0025e.md`, `docs/scan/completion.md`. Scripts in
+`tools/scan/`. The glossary for the hosted app design is `CONTEXT.md`.
