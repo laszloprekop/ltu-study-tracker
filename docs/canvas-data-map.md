@@ -71,6 +71,9 @@ contrast, are fully machine-readable.
 - `GET /calendar_events` for the user context and for both courses: 0 events. `type=assignment`
   gives the same 27 deadlines the assignments endpoint gives.
 - So the feed is exactly the assignments list in another format. The timetable exists only in prose.
+- `npm run check` (and `npm run calendar` alone) now repeats the `type=event` query for both courses
+  and the user context, and lists any event it finds, since an event there would be a session the
+  prose does not mention. Events are printed, never stored in the inventory.
 
 ### Where the prose timetable is, and how parseable it is
 - **613 "Schema" page:** 42 dated list items. Sessions read `HH:MM - HH:MM: Del X.Y – Föreläsning N

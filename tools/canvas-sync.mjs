@@ -3,7 +3,9 @@
 //
 //   node tools/canvas-sync.mjs courses        list your Canvas courses with their ids
 //   node tools/canvas-sync.mjs inventory      write data/canvas-inventory.json (modules, items, deadlines, announcements)
-//   node tools/canvas-sync.mjs check          compare the committed inventory with Canvas and report every difference
+//   node tools/canvas-sync.mjs check          compare the committed inventory with Canvas and report every difference,
+//                                             then list any calendar events (sessions Canvas would otherwise hide)
+//   node tools/canvas-sync.mjs calendar       list only the calendar events
 //   node tools/canvas-sync.mjs announcements  print the announcements Canvas has for each course
 //   node tools/canvas-sync.mjs progress       write data/my-progress.json (git-ignored): what Canvas counts as done for YOUR account
 //
@@ -220,6 +222,26 @@ async function check() {
     total += lines.length;
   }
   console.log(total ? `\n${total} difference(s). Run "npm run inventory" then "npm run build" to take them in.` : "\nInventory matches Canvas.");
+  await calendar();
+}
+
+// Calendar events (type=event, so not assignment deadlines) in both courses and the token owner's
+// own calendar. Both were empty on 2026-09-25, so any event here is a session the inventory does
+// not know about. Printed only, never written to the inventory: user-context events are personal.
+async function calendar() {
+  const me = await get("/users/self");
+  const contexts = [`user_${me.id}`, ...Object.values(COURSES).filter(c => c.canvasId).map(c => `course_${c.canvasId}`)];
+  const codeOf = Object.fromEntries(Object.entries(COURSES).filter(([, c]) => c.canvasId).map(([k, c]) => [`course_${c.canvasId}`, k]));
+  const events = await getAll(`/calendar_events?type=event&all_events=true&${contexts.map(c => `context_codes[]=${c}`).join("&")}`);
+  events.sort((a, b) => String(a.start_at).localeCompare(String(b.start_at)));
+  console.log(`\nCalendar events`);
+  if (!events.length) { console.log("  ok  none in either course or your own calendar"); return; }
+  for (const e of events) {
+    const s = e.start_at ? local(e.start_at) : null, end = e.end_at ? local(e.end_at) : null;
+    const where = codeOf[e.context_code] || "your calendar";
+    console.log(`  !  ${s ? s.date + " " + s.time : "no date"}${end ? "-" + end.time : ""}  ${e.title}  (${where})${e.location_name ? "  @ " + e.location_name : ""}\n     ${e.html_url}`);
+  }
+  console.log(`${events.length} event(s). Add any course session to data/plan.mjs.`);
 }
 
 // ---------- small commands ----------
@@ -264,6 +286,6 @@ async function progress() {
 }
 
 const cmd = process.argv[2] || "check";
-const run = { courses, inventory, check, announcements, progress }[cmd];
-if (!run) { console.error(`Unknown command "${cmd}". Use: courses | inventory | check | announcements | progress`); process.exit(2); }
+const run = { courses, inventory, check, calendar, announcements, progress }[cmd];
+if (!run) { console.error(`Unknown command "${cmd}". Use: courses | inventory | check | calendar | announcements | progress`); process.exit(2); }
 run().catch(e => { console.error(e.message); process.exit(1); });

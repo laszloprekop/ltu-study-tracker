@@ -12,6 +12,7 @@
     "check": "node tools/canvas-sync.mjs check",
     "courses": "node tools/canvas-sync.mjs courses",
     "announcements": "node tools/canvas-sync.mjs announcements",
+    "calendar": "node tools/canvas-sync.mjs calendar",
     "build": "node tools/build.mjs",
     "update": "node tools/canvas-sync.mjs inventory && node tools/build.mjs",
     "progress": "node tools/canvas-sync.mjs progress",
