@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 // Uploads drafted Cards (release 4) to the tracker database over SSH, as the Maintainer, marked
 // AI-drafted and unchecked: each is shared only after a classmate Checks it (CONTEXT.md, Check).
-//   node tools/cards/upload.mjs data/cards/<file>.json [--dry-run]
+//   node tools/cards/upload.mjs data/cards/<file>.json [--dry-run] [--update]
+// --update also rewrites the answer and sources of cards already there (same course and prompt),
+// but only AI drafts nobody has checked yet, so a classmate's Check is never invalidated.
 // The file: { cards: [{ course, sources: ["4.2", ...] (Canvas item numbers or "d:<assignment id>"), prompt, answer, kind? }] }
 // kind is concept (default) or question. Answer Cards are never uploaded: ADR 0002.
 // A card whose prompt is already in the database for its course is skipped, so a file can be sent again.
@@ -9,7 +11,7 @@ import { readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { readInventory } from "../lib/page.mjs";
 
-const [file] = process.argv.slice(2).filter(a => !a.startsWith("--")), dry = process.argv.includes("--dry-run");
+const [file] = process.argv.slice(2).filter(a => !a.startsWith("--")), dry = process.argv.includes("--dry-run"), update = process.argv.includes("--update");
 if (!file) { console.error("Usage: node tools/cards/upload.mjs <file.json> [--dry-run]"); process.exit(2); }
 const inv = readInventory(), { cards } = JSON.parse(readFileSync(file, "utf8"));
 const problems = [], rows = [];
@@ -28,7 +30,9 @@ for (const [n, c] of cards.entries()) {
 }
 if (problems.length) { console.error("Upload stopped:\n  " + problems.join("\n  ")); process.exit(1); }
 const q = s => { let tag = "c"; while (s.includes("$" + tag + "$")) tag += "x"; return `$${tag}$${s}$${tag}$`; };
-const sql = ["\\set ON_ERROR_STOP 1", "begin;"].concat(rows.map(r =>
+const updates = update ? rows.map(r =>
+  `update public.card set answer = ${q(r.answer)}, sources = array[${r.sources.map(q).join(",")}] where course = ${q(r.course)} and prompt = ${q(r.prompt)} and ai_drafted and status = 'draft' and answer is distinct from ${q(r.answer)};`) : [];
+const sql = ["\\set ON_ERROR_STOP 1", "begin;"].concat(updates).concat(rows.map(r =>
   `insert into public.card (kind, prompt, answer, sources, course, owner, ai_drafted) select ${q(r.kind)}, ${q(r.prompt)}, ${q(r.answer)}, array[${r.sources.map(q).join(",")}], ${q(r.course)}, (select user_id from public.app_maintainer limit 1), true where not exists (select 1 from public.card where course = ${q(r.course)} and prompt = ${q(r.prompt)}) and exists (select 1 from public.app_maintainer);`
 )).concat(["commit;", "select count(*) || ' cards in the database' from public.card;"]).join("\n");
 if (dry) { console.log(`${rows.length} cards checked, nothing sent (dry run).`); process.exit(0); }

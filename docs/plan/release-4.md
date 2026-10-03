@@ -40,6 +40,13 @@ answer, its Sources and the ratings on the back. Filters: Due now, one per Card 
 and Flagged are grids too. Buttons, fields and tags added since release 2 lost their rounded
 corners and take the cut corner, like the page's own controls.
 
+Cards have a playing card's proportions (5 to 7, at least 300 by 420). An answer may use a few
+marks, applied after escaping so no HTML gets through: `- ` and `1. ` lines for lists, backticks
+for `code`, `**term**`, and one `Key:` line, which is pinned below the scrolling answer so the
+one thing to remember always shows. The first 20 drafts were rewritten this way, in plain words
+with every term explained (`node tools/cards/upload.mjs <file> --update` changes only unchecked
+AI drafts).
+
 - Card Sets per upcoming Key Event: a Card belongs to the Sets of the assessments its Sources
   prepare for (the same `needsOf` the Map uses).
 - Drill: the due Cards, one at a time, answer revealed on demand, rated Again, Hard, Good or Easy.

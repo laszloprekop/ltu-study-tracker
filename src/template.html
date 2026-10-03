@@ -124,17 +124,24 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
 .cardsview .fbar button[aria-pressed="true"]{color:var(--on-now); background:var(--now); border-color:var(--now)}
 .fbar button .dot{width:8px; height:8px; background:var(--cc, var(--muted)); clip-path:polygon(0 0, 60% 0, 100% 40%, 100% 100%, 0 100%)}
 .fbar button small{font-weight:400; opacity:.8}
-.fgrid{display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:16px; margin-top:10px}
-.fcard{perspective:1200px; min-height:300px; cursor:pointer; outline:none}
+.fgrid{display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:18px; margin-top:10px}
+@media (max-width:520px){ .fgrid{grid-template-columns:1fr} }
+.fcard{perspective:1200px; aspect-ratio:5 / 7; min-height:420px; max-width:380px; cursor:pointer; outline:none}
 .fcard:focus-visible .fc-face{box-shadow:inset 0 0 0 2px var(--now)}
-.fc-in{position:relative; width:100%; height:100%; min-height:300px; transition:transform .55s cubic-bezier(.2,.7,.2,1); transform-style:preserve-3d}
+.fc-in{position:relative; width:100%; height:100%; min-height:420px; transition:transform .55s cubic-bezier(.2,.7,.2,1); transform-style:preserve-3d}
 .fcard.flipped .fc-in{transform:rotateY(180deg)}
-.fc-face{position:absolute; inset:0; display:flex; flex-direction:column; gap:8px; padding:14px 16px; background:var(--surface); border-top:5px solid var(--cc, var(--now)); backface-visibility:hidden; -webkit-backface-visibility:hidden; overflow:hidden;
+.fc-face{position:absolute; inset:0; display:flex; flex-direction:column; gap:7px; padding:12px 14px; background:var(--surface); border-top:5px solid var(--cc, var(--now)); backface-visibility:hidden; -webkit-backface-visibility:hidden; overflow:hidden;
   clip-path:polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%); box-shadow:inset 0 0 0 1px var(--line)}
 .fc-back{transform:rotateY(180deg); background:var(--surface-2); border-top-color:var(--now)}
 .fc-meta{display:flex; flex-wrap:wrap; align-items:center; gap:6px; font-size:12px; color:var(--muted)}
-.fc-q{flex:1 1 auto; display:flex; align-items:center; font-family:Archivo,sans-serif; font-size:18px; font-weight:700; line-height:1.3; color:var(--ink)}
-.fc-a{flex:1 1 84px; min-height:84px; overflow:auto; font-size:15px; line-height:1.45; white-space:pre-wrap; color:var(--ink)}
+.fc-q{flex:1 1 auto; display:flex; align-items:center; font-family:Archivo,sans-serif; font-size:20px; font-weight:700; line-height:1.3; color:var(--ink)}
+.fc-a{flex:1 1 120px; min-height:90px; overflow:auto; font-size:13.5px; line-height:1.4; color:var(--ink)}
+.fc-a p{margin:0 0 6px} .fc-a ul,.fc-a ol{margin:0 0 6px; padding-left:18px} .fc-a li{margin:2px 0}
+.fc-a code{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:.92em; padding:0 4px; background:var(--surface); box-shadow:inset 0 0 0 1px var(--line)}
+.fc-a .term{color:var(--c3); font-weight:700}
+.fc-back .insight{flex:0 0 auto; margin:0; padding:6px 8px; background:var(--now-soft); color:var(--ink); border-left:4px solid var(--now); clip-path:polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%)}
+.fc-back .insight{font-size:13px; line-height:1.35} .fc-back .insight code{font-family:"IBM Plex Mono",monospace; font-size:.92em} .fc-back .insight .term{color:var(--c3); font-weight:700}
+.fc-back .insight b{display:block; font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--now)}
 .fc-src{font-size:12px; color:var(--muted)}
 .fc-foot{display:flex; flex-wrap:wrap; align-items:center; gap:6px; font-size:11.5px; color:var(--muted)}
 .fc-due{margin-left:auto; font-weight:700} .fc-hint{flex-basis:100%; text-align:right; opacity:.7}
@@ -142,7 +149,7 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
 .fc-rate .again{background:var(--alert); border-color:var(--alert)}
 .fc-back .ck-b{display:flex; flex-wrap:wrap; gap:6px; margin:0}
 .fc-back .ck-b button.plain{border:0; background:transparent; padding:0; font-size:11.5px; font-weight:600; color:var(--muted); text-decoration:underline; clip-path:none}
-.fc-src{max-height:3.2em; overflow:auto}
+.fc-src{max-height:2.6em; overflow:auto; line-height:1.3}
 @media (prefers-reduced-motion:reduce){ .fc-in{transition:none} }
 .cardsview .csets,.cardsview .cklist{list-style:none; margin:8px 0 0; padding:0; display:flex; flex-direction:column; gap:6px}
 .cardsview .csets li{display:flex; flex-wrap:wrap; align-items:center; gap:4px 8px; padding:6px 8px; border-left:4px solid var(--cc, var(--muted)); background:var(--surface-2)}
@@ -1227,7 +1234,7 @@ function renderCardsView(t){
   var courseOpts = Object.keys(COURSES).filter(function(k){ return COURSES[k].canvasId; }).map(function(k){ return '<option value="' + esc(k) + '">' + esc(label(k)) + '</option>'; }).join("");
   var write = '<div class="card cvcard"><h3>' + ic("plus") + 'Write a card</h3><p class="note">Concept: one idea a lab or exam tests, with the answer. Question: a graded question word for word, and where its answer is found, never the answer itself. Group answer: your group\'s own answer to a graded question, seen only by your group' + (mineG ? ' (' + esc(mineG) + ')' : ' (your group is known once you connect Canvas in Hosted app)') + '.</p>' +
     '<div class="row"><select id="cw-kind"><option value="concept">Concept card</option><option value="question">Question card</option><option value="answer"' + (mineG ? '' : ' disabled') + '>Group answer card</option></select><select id="cw-course">' + courseOpts + '</select><input type="text" id="cw-src" class="fld" placeholder="Sources, as in Canvas: 4.2, 9.7"></div>' +
-    '<div class="row"><textarea id="cw-prompt" rows="2" placeholder="Front: the question"></textarea></div><div class="row"><textarea id="cw-answer" rows="3" placeholder="Back: the answer, or for a question card where the answer is found"></textarea></div>' +
+    '<div class="row"><textarea id="cw-prompt" rows="2" placeholder="Front: the question"></textarea></div><div class="row"><textarea id="cw-answer" rows="5" placeholder="Back: the answer, or for a question card where the answer is found.&#10;- a list item&#10;`code` and **a term**&#10;Key: the one thing to remember"></textarea></div>' +
     '<div class="row"><button type="button" data-cardwrite="1">Save as a draft</button><small>Shared once a classmate checks it.</small></div></div>';
   return '<section class="appview cardsview">' + head + (state.cardErr ? '<p class="err">' + esc(state.cardErr) + '</p>' : '') +
     '<div class="card"><h3>' + ic("target") + 'Drill<span class="sum">' + due.length + ' of ' + pool.length + ' due</span></h3>' +
@@ -1239,6 +1246,25 @@ function renderCardsView(t){
     write + '</section>';
 }
 // One card, both sides. A click anywhere but on a control turns it over (CSS: .fcard.flipped).
+// The few marks a card's answer may use, applied after escaping so no HTML gets through:
+// lines "- " (list), "1. " (numbered), `code`, **term**, and a line "Key: ..." (the key insight).
+// The Key line is pulled out, so the card can pin it below the scrolling answer.
+function cardKey(text){ var m = /^\s*key:\s*(.*)$/im.exec(text || ""); return m ? m[1] : ""; }
+function cardInline(x){ return esc(x).replace(/`([^`]+)`/g, '<code>$1</code>').replace(/\*\*([^*]+)\*\*/g, '<b class="term">$1</b>'); }
+function cardText(text){
+  var lines = esc(String(text || "").replace(/^\s*key:.*$/gim, "")).split(/\n/), out = "", list = null;
+  var inline = function(x){ return x.replace(/`([^`]+)`/g, '<code>$1</code>').replace(/\*\*([^*]+)\*\*/g, '<b class="term">$1</b>'); };
+  var close = function(){ if (list) { out += "</" + list + ">"; list = null; } };
+  lines.forEach(function(l){
+    var m;
+    if ((m = /^\s*[-*]\s+(.*)$/.exec(l))) { if (list !== "ul") { close(); out += "<ul>"; list = "ul"; } out += "<li>" + inline(m[1]) + "</li>"; }
+    else if ((m = /^\s*\d+[.)]\s+(.*)$/.exec(l))) { if (list !== "ol") { close(); out += "<ol>"; list = "ol"; } out += "<li>" + inline(m[1]) + "</li>"; }
+    else if (l.trim()) { close(); out += "<p>" + inline(l) + "</p>"; }
+    else close();
+  });
+  close();
+  return out;
+}
 function flipCard(t, c, mode){
   var C = state.cards, ev = nextEvent(t, c), rv = C.reviews[c.id], flipped = !!(state.flipped && state.flipped[c.id]);
   var meta = chip(c.course) + (ev ? '<span class="fc-ev">' + esc(shortTitle(ev.a.title).split(",")[0]) + ', ' + esc(longDay(ev.a.due)) + '</span>' : '');
@@ -1251,7 +1277,8 @@ function flipCard(t, c, mode){
   return '<div class="fcard' + (flipped ? ' flipped' : '') + '" data-flip="' + esc(c.id) + '" style="' + colorVars(c.course) + '" tabindex="0" role="button" aria-pressed="' + flipped + '" aria-label="Card: ' + esc(c.prompt.slice(0, 80)) + '. Press to turn over.">' +
     '<div class="fc-in">' +
       '<div class="fc-face fc-front"><div class="fc-meta">' + meta + '</div><div class="fc-q">' + esc(c.prompt) + '</div><div class="fc-foot">' + tags + '<span class="fc-due">' + esc(dueTxt) + '</span><span class="fc-hint">click to turn over</span></div></div>' +
-      '<div class="fc-face fc-back"><div class="fc-meta">' + meta + '</div><div class="fc-a">' + (c.kind === "question" ? '<small>Where the answer is:</small> ' : '') + esc(c.answer || "(no answer written)") + '</div>' +
+      '<div class="fc-face fc-back"><div class="fc-meta">' + meta + '</div><div class="fc-a">' + (c.kind === "question" ? '<small>Where the answer is:</small> ' : '') + (c.answer ? cardText(c.answer) : "(no answer written)") + '</div>' +
+        (cardKey(c.answer) ? '<div class="insight"><b>Key</b> ' + cardInline(cardKey(c.answer)) + '</div>' : '') +
         '<div class="fc-src">Check it in: ' + cardSourcesLinks(c) + '</div>' + (why ? '<div class="fc-src">Flagged: ' + esc(why) + '</div>' : '') + controls + '</div>' +
     '</div></div>';
 }
