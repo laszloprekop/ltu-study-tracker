@@ -16,6 +16,10 @@
   `npm run check` reports a new announcement, read it and confirm or move the sessions it names.
 - `data/my-progress.json` and `ltu-study-tracker.private.html` hold the owner's Canvas completion state. Both are git-ignored; never publish the private build to the shared artifact.
 - Never read, print or commit `.env`. The token is only used by `tools/lib/canvas.mjs`.
+- The README is about the repo and the web app; details live in `docs/` (`maintaining.md`,
+  `page-guide.md`, `hosted-app.md`). Update those, not the README, when a feature changes.
+- A screenshot for the repo (e.g. `docs/images/hero.png`) is taken signed out or as a Guest: no
+  account name, ticks, calendar events or Canvas data in it.
 - `docs/canvas-data-map.md` says where each kind of data lives in Canvas. Update it when the
   courses change shape.
 - Page, app and Cards are in English. Canvas item names, links and references stay in Swedish as
