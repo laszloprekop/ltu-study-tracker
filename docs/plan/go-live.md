@@ -40,6 +40,9 @@ no service role key in the container, today's Course Plan from the database).
 
 ## 3. Deploys from GitHub
 
+Done 2026-10-03: a workflow run ended with Coolify queuing the deploy, and the server then ran the
+image digest GHCR had as latest. In GitHub, `COOLIFY_TOKEN` is the token alone, without "Bearer".
+
 1. Coolify: the app's Webhooks tab gives the deploy URL; Keys & Tokens, API tokens, gives a token
    with deploy rights.
 2. GitHub, the repo, Settings, Secrets and variables, Actions: `COOLIFY_WEBHOOK` and
