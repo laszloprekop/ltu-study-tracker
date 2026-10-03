@@ -2274,7 +2274,7 @@ function renderMoved(nudge){
       '<button type="button" class="mv-fold" data-moved="fold" aria-expanded="' + String(!folded) + '" title="' + (folded ? "Show the steps" : "Fold to one line") + '" aria-label="' + (folded ? "Show the steps" : "Fold to one line") + '">' + ic("caret-down") + '</button></div>' +
     (folded ? "" : '<div class="mv-body">' +
       '<div><h4>How to move</h4>' + moveSteps() + '</div>' +
-      '<div><h4>Why move</h4>' + infoList(APP_INFO.now.slice(0, 3), "ul") + '<p style="margin:6px 0 0"><b>Coming:</b> study cards with spaced repetition before every exam, prep chains from each lab and exam back to its lectures, a day plan in 15-minute slots, your own Canvas status and your group\'s lab bookings. All of it, and how your data is kept: <a href="#" data-goview="app">Hosted app</a>.</p></div>' +
+      '<div><h4>Why move</h4>' + infoList([APP_INFO.now[0], APP_INFO.now[4], APP_INFO.now[5]], "ul") + '<p style="margin:6px 0 0"><b>Coming:</b> study cards with spaced repetition before every exam, prep chains from each lab and exam back to its lectures, and a day plan in 15-minute slots. All of it, and how your data is kept: <a href="#" data-goview="app">Hosted app</a>.</p></div>' +
       (stateHtml ? '<p class="mv-state">' + stateHtml + '</p>' : '') + '</div>');
   el.hidden = false;
   el.classList.toggle("folded", folded); el.classList.toggle("drift", drift);
