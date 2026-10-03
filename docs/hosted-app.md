@@ -51,6 +51,10 @@ lists everything. The lists live in one place in `src/template.html` (`APP_INFO`
   database, not only in the page (ADR 0003).
 - Hosted on Hetzner in the EU over HTTPS. The sync reads Canvas with GET requests to a fixed list
   of course paths and stores nothing about any Student.
+- The server takes SSH by key only, no passwords. A Hetzner Cloud Firewall, outside the server so
+  Docker cannot bypass it, lets in only TCP 22, 80 and 443 and UDP 443; the database, the Coolify
+  dashboard and Traefik are reached through the HTTPS proxy or an SSH tunnel. The server's address
+  is kept out of the repo, in the git-ignored `tools/server.env` that `tools/db.sh` reads.
 - Signed in, the Hosted app view has a two-step button that deletes the account and its ticks
   from the server (`public.delete_my_account`); ticks in the browser stay.
 - The code is public: https://github.com/laszloprekop/ltu-study-tracker
