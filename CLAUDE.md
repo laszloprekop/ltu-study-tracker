@@ -18,3 +18,7 @@
 - Never read, print or commit `.env`. The token is only used by `tools/lib/canvas.mjs`.
 - `docs/canvas-data-map.md` says where each kind of data lives in Canvas. Update it when the
   courses change shape.
+- Page, app and Cards are in English. Canvas item names, links and references stay in Swedish as
+  Canvas has them, so they can be found again in Canvas.
+- `CONTEXT.md` is the glossary for the hosted app (Course Plan, Personal Layer, Key Event, Card...).
+  Use its terms in code and docs.
