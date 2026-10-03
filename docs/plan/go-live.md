@@ -64,11 +64,16 @@ started 14:15:05 and stored the plan at 14:15:59 UTC (about a minute per run).
 
 ## 5. First sign-in
 
+Done 2026-10-03: signed in with Google, a Tick followed to a second browser and an untick came
+back. The server had one Google account and one progress row.
+
 1. Open the app, Sign in, choose the Google account. Tick something.
 2. Open the app in another browser or a private window, sign in: the Tick is there.
 3. Untick it there, reload the first browser: it is unticked.
 
 ## 6. Turn on the move banner on the claude.ai page
+
+Done 2026-10-03: `MOVED_TO` set and the artifact republished.
 
 Only after step 5 worked. In `data/plan.mjs` set
 `export const MOVED_TO = "https://ltu-studytracker.dentaku.se";`, then `npm run build`, commit,

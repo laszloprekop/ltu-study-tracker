@@ -227,7 +227,7 @@ export const TERMS = [
 // Where the tracker has moved (release 1, step 6). null keeps the claude.ai page as it is. Set it to
 // the app's https address once a real sign-in there has been tested: the artifact then shows a move
 // banner, and locks ticking after a Student exports, until they unlock it. The app ignores it.
-export const MOVED_TO = null;
+export const MOVED_TO = "https://ltu-studytracker.dentaku.se";
 
 // Tick box ids used by earlier versions of the page, so nobody loses progress.
 export const LEGACY_IDS = {

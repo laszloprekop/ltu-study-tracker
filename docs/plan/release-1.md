@@ -106,7 +106,8 @@ in at the first sign-in; import already takes both code versions. Untested until
 
 ### 6. The artifact points to the app
 
-Built and tested 2026-10-03, switched off: `MOVED_TO = null` in `data/plan.mjs`. Setting it to
+Built and tested 2026-10-03; switched on the same day after the first real sign-in.
+Before that: `MOVED_TO = null` in `data/plan.mjs`. Setting it to
 `"https://ltu-studytracker.dentaku.se"` and republishing turns it on. Only after a real sign-in
 on the app has worked.
 
