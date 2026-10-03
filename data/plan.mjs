@@ -85,7 +85,7 @@ const SESSIONS_LP2 = [
   S("Z7005E", "2026-09-22", "10:30", "11:45", "lecture", "Lecture 6, psychology of interaction design", { ref: "1.5" }),
   S("Z7005E", "2026-09-22", "13:00", "16:00", "workshop", "Workshop 1, kravspecifikation", { ref: "1.7", why: "Portfolio working time. Have the interview questions final before it starts." }),
   S("Z7005E", "2026-09-23", "09:15", "10:15", "lecture", "Lecture 7, interface design", { ref: "1.6" }),
-  S("Z7005E", "2026-09-23", "10:30", "12:00", "interview", "System expert interview (booked slot)", { links: [["Booking page", BOOKING]], why: "45 minutes, shared with two other groups. Record it, or have one person do nothing but take notes." }),
+  S("Z7005E", "2026-09-23", "10:30", "12:00", "interview", "System expert interview (booked slot)", { links: [["Booking page", BOOKING]], why: "30 minutes, shared with two other groups. Record it, or have one person do nothing but take notes." }),
   S("Z7005E", "2026-09-29", "09:15", "10:15", "lecture", "Lecture 8, agile development and XP", { ref: "2.1" }),
   S("Z7005E", "2026-09-29", "10:30", "12:00", "lecture", "Lecture 10, plus parts of Lectures 9 and 12", { ref: "3.1", also: ["2.2", "4.1"] }),
   S("Z7005E", "2026-09-30", "09:15", "10:15", "workshop", "Workshop 3, design principles", { ref: "3.5.6", prep: ["2.3"] }),
@@ -149,14 +149,17 @@ const T = (id, course, date, title, why, links, level) => ({ id, course, date, t
 const TASKS_LP2 = [
   T("t-tools", "Z0025E", "2026-09-14", "Install Wireshark and Cisco Packet Tracer 8.0", "Packet Tracer 6.3, 7.2 and 8.0 are the confirmed versions, newer builds have broken the lab files before. Needed from Lab 2.",
     [["Wireshark", "https://www.wireshark.org/"], ["Packet Tracer versions", "https://www.computernetworkingnotes.com/ccna-study-guide/download-packet-tracer-for-windows-and-linux.html"]], "must"),
-  T("t-group", "Z0025E", "2026-09-14", "Form a lab group of 3 to 4 and sign up on sheet 9.2", "Lab 1 may be done alone, Labs 2 to 6 may not, so form the group once.", [["Lab sign-up sheet", SIGNUP]], "must"),
+  T("t-group", "Z0025E", "2026-09-14", "Form a lab group of 3 to 4 and sign up on sheet 9.2", "Lab 1 is graded individually. Labs 2 to 6 are meant for groups of 3 to 4 (9.1), though each lab assignment also allows working alone, so form the group once.", [["Lab sign-up sheet", SIGNUP]], "must"),
   T("t-msg", "Z7005E", "2026-09-18", "Agree a fixed group meeting slot, and who books the system expert on Monday", "The booking page holds three groups per session, so Monday morning matters.", [["Booking page", BOOKING]]),
   T("w39-book", "Z7005E", "2026-09-21", "Book the system expert slot (Josef Hallberg)", "Booking page, three groups per session. The session itself is Wednesday.", [["Booking page", BOOKING]], "must"),
   T("w39-gh", "Z7005E", "2026-09-21", "Start looking for a GitHub project for Lab 4", "Lab 4 is due 15 Oct. The Schema says to start now."),
   T("w39-prep", "Z7005E", "2026-09-21", "Draft interview questions and set up the portfolio skeleton", "Use the appendix structure, so interview answers land in the right section."),
   T("w39-writeup", "Z7005E", "2026-09-23", "Write up the interview findings the same afternoon", "Actors, user requirements, anything the expert ruled out."),
   T("w39-build", "Z7005E", "2026-09-24", "Portfolio build day", "Use cases and diagrams, cost/value/risk table with IDs and dependencies, storyboards, UI proposal, activity, module, class, sequence and state diagrams, a test plan covering white box and black box."),
-  T("w39-book1", "Z0025E", "2026-09-25", "Book the Lab 1 assessment session", "Sign-up sheet 9.2. Every lab needs a booked session, not only a report.", [["Sign-up sheet", SIGNUP]], "must"),
+  T("w42-book3", "Z0025E", "2026-10-12", "Book a Lab 3 assessment slot on sheet 9.2", "Session Friday 16 Oct. 8 slots for 8 groups. The sheet heading says 13:00 but the slots start at 09:00, and the Homepage says 13:00 to 15:00: ask the teacher before booking.", [["Sign-up sheet", SIGNUP]], "must"),
+  T("w44-book4", "Z0025E", "2026-10-26", "Book a Lab 4 assessment slot on sheet 9.2", "Session Friday 30 Oct from 10:00. 8 slots for 8 groups.", [["Sign-up sheet", SIGNUP]], "must"),
+  T("w45-book5", "Z0025E", "2026-11-02", "Book a Lab 5 assessment slot on sheet 9.2", "Session Friday 6 Nov from 13:00. 8 slots for 8 groups.", [["Sign-up sheet", SIGNUP]], "must"),
+  T("w46-book6", "Z0025E", "2026-11-09", "Book a Lab 6 assessment slot on sheet 9.2", "Session Friday 13 Nov from 13:00. 8 slots for 8 groups.", [["Sign-up sheet", SIGNUP]], "must"),
   T("w43-rev", "Z0025E", "2026-10-19", "Revise for Midterm 1 with the quizzes already taken", "At least 75 points needed."),
   T("w44-pull", "Z7005E", "2026-10-26", "Free week: pull Lab 6 and Lab 7 forward", "Week 45 is the worst week of the course. Work done here is work you will not do then."),
   T("w46-exam", "Z7005E", "2026-11-09", "Start the home exam", "Two free weeks. Watch the two AI videos first, the Schema asks for that."),
@@ -166,7 +169,7 @@ const TASKS_LP2 = [
 // Which deadline a task feeds, keyed by task id. A task that feeds a deadline inherits MUST.
 const TASK_FOR = {
   "t-msg": "Z7005E:3013", "w39-prep": "Z7005E:3013", "w39-writeup": "Z7005E:3013", "w39-build": "Z7005E:3013",
-  "w39-gh": "Z7005E:3020", "w43-rev": "Z0025E:3030", "w44-pull": "Z7005E:3022", "w46-exam": "Z7005E:3024"
+  "w39-gh": "Z7005E:3020", "w42-book3": "Z0025E:3043", "w44-book4": "Z0025E:3044", "w45-book5": "Z0025E:3045", "w46-book6": "Z0025E:3040", "w43-rev": "Z0025E:3030", "w44-pull": "Z7005E:3022", "w46-exam": "Z7005E:3024"
 };
 TASKS_LP2.forEach(t => { if (TASK_FOR[t.id]) t.for = TASK_FOR[t.id]; });
 

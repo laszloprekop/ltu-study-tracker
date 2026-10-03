@@ -23,9 +23,9 @@ Each step ships on its own and leaves everything working.
 ### 0. Fix our own Course Plan errors (`data/plan.mjs`)
 
 From the scan (`docs/scan/`): interview length 30 minutes shared by three groups, not 45; task
-`w39-book1` asks for a Lab 1 booking that does not exist (remove it and add its id to
-`LEGACY_IDS`); the `t-group` note contradicts the lab assignments, which allow working alone.
-Rebuild and republish the artifact.
+`w39-book1` asks for a Lab 1 booking that does not exist (removed; `LEGACY_IDS` is for renamed
+ids, and an old Tick on a removed task is simply unused); the `t-group` note contradicts the lab assignments, which allow working alone.
+Also added: booking tasks for Labs 3 to 6 on the Monday of each session week. Done 2026-10-03.
 
 ### 1. Ticks get a time (artifact first)
 
@@ -87,13 +87,11 @@ merge the same way an import does.
   then offers Unlock; any Tick changed after the last export switches it to Out of Sync.
 - The artifact keeps being rebuilt from the same `data/plan.mjs` until it is retired.
 
-## Open questions for the Maintainer
+## Settled with the Maintainer (2026-10-03)
 
-1. A new Supabase resource in Coolify for the tracker, or a separate schema inside Babel Bookshelf's?
-   A separate resource keeps one app's outage or migration from touching the other. Recommended.
-2. The app's address, for example `studytracker.dentaku.se`.
-3. A new Google OAuth client, or the Babel Bookshelf one with an extra redirect address? A new one
-   keeps the consent screen named after the tracker. Recommended.
+1. A separate Supabase resource in Coolify for the tracker, not a schema inside Babel Bookshelf's.
+2. The address is `ltu-studytracker.dentaku.se`.
+3. A new Google OAuth client for the tracker.
 
 ## Not in release 1
 
