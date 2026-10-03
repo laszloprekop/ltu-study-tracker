@@ -613,8 +613,8 @@ body.colored table.all tr:not(.done) .tt{color:var(--cc)}
 
 /* ---------- Helpers ---------- */
 const P = DATA.plan, INV = DATA.inventory, COURSES = P.COURSES, TEACHERS = P.TEACHERS, TERMS = P.TERMS, PROGRESS = DATA.progress || null;
-const LS = { hours: "ltu-plan-hours", ticks: "ltu-plan-ticks", muted: "ltu-plan-muted", filter: "ltu-plan-filter", term: "ltu-plan-term", view: "ltu-plan-view", open: "ltu-plan-open", weeks: "ltu-plan-weeks", size: "ltu-plan-size", ping: "ltu-plan-ping", colored: "ltu-plan-colored", theme: "ltu-plan-theme", mapOpen: "ltu-plan-map-open", mapPos: "ltu-plan-map-pos", mapAll: "ltu-plan-map-all", mapHops: "ltu-plan-map-hops", mapMode: "ltu-plan-map-mode", railSlim: "ltu-plan-map-rail", snaps: "ltu-plan-snaps", legacy: "lp2-shared-ticks" };
-const state = { checked: {}, muted: {}, filter: "all", term: null, view: "week", day: null, open: {}, weeks: {}, size: 100, ping: true, colored: true, theme: "system", hours: { start: "09:00", end: "17:00" }, mapOpen: null, mapSel: null, mapSels: [], mapAll: false, mapHops: 5, mapMode: "select", railSlim: false };
+const LS = { hours: "ltu-plan-hours", ticks: "ltu-plan-ticks", tickAt: "ltu-plan-tick-at", muted: "ltu-plan-muted", filter: "ltu-plan-filter", term: "ltu-plan-term", view: "ltu-plan-view", open: "ltu-plan-open", weeks: "ltu-plan-weeks", size: "ltu-plan-size", ping: "ltu-plan-ping", colored: "ltu-plan-colored", theme: "ltu-plan-theme", mapOpen: "ltu-plan-map-open", mapPos: "ltu-plan-map-pos", mapAll: "ltu-plan-map-all", mapHops: "ltu-plan-map-hops", mapMode: "ltu-plan-map-mode", railSlim: "ltu-plan-map-rail", snaps: "ltu-plan-snaps", legacy: "lp2-shared-ticks" };
+const state = { checked: {}, tickAt: {}, muted: {}, filter: "all", term: null, view: "week", day: null, open: {}, weeks: {}, size: 100, ping: true, colored: true, theme: "system", hours: { start: "09:00", end: "17:00" }, mapOpen: null, mapSel: null, mapSels: [], mapAll: false, mapHops: 5, mapMode: "select", railSlim: false };
 let store = null, saveTimer = null;
 
 function esc(s){ return String(s == null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
@@ -1928,11 +1928,12 @@ function applyDisplay(){
 }
 function save(){
   lsSet(LS.ticks, JSON.stringify(state.checked));
+  lsSet(LS.tickAt, JSON.stringify(state.tickAt));
   lsSet(LS.muted, JSON.stringify(state.muted));
   snapshot();
   if (!store) return;
   clearTimeout(saveTimer);
-  saveTimer = setTimeout(function(){ store.set({ checked: state.checked, muted: state.muted, snaps: state.snaps, updated: new Date().toISOString() }).catch(function(){ store = null; }); }, 400);
+  saveTimer = setTimeout(function(){ store.set({ checked: state.checked, tickAt: state.tickAt, muted: state.muted, snaps: state.snaps, updated: new Date().toISOString() }).catch(function(){ store = null; }); }, 400);
 }
 /* ---------- Snapshots, export and import ---------- */
 // Every save also stores the day's state under its date, so a day's snapshot is how it ended; the
@@ -1954,25 +1955,41 @@ function mergeSnaps(snaps){
   });
   pruneSnaps(); lsSet(LS.snaps, JSON.stringify(state.snaps));
 }
-function exportCode(){ var days = {}; Object.keys(state.snaps || {}).filter(isDay).forEach(function(k){ days[k] = state.snaps[k]; }); return JSON.stringify({ ltu: 1, at: new Date().toISOString(), checked: state.checked, muted: state.muted, snaps: days }); }
-// Bring a code in: ticks and muted items are added, snapshots merged by date. Nothing is removed.
+// Version 2 carries when each tick was last set or cleared (tickAt), so a clear can travel too.
+function exportCode(){ var days = {}; Object.keys(state.snaps || {}).filter(isDay).forEach(function(k){ days[k] = state.snaps[k]; }); return JSON.stringify({ ltu: 2, at: new Date().toISOString(), checked: state.checked, tickAt: state.tickAt, muted: state.muted, snaps: days }); }
+// Set or clear one tick and note when.
+function setTick(id, on, at){ if (on) state.checked[id] = true; else delete state.checked[id]; state.tickAt[id] = at || new Date().toISOString(); }
+// Bring ticks from elsewhere (a code, the account copy) in. Per id the later change wins. A side
+// without a time for that id (a version 1 code, or ticks from before times were kept) can only add
+// a tick, never clear one. Returns how many ids changed here.
+function mergeTicks(checked, tickAt){
+  checked = migrate(checked || {}); tickAt = migrateAt(tickAt || {});
+  var n = 0;
+  Object.keys(Object.assign({}, checked, tickAt)).forEach(function(k){
+    var on = !!checked[k], at = tickAt[k], mine = state.tickAt[k];
+    if (at && (!mine || at > mine)) { if (on !== !!state.checked[k]) n++; setTick(k, on, at); }
+    else if (!at && on && !state.checked[k]) { state.checked[k] = true; n++; }
+  });
+  return n;
+}
+// Bring a code in: ticks by the later change per item, muted items added, snapshots merged by date.
 function importCode(text){
   var o; try { o = JSON.parse(String(text || "").trim()); } catch (e) { return "That is not a progress code."; }
-  if (!o || o.ltu !== 1) return "That is not a progress code.";
-  var before = Object.keys(state.checked).length;
-  Object.keys(migrate(o.checked || {})).forEach(function(k){ state.checked[k] = true; });
+  if (!o || (o.ltu !== 1 && o.ltu !== 2)) return "That is not a progress code.";
+  var changed = mergeTicks(o.checked, o.ltu === 2 ? o.tickAt : null);
   Object.keys(o.muted || {}).forEach(function(k){ state.muted[k] = true; });
   mergeSnaps(o.snaps);
   save(); applyState();
-  var added = Object.keys(state.checked).length - before;
-  return "Brought in " + ticks(added) + (added === 1 ? " that was" : " that were") + " not here, and " + Object.keys(o.snaps || {}).length + " snapshot days.";
+  return "Brought in " + ticks(changed) + " that differed from here, and " + Object.keys(o.snaps || {}).length + " snapshot days.";
 }
 // Go back to a snapshot. The state before it is kept in its own slot ("before the last restore"),
 // so a restore can itself be undone; that slot stays in this browser and is not exported.
 function restoreSnap(key){
   var sn = state.snaps && state.snaps[key]; if (!sn) return "No snapshot for that day.";
   state.snaps.undo = { checked: Object.assign({}, state.checked), muted: Object.assign({}, state.muted), at: new Date().toISOString() };
-  state.checked = migrate(sn.checked || {}); state.muted = Object.assign({}, sn.muted || {});
+  var to = migrate(sn.checked || {});
+  Object.keys(Object.assign({}, state.checked, to)).forEach(function(k){ if (!!to[k] !== !!state.checked[k]) setTick(k, !!to[k]); });
+  state.muted = Object.assign({}, sn.muted || {});
   save(); applyState();
   return "Restored " + (key === "undo" ? "the state before the last restore" : longDay(key)) + ": " + ticks(Object.keys(state.checked).length) + ".";
 }
@@ -1992,6 +2009,11 @@ function renderProgressPanel(msg){
 function migrate(checked){
   var out = {};
   Object.keys(checked || {}).forEach(function(k){ out[P.LEGACY_IDS[k] || (/^(d|t|m):/.test(k) ? k : "t:" + k)] = true; });
+  return out;
+}
+function migrateAt(tickAt){
+  var out = {};
+  Object.keys(tickAt || {}).forEach(function(k){ var to = P.LEGACY_IDS[k] || (/^(d|t|m):/.test(k) ? k : "t:" + k); if (!out[to] || tickAt[k] > out[to]) out[to] = tickAt[k]; });
   return out;
 }
 
@@ -2018,7 +2040,7 @@ document.addEventListener("change", function(e){
     lsSet(LS.hours, JSON.stringify(state.hours)); applyFree(); return;
   }
   if (b.type !== "checkbox") return;
-  if (b.checked) state.checked[b.id] = true; else delete state.checked[b.id];
+  setTick(b.id, b.checked);
   applyState(); save();
 });
 document.addEventListener("click", function(e){
@@ -2050,6 +2072,7 @@ function defaultTerm(){
   return (next || TERMS.filter(function(t){ return t.courses.length; }).pop() || TERMS[0]).id;
 }
 state.checked = migrate(lsJson(LS.ticks) || lsJson(LS.legacy) || {});
+state.tickAt = migrateAt(lsJson(LS.tickAt) || {});
 state.muted = lsJson(LS.muted) || {};
 state.snaps = lsJson(LS.snaps) || {};
 state.open = lsJson(LS.open) || {};
@@ -2084,10 +2107,10 @@ renderTerm();
     var ref = db.doc("data/users/" + uid + "/progress");
     var snap = await ref.get();
     if (snap && snap.data) {
-      Object.keys(migrate(snap.data.checked || {})).forEach(function(k){ state.checked[k] = true; });
+      mergeTicks(snap.data.checked, snap.data.tickAt);
       Object.keys(snap.data.muted || {}).forEach(function(k){ state.muted[k] = true; });
       mergeSnaps(snap.data.snaps);
-      lsSet(LS.ticks, JSON.stringify(state.checked)); lsSet(LS.muted, JSON.stringify(state.muted));
+      lsSet(LS.ticks, JSON.stringify(state.checked)); lsSet(LS.tickAt, JSON.stringify(state.tickAt)); lsSet(LS.muted, JSON.stringify(state.muted));
       applyState();
     }
     store = ref;

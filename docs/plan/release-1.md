@@ -29,13 +29,16 @@ Also added: booking tasks for Labs 3 to 6 on the Monday of each session week. Do
 
 ### 1. Ticks get a time (artifact first)
 
-- `state.checked` keeps, per task id, `{ on, at }` instead of `true`, and an untick is kept as
-  `{ on: false, at }` so it can win over an older tick.
-- Export Code version 2 carries these times. Import keeps the later change per id. A version 1 code
-  (no times) merges as before: ticked on either side stays ticked.
-- The artifact db document and localStorage are read in both shapes; old `true` values become
-  `{ on: true, at: <time of first load> }`.
-- Ship in the artifact before the app exists, so every code exported from now on already has times.
+Done 2026-10-03.
+
+- `state.checked` stays `{ id: true }`; `state.tickAt` keeps, per id, when it was last ticked or
+  cleared, in localStorage (`ltu-plan-tick-at`) and the artifact db document (`tickAt`).
+- One rule, `mergeTicks`: per id the later change wins; a side without a time (a version 1 code,
+  ticks from before) can only add a tick. Used by import and when loading the account copy, which
+  before this only ever added ticks, so a clear never reached another device.
+- Export Code version 2 carries `tickAt`. Import accepts versions 1 and 2.
+- A restore records a time for every id it changes.
+- `node tools/test-ticks.mjs` runs the rule from the template against six cases.
 
 ### 2. App skeleton in `app/`
 
