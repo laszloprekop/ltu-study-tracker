@@ -9,6 +9,9 @@ by `.github/workflows/app.yml` on every push to `main`), and DNS for `ltu-studyt
 
 ## 1. The Canvas Sync Token
 
+Done 2026-10-03 (replaced once the same day, after a script bug showed part of the first one).
+First real sync, run from the Mac with the Vault token: stored 13:18 UTC.
+
 1. Canvas, Account, Settings, + New access token. Purpose `tracker-sync`, expires 2026-12-31.
 2. On the Mac, into the Keychain (asks for it without showing it):
    `security add-generic-password -a "$USER" -s ltu-canvas-sync-token -w`
