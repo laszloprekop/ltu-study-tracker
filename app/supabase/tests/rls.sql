@@ -68,6 +68,28 @@ do $$ begin
   exception when insufficient_privilege then raise notice 'ok a Student cannot write the plan'; end;
 end $$;
 
+-- Calendar Links: owner only, at most five, https only
+reset role; set local role authenticated;
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000a","role":"authenticated"}', true);
+do $$ begin
+  begin insert into public.calendar_link (url) values ('http://calendar.google.com/plain'); raise notice 'FAIL an http link was accepted';
+  exception when check_violation then raise notice 'ok https only'; end;
+  begin insert into public.calendar_link (user_id, url) values ('00000000-0000-0000-0000-00000000000b', 'https://calendar.google.com/for-b'); raise notice 'FAIL a link was added for someone else';
+  exception when insufficient_privilege then raise notice 'ok no links for someone else'; end;
+end $$;
+insert into public.calendar_link (url, label) select 'https://calendar.google.com/test-' || g, 'test' from generate_series(1, 5) g;
+do $$ begin
+  begin insert into public.calendar_link (url) values ('https://calendar.google.com/sixth'); raise notice 'FAIL a sixth link was accepted';
+  exception when insufficient_privilege then raise notice 'ok at most five links'; end;
+end $$;
+select 'A sees own links: ' || count(*) from public.calendar_link;
+reset role; set local role anon;
+select set_config('request.jwt.claims', '{"role":"anon"}', true);
+do $$ begin
+  begin perform 1 from public.calendar_link; raise notice 'FAIL anon can read links';
+  exception when insufficient_privilege then raise notice 'ok anon cannot read links'; end;
+end $$;
+
 -- Deleting one's own account removes it and its progress, and nobody else's
 reset role; set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000b","role":"authenticated"}', true);

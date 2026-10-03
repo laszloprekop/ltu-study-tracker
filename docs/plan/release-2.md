@@ -64,6 +64,11 @@ member, and pinning a slot, are left for later.
 
 ### 5. Calendar Links
 
+Done 2026-10-03. Fetching is limited to known calendar hosts with public addresses (SSRF); the
+parser is tested (`npm test` in `app/`) and read the real group calendar correctly; the table's
+rules are in `app/supabase/tests/rls.sql`. Rows and card tested in the browser with made-up
+events; not yet with a real session.
+
 - Signed in, a Student saves one or more secret iCal links (table `calendar_link`, owner-only).
 - `GET /api/me/calendar` reads the signed-in Student's links with their own session, fetches each
   feed (https only, size and time limited), parses the events of the coming weeks and returns

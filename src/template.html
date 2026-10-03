@@ -98,6 +98,8 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
 .appview li b{color:var(--ink)}
 .appview .grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:14px}
 .appview .note{color:var(--muted); font-size:13px; margin:8px 0 0}
+.row.cal{background:repeating-linear-gradient(135deg, transparent 0 8px, var(--surface-2) 8px 9px)}
+.tag.yours{background:var(--ink); color:var(--surface)}
 .bkstage{display:inline-block; margin-left:8px; padding:1px 8px; font-size:11.5px; font-weight:700; border-radius:3px; vertical-align:1px; white-space:nowrap}
 .bkstage.claimed{background:var(--c2-soft); color:var(--c2)} .bkstage.open{background:var(--surface-2); color:var(--muted); border:1px solid var(--line)}
 .bkstage.due{background:var(--c4-soft); color:var(--c4)} .bkstage.urgent{background:var(--alert); color:#fff} .bkstage.nogroup{background:var(--surface-2); color:var(--muted)}
@@ -692,7 +694,7 @@ body.colored table.all tr:not(.done) .tt{color:var(--cc)}
 /* ---------- Helpers ---------- */
 const P = DATA.plan, INV = DATA.inventory, COURSES = P.COURSES, TEACHERS = P.TEACHERS, TERMS = P.TERMS, PROGRESS = DATA.progress || null;
 const LS = { hours: "ltu-plan-hours", openedCounts: "ltu-plan-opened-counts", groups: "ltu-plan-groups", canvasCache: "ltu-plan-canvas-cache", movedFolded: "ltu-plan-moved-folded", exportedAt: "ltu-plan-exported-at", unlocked: "ltu-plan-unlocked", ticks: "ltu-plan-ticks", tickAt: "ltu-plan-tick-at", muted: "ltu-plan-muted", filter: "ltu-plan-filter", term: "ltu-plan-term", view: "ltu-plan-view", open: "ltu-plan-open", weeks: "ltu-plan-weeks", size: "ltu-plan-size", ping: "ltu-plan-ping", colored: "ltu-plan-colored", theme: "ltu-plan-theme", mapOpen: "ltu-plan-map-open", mapPos: "ltu-plan-map-pos", mapAll: "ltu-plan-map-all", mapHops: "ltu-plan-map-hops", mapMode: "ltu-plan-map-mode", railSlim: "ltu-plan-map-rail", snaps: "ltu-plan-snaps", legacy: "lp2-shared-ticks" };
-const state = { checked: {}, tickAt: {}, bookings: null, canvas: null, canvasErr: null, openedCounts: true, groups: {}, exportedAt: null, unlocked: false, muted: {}, filter: "all", term: null, view: "week", day: null, open: {}, weeks: {}, size: 100, ping: true, colored: true, theme: "system", hours: { start: "09:00", end: "17:00" }, mapOpen: null, mapSel: null, mapSels: [], mapAll: false, mapHops: 5, mapMode: "select", railSlim: false };
+const state = { checked: {}, tickAt: {}, cal: null, calLinks: null, calErr: null, bookings: null, canvas: null, canvasErr: null, openedCounts: true, groups: {}, exportedAt: null, unlocked: false, muted: {}, filter: "all", term: null, view: "week", day: null, open: {}, weeks: {}, size: 100, ping: true, colored: true, theme: "system", hours: { start: "09:00", end: "17:00" }, mapOpen: null, mapSel: null, mapSels: [], mapAll: false, mapHops: 5, mapMode: "select", railSlim: false };
 let store = null, saveTimer = null;
 
 function esc(s){ return String(s == null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
@@ -864,6 +866,28 @@ function studyBlocks(t){
 }
 function weeksOf(t){ var out = [], m = monday(t.start); while (m <= t.end) { out.push(m); m = addDays(m, 7); } return out; }
 function matMinutes(list){ return list.reduce(function(s, i){ return s + (i.minutes || 0); }, 0); }
+// Calendar Events (release 2): the Student's own, from their Calendar Links, as rows marked as
+// theirs. Only in the week and day views; they block free time like sessions do.
+function calRows(t){
+  var evs = (state.cal && state.cal.events) || [];
+  return evs.map(function(e){
+    var code = null, target = null;
+    if (e.assignment) Object.keys(COURSES).forEach(function(c){ if (COURSES[c].canvasId === e.assignment.courseId) { code = c; target = assignments(c).find(function(a){ return a.id === e.assignment.id; }) || null; } });
+    return { kind: "session", skind: "cal", cal: true, code: code || "", date: e.date, time: e.start, end: e.end, title: e.title, location: e.location, label: e.label, target: target, key: "c:" + e.uid + ":" + e.date };
+  });
+}
+function withCalendar(t, rows){
+  if (!state.cal) return rows;
+  return rows.concat(calRows(t)).sort(function(a, b){ return a.date.localeCompare(b.date) || String(a.time || "").localeCompare(String(b.time || "")) || (a.kind === "session" ? -1 : 1); });
+}
+function calRow(r){
+  var times = r.time ? ' data-start="' + esc(r.time) + '" data-end="' + esc(r.end || "") + '"' : '';
+  var tag = '<span class="tag yours" title="From your calendar' + (r.label ? ": " + esc(r.label) : "") + '">yours</span>';
+  var feeds = r.target ? '<a class="tag feeds" href="' + esc(r.target.url) + '" target="_blank" rel="noopener" title="This event is for this assessment">for ' + esc(shortTitle(r.target.title).split(",")[0]) + '</a>' : '';
+  return '<div class="row session cal"' + (r.code ? ' style="' + colorVars(r.code) + '" data-course="' + r.code + '"' : '') + times + '>' + when(r, {}) +
+    '<span class="body"><span class="block"><span class="t">' + ic("calendar-dot", "kic") + '<span class="tt">' + esc(r.title) + '</span>' + tag + feeds + '</span>' +
+    (r.location && !/^https?:/.test(r.location) ? '<span class="why">' + esc(r.location) + '</span>' : '') + '</span></span></div>';
+}
 function timeline(t){
   var rows = deadlineRows(t).concat(sessionRows(t)).concat(taskRows(t));
   rows.sort(function(a, b){ return a.date.localeCompare(b.date) || String(a.time || "").localeCompare(String(b.time || "")) || (a.kind === "session" ? -1 : 1); });
@@ -907,6 +931,7 @@ function rowIcon(r){
 }
 function row(r, opts){
   opts = opts || {};
+  if (r.cal) return calRow(r);
   var tags = "";
   if (r.status === "expected") tags += '<span class="tag expected" title="Date from the Homepage timetable, lecture number from module order. Not yet named by the teacher.">expected</span>';
   if (r.pts) tags += '<span class="tag pts">' + esc(r.pts) + '</span>';
@@ -966,7 +991,7 @@ function playhead(today){ return '<div class="playhead" id="today"><span class="
 
 /* ---------- Views ---------- */
 function renderWeekView(t){
-  var rows = timeline(t), blocks = studyBlocks(t), weeks = weeksOf(t), today = todayIso(), curMon = monday(today);
+  var rows = withCalendar(t, timeline(t)), blocks = studyBlocks(t), weeks = weeksOf(t), today = todayIso(), curMon = monday(today);
   var anns = t.courses.reduce(function(a, c){ return a.concat(announcements(c).map(function(x){ return Object.assign({ code: c }, x); })); }, []);
   var html = weeks.map(function(mon, i){
     var next = addDays(mon, 7);
@@ -992,7 +1017,7 @@ function renderWeekView(t){
 }
 function renderDayView(t){
   var d = state.day || todayIso();
-  var rows = timeline(t), mon = monday(d), next = addDays(mon, 7), horizon = addDays(d, SOON_DAYS);
+  var rows = withCalendar(t, timeline(t)), mon = monday(d), next = addDays(mon, 7), horizon = addDays(d, SOON_DAYS);
   var today = rows.filter(function(r){ return r.date === d && r.kind === "session"; });
   var due = rows.filter(function(r){ return r.kind === "deadline" && r.date >= d && r.date < horizon; });
   var tasks = rows.filter(function(r){ return r.kind === "task" && r.date >= mon && r.date <= d; });
@@ -2204,12 +2229,12 @@ var APP_INFO = {
     ["Ticks on every device", "Sign in with Google and your ticks follow you to the phone, the laptop and the library computer. No claude.ai account needed."],
     ["Two devices never undo each other", "Each tick remembers when it changed, and per task the later change wins, an untick included."],
     ["Updates itself every hour", "Deadlines, modules and announcements are read from Canvas every hour. The page shows when, and warns if the update stops."],
-    ["Works without an account", "Without signing in it works like this page: ticks stay in that browser."]
+    ["Works without an account", "Without signing in it works like this page: ticks stay in that browser."],
+    ["Your Canvas status beside your ticks", "Paste your own Canvas token and each task shows what Canvas has recorded (submitted, posted, marked done or opened) next to your tick, with a warning sign when you ticked a hand-in Canvas has no submission for."],
+    ["Lab bookings and their deadlines", "Your group's slot read from the signup sheet, with a warning that grows as the session comes closer and the free slots run out."],
+    ["Your own calendar", "Add a calendar link, such as your group's, and its events appear among the sessions, marked as yours, and count as busy time."]
   ],
   planned: [
-    ["Your Canvas status beside your ticks", "Release 2: what Canvas has recorded (submitted, posted, marked done) next to your own tick, and a warning sign when you ticked a hand-in Canvas has no submission for."],
-    ["Lab bookings and their deadlines", "Release 2: your group's slot read from the signup sheet, and a warning that grows as the booking deadline comes closer."],
-    ["Your own calendar", "Release 2: a calendar link of your choice, such as a group calendar, mixed into the plan and marked as yours."],
     ["A day in 15-minute slots", "Release 3: both courses in one day, with the free slots between them to place group work and self-study."],
     ["Study cards", "Release 4: flashcards for every lab and exam, drawn from the lectures, the lab questions and the course's own checklists. Spaced repetition shows each card just before you would forget it and plans the reviews so you know it on the day of the lab or exam. Cards are checked by a classmate before they are shared, and anyone can flag a wrong one."],
     ["Prep chains", "Release 5: every lab session, quiz, midterm and oral exam with everything that prepares for it, lectures, readings, quizzes, group sessions and card sets, drawn back from the event on a timeline, so you see what should be done by when, and which lecture is taught too late for the lab that needs it."]
@@ -2217,7 +2242,8 @@ var APP_INFO = {
   privacy: [
     ["Only you can read your ticks", "They are one row in the database that a rule inside the database lets only your account read or change. The rule is tested on every change to the database."],
     ["Google is asked for your name and email only", "Signing in gives the tracker no access to your mail, files or calendar."],
-    ["Your Canvas token will never be stored", "From release 2 you can paste your own Canvas token. It stays in your browser and only passes through the server on its way to Canvas."],
+    ["Your Canvas token is never stored", "The token you paste stays in your browser and only passes through the server on its way to Canvas; the server never writes it down, not even in a log. Forget it with one button."],
+    ["Calendar links stay yours", "Only you can read the calendar links you add. The server fetches them only from known calendar providers, so a link cannot make it reach anything else."],
     ["Nothing about guests is kept", "Without signing in, no ticks or account exist on the server."],
     ["No ads, analytics or tracking", "The page talks only to the tracker's own server and database, loads its typeface from Google Fonts, and visits Google only while you sign in. A content security policy blocks everything else, and the page cannot be shown inside another site."],
     ["Graded answers stay in your group", "Release 4: shared flashcards explain concepts and point to the material; written answers to graded questions are visible only to the group that wrote them."],
@@ -2270,6 +2296,30 @@ function bindAccountDelete(){
     });
   });
 }
+function calendarCard(){
+  var signedIn = !!state.signedIn, links = state.calLinks || [], status = (state.cal && state.cal.links) || [];
+  var rowsHtml = links.map(function(l){
+    var st = status.find(function(x){ return x.id === l.id; }), host = ""; try { host = new URL(l.url).hostname; } catch (e) {}
+    return '<li><b>' + esc(l.label || host) + '</b> <small>' + esc(host) + '</small> ' + (st ? (st.ok ? '<small>' + st.events + ' event' + (st.events === 1 ? '' : 's') + ' in the coming weeks</small>' : '<small class="err">' + esc(st.error) + '</small>') : '') + ' <button type="button" class="plain" data-cal-remove="' + esc(l.id) + '">Remove</button></li>';
+  }).join("");
+  return '<div class="card cvcard" style="margin-top:14px"><h3>' + ic("calendar-dot") + 'Your calendars</h3>' +
+    (!signedIn ? '<p>Sign in to add a calendar, such as your group\'s Google Calendar. Its events then appear among the sessions, marked as yours, and count as busy time.</p>'
+    : '<p>Add the secret iCal address of a calendar (Google: Settings, the calendar, <i>Secret address in iCal format</i>). Only you can see it. Events appear in Week by week and Day, marked as yours; an event whose description links a Canvas assignment is tied to it.</p>' +
+      (links.length ? '<ul>' + rowsHtml + '</ul>' : '') +
+      (state.calErr ? '<p class="err">' + esc(state.calErr) + '</p>' : '') +
+      (links.length < 5 ? '<div class="row"><input type="url" id="cal-url" placeholder="https://calendar.google.com/calendar/ical/.../basic.ics" style="flex:1 1 320px" aria-label="Calendar address"><input type="text" id="cal-label" placeholder="Name, e.g. Group 8" maxlength="60" style="width:160px; font:inherit; font-size:13px; border:1px solid var(--muted); border-radius:4px; padding:6px 8px; background:var(--surface); color:var(--ink)" aria-label="Calendar name"><button type="button" data-cal="add">Add</button></div>' : '<p class="note">Five calendars is the most.</p>') +
+      '<p class="note">Supported: Google Calendar, Outlook and Office 365, iCloud, Canvas and TimeEdit addresses.</p>') +
+  '</div>';
+}
+function refreshCalendar(){
+  if (!window.TRACKER_CONFIG || !window.claude || !window.claude.use) return Promise.resolve();
+  return window.claude.use("calendars").then(function(c){
+    if (!c) { state.signedIn = false; return; }
+    state.signedIn = true;
+    return c.list().then(function(l){ state.calLinks = l; return l.length ? c.events() : null; })
+      .then(function(d){ state.cal = d; }).catch(function(){ state.calErr = "Your calendars could not be read just now."; });
+  }).then(function(){ renderTerm(); });
+}
 function canvasCard(){
   var has = !!state.canvasHint, d = state.canvas;
   var conflicts = d ? Object.keys(state.checked).filter(function(id){ var st = statusOf(id); return st && st.cls === "conf"; }).length : 0;
@@ -2298,7 +2348,7 @@ function renderAppView(){
     : '<p>This page has a successor at ' + appLink() + ': the same tracker, as its own website.</p><h3>How to move</h3>' + moveSteps();
   return '<section class="appview"><div class="sechead"><h2>Hosted app</h2><span class="note">' + (hosted ? "What this site does, what is coming, and how it treats your data." : "Why moving is worth it, and how the new site treats your data.") + '</span></div>' +
     '<div class="card">' + intro + '</div>' +
-    (hosted ? canvasCard() : '') +
+    (hosted ? canvasCard() + calendarCard() : '') +
     '<div class="grid" style="margin-top:14px">' +
       '<div class="card"><h3>' + ic("check-circle") + 'What it does today' + (hosted ? '<span class="here">here</span>' : '') + '</h3>' + infoList(APP_INFO.now, "ul") + '</div>' +
       '<div class="card"><h3>' + ic("flag-checkered") + 'Coming next</h3>' + infoList(APP_INFO.planned, "ul") + '<p class="note">Planned, in this order. Each release keeps everything before it working.</p></div>' +
@@ -2309,6 +2359,18 @@ function renderAppView(){
   '</section>';
 }
 document.addEventListener("click", function(e){
+  var cab = e.target.closest && e.target.closest("button[data-cal], button[data-cal-remove]");
+  if (cab) {
+    window.claude.use("calendars").then(function(c){
+      if (!c) return;
+      if (cab.dataset.calRemove) return c.remove(cab.dataset.calRemove);
+      var u = (document.getElementById("cal-url") || {}).value || "", lb = (document.getElementById("cal-label") || {}).value || "";
+      if (!/^https:\/\/\S{10,}$/.test(u.trim())) { state.calErr = "That is not an https calendar address."; renderTerm(); return; }
+      state.calErr = null; cab.disabled = true; cab.textContent = "Adding...";
+      return c.add(u.trim(), lb.trim().slice(0, 60));
+    }).then(function(){ return refreshCalendar(); }).catch(function(){ state.calErr = "That calendar could not be added."; renderTerm(); });
+    return;
+  }
   var cvb = e.target.closest && e.target.closest("button[data-cv]");
   if (cvb) {
     window.claude.use("canvas").then(function(cv){
@@ -2428,6 +2490,7 @@ applyDisplay();
 renderTerm();
 renderMoved();
 // The hosted app: show the last Canvas read at once, then read again (and when the tab comes back after a while).
+if (window.TRACKER_CONFIG && window.claude && window.claude.use) refreshCalendar();
 if (window.TRACKER_CONFIG && window.claude && window.claude.use) window.claude.use("canvas").then(function(cv){
   if (!cv || !cv.has()) { state.canvas = null; refreshBookings(); return; }
   state.canvasHint = cv.hint(); refreshCanvas();

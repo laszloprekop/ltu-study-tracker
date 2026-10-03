@@ -108,11 +108,15 @@ lists everything. The lists live in one place in `src/template.html` (`APP_INFO`
 - The Course Plan updates itself from Canvas every hour; the page shows when, and turns the line
   amber if the last read is over three hours old.
 - Without signing in it works like the claude.ai page: ticks stay in that browser.
+- With the Student's own Canvas token (kept in the browser, passed through, never stored): what
+  Canvas has recorded beside each tick, and the Conflict sign for a ticked hand-in with no
+  submission; the Group number from Canvas, overridable.
+- Lab Bookings from the signup sheet (no names kept): the Group's slot, or a stage that grows as
+  the session nears and slots run out, on the booking task and in a strip at the top.
+- Calendar Links (signed in, at most five, fetched only from known calendar providers): their
+  events among the sessions, marked as the Student's, counted as busy time.
 
 **Coming next** (`docs/plan/release-1.md`, then the design in `CONTEXT.md` and `docs/adr/`)
-- Release 2: the Student's own Canvas status beside each tick (with a warning for a ticked hand-in
-  Canvas has no submission for), the Group's lab booking from the signup sheet with warnings before
-  booking closes, a calendar link of their choice.
 - Release 3: a Day Plan of both courses in 15-minute slots, with free slots for group work.
 - Release 4: study cards: flashcards for every lab and exam from the lectures, lab questions and
   course checklists, with spaced repetition planned so each card is known on the event's day;

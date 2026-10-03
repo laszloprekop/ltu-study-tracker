@@ -13,6 +13,8 @@ Then run `tests/rls.sql` the same way; it rolls back and prints `ok` or `FAIL` p
 | 20261003000002_course_plan.sql | 2026-10-03 |
 | 20261003000003_sync_role.sql | 2026-10-03 |
 | 20261003000004_delete_my_account.sql | 2026-10-03 |
+| 20261003000005_calendar_link.sql | 2026-10-03 |
+| 20261003000006_calendar_link_check.sql | 2026-10-03 |
 
 ## The sync role
 

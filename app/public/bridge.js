@@ -70,6 +70,19 @@
             });
           },
         };
+        // Calendar Links (signed in): stored with the Account, read only by their owner (RLS).
+        if (name === "calendars") return {
+          list: function () { return sb.from("calendar_link").select("id,label,url").order("created_at").then(function (r) { if (r.error) throw r.error; return r.data; }); },
+          add: function (url, label) { return sb.from("calendar_link").insert({ url: url, label: label || "" }).then(function (r) { if (r.error) throw r.error; }); },
+          remove: function (id) { return sb.from("calendar_link").delete().eq("id", id).then(function (r) { if (r.error) throw r.error; }); },
+          events: function () {
+            return sb.auth.getSession().then(function (r) {
+              var t = r && r.data && r.data.session && r.data.session.access_token;
+              if (!t) return null;
+              return fetch("/api/me/calendar", { headers: { authorization: "Bearer " + t } }).then(function (res) { return res.ok ? res.json() : null; });
+            });
+          },
+        };
         // Not part of the claude.ai runtime: the hosted app's own account calls.
         if (name === "account") return {
           email: (session.user && session.user.email) || null,
