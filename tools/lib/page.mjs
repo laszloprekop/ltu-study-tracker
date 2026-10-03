@@ -86,6 +86,11 @@ export function shell() {
   const names = [...template.matchAll(/^function (\w+)\(/gm)].map(m => m[1]);
   const twice = names.filter((n, i) => names.indexOf(n) !== i);
   if (twice.length) throw new Error(`src/template.html defines these functions twice: ${[...new Set(twice)].join(", ")}`);
+  // Every icon the page names must exist, or it renders as an empty box.
+  const have = new Set(readdirSync(root("assets/icons")).filter(f => f.endsWith(".svg")).map(f => f.slice(0, -4)));
+  const named = new Set([...template.matchAll(/\bic\("([a-z-]+)"/g), ...template.matchAll(/#i-([a-z-]+)/g)].map(m => m[1]));
+  const missing = [...named].filter(n => !have.has(n));
+  if (missing.length) throw new Error(`src/template.html names icons that are not in assets/icons: ${missing.join(", ")} (add them to tools/fetch-icons.sh)`);
   // Phosphor duotone icons as one hidden sprite; the page uses them with <use href="#i-name">.
   const iconDir = root("assets/icons");
   const symbols = readdirSync(iconDir).filter(f => f.endsWith(".svg")).sort().map(f => {

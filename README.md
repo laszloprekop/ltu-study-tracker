@@ -95,6 +95,22 @@ as "before the last restore", so a restore can be undone. Bringing ticks in, fro
 account copy on load, keeps per task the later change, so an untick travels too; a tick without a
 time (a version 1 code) can only be added. `npm test` checks this rule against the page's own code.
 
+## Header, profile menu, footer and the info views
+
+- Header: text size and theme stay as shortcuts; **?** opens Help; the person icon at the far right
+  opens the profile menu: the account (Sign in with Google, Sign out), display settings (pulse,
+  course colours, working hours), the Student's Canvas token and Groups, Calendar Links, progress
+  (Import, Go back to a day, Export) and deleting the account. Laid out as a bento grid.
+- Footer: About, Help, Privacy, Terms, the code, when Canvas was last read, and the disclaimer.
+- About, Help, Privacy and Terms are views of their own (`renderInfoView`), written plainly in the
+  card marks (lists, `code`, **terms**, a Key line) and laid out as bento grids.
+- Icons are Phosphor only, all 16 px except the banner's large alert; the build stops on an icon
+  name that is not in `assets/icons` (`tools/fetch-icons.sh` fetches them).
+- Elements with the cut top-right corner keep their frame along the cut: a 1 px diagonal drawn on
+  the inside of the cut, measured from the outer edge like the clip.
+- The favicon is a cyan square with the cut corner: `tools/make-favicon.py` writes SVG, ICO and a
+  180 px PNG to `assets/favicon/`; the app serves them from its head, the page carries the SVG inline.
+
 ## The hosted app
 
 The same page also runs as its own site, https://ltu-studytracker.dentaku.se (`app/`, see

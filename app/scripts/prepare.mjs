@@ -29,6 +29,7 @@ for (const f of ["tools/canvas-sync.mjs", "tools/lib/canvas.mjs", "tools/lib/pag
 cpSync(at("../../assets"), at("../sync/assets"), { recursive: true });
 writeFileSync(at("../sync/package.json"), JSON.stringify({ type: "module", private: true }));
 
+for (const f of ["favicon.svg", "favicon.ico", "apple-touch-icon.png"]) copyFileSync(at("../../assets/favicon/" + f), at("../public/" + f));
 mkdirSync(at("../public/vendor"), { recursive: true });
 copyFileSync(at("../node_modules/@supabase/supabase-js/dist/umd/supabase.js"), at("../public/vendor/supabase.js"));
 copyFileSync(at("../node_modules/ts-fsrs/dist/index.umd.js"), at("../public/vendor/ts-fsrs.js"));

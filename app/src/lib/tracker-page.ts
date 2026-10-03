@@ -63,6 +63,7 @@ export async function trackerHtml(): Promise<string> {
   const head =
     '<!doctype html><html lang="en"><head><meta charset="utf-8">' +
     '<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">' +
+    '<link rel="icon" href="/favicon.ico" sizes="48x48"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="/apple-touch-icon.png">' +
     "<script>window.TRACKER_CONFIG=" + JSON.stringify(cfg).replace(/</g, "\\u003c") + ";</script>" +
     (cfg ? '<script src="/vendor/supabase.js"></script><script src="/vendor/ts-fsrs.js"></script><script src="/bridge.js"></script>' : "") +
     "</head><body>";

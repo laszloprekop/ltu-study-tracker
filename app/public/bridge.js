@@ -120,23 +120,24 @@
     },
   };
 
-  // The account control, placed with the page's own settings buttons.
+  // The account control, in the page's profile menu (the person icon, top right).
   function control(session) {
-    var host = document.querySelector(".settings");
+    var host = document.getElementById("acct-slot") || document.querySelector(".settings");
     if (!host) return;
     var seg = document.createElement("div");
-    seg.className = "seg tools account";
-    seg.setAttribute("role", "group");
-    seg.setAttribute("aria-label", "Account");
+    seg.className = "account";
+    var whoEl = document.getElementById("pp-who");
+    if (whoEl) whoEl.textContent = session ? ((session.user && session.user.email) || "Signed in").split("@")[0] : "Guest";
     var btn = document.createElement("button");
     btn.type = "button";
     if (session) {
       var who = (session.user && session.user.email) || "your account";
       btn.textContent = "Sign out";
+      var p = document.createElement("p"); p.className = "note"; p.textContent = "Signed in as " + who0(session); seg.appendChild(p);
       btn.title = "Signed in as " + who + ". Ticks are kept with your account.";
       btn.addEventListener("click", function () { sb.auth.signOut().finally(function () { location.reload(); }); });
     } else {
-      btn.textContent = "Sign in";
+      btn.textContent = "Sign in with Google";
       btn.title = "Sign in with Google to keep your Ticks on every device. Without it they stay in this browser.";
       btn.addEventListener("click", function () {
         btn.disabled = true;
@@ -144,9 +145,9 @@
       });
     }
     seg.appendChild(btn);
-    var about = host.querySelector("#about-pop");
-    host.insertBefore(seg, about || null);
+    host.appendChild(seg);
   }
+  function who0(session) { return (session && session.user && session.user.email) || "your account"; }
   function whenReady(fn) { if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", fn); else fn(); }
   ready.then(function (session) { whenReady(function () { control(session); }); });
 })();

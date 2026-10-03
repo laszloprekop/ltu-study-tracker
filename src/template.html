@@ -60,7 +60,7 @@ button{font:inherit}
 /* Phosphor duotone icons: both layers use currentColor, the back layer at 20 % */
 /* Icons keep one size whatever the text around them: 16px, 14px for the small class. */
 .ic{width:16px; height:16px; flex:0 0 auto; vertical-align:-.25em; fill:currentColor}
-.ic.sm{width:14px; height:14px; vertical-align:-.2em}
+.ic.sm{width:16px; height:16px; vertical-align:-.25em}
 
 /* ---------- Header ---------- */
 header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; background:var(--bg); padding-block:10px 8px; margin-bottom:12px; display:flex; flex-direction:column; gap:8px}
@@ -84,7 +84,7 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
 .moved .mv-state button{margin-left:8px}
 .moved.folded{background:var(--surface-2); color:var(--muted); border:1px solid var(--line); box-shadow:none}
 .moved.folded .mv-head{padding:5px 12px}
-.moved.folded .mv-head .ic.big{width:20px; height:20px; flex-basis:20px; color:var(--muted)}
+.moved.folded .mv-head .ic.big{width:16px; height:16px; flex-basis:16px; color:var(--muted)}
 .moved.folded .mv-title{font-size:15px; font-weight:600}
 .moved.folded a,.moved.folded button{color:var(--muted); border-color:var(--line)}
 .moved.folded button:hover{background:var(--line); color:var(--ink)}
@@ -98,7 +98,7 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
 .appview li b{color:var(--ink)}
 .appview .grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:14px}
 .appview .note{color:var(--muted); font-size:13px; margin:8px 0 0}
-.tag.disagree{display:inline-flex; align-items:center; gap:3px; background:var(--c4-soft); color:var(--c4)} .tag.disagree .ic{width:12px; height:12px}
+.tag.disagree{display:inline-flex; align-items:center; gap:3px; background:var(--c4-soft); color:var(--c4)} 
 .chains{padding:6px 10px}
 .chain{border-left:4px solid var(--cc, var(--muted)); margin:6px 0; background:var(--surface)}
 .chain summary{display:flex; flex-wrap:wrap; align-items:center; gap:4px 8px; padding:6px 8px; cursor:pointer}
@@ -107,13 +107,13 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
 .chain .prep li{display:flex; flex-wrap:wrap; align-items:center; gap:4px 8px; font-size:13.5px}
 .chain .prep li.done .tt{text-decoration:line-through; opacity:.6}
 .chain .pdate{color:var(--muted); font-size:12px} .chain .pdate.doby{border:1px dashed var(--muted); padding:0 5px}
-.tag.late{display:inline-flex; align-items:center; gap:3px; background:var(--alert-soft); color:var(--alert)} .tag.late .ic{width:12px; height:12px}
+.tag.late{display:inline-flex; align-items:center; gap:3px; background:var(--alert-soft); color:var(--alert)} 
 .grid2{display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:14px}
 .disagreements h3{display:flex; align-items:center; gap:8px} .disagreements .copyrep{margin-left:auto; font:inherit; font-size:12px; font-weight:700; padding:4px 10px; border:1px solid var(--muted); background:transparent; color:var(--ink); cursor:pointer}
 .disagreements ul{margin:6px 0 0; padding-left:18px; font-size:13.5px} .disagreements li{margin:4px 0}
 /* Square, with the cut top-right corner the page uses everywhere (release 4 redesign) */
-.cardsview button,.cardsview select,.cardsview textarea,.cardsview .fld,.appview .cvcard button,.appview .cvcard input[type=password],.appview .cvcard input[type=number],.appview .cvcard input[type=url],.appview .cvcard input[type=text],
-.appview .acct-delete button,.pop.about .prog button,.pop.about .prog textarea,.pop.about .prog select,.dp-items li button,.dp-items li,.dp-block,.moved button,.disagreements .copyrep,.bkstage,.chain .pdate.doby,.tag.yours,.tag.disagree,.tag.late,.bkstrip,.chain,.cvmark.both{
+.cardsview button,.cardsview select,.cardsview textarea,.cardsview .fld,.cvcard button,.cvcard input[type=password],.cvcard input[type=number],.cvcard input[type=url],.cvcard input[type=text],
+.acct-delete button,.pop.about .prog button,.pop.about .prog textarea,.pop.about .prog select,.dp-items li button,.dp-items li,.dp-block,.moved button,.disagreements .copyrep,.bkstage,.chain .pdate.doby,.tag.yours,.tag.disagree,.tag.late,.bkstrip,.chain,.cvmark.both{
   clip-path:polygon(0 0, calc(100% - var(--bev, 6px)) 0, 100% var(--bev, 6px), 100% 100%, 0 100%)}
 .cardsview textarea,.pop.about .prog textarea,.chain,.bkstrip,.dp-items li{--bev:9px}
 .cardsview .fld{flex:1 1 200px; font:inherit; font-size:13px; border:1px solid var(--muted); padding:6px 8px; background:var(--surface); color:var(--ink)}
@@ -126,31 +126,86 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
 .fbar button small{font-weight:400; opacity:.8}
 .fgrid{display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:18px; margin-top:10px}
 @media (max-width:520px){ .fgrid{grid-template-columns:1fr} }
-.fcard{perspective:1200px; aspect-ratio:5 / 7; min-height:420px; max-width:380px; cursor:pointer; outline:none}
-.fcard:focus-visible .fc-face{box-shadow:inset 0 0 0 2px var(--now)}
-.fc-in{position:relative; width:100%; height:100%; min-height:420px; transition:transform .55s cubic-bezier(.2,.7,.2,1); transform-style:preserve-3d}
+.fcard{perspective:1400px; display:flex; cursor:pointer; outline:none; max-width:380px; width:100%; min-width:0; container-type:inline-size}
+.fcard:focus-visible .fc-body{box-shadow:inset 0 0 0 2px var(--now)}
+/* at least a playing card's 5 to 7, measured on the card's own width; taller when the text needs it */
+.fc-in{flex:1 1 auto; min-width:0; display:grid; min-height:140cqw; transition:transform .55s cubic-bezier(.2,.7,.2,1); transform-style:preserve-3d}
 .fcard.flipped .fc-in{transform:rotateY(180deg)}
-.fc-face{position:absolute; inset:0; display:flex; flex-direction:column; gap:7px; padding:12px 14px; background:var(--surface); border-top:5px solid var(--cc, var(--now)); backface-visibility:hidden; -webkit-backface-visibility:hidden; overflow:hidden;
-  clip-path:polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%); box-shadow:inset 0 0 0 1px var(--line)}
-.fc-back{transform:rotateY(180deg); background:var(--surface-2); border-top-color:var(--now)}
+/* the face carries the shadow, its body the cut corner, so the shadow follows the bevelled shape */
+.fc-face{grid-area:1 / 1; display:flex; backface-visibility:hidden; -webkit-backface-visibility:hidden; filter:drop-shadow(0 8px 12px rgba(10,20,50,.13)) drop-shadow(0 1px 2px rgba(10,20,50,.10))}
+.fc-back{transform:rotateY(180deg)}
+.fc-body{position:relative; flex:1 1 auto; min-width:0; overflow-wrap:anywhere; display:flex; flex-direction:column; gap:7px; padding:16px 14px 14px; background:var(--surface); border:1px solid var(--line); --bev:16px; --bdc:var(--line);
+  clip-path:polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%)}
+.fc-back .fc-body{background:var(--surface-2)}
+/* the course stripe: its own layer, ending where the cut begins, so the frame stays 1 px all round */
+.fc-body::before{content:""; position:absolute; left:-1px; top:-1px; width:calc(100% - 15px); height:5px; background:var(--cc, var(--now))}
+.fc-back .fc-body::before{background:var(--now)}
 .fc-meta{display:flex; flex-wrap:wrap; align-items:center; gap:6px; font-size:12px; color:var(--muted)}
 .fc-q{flex:1 1 auto; display:flex; align-items:center; font-family:Archivo,sans-serif; font-size:20px; font-weight:700; line-height:1.3; color:var(--ink)}
-.fc-a{flex:1 1 120px; min-height:90px; overflow:auto; font-size:13.5px; line-height:1.4; color:var(--ink)}
+.fc-a{flex:1 1 auto; font-size:13.5px; line-height:1.4; color:var(--ink)}
 .fc-a p{margin:0 0 6px} .fc-a ul,.fc-a ol{margin:0 0 6px; padding-left:18px} .fc-a li{margin:2px 0}
-.fc-a code{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:.92em; padding:0 4px; background:var(--surface); box-shadow:inset 0 0 0 1px var(--line)}
-.fc-a .term{color:var(--c3); font-weight:700}
-.fc-back .insight{flex:0 0 auto; margin:0; padding:6px 8px; background:var(--now-soft); color:var(--ink); border-left:4px solid var(--now); clip-path:polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%)}
-.fc-back .insight{font-size:13px; line-height:1.35} .fc-back .insight code{font-family:"IBM Plex Mono",monospace; font-size:.92em} .fc-back .insight .term{color:var(--c3); font-weight:700}
+.fc-a code,.fc-back .insight code{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:.92em; padding:0 4px; background:var(--surface); box-shadow:inset 0 0 0 1px var(--line)}
+.fc-a .term,.fc-back .insight .term{color:var(--c3); font-weight:700}
+.fc-back .insight{flex:0 0 auto; margin:0; padding:6px 8px; font-size:13px; line-height:1.35; background:var(--now-soft); color:var(--ink); border-left:4px solid var(--now); clip-path:polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%)}
 .fc-back .insight b{display:block; font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--now)}
-.fc-src{font-size:12px; color:var(--muted)}
+.fc-src{font-size:12px; line-height:1.3; color:var(--muted)}
 .fc-foot{display:flex; flex-wrap:wrap; align-items:center; gap:6px; font-size:11.5px; color:var(--muted)}
 .fc-due{margin-left:auto; font-weight:700} .fc-hint{flex-basis:100%; text-align:right; opacity:.7}
 .fc-rate{display:flex; gap:4px} .fc-rate button{flex:1 1 0; min-width:0; padding:6px 2px; font-size:12.5px}
 .fc-rate .again{background:var(--alert); border-color:var(--alert)}
 .fc-back .ck-b{display:flex; flex-wrap:wrap; gap:6px; margin:0}
 .fc-back .ck-b button.plain{border:0; background:transparent; padding:0; font-size:11.5px; font-weight:600; color:var(--muted); text-decoration:underline; clip-path:none}
-.fc-src{max-height:2.6em; overflow:auto; line-height:1.3}
 @media (prefers-reduced-motion:reduce){ .fc-in{transition:none} }
+.hbtn{display:inline-flex; align-items:center; padding:5px 8px; border:0; background:var(--surface); color:var(--muted); cursor:pointer; clip-path:polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 0 100%)}
+.settings{margin-left:auto}
+.pop.profile summary{gap:6px}
+.pop.profile summary #pp-who{max-width:16ch; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.pop.profile .panel{width:min(760px, calc(100vw - 32px)); max-height:min(82vh, 900px); overflow:auto; padding:14px; font-size:13px; line-height:1.5; color:var(--ink)}
+.pp-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:12px; grid-auto-flow:dense}
+.pp-grid.inner{margin:0}
+.pp-span{grid-column:1 / -1}
+.pp-card{position:relative; padding:12px 14px; background:var(--surface-2); clip-path:polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%)}
+.pp-card h3{display:flex; align-items:center; gap:6px; font-size:14px; margin:0 0 8px; color:var(--ink)}
+.pp-card .note,.pp-card p{color:var(--muted)}
+.pp-row{display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:6px 0}
+.pp-row input[type=time]{font:inherit; font-size:13px; border:1px solid var(--muted); padding:4px 6px; background:var(--surface); color:var(--ink)}
+.tgl{display:inline-flex; align-items:center; gap:6px; font:inherit; font-size:13px; font-weight:600; padding:5px 10px; border:1px solid var(--line); background:var(--surface); color:var(--muted); cursor:pointer}
+.tgl[aria-pressed="true"]{color:var(--on-now); background:var(--now); border-color:var(--now)}
+#acct-slot .seg{background:transparent} #acct-slot button{font:inherit; font-size:13px; font-weight:700; padding:6px 14px; border:1px solid var(--now); background:var(--now); color:var(--on-now); cursor:pointer}
+.foot{margin-top:40px; padding:18px 0 0; border-top:1px solid var(--line); font-size:13px; color:var(--muted); display:grid; gap:6px}
+.foot nav{display:flex; flex-wrap:wrap; gap:6px 18px}
+.foot nav a{display:inline-flex; align-items:center; gap:5px; color:var(--ink); font-weight:600; text-decoration:none}
+.foot nav a:hover{text-decoration:underline}
+.foot p{margin:0} .foot .disclaimer{display:flex; align-items:center; gap:6px; color:var(--ink)}
+.infonav{display:flex; flex-wrap:wrap; gap:6px; margin:0 0 14px}
+.infonav button,.infoview .plain{display:inline-flex; align-items:center; gap:6px; font:inherit; font-size:13px; font-weight:600; padding:6px 12px; border:1px solid var(--line); background:var(--surface); color:var(--ink); cursor:pointer}
+.infonav button[aria-pressed="true"]{color:var(--on-now); background:var(--now); border-color:var(--now)}
+.infoview h2{display:flex; align-items:center; gap:8px}
+.bento{display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:14px; grid-auto-flow:dense; align-items:start}
+@media (min-width:760px){ .bento > .span2{grid-column:span 2} }
+.bento > section{margin:0}
+.infocard{padding:14px 18px}
+.infocard h3{display:flex; align-items:center; gap:8px; margin:0 0 8px; font-size:15px}
+.infocard p{margin:0 0 8px; line-height:1.5} .infocard ul,.infocard ol{margin:0 0 8px; padding-left:20px; line-height:1.5} .infocard li{margin:3px 0}
+.infocard code{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:.92em; padding:0 4px; background:var(--surface-2); box-shadow:inset 0 0 0 1px var(--line)}
+.infocard .term{color:var(--c3)}
+.infocard .insight{margin:8px 0 0; padding:7px 10px; background:var(--now-soft); border-left:4px solid var(--now); clip-path:polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%)}
+.infocard .insight b{display:block; font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--now)}
+.infocard .here{display:inline-block; margin-left:6px; padding:1px 7px; font-size:11px; font-weight:700; text-transform:uppercase; background:var(--now); color:var(--on-now)}
+.cvlegend{display:flex; flex-wrap:wrap; gap:6px 14px; font-size:13px; margin:8px 0 0} .cvlegend > span{display:inline-flex; align-items:center; gap:6px}
+/* A framed element with the cut corner: the frame stops at the cut, so draw the cut's own edge. */
+.cardsview .fbar button,.cardsview button.plain,.cvcard button.plain,.cardsview select,.cardsview textarea,.cardsview .fld,.cvcard input[type=password],.cvcard input[type=number],.cvcard input[type=url],.cvcard input[type=text],
+.pop.about .prog textarea,.prog textarea,.prog select,.bkstage.open,.dp-items li,.disagreements .copyrep,.acct-delete button,.tgl,.infonav button,.infoview .plain,.pp-row input[type=time],.fc-body,.moved button,.bkstrip{
+  /* Measured from the outer edge, like the clip-path, and drawn on the inner side of the cut only,
+     as thick as the frame: the cut's diagonal is the 50% line of this corner square. */
+  background-image:linear-gradient(to bottom left, transparent 50%, var(--bdc, var(--muted)) 50%, var(--bdc, var(--muted)) calc(50% + var(--bw, 1px)), transparent calc(50% + var(--bw, 1px))) !important;
+  background-size:var(--bev, 6px) var(--bev, 6px) !important; background-position:100% 0 !important; background-repeat:no-repeat !important;
+  background-origin:border-box !important; background-clip:border-box !important}
+.cardsview .fbar button,.dp-items li,.bkstage.open,.tgl,.infonav button,.infoview .plain{--bdc:var(--line)}
+.acct-delete button{--bdc:var(--alert)} .moved button{--bdc:#000; --bw:2px}
+.infonav button[aria-pressed="true"],.cardsview .fbar button[aria-pressed="true"],.tgl[aria-pressed="true"]{--bdc:var(--now)}
+.tgl,.infonav button,.infoview .plain,.pp-row input[type=time],.acct-delete button,.prog textarea,.prog select,.bkstrip{clip-path:polygon(0 0, calc(100% - var(--bev, 6px)) 0, 100% var(--bev, 6px), 100% 100%, 0 100%)}
+.prog textarea,.bkstrip{--bev:9px}
 .cardsview .csets,.cardsview .cklist{list-style:none; margin:8px 0 0; padding:0; display:flex; flex-direction:column; gap:6px}
 .cardsview .csets li{display:flex; flex-wrap:wrap; align-items:center; gap:4px 8px; padding:6px 8px; border-left:4px solid var(--cc, var(--muted)); background:var(--surface-2)}
 .cardsview .cs-n{flex:1 1 auto; color:var(--muted); font-size:12.5px}
@@ -195,21 +250,21 @@ body.dragging .dp-free{background:color-mix(in srgb, var(--now-soft) 55%, transp
 .cvmark{display:inline-flex; align-items:center; justify-content:center; min-width:18px; height:18px; margin:0 2px 0 -2px; font-size:11px; font-weight:800; letter-spacing:-.08em; line-height:1; vertical-align:middle;}
 .cvmark.cv{color:var(--c2)} .cvmark.both{color:var(--on-now); background:var(--c2); padding:0 2px}
 .cvmark.half{color:var(--c3); font-size:13px} .cvmark.un{color:var(--muted); font-weight:600}
-.cvmark.conf{color:var(--alert)} .cvmark.conf .ic{width:15px; height:15px}
+.cvmark.conf{color:var(--alert)} 
 .cvmark.no{width:9px; min-width:9px; height:9px; border:1.5px solid var(--line); border-radius:50%}
-.appview .cvcard input[type=password],.appview .cvcard input[type=number],.appview .cvcard input[type=url]{font:inherit; font-size:13px; color:var(--ink); background:var(--surface); border:1px solid var(--muted); padding:6px 8px}
-.appview .cvcard input[type=password]{width:min(420px, 100%)}
-.appview .cvcard input[type=number]{width:70px}
-.appview .cvcard .row{display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:8px 0}
-.appview .cvcard button{font:inherit; font-size:13px; font-weight:700; color:var(--on-now); background:var(--now); border:1px solid var(--now); padding:6px 14px; cursor:pointer}
-.appview .cvcard button.plain{color:var(--ink); background:transparent; border-color:var(--muted)}
-.appview .cvcard .err{color:var(--alert); font-weight:600}
-.appview .cvlegend{display:flex; flex-wrap:wrap; gap:6px 16px; font-size:13px; margin:8px 0 0}
-.appview .cvlegend > span{display:inline-flex; align-items:center; gap:6px}
-.appview .acct-delete{margin:12px 0 0}
-.appview .acct-delete button{font:inherit; font-size:13px; font-weight:700; padding:6px 14px; border:1px solid var(--alert); background:transparent; color:var(--alert); cursor:pointer}
-.appview .acct-delete button.armed{background:var(--alert); color:#fff}
-.appview .acct-delete .msg{font-size:13px; color:var(--muted)}
+.cvcard input[type=number],.cvcard input[type=url],.cvcard input.secret{font:inherit; font-size:13px; color:var(--ink); background:var(--surface); border:1px solid var(--muted); padding:6px 8px}
+.cvcard input.secret{width:min(420px, 100%); -webkit-text-security:disc}
+.cvcard input[type=number]{width:70px}
+.cvcard .row{display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:8px 0}
+.cvcard button{font:inherit; font-size:13px; font-weight:700; color:var(--on-now); background:var(--now); border:1px solid var(--now); padding:6px 14px; cursor:pointer}
+.cvcard button.plain{color:var(--ink); background:transparent; border-color:var(--muted)}
+.cvcard .err{color:var(--alert); font-weight:600}
+.cvlegend{display:flex; flex-wrap:wrap; gap:6px 16px; font-size:13px; margin:8px 0 0}
+.cvlegend > span{display:inline-flex; align-items:center; gap:6px}
+.acct-delete{margin:12px 0 0}
+.acct-delete button{font:inherit; font-size:13px; font-weight:700; padding:6px 14px; border:1px solid var(--alert); background:transparent; color:var(--alert); cursor:pointer}
+.acct-delete button.armed{background:var(--alert); color:#fff}
+.acct-delete .msg{font-size:13px; color:var(--muted)}
 .appview .here{display:inline-block; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; padding:1px 7px; background:var(--now); color:var(--on-now); margin-left:6px; vertical-align:2px}
 .locked input[type=checkbox]{cursor:not-allowed}
 .hrow{display:flex; flex-wrap:wrap; gap:8px 14px; align-items:center}
@@ -326,8 +381,8 @@ a.tag.feeds:hover{text-decoration:underline}
 .links a .ic{color:var(--muted)}
 .links a.io{padding:3px 6px; gap:1px}
 .links a.io:hover .ic{color:var(--ink)}
-.links a.io .ic.ext{width:.7em; height:.7em; margin-left:0}
-.ic.ext{width:.85em; height:.85em; color:var(--muted); margin-left:2px; vertical-align:-.1em}
+.links a.io .ic.ext{width:16px; height:16px; margin-left:0}
+.ic.ext{width:16px; height:16px; color:var(--muted); margin-left:2px; vertical-align:-.25em}
 .links a:hover{border-color:var(--ink)}
 .links a:focus-visible,.quick a:focus-visible{outline:2px solid var(--ok); outline-offset:-2px}
 .quick{display:flex; flex-wrap:wrap; gap:8px}
@@ -399,7 +454,7 @@ a.tag.feeds:hover{text-decoration:underline}
 .dayctl{display:flex; flex-wrap:wrap; gap:8px 12px; align-items:center; margin-bottom:12px}
 .dayctl input[type=date]{font:inherit; font-size:13.5px; padding:4px 8px; border:0; background:var(--surface); color:var(--ink)}
 .dayctl button{font-size:12.5px; font-weight:600; background:var(--surface); border:0; padding:4px 10px; cursor:pointer; color:var(--ink)}
-.day{display:grid; grid-template-columns:1fr 1fr; gap:14px}
+.day{display:grid; grid-template-columns:repeat(auto-fill, minmax(340px, 1fr)); gap:14px; grid-auto-flow:dense; align-items:start}
 .day .card{padding-bottom:4px}
 .day h3{font-size:13.5px; padding:12px 16px 4px; display:flex; gap:8px; align-items:center}
 .day h3 .ic{color:var(--muted)}
@@ -430,7 +485,7 @@ body.mapview #termbody section{flex:1 1 auto; min-height:0; margin-bottom:12px; 
 .map h3 .t{white-space:nowrap}
 .rail-toggle{margin-left:auto; display:inline-flex; align-items:center; color:var(--muted); background:none; border:0; padding:0 2px; cursor:pointer; line-height:1}
 .rail-toggle:hover{color:var(--ink)}
-.rail-toggle .ic{width:22px; height:22px; transition:transform .15s}
+.rail-toggle .ic{width:16px; height:16px; transition:transform .15s}
 .rail-card.slim{position:absolute; left:0; top:0; bottom:0; width:var(--rail-w, 36px); z-index:3; align-items:center; padding:6px 0 6px; background:color-mix(in srgb, var(--surface) 86%, transparent); backdrop-filter:blur(4px)}
 .rail-card.slim .rail-toggle{margin:0; padding:4px 0}
 /* The folded rail as a timeline: rows of squares, one square per unit of time an event covers; overlaps sit in the next lane */
@@ -472,7 +527,7 @@ body.mapview #termbody section{flex:1 1 auto; min-height:0; margin-bottom:12px; 
 .rz button{display:inline-flex; align-items:center; justify-content:center; width:16px; height:16px; background:var(--surface-2); border:0; padding:0; color:var(--muted); cursor:pointer}
 .rz button:hover{color:var(--ink)}
 .rz button:disabled{opacity:.3; cursor:default}
-.rz button .ic{width:12px; height:12px}
+.rz button .ic{width:16px; height:16px}
 .rz-lbl{font-size:10px; font-weight:600; color:var(--muted); text-align:center; margin-top:4px; letter-spacing:.04em; white-space:nowrap}
 .rail-tip{position:absolute; z-index:6; left:44px; transform:translateY(-50%); background:var(--ink); color:var(--bg); font-size:12px; line-height:1.3; padding:4px 9px; pointer-events:none; max-width:min(360px, 60vw); box-shadow:var(--shadow)}
 .rail-tip.below{transform:none}
@@ -703,51 +758,43 @@ body.colored table.all tr:not(.done) .tt{color:var(--cc)}
           <button type="button" id="size-down" title="Smaller text" aria-label="Smaller text"><svg class="ic sm"><use href="#i-minus"/></svg></button>
           <span class="lbl" title="Text size"><svg class="ic"><use href="#i-text-aa"/></svg></span>
           <button type="button" id="size-up" title="Larger text" aria-label="Larger text"><svg class="ic sm"><use href="#i-plus"/></svg></button>
-          <button type="button" id="ping-toggle" title="Cyan pulsing ring on unfinished items due within the coming week" aria-pressed="true"><svg class="ic"><use href="#i-target"/></svg></button>
-          <button type="button" id="color-toggle" title="Colour unfinished titles by course" aria-pressed="true"><svg class="ic"><use href="#i-beach-ball"/></svg></button>
         </div>
         <div class="seg tools" role="group" aria-label="Theme" id="theme">
           <button type="button" data-theme-set="light" title="Light" aria-label="Light theme"><svg class="ic"><use href="#i-sun"/></svg></button>
           <button type="button" data-theme-set="dark" title="Dark" aria-label="Dark theme"><svg class="ic"><use href="#i-moon"/></svg></button>
           <button type="button" data-theme-set="system" title="Follow the system" aria-label="System theme"><svg class="ic"><use href="#i-desktop"/></svg></button>
         </div>
-        <details class="pop about" id="about-pop">
-          <summary title="About this page" aria-label="About this page"><svg class="ic"><use href="#i-question"/></svg></summary>
+        <button type="button" class="hbtn" data-goview="help" title="Help: how the page works" aria-label="Help"><svg class="ic"><use href="#i-question"/></svg></button>
+        <details class="pop profile" id="profile-pop">
+          <summary title="Account and settings" aria-label="Account and settings"><svg class="ic"><use href="#i-user-circle"/></svg><span id="pp-who"></span><svg class="ic sm"><use href="#i-caret-down"/></svg></summary>
           <div class="panel">
-            <h3>About this page</h3>
-            <p>Every course in one place: sessions to attend, deadlines from Canvas, and the material buried in the Canvas modules, each with a link. Pick the study period and your courses at the top. <strong>Day</strong> shows one day with what is due soon and the free time for group work, <strong>All deadlines</strong> is the flat list.</p>
-            <p>Tick boxes are yours alone. On claude.ai they follow your account, otherwise they stay in this browser. The <svg class="ic sm"><use href="#i-prohibit"/></svg> button mutes an item that is not for you: it stays visible, stops pulsing and leaves the counts.</p>
-            <div class="legend">
-              <span><span class="lvl must">MUST</span>graded, required, a session you cannot miss, or what one of those depends on. Red stripe.</span>
-              <span><span class="lvl nice">NICE</span>readings, videos, recordings: helps, not required</span>
-              <span><svg class="ic sm"><use href="#i-circle-dashed"/></svg> Canvas tracks this item (view, post, mark done, submit)</span>
-              <span><svg class="ic sm"><use href="#i-target"/></svg> turns on a cyan pulsing ring around the tick box of anything unfinished that is overdue or due within the coming seven days. Nothing further ahead pulses.</span>
-              <span><span class="tag expected" style="margin-left:0">expected</span> a Z0025E lecture whose date and time come from the course Homepage timetable, but which lecture it is comes from module order. The teacher has not named it yet; the weekly announcement confirms or moves it.</span>
-              <span><svg class="ic sm"><use href="#i-beach-ball"/></svg> course colours &nbsp;<svg class="ic sm"><use href="#i-clock"/></svg> working hours &nbsp;<svg class="ic sm"><use href="#i-sun"/></svg><svg class="ic sm"><use href="#i-moon"/></svg><svg class="ic sm"><use href="#i-desktop"/></svg> theme</span>
-              <span>Progress: green is deadlines and tasks, blue is material.</span>
+            <div class="pp-grid">
+              <section class="pp-card" id="pp-account"><h3><svg class="ic"><use href="#i-user-circle"/></svg>Account</h3><div id="acct-slot"></div><p class="note" id="pp-account-note"></p></section>
+              <section class="pp-card"><h3><svg class="ic"><use href="#i-sliders-horizontal"/></svg>Display</h3>
+                <div class="pp-row"><button type="button" id="ping-toggle" class="tgl" aria-pressed="true"><svg class="ic"><use href="#i-target"/></svg>Pulse what is due soon</button></div>
+                <div class="pp-row"><button type="button" id="color-toggle" class="tgl" aria-pressed="true"><svg class="ic"><use href="#i-beach-ball"/></svg>Colour titles by course</button></div>
+                <div class="pp-row"><svg class="ic"><use href="#i-clock"/></svg><span>Working hours</span><input type="time" class="hstart" aria-label="Start"><span>to</span><input type="time" class="hend" aria-label="End"></div>
+                <p class="note">Working hours set the free time in Day and Week by week.</p>
+              </section>
+              <div id="pp-dyn" class="pp-span"></div>
+              <section class="pp-card pp-span" id="pp-progress"><h3><svg class="ic"><use href="#i-arrows-in"/></svg>Your progress</h3>
+                <p id="prog-info"></p>
+                <div class="prog">
+                  <label for="prog-code">Import</label>
+                  <div class="row"><textarea id="prog-code" rows="2" placeholder="Paste a code from Export on another page or device"></textarea><button type="button" id="prog-import" title="Bring the ticks in: per task the later change wins, so an untick comes along too">Import</button></div>
+                </div>
+                <div class="prog">
+                  <label for="prog-snaps">Go back to a day</label>
+                  <div class="row"><select id="prog-snaps"></select><button type="button" id="prog-restore" title="Go back to how your ticks stood at the end of that day; the state before is kept, so this can be undone">Restore</button></div>
+                </div>
+                <div class="prog">
+                  <label for="prog-export">Export</label>
+                  <div class="row"><button type="button" id="prog-export" class="wide" title="Copy a code with your ticks and the last seven days to the clipboard">Export: copy a code with all ticks</button></div>
+                </div>
+                <p class="src" id="prog-msg" style="margin-top:4px"></p>
+              </section>
             </div>
-            <h3 style="margin-top:12px">Your progress</h3>
-            <p id="prog-info"></p>
-            <div class="prog">
-              <label for="prog-code">Import</label>
-              <div class="row"><textarea id="prog-code" rows="2" placeholder="Paste a code from Export on another page or device"></textarea><button type="button" id="prog-import" title="Bring the ticks in: per task the later change wins, so an untick comes along too">Import</button></div>
-            </div>
-            <div class="prog">
-              <label for="prog-snaps">Go back to a day</label>
-              <div class="row"><select id="prog-snaps"></select><button type="button" id="prog-restore" title="Go back to how your ticks stood at the end of that day; the state before is kept, so this can be undone">Restore</button></div>
-            </div>
-            <div class="prog">
-              <label for="prog-export">Export</label>
-              <div class="row"><button type="button" id="prog-export" class="wide" title="Copy a code with your ticks and the last seven days to the clipboard">Export: copy a code with all ticks</button></div>
-            </div>
-            <p class="src" id="prog-msg" style="margin-top:4px"></p>
-            <p class="src">Unofficial, made by a student. <span id="asof"></span> Canvas is always right when the two disagree. Sessions come from the course schedule pages. Minutes are rough estimates from page length and video count, or the course's own figure where it gives one. Times are Stockholm time. Icons: Phosphor (MIT).</p>
           </div>
-        </details>
-        <details class="pop hours" id="hours-pop">
-          <summary title="Working hours, used for the free time shown per day"><svg class="ic"><use href="#i-clock"/></svg></summary>
-          <div class="panel"><p>Working hours, used for the free time per day</p>
-            <input type="time" class="hstart" aria-label="Start"> to <input type="time" class="hend" aria-label="End"></div>
         </details>
       </div>
     </div>
@@ -758,7 +805,6 @@ body.colored table.all tr:not(.done) .tt{color:var(--cc)}
         <button type="button" id="v-all" data-view="all"><svg class="ic"><use href="#i-list-checks"/></svg>All deadlines</button>
         <button type="button" id="v-map" data-view="map"><svg class="ic"><use href="#i-tree-structure"/></svg>Map</button>
         <button type="button" id="v-cards" data-view="cards" title="Study cards with spaced repetition, aimed at each lab and exam"><svg class="ic"><use href="#i-books"/></svg>Cards</button>
-        <button type="button" id="v-app" data-view="app" title="The hosted app: what it does, what is coming, privacy and security"><svg class="ic"><use href="#i-shield-check"/></svg>Hosted app</button>
       </div>
       <div class="seg" role="group" aria-label="Show courses" id="filter"></div>
       <a class="jump" id="jump" href="#" hidden><svg class="ic"><use href="#i-arrow-line-down"/></svg>Today</a>
@@ -773,7 +819,7 @@ body.colored table.all tr:not(.done) .tt{color:var(--cc)}
 
 
   <div id="termbody"></div>
-
+  <footer class="foot" id="foot"></footer>
 </div>
 
 <script>
@@ -1276,10 +1322,10 @@ function flipCard(t, c, mode){
   var why = mode === "settle" ? C.flags.filter(function(x){ return x.card_id === c.id; }).map(function(x){ return x.reason; }).filter(Boolean).join("; ") : "";
   return '<div class="fcard' + (flipped ? ' flipped' : '') + '" data-flip="' + esc(c.id) + '" style="' + colorVars(c.course) + '" tabindex="0" role="button" aria-pressed="' + flipped + '" aria-label="Card: ' + esc(c.prompt.slice(0, 80)) + '. Press to turn over.">' +
     '<div class="fc-in">' +
-      '<div class="fc-face fc-front"><div class="fc-meta">' + meta + '</div><div class="fc-q">' + esc(c.prompt) + '</div><div class="fc-foot">' + tags + '<span class="fc-due">' + esc(dueTxt) + '</span><span class="fc-hint">click to turn over</span></div></div>' +
-      '<div class="fc-face fc-back"><div class="fc-meta">' + meta + '</div><div class="fc-a">' + (c.kind === "question" ? '<small>Where the answer is:</small> ' : '') + (c.answer ? cardText(c.answer) : "(no answer written)") + '</div>' +
+      '<div class="fc-face fc-front"><div class="fc-body"><div class="fc-meta">' + meta + '</div><div class="fc-q">' + esc(c.prompt) + '</div><div class="fc-foot">' + tags + '<span class="fc-due">' + esc(dueTxt) + '</span><span class="fc-hint">click to turn over</span></div></div></div>' +
+      '<div class="fc-face fc-back"><div class="fc-body"><div class="fc-meta">' + meta + '</div><div class="fc-a">' + (c.kind === "question" ? '<small>Where the answer is:</small> ' : '') + (c.answer ? cardText(c.answer) : "(no answer written)") + '</div>' +
         (cardKey(c.answer) ? '<div class="insight"><b>Key</b> ' + cardInline(cardKey(c.answer)) + '</div>' : '') +
-        '<div class="fc-src">Check it in: ' + cardSourcesLinks(c) + '</div>' + (why ? '<div class="fc-src">Flagged: ' + esc(why) + '</div>' : '') + controls + '</div>' +
+        '<div class="fc-src">Check it in: ' + cardSourcesLinks(c) + '</div>' + (why ? '<div class="fc-src">Flagged: ' + esc(why) + '</div>' : '') + controls + '</div></div>' +
     '</div></div>';
 }
 // Flag a card: an inline reason, then Send. A flagged card is hidden until the Maintainer decides.
@@ -1343,7 +1389,7 @@ function renderDayPlan(t, d){
     else grid += '<div class="dp-block' + (f.cal ? ' cal' : '') + '" style="top:' + top(f.s) + 'px; height:' + Math.max(H, top(f.e) - top(f.s)) + 'px' + (f.code ? '; ' + colorVars(f.code) : '') + '"><b>' + esc(fmtT(f.s) + "\u2013" + fmtT(f.e)) + '</b> ' + esc(f.title) + (f.cal ? ' <span class="tag yours">yours</span>' : '') + '</div>';
   });
   planned.forEach(function(b){ var s = toMin(b.start), done = b.ref && isDone(b.ref);
-    grid += '<div class="dp-block planned' + (done ? ' done' : '') + '" style="top:' + top(s) + 'px; height:' + Math.max(H, b.mins / SLOT * H) + 'px' + (b.code ? '; ' + colorVars(b.code) : '') + '"><b>' + esc(fmtT(s) + "\u2013" + fmtT(s + b.mins)) + '</b> ' + esc(b.title) + '<button type="button" class="dp-x" data-unplan="' + esc(b.pid) + '" title="Remove from the plan" aria-label="Remove from the plan">&times;</button></div>'; });
+    grid += '<div class="dp-block planned' + (done ? ' done' : '') + '" style="top:' + top(s) + 'px; height:' + Math.max(H, b.mins / SLOT * H) + 'px' + (b.code ? '; ' + colorVars(b.code) : '') + '"><b>' + esc(fmtT(s) + "\u2013" + fmtT(s + b.mins)) + '</b> ' + esc(b.title) + '<button type="button" class="dp-x" data-unplan="' + esc(b.pid) + '" title="Remove from the plan" aria-label="Remove from the plan">' + ic("x") + '</button></div>'; });
   var list = items.length ? items.slice(0, 24).map(function(it){
     var h = hintFor(it, wins);
     return '<li draggable="true" data-ref="' + esc(it.ref) + '" data-mins="' + it.mins + '" style="' + colorVars(it.code) + '">' + chip(it.code) + '<span class="tt">' + esc(it.title) + '</span> <small>' + it.mins + ' min</small>' +
@@ -1374,7 +1420,7 @@ function renderDayView(t){
   var dueRows = due.map(function(r){ var days = Math.round((day(r.date) - day(d)) / 864e5); return Object.assign({}, r, { title: r.title + (days === 0 ? " (today)" : days === 1 ? " (tomorrow)" : " (in " + days + " days)") }); });
   var mat = blocks.map(function(b){ return matBlock(b, "This week"); }).join("");
   return '<section>' +
-    '<div class="dayctl"><input type="date" id="daypick" value="' + d + '"><button type="button" id="day-prev">&larr; Day</button><button type="button" id="day-today">Today</button><button type="button" id="day-next">Day &rarr;</button><span class="note">' + esc(fullDay(d)) + ', week ' + isoWeek(d) + '</span></div>' +
+    '<div class="dayctl"><input type="date" id="daypick" value="' + d + '"><button type="button" id="day-prev">' + ic("arrow-left") + 'Day</button><button type="button" id="day-today">Today</button><button type="button" id="day-next">Day' + ic("arrow-right") + '</button><span class="note">' + esc(fullDay(d)) + ', week ' + isoWeek(d) + '</span></div>' +
     anns.map(function(a){ return annBlock(a, a.code); }).join("") +
     renderDayPlan(t, d) +
     '<div class="day">' +
@@ -1434,7 +1480,7 @@ function renderQuick(t){
 }
 function renderCourses(t){
   if (!t.courses.length) return "";
-  return '<section><div class="sechead"><h2>How each course is passed</h2></div><div class="grid2">' + t.courses.map(function(c){
+  return '<section class="span2"><div class="sechead"><h2>How each course is passed</h2></div><div class="grid2">' + t.courses.map(function(c){
     var k = COURSES[c];
     var opt = (k.optional || []).map(function(o, n){ var list = o.refs.reduce(function(a, r){ return a.concat(expand(c, r)); }, []); var mins = matMinutes(list); var key = "opt:" + c + ":" + n;
       return '<details class="mat" data-course="' + c + '" data-key="' + key + '"' + (state.open[key] === true ? ' open' : '') + '><summary>' + ic("caret-down", "caret") + 'Optional: ' + esc(o.title) + '<span class="sum">' + list.length + ' items' + (mins ? ", " + fmtMin(mins) : "") + '</span></summary>' + (o.why ? '<span class="why">' + esc(o.why) + '</span>' : '') + matList(c, list) + '</details>'; }).join("");
@@ -1482,13 +1528,13 @@ function renderTerm(){
   var body;
   if (t.upcoming && !t.courses.length) { body = '<section><div class="card empty"><h3>' + esc(t.label + ", " + t.period) + '</h3><p>' + esc(t.upcoming) + '</p></div></section>'; document.getElementById("jump").hidden = true; }
   else if (state.view === "map") body = renderMapView(t);
-  else if (state.view === "app") body = renderAppView();
+  else if (INFO_VIEWS[state.view]) body = renderInfoView(state.view);
   else if (state.view === "cards") body = renderCardsView(t);
-  else body = (state.view === "day" ? renderDayView(t) : state.view === "all" ? renderAllView(t) : renderWeekView(t)) + renderQuick(t) + renderCourses(t) + renderRhythm(t);
+  else body = (state.view === "day" ? renderDayView(t) : state.view === "all" ? renderAllView(t) : renderWeekView(t)) + '<div class="bento below">' + renderQuick(t) + renderCourses(t) + renderRhythm(t) + '</div>';
   if (state.view !== "week") document.getElementById("jump").hidden = true;
   document.getElementById("termbody").innerHTML = body;
   if (state.view === "map") bindMap(t);
-  if (state.view === "app") bindAccountDelete();
+  renderProfile();
   if (state.view === "cards" && !state.cards && !state.cardsLoading) loadCards();
   applyFilter();
 }
@@ -2084,7 +2130,7 @@ function renderMapView(t){
   if (!state.mapSel) { var today = todayIso(), ke = keyEvents(t).find(function(k){ return k.date >= today; }), first = ke ? { key: ke.key } : timeline(t).find(function(r){ return r.date >= today; }); if (first) selectKey(first.id || first.key, false); }
   return '<section><div class="map' + (state.railSlim ? ' rail-slim' : '') + '">' + railCard(t) + '<div class="rail-tip" id="rail-tip" hidden></div>' +
     '<div class="card mapcard"><h3>' + ic("tree-structure") + '<span class="t">Canvas map</span><span class="why" style="display:inline;text-transform:none;letter-spacing:0;font-weight:400">material inside, sessions, deadlines and tasks around the ring in date order. Hover or click a node to see its links, shift-click to select several, drag to pan, scroll to zoom</span></h3>' +
-      '<div class="gwrap" id="gwrap">' + svgGraph(t) + '<div class="gtools"><button type="button" id="g-kprev" title="The previous key event and its chain">&#9664;</button><button type="button" id="g-knext" title="The next key event and its chain">Key event &#9654;</button><button type="button" id="g-fit" title="Fit the whole graph">' + ic("arrows-in", "sm") + 'Fit</button><button type="button" id="g-open" title="Open every module"' + (state.mapAll ? ' disabled' : '') + '>Open all</button><button type="button" id="g-close" title="Close every module"' + (state.mapAll ? ' disabled' : '') + '>Close all</button><button type="button" id="g-settle" title="Forget the saved positions and lay the material out afresh">Re-settle</button><span class="seg mode" role="group" aria-label="What a click on a module does"><button type="button" id="g-mode-select" data-mode="select" title="Clicking a module or section selects it" aria-pressed="' + (state.mapMode === "select" ? "true" : "false") + '">Select</button><button type="button" id="g-mode-fold" data-mode="fold" title="Clicking a module or section opens or closes it" aria-pressed="' + (state.mapMode === "fold" ? "true" : "false") + '"' + (state.mapAll ? ' disabled' : '') + '>Close</button></span>' +
+      '<div class="gwrap" id="gwrap">' + svgGraph(t) + '<div class="gtools"><button type="button" id="g-kprev" title="The previous key event and its chain" aria-label="Previous key event">' + ic("caret-left") + '</button><button type="button" id="g-knext" title="The next key event and its chain">Key event' + ic("caret-right") + '</button><button type="button" id="g-fit" title="Fit the whole graph">' + ic("arrows-in", "sm") + 'Fit</button><button type="button" id="g-open" title="Open every module"' + (state.mapAll ? ' disabled' : '') + '>Open all</button><button type="button" id="g-close" title="Close every module"' + (state.mapAll ? ' disabled' : '') + '>Close all</button><button type="button" id="g-settle" title="Forget the saved positions and lay the material out afresh">Re-settle</button><span class="seg mode" role="group" aria-label="What a click on a module does"><button type="button" id="g-mode-select" data-mode="select" title="Clicking a module or section selects it" aria-pressed="' + (state.mapMode === "select" ? "true" : "false") + '">Select</button><button type="button" id="g-mode-fold" data-mode="fold" title="Clicking a module or section opens or closes it" aria-pressed="' + (state.mapMode === "fold" ? "true" : "false") + '"' + (state.mapAll ? ' disabled' : '') + '>Close</button></span>' +
       '<button type="button" id="g-all" title="Draw closed modules and sections open too; their contents stay faded until they join a chain" aria-pressed="' + (state.mapAll ? "true" : "false") + '">' + ic(state.mapAll ? "eye" : "eye-slash", "sm") + '</button>' +
       '<label class="reach" title="How far a highlighted chain reaches from the node: link steps in either direction, the jump to the ring counts as one"><span>Reach</span><input type="range" id="g-hops" min="1" max="5" step="1" value="' + state.mapHops + '"><b id="g-hops-v">' + hopsLabel() + '</b></label></div>' +
       '<details class="legend-g" data-key="legend"' + (state.open.legend === false ? '' : ' open') + '><summary class="lt">' + ic("caret-down", "sm caret") + 'Legend</summary>' +
@@ -2529,13 +2575,15 @@ function completionDone(id){ var k = canvasKind(id); return k === "done" || (k =
 // What the page counts and greys out: the Student's Tick, or what Canvas has recorded.
 function isDone(id){ return !!state.checked[id] || completionDone(id); }
 // The second mark beside a tick box (CONTEXT.md, Status).
+var STATUS_ICON = { both: "checks", cv: "check", half: "circle-half", conf: "warning", un: "minus" };
+function statusIcon(cls){ return '<span class="cvmark ' + cls + '">' + ic(STATUS_ICON[cls]) + '</span>'; }
 function statusOf(id){
   var k = canvasKind(id), tick = !!state.checked[id];
   if (k === null) return null;
-  if (k === "un") return { cls: "un", sym: "&#8722;", tip: "Canvas cannot record this; only your tick counts." + (tick ? " Done by you." : "") };
-  if (completionDone(id)) return tick ? { cls: "both", sym: "&#10003;&#10003;", tip: "Confirmed: Canvas has it and you ticked it." } : { cls: "cv", sym: "&#10003;", tip: k === "opened" ? "Opened in Canvas, which counts as done (setting in Hosted app)." : "Done in Canvas." };
-  if (k === "opened") return { cls: "half", sym: "&#9680;", tip: "Opened in Canvas. Tick it once you have studied it." };
-  if (tick) return { cls: "conf", sym: ic("warning", "sm"), tip: "Conflict: you ticked this, but Canvas has no " + (id.charAt(0) === "d" ? "submission" : "completion") + " for it." };
+  if (k === "un") return { cls: "un", sym: ic("minus"), tip: "Canvas cannot record this; only your tick counts." + (tick ? " Done by you." : "") };
+  if (completionDone(id)) return tick ? { cls: "both", sym: ic("checks"), tip: "Confirmed: Canvas has it and you ticked it." } : { cls: "cv", sym: ic("check"), tip: k === "opened" ? "Opened in Canvas, which counts as done (setting in Hosted app)." : "Done in Canvas." };
+  if (k === "opened") return { cls: "half", sym: ic("circle-half"), tip: "Opened in Canvas. Tick it once you have studied it." };
+  if (tick) return { cls: "conf", sym: ic("warning"), tip: "Conflict: you ticked this, but Canvas has no " + (id.charAt(0) === "d" ? "submission" : "completion") + " for it." };
   return { cls: "no", sym: "", tip: "Not done in Canvas yet." };
 }
 function applyCanvasMarks(){
@@ -2558,7 +2606,7 @@ function refreshCanvas(){
     if (!cv || !cv.has()) { state.canvas = null; return; }
     return cv.read(canvasIds()).then(function(data){ state.canvas = data; state.canvasErr = null; lsSet(LS.canvasCache, JSON.stringify(data)); })
       .catch(function(e){ state.canvasErr = e.code === "token" ? "Canvas did not accept the token. It may have expired: make a new one." : "Canvas could not be reached just now. The marks are from the last read."; });
-  }).then(function(){ applyState(); if (state.view === "app") renderTerm(); return refreshBookings(); });
+  }).then(function(){ applyState(); renderProfile(); return refreshBookings(); });
 }
 
 /* ---------- Bookings (release 2) ---------- */
@@ -2626,6 +2674,9 @@ var APP_INFO = {
     ["A day in 15-minute slots", "Day shows both courses in one day plan: sessions, your calendar, your lab slot and deadlines, the free slots between them, and this week's unplaced work with a suggested slot. Place it with one press or drag it, and the plan follows you to your other devices."]
   ],
   planned: [
+    ["Free time for the whole group", "Later: the free slots every member of a group has, from the calendars they link."],
+    ["Bookings entered by a group member", "Later: one member enters the group's slot for everyone, when the sheet cannot be read."],
+    ["Reminders", "Later, and only if you turn them on: a message before a booking closes or a hand-in is due."]
   ],
   privacy: [
     ["Only you can read your ticks", "They are one row in the database that a rule inside the database lets only your account read or change. The rule is tested on every change to the database."],
@@ -2643,9 +2694,9 @@ var APP_INFO = {
 function infoList(rows, tag){ return "<" + tag + ">" + rows.map(function(r){ return "<li><b>" + esc(r[0]) + ".</b> " + esc(r[1]) + (r[2] ? ' <a href="' + esc(r[2]) + '" target="_blank" rel="noopener">' + esc(r[2].replace(/^https:\/\//, "")) + '</a>' : "") + "</li>"; }).join("") + "</" + tag + ">"; }
 function appLink(){ var to = P.MOVED_TO || location.origin; return '<a href="' + esc(to) + '" target="_blank" rel="noopener">' + esc(to.replace(/^https?:\/\//, "").replace(/\/$/, "")) + '</a>'; }
 function moveSteps(){
-  return '<ol><li>Here, open <b>?</b> (About) at the top right and press <b>Export</b>. It copies a code with all your ticks.</li>' +
+  return '<ol><li>Here, open the <b>profile menu</b> (the person icon, top right) and press <b>Export</b>. It copies a code with all your ticks.</li>' +
     '<li>Open ' + appLink() + '. Press <b>Sign in</b> to keep your ticks on every device, or skip it and use it in this browser only.</li>' +
-    '<li>There, open <b>?</b> (About), paste the code into the box and press <b>Import</b>.</li>' +
+    '<li>There, open the <b>profile menu</b>, paste the code into the box and press <b>Import</b>.</li>' +
     '<li>Ticking here then locks, so the two pages stay the same. You can unlock it.</li></ol>';
 }
 function renderMoved(nudge){
@@ -2690,14 +2741,14 @@ function calendarCard(){
     var st = status.find(function(x){ return x.id === l.id; }), host = ""; try { host = new URL(l.url).hostname; } catch (e) {}
     return '<li><b>' + esc(l.label || host) + '</b> <small>' + esc(host) + '</small> ' + (st ? (st.ok ? '<small>' + st.events + ' event' + (st.events === 1 ? '' : 's') + ' in the coming weeks</small>' : '<small class="err">' + esc(st.error) + '</small>') : '') + ' <button type="button" class="plain" data-cal-remove="' + esc(l.id) + '">Remove</button></li>';
   }).join("");
-  return '<div class="card cvcard" style="margin-top:14px"><h3>' + ic("calendar-dot") + 'Your calendars</h3>' +
+  return '<section class="pp-card cvcard"><h3>' + ic("calendar-dot") + 'Your calendars</h3>' +
     (!signedIn ? '<p>Sign in to add a calendar, such as your group\'s Google Calendar. Its events then appear among the sessions, marked as yours, and count as busy time.</p>'
     : '<p>Add the secret iCal address of a calendar (Google: Settings, the calendar, <i>Secret address in iCal format</i>). Only you can see it. Events appear in Week by week and Day, marked as yours; an event whose description links a Canvas assignment is tied to it.</p>' +
       (links.length ? '<ul>' + rowsHtml + '</ul>' : '') +
       (state.calErr ? '<p class="err">' + esc(state.calErr) + '</p>' : '') +
       (links.length < 5 ? '<div class="row"><input type="url" id="cal-url" placeholder="https://calendar.google.com/calendar/ical/.../basic.ics" style="flex:1 1 320px" aria-label="Calendar address"><input type="text" id="cal-label" placeholder="Name, e.g. Group 8" maxlength="60" style="width:160px; font:inherit; font-size:13px; border:1px solid var(--muted); padding:6px 8px; background:var(--surface); color:var(--ink)" aria-label="Calendar name"><button type="button" data-cal="add">Add</button></div>' : '<p class="note">Five calendars is the most.</p>') +
       '<p class="note">Supported: Google Calendar, Outlook and Office 365, iCloud, Canvas and TimeEdit addresses.</p>') +
-  '</div>';
+  '</section>';
 }
 function refreshCalendar(){
   if (!window.TRACKER_CONFIG || !window.claude || !window.claude.use) return Promise.resolve();
@@ -2715,36 +2766,73 @@ function canvasCard(){
     var g = groupOf(code), from = state.groups[code] ? "set here" : g ? "from Canvas" : "unknown";
     return '<label>' + chip(code) + ' Group <input type="number" min="1" max="99" data-group="' + esc(code) + '" value="' + (g || "") + '" placeholder="?"> <small>' + from + '</small></label>';
   }).join(" ");
-  return '<div class="card cvcard" style="margin-top:14px"><h3>' + ic("link") + 'Your Canvas</h3>' +
+  return '<section class="pp-card cvcard"><h3>' + ic("link") + 'Your Canvas</h3>' +
     (has ? '<p>Connected with token <code>' + esc(state.canvasHint) + '</code>' + (d ? ', read ' + esc(longDay(iso(new Date(d.readAt)))) + ' ' + String(new Date(d.readAt).getHours()).padStart(2, "0") + ':' + String(new Date(d.readAt).getMinutes()).padStart(2, "0") : '') + '.' + (conflicts ? ' <b class="err">' + conflicts + ' conflict' + (conflicts === 1 ? '' : 's') + '</b>: ticked here, nothing in Canvas.' : '') + '</p>' +
         (state.canvasErr ? '<p class="err">' + esc(state.canvasErr) + '</p>' : '') +
         '<div class="row"><button type="button" data-cv="refresh">Read Canvas again</button><button type="button" class="plain" data-cv="forget">Forget the token</button></div>'
       : '<p>Paste a Canvas token to see, next to each tick, what Canvas has recorded for you: hand-ins, posts, pages marked done or opened. The token stays in this browser; the server only passes it on to Canvas and never stores it.</p>' +
         '<ol><li>In Canvas: <b>Account</b>, <b>Settings</b>, <b>+ New access token</b>.</li><li>Purpose <i>Study tracker</i>, an expiry date at the end of the term, <b>Generate token</b>, and copy it.</li><li>Paste it here.</li></ol>' +
-        '<div class="row"><input type="password" id="cv-token" placeholder="Canvas token" autocomplete="off" aria-label="Canvas token"><button type="button" data-cv="save">Connect</button></div>' +
+        '<div class="row"><input type="text" id="cv-token" class="secret" placeholder="Canvas token" autocomplete="off" autocapitalize="off" spellcheck="false" data-1p-ignore data-lpignore="true" aria-label="Canvas token"><button type="button" data-cv="save">Connect</button></div>' +
         (state.canvasErr ? '<p class="err">' + esc(state.canvasErr) + '</p>' : '')) +
-    '<div class="cvlegend"><span><span class="cvmark both">&#10003;&#10003;</span> confirmed</span><span><span class="cvmark cv">&#10003;</span> done in Canvas</span><span><span class="cvmark half">&#9680;</span> opened</span><span><span class="cvmark conf">' + ic("warning", "sm") + '</span> conflict</span><span><span class="cvmark un">&#8722;</span> Canvas cannot record it</span></div>' +
+    '<div class="cvlegend"><span>' + statusIcon("both") + ' confirmed</span><span>' + statusIcon("cv") + ' done in Canvas</span><span>' + statusIcon("half") + ' opened</span><span>' + statusIcon("conf") + ' conflict</span><span>' + statusIcon("un") + ' Canvas cannot record it</span></div>' +
     '<div class="row"><label><input type="checkbox" id="cv-opened"' + (state.openedCounts ? ' checked' : '') + '> Opening a page in Canvas counts as done</label></div>' +
     '<div class="row">' + groups + '</div>' +
-  '</div>';
-}
-function renderAppView(){
-  var hosted = !!window.TRACKER_CONFIG;
-  var intro = hosted
-    ? '<p>You are on the hosted tracker. Use <b>Sign in</b> at the top right to keep your ticks on every device; without it they stay in this browser.</p>' +
-      '<h3>Bringing ticks from the old claude.ai page</h3><ol><li>On the old page, open <b>?</b> (About) and press <b>Export</b>.</li><li>Here, open <b>?</b> (About), paste the code and press <b>Import</b>. Ticks merge: per task the later change wins.</li></ol>'
-    : '<p>This page has a successor at ' + appLink() + ': the same tracker, as its own website.</p><h3>How to move</h3>' + moveSteps();
-  return '<section class="appview"><div class="sechead"><h2>Hosted app</h2><span class="note">' + (hosted ? "What this site does, what is coming, and how it treats your data." : "Why moving is worth it, and how the new site treats your data.") + '</span></div>' +
-    '<div class="card">' + intro + '</div>' +
-    (hosted ? canvasCard() + calendarCard() : '') +
-    '<div class="grid" style="margin-top:14px">' +
-      '<div class="card"><h3>' + ic("check-circle") + 'What it does today' + (hosted ? '<span class="here">here</span>' : '') + '</h3>' + infoList(APP_INFO.now, "ul") + '</div>' +
-      '<div class="card"><h3>' + ic("flag-checkered") + 'Coming next</h3>' + infoList(APP_INFO.planned, "ul") + '<p class="note">Planned, in this order. Each release keeps everything before it working.</p></div>' +
-    '</div>' +
-    '<div class="card" style="margin-top:14px"><h3>' + ic("shield-check") + 'Privacy and security</h3>' + infoList(APP_INFO.privacy, "ul") +
-      (hosted ? '<div id="acct-delete" class="acct-delete"></div>' : '') +
-      '<p class="note">Unofficial, made by a student. Questions about your data go to the person who shared this page with you.</p></div>' +
   '</section>';
+}
+// The info views (About, Help, Privacy, Terms): written plainly, in the card marks cardText reads
+// ("- " lists, `code`, **term**, "Key:"), arranged as a bento grid of small cards.
+var INFO_VIEWS = { about: ["About", "info"], help: ["Help", "lifebuoy"], privacy: ["Privacy", "lock-key"], terms: ["Terms", "file-text"] };
+function infoCard(icon, title, text, extra){ var k = cardKey(text); return '<div class="card infocard"><h3>' + ic(icon) + esc(title) + '</h3>' + cardText(text) + (extra || '') + (k ? '<div class="insight"><b>Key</b> ' + cardInline(k) + '</div>' : '') + '</div>'; }
+function infoNav(cur){ return '<nav class="infonav">' + Object.keys(INFO_VIEWS).map(function(k){ return '<button type="button" data-goview="' + k + '"' + (k === cur ? ' aria-pressed="true"' : '') + '>' + ic(INFO_VIEWS[k][1]) + esc(INFO_VIEWS[k][0]) + '</button>'; }).join("") + '</nav>'; }
+function renderFoot(){
+  var f = document.getElementById("foot"); if (!f) return;
+  f.innerHTML = '<nav>' + Object.keys(INFO_VIEWS).map(function(k){ return '<a href="#" data-goview="' + k + '">' + ic(INFO_VIEWS[k][1]) + esc(INFO_VIEWS[k][0]) + '</a>'; }).join("") +
+    '<a href="https://github.com/laszloprekop/ltu-study-tracker" target="_blank" rel="noopener">' + ic("arrow-square-out") + 'Code</a></nav>' +
+    '<p id="asof"></p>' +
+    '<p class="disclaimer">' + ic("info") + 'Unofficial, made by a student. Questions about your data go to the person who shared this page with you.</p>' +
+    '<p class="small">Times are Stockholm time. Icons: Phosphor (MIT).</p>';
+}
+// The profile menu: the account, the Student's Canvas and calendars (hosted app), and deleting it all.
+function renderProfile(){
+  var pp = document.getElementById("profile-pop"); if (!pp) return;
+  var hosted = !!window.TRACKER_CONFIG, note = document.getElementById("pp-account-note"), dyn = document.getElementById("pp-dyn");
+  if (note) note.innerHTML = hosted ? (state.signedIn ? "Ticks, plans and cards are kept with your account." : "Sign in with Google to keep your ticks on every device. Without it they stay in this browser.") : "On claude.ai your ticks follow your claude.ai account; outside it they stay in this browser.";
+  if (!pp.open || !dyn) return;
+  dyn.innerHTML = hosted ? '<div class="pp-grid inner">' + canvasCard() + calendarCard() + (state.signedIn ? '<section class="pp-card"><h3>' + ic("prohibit") + 'Delete</h3><p class="note">Removes your account, ticks, plans, links, cards and reviews from the server.</p><div id="acct-delete" class="acct-delete"></div></section>' : '') + '</div>' : '';
+  if (state.signedIn) bindAccountDelete();
+}
+function renderInfoView(name){
+  var hosted = !!window.TRACKER_CONFIG, cards = [];
+  if (name === "about") {
+    cards.push(infoCard("info", "What this is", "One page for **both courses**: what is on today, what is due, and what to study before it.\n- Made by a student, for classmates.\n- Not an LTU service.\nKey: Canvas stays the place that counts; this page helps you find your way in it."));
+    if (!hosted) cards.push(infoCard("arrow-right", "It has moved", "The same tracker now runs as its own site: " + (P.MOVED_TO || "") + ".\nKey: the steps to bring your ticks along are in the orange banner at the top.") );
+    cards.push('<div class="card infocard span2"><h3>' + ic("check-circle") + 'What it does today' + (hosted ? '<span class="here">here</span>' : '') + '</h3>' + infoList(APP_INFO.now, "ul") + '</div>');
+    cards.push('<div class="card infocard"><h3>' + ic("flag-checkered") + 'Coming later</h3>' + infoList(APP_INFO.planned, "ul") + '</div>');
+  } else if (name === "help") {
+    cards.push(infoCard("calendar", "The views", "- **Week by week**: every session, deadline and task, week after week.\n- **Day**: one day in 15-minute slots, with free time and work to place.\n- **All deadlines**: each lab, workshop and exam with what leads to it, then every deadline.\n- **Map**: how the course material connects.\n- **Cards**: study cards for the next lab or exam."));
+    cards.push(infoCard("check-circle", "Ticks and marks", "- The **tick box** is yours alone. Tick what you have done.\n- The " + "mute button" + " hides an item that is not for you from the counts.\n- **MUST**: graded or required, or needed for something that is. Red stripe.\n- **NICE**: readings and videos that help.\n- The **pulse** rings what is overdue or due within seven days.\n- **expected**: a lecture date from the timetable, not yet confirmed by the teacher.", '<div class="cvlegend"><span>' + statusIcon("both") + ' confirmed</span><span>' + statusIcon("cv") + ' done in Canvas</span><span>' + statusIcon("half") + ' opened</span><span>' + statusIcon("conf") + ' conflict</span><span>' + statusIcon("un") + ' Canvas cannot record it</span></div>'));
+    cards.push(infoCard("arrows-in", "Bring your ticks along", "Ticks move between pages and devices as a **code**.\n1. Profile menu (person icon, top right): **Export**. The code is copied.\n2. On the other page or device: profile menu, paste it, **Import**.\nKey: per task the later change wins, so an untick moves too."));
+    if (hosted) {
+      cards.push(infoCard("link", "Connect Canvas", "Shows next to each tick what Canvas has recorded for you.\n1. Canvas: **Account**, **Settings**, **+ New access token**.\n2. Purpose `Study tracker`, an end date at the end of the term.\n3. Paste it in the profile menu, under **Your Canvas**.\nKey: the token stays in your browser; the server never stores it."));
+      cards.push(infoCard("calendar-dot", "Add a calendar", "Your group's calendar appears among the sessions, marked **yours**.\n1. Google Calendar: **Settings**, the calendar, **Secret address in iCal format**. Copy it.\n2. Profile menu, **Your calendars**, paste, **Add**.\nKey: only you can see your links."));
+    }
+    cards.push(infoCard("books", "Study cards", "- Click a card to **turn it over**.\n- Rate how well you knew it: **Again**, **Hard**, **Good**, **Easy**.\n- Spaced repetition brings it back just before you would forget it, and plans it so you know it on the day of the lab or exam.\n- **Check** a classmate's card if it is right; **Something is wrong** hides it until it is fixed.\nWhen you write a card: `- ` makes a list, backticks make `code`, two stars make a **term**, and a line starting `Key:` is the one thing to remember."));
+    cards.push(infoCard("calendar-check", "Lab bookings", "Shown on the booking task and in a strip at the top.\n- **Not booked**: there is still time.\n- **Book this week**: the session is a week or less away.\n- **Book now**: two days or less, or one free slot left.\n- **Booked 09:15**: your group has that slot.\nKey: your group number comes from Canvas; set it by hand in the profile menu if it is wrong."));
+    cards.push(infoCard("warning", "Where the data comes from", "- Deadlines and modules: **Canvas**, read every hour on the site.\n- Session times: the course schedule pages.\n- Minutes: rough estimates from page length and videos.\n- All times are **Stockholm time**.\nKey: when this page and Canvas disagree, Canvas is right. Places where the course's own sources disagree are marked."));
+  } else if (name === "privacy") {
+    cards.push(infoCard("lock-key", "What is stored", "Only when you **sign in** with Google:\n- your **name and email** from Google,\n- your **ticks**, muted items and planned blocks,\n- your **calendar links**, cards and card reviews,\n- your **group number**, as Canvas names it.\nKey: without signing in, nothing about you is stored on the server."));
+    cards.push(infoCard("eye-slash", "Never stored", "- Your **Canvas token**: it stays in your browser and only passes through on its way to Canvas.\n- Your grades or anyone's submissions.\n- Names from the lab signup sheet: only group numbers are read."));
+    cards.push(infoCard("users-three", "Who can see what", "- Your ticks, links and reviews: **only you**.\n- Your group's answer cards: **your group**.\n- Shared cards and the course plan: every signed-in student.\nKey: these rules live in the database itself, so a bug in the page cannot break them."));
+    cards.push('<div class="card infocard span2"><h3>' + ic("shield-check") + 'How it is protected</h3>' + infoList(APP_INFO.privacy, "ul") + '</div>');
+    cards.push(infoCard("prohibit", "Delete it", "Signed in, the profile menu has **Delete my account and ticks**. One more click confirms.\n- Everything above that belongs to you is removed from the server.\n- Ticks in your browser stay until you clear them."));
+  } else if (name === "terms") {
+    cards.push(infoCard("file-text", "What you can expect", "- A free helper, made by a student, **as is**.\n- It may be wrong or out of date. **Canvas counts**: check a deadline there before you rely on it.\n- It may change or stop. Your ticks can always be taken along with **Export**."));
+    cards.push(infoCard("users-three", "Using it fairly", "- One account for yourself.\n- No written answers to graded questions in shared cards: those stay in **your group** (Answer Cards).\n- No other people's personal details in cards or calendars.\n- Do not copy whole course material into cards; quote what a card needs.\nKey: cards or accounts that break these can be removed."));
+    cards.push(infoCard("flag-checkered", "Wrong card or missing data", "- **Something is wrong** on a card hides it until it is checked again.\n- Wrong dates in the plan: tell the person who shared this page with you."));
+    cards.push(infoCard("lock-key", "Your data", "How it is stored and how to delete it: see **Privacy**.", '<p><button type="button" class="plain" data-goview="privacy">' + ic("lock-key") + 'Privacy</button></p>'));
+  }
+  var v = INFO_VIEWS[name];
+  return '<section class="infoview">' + infoNav(name) + '<div class="sechead"><h2>' + ic(v[1]) + esc(v[0]) + '</h2></div><div class="bento">' + cards.join("") + '</div></section>';
 }
 document.addEventListener("click", function(e){
   var rb = e.target.closest && e.target.closest("button[data-report]");
@@ -2820,7 +2908,7 @@ document.addEventListener("click", function(e){
     return;
   }
   var g = e.target.closest && e.target.closest("[data-goview]");
-  if (g) { e.preventDefault(); state.view = g.dataset.goview; lsSet(LS.view, state.view); renderTerm(); window.scrollTo(0, 0); return; }
+  if (g) { e.preventDefault(); var ppm = document.getElementById("profile-pop"); if (ppm) ppm.open = false; state.view = g.dataset.goview; lsSet(LS.view, state.view); renderTerm(); window.scrollTo(0, 0); return; }
   var b = e.target.closest && e.target.closest("button[data-moved]"); if (!b) return;
   if (b.dataset.moved === "fold") { lsSet(LS.movedFolded, lsGet(LS.movedFolded) === "1" ? "0" : "1"); renderMoved(); return; }
   state.unlocked = b.dataset.moved === "unlock"; lsSet(LS.unlocked, state.unlocked ? "1" : "0"); renderMoved();
@@ -2838,7 +2926,10 @@ function migrateAt(tickAt){
   return out;
 }
 
-document.getElementById("about-pop").addEventListener("toggle", function(){ if (this.open) renderProgressPanel(""); });
+document.getElementById("profile-pop").addEventListener("toggle", function(){ if (this.open) { renderProfile(); renderProgressPanel(""); } });
+// Close the profile menu on a click outside it, or on Escape.
+document.addEventListener("click", function(e){ var pp = document.getElementById("profile-pop"); if (pp && pp.open && !pp.contains(e.target)) pp.open = false; });
+document.addEventListener("keydown", function(e){ if (e.key === "Escape") { var pp = document.getElementById("profile-pop"); if (pp && pp.open) { pp.open = false; pp.querySelector("summary").focus(); } } });
 document.addEventListener("click", function(e){
   var b = e.target.closest && e.target.closest("button"); if (!b) return;
   if (b.id === "prog-export") {
@@ -2934,7 +3025,7 @@ state.colored = lsGet(LS.colored) !== "0";
 var th = lsGet(LS.theme); if (th === "light" || th === "dark" || th === "system") state.theme = th;
 var sh = lsJson(LS.hours); if (sh && toMin(sh.start) != null && toMin(sh.end) != null) state.hours = sh;
 state.filter = lsGet(LS.filter) || "all";
-var sv = lsGet(LS.view); if (sv === "day" || sv === "all" || sv === "week" || sv === "map" || sv === "app" || sv === "cards") state.view = sv;
+var sv = lsGet(LS.view); if (sv === "day" || sv === "all" || sv === "week" || sv === "map" || sv === "cards" || sv === "about" || sv === "help" || sv === "privacy" || sv === "terms") state.view = sv; else if (sv === "app") state.view = "about";
 state.mapOpen = lsJson(LS.mapOpen);
 state.mapAll = lsGet(LS.mapAll) !== "0";   // on unless the viewer switched it off
 var hp = Number(lsGet(LS.mapHops)); if (hp >= 1 && hp <= 5) state.mapHops = hp;   // 5 means no limit
@@ -2943,9 +3034,11 @@ if (lsGet(LS.mapMode) === "fold") state.mapMode = "fold";   // what a click on a
 var savedTerm = lsGet(LS.term);
 state.term = TERMS.some(function(t){ return t.id === savedTerm; }) ? savedTerm : defaultTerm();
 applyDisplay();
+renderFoot();
 renderTerm();
 renderMoved();
 // The hosted app: show the last Canvas read at once, then read again (and when the tab comes back after a while).
+if (window.TRACKER_CONFIG && window.claude && window.claude.use) window.claude.use("user").then(function(u){ state.signedIn = !!u; renderProfile(); });
 if (window.TRACKER_CONFIG && window.claude && window.claude.use) refreshCalendar();
 if (window.TRACKER_CONFIG && window.claude && window.claude.use) window.claude.use("canvas").then(function(cv){
   if (!cv || !cv.has()) { state.canvas = null; refreshBookings(); return; }

@@ -8,3 +8,6 @@ public/vendor/
 !.env.example
 *.tsbuildinfo
 sync/
+public/favicon.svg
+public/favicon.ico
+public/apple-touch-icon.png
