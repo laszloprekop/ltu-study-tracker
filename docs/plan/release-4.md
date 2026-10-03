@@ -34,6 +34,12 @@ write Cards by hand in the app.
 
 ## The Cards view
 
+Redesigned 2026-10-03: Cards are real cards in a grid, rectangles with the page's cut top-right
+corner. A click (or Enter) turns a card over on its vertical axis: the question on the front, the
+answer, its Sources and the ratings on the back. Filters: Due now, one per Card Set, All. To check
+and Flagged are grids too. Buttons, fields and tags added since release 2 lost their rounded
+corners and take the cut corner, like the page's own controls.
+
 - Card Sets per upcoming Key Event: a Card belongs to the Sets of the assessments its Sources
   prepare for (the same `needsOf` the Map uses).
 - Drill: the due Cards, one at a time, answer revealed on demand, rated Again, Hard, Good or Easy.

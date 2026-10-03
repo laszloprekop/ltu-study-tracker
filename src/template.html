@@ -106,30 +106,55 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
 .chain .prep{list-style:none; margin:0; padding:0 8px 8px 20px; display:flex; flex-direction:column; gap:3px}
 .chain .prep li{display:flex; flex-wrap:wrap; align-items:center; gap:4px 8px; font-size:13.5px}
 .chain .prep li.done .tt{text-decoration:line-through; opacity:.6}
-.chain .pdate{color:var(--muted); font-size:12px} .chain .pdate.doby{border:1px dashed var(--muted); border-radius:3px; padding:0 5px}
+.chain .pdate{color:var(--muted); font-size:12px} .chain .pdate.doby{border:1px dashed var(--muted); padding:0 5px}
 .tag.late{display:inline-flex; align-items:center; gap:3px; background:var(--alert-soft); color:var(--alert)} .tag.late .ic{width:12px; height:12px}
 .grid2{display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:14px}
-.disagreements h3{display:flex; align-items:center; gap:8px} .disagreements .copyrep{margin-left:auto; font:inherit; font-size:12px; font-weight:700; padding:4px 10px; border:1px solid var(--muted); border-radius:4px; background:transparent; color:var(--ink); cursor:pointer}
+.disagreements h3{display:flex; align-items:center; gap:8px} .disagreements .copyrep{margin-left:auto; font:inherit; font-size:12px; font-weight:700; padding:4px 10px; border:1px solid var(--muted); background:transparent; color:var(--ink); cursor:pointer}
 .disagreements ul{margin:6px 0 0; padding-left:18px; font-size:13.5px} .disagreements li{margin:4px 0}
+/* Square, with the cut top-right corner the page uses everywhere (release 4 redesign) */
+.cardsview button,.cardsview select,.cardsview textarea,.cardsview .fld,.appview .cvcard button,.appview .cvcard input[type=password],.appview .cvcard input[type=number],.appview .cvcard input[type=url],.appview .cvcard input[type=text],
+.appview .acct-delete button,.pop.about .prog button,.pop.about .prog textarea,.pop.about .prog select,.dp-items li button,.dp-items li,.dp-block,.moved button,.disagreements .copyrep,.bkstage,.chain .pdate.doby,.tag.yours,.tag.disagree,.tag.late,.bkstrip,.chain,.cvmark.both{
+  clip-path:polygon(0 0, calc(100% - var(--bev, 6px)) 0, 100% var(--bev, 6px), 100% 100%, 0 100%)}
+.cardsview textarea,.pop.about .prog textarea,.chain,.bkstrip,.dp-items li{--bev:9px}
+.cardsview .fld{flex:1 1 200px; font:inherit; font-size:13px; border:1px solid var(--muted); padding:6px 8px; background:var(--surface); color:var(--ink)}
+.cardsview textarea{flex:1 1 100%}
+/* Flip cards: a click turns the card over on its vertical axis. */
+.fbar{display:flex; flex-wrap:wrap; gap:6px; margin:4px 0 8px}
+.cardsview .fbar button{display:inline-flex; align-items:center; gap:6px; font-weight:600; color:var(--ink); background:var(--surface-2); border:1px solid var(--line)}
+.cardsview .fbar button[aria-pressed="true"]{color:var(--on-now); background:var(--now); border-color:var(--now)}
+.fbar button .dot{width:8px; height:8px; background:var(--cc, var(--muted)); clip-path:polygon(0 0, 60% 0, 100% 40%, 100% 100%, 0 100%)}
+.fbar button small{font-weight:400; opacity:.8}
+.fgrid{display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:16px; margin-top:10px}
+.fcard{perspective:1200px; min-height:300px; cursor:pointer; outline:none}
+.fcard:focus-visible .fc-face{box-shadow:inset 0 0 0 2px var(--now)}
+.fc-in{position:relative; width:100%; height:100%; min-height:300px; transition:transform .55s cubic-bezier(.2,.7,.2,1); transform-style:preserve-3d}
+.fcard.flipped .fc-in{transform:rotateY(180deg)}
+.fc-face{position:absolute; inset:0; display:flex; flex-direction:column; gap:8px; padding:14px 16px; background:var(--surface); border-top:5px solid var(--cc, var(--now)); backface-visibility:hidden; -webkit-backface-visibility:hidden; overflow:hidden;
+  clip-path:polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%); box-shadow:inset 0 0 0 1px var(--line)}
+.fc-back{transform:rotateY(180deg); background:var(--surface-2); border-top-color:var(--now)}
+.fc-meta{display:flex; flex-wrap:wrap; align-items:center; gap:6px; font-size:12px; color:var(--muted)}
+.fc-q{flex:1 1 auto; display:flex; align-items:center; font-family:Archivo,sans-serif; font-size:18px; font-weight:700; line-height:1.3; color:var(--ink)}
+.fc-a{flex:1 1 84px; min-height:84px; overflow:auto; font-size:15px; line-height:1.45; white-space:pre-wrap; color:var(--ink)}
+.fc-src{font-size:12px; color:var(--muted)}
+.fc-foot{display:flex; flex-wrap:wrap; align-items:center; gap:6px; font-size:11.5px; color:var(--muted)}
+.fc-due{margin-left:auto; font-weight:700} .fc-hint{flex-basis:100%; text-align:right; opacity:.7}
+.fc-rate{display:flex; gap:4px} .fc-rate button{flex:1 1 0; min-width:0; padding:6px 2px; font-size:12.5px}
+.fc-rate .again{background:var(--alert); border-color:var(--alert)}
+.fc-back .ck-b{display:flex; flex-wrap:wrap; gap:6px; margin:0}
+.fc-back .ck-b button.plain{border:0; background:transparent; padding:0; font-size:11.5px; font-weight:600; color:var(--muted); text-decoration:underline; clip-path:none}
+.fc-src{max-height:3.2em; overflow:auto}
+@media (prefers-reduced-motion:reduce){ .fc-in{transition:none} }
 .cardsview .csets,.cardsview .cklist{list-style:none; margin:8px 0 0; padding:0; display:flex; flex-direction:column; gap:6px}
 .cardsview .csets li{display:flex; flex-wrap:wrap; align-items:center; gap:4px 8px; padding:6px 8px; border-left:4px solid var(--cc, var(--muted)); background:var(--surface-2)}
 .cardsview .cs-n{flex:1 1 auto; color:var(--muted); font-size:12.5px}
-.cardsview button{font:inherit; font-size:13px; font-weight:700; color:var(--on-now); background:var(--now); border:1px solid var(--now); border-radius:4px; padding:5px 12px; cursor:pointer}
+.cardsview button{font:inherit; font-size:13px; font-weight:700; color:var(--on-now); background:var(--now); border:1px solid var(--now); padding:5px 12px; cursor:pointer}
 .cardsview button.plain{color:var(--ink); background:transparent; border-color:var(--muted)}
 .cardsview button:disabled{opacity:.4; cursor:default}
 .cardsview .cklist li{padding:8px 10px; border:1px solid var(--line); background:var(--surface)}
 .cardsview .ck-p{font-weight:700; margin:4px 0 2px} .cardsview .ck-a{white-space:pre-wrap} .cardsview .ck-s{color:var(--muted); font-size:12.5px; margin-top:4px}
 .cardsview .ck-b{display:flex; gap:8px; margin-top:6px}
-.cardsview select{font:inherit; font-size:13px; border:1px solid var(--muted); border-radius:4px; padding:5px 8px; background:var(--surface); color:var(--ink)}
-.cardsview textarea{font:inherit; font-size:13.5px; border:1px solid var(--muted); border-radius:4px; padding:6px 8px; background:var(--surface); color:var(--ink)}
-.drillcard{border:2px solid var(--now)}
-.drillcard .dr-meta{font-size:12.5px; color:var(--muted); display:flex; flex-wrap:wrap; gap:6px; align-items:center}
-.drillcard .dr-prompt{font-size:20px; font-weight:700; margin:14px 0; font-family:Archivo,sans-serif}
-.drillcard .dr-answer{font-size:16px; padding:10px 12px; background:var(--surface-2); border-left:4px solid var(--now); white-space:pre-wrap}
-.drillcard .dr-src{font-size:12.5px; color:var(--muted); margin-top:8px; white-space:normal}
-.drillcard .dr-rate{display:flex; flex-wrap:wrap; gap:8px; margin-top:12px}
-.drillcard .dr-rate button{min-width:90px} .drillcard .dr-rate .again{background:var(--alert); border-color:var(--alert)}
-.drillcard .dr-foot{margin-top:10px}
+.cardsview select{font:inherit; font-size:13px; border:1px solid var(--muted); padding:5px 8px; background:var(--surface); color:var(--ink)}
+.cardsview textarea{font:inherit; font-size:13.5px; border:1px solid var(--muted); padding:6px 8px; background:var(--surface); color:var(--ink)}
 .dayplan .dp{display:grid; grid-template-columns:minmax(0, 3fr) minmax(240px, 2fr); gap:16px}
 @media (max-width:760px){ .dayplan .dp{grid-template-columns:1fr} }
 .dp-grid{position:relative; margin-left:44px}
@@ -140,7 +165,7 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
 body.dragging .dp-free{background:color-mix(in srgb, var(--now-soft) 55%, transparent)}
 .dp-free:hover,body.dragging .dp-free:hover{background:var(--now-soft)}
 .dp-free.nofit{background:var(--alert-soft)}
-.dp-block{position:absolute; left:6px; right:4px; overflow:hidden; padding:1px 6px; font-size:12px; line-height:1.25; background:var(--surface-2); border-left:4px solid var(--cc, var(--muted)); border-radius:2px; box-sizing:border-box}
+.dp-block{position:absolute; left:6px; right:4px; overflow:hidden; padding:1px 6px; font-size:12px; line-height:1.25; background:var(--surface-2); border-left:4px solid var(--cc, var(--muted)); box-sizing:border-box}
 .dp-block.cal{background:repeating-linear-gradient(135deg, var(--surface-2) 0 8px, var(--surface) 8px 9px)}
 .dp-block.planned{background:color-mix(in srgb, var(--now-soft) 70%, var(--surface)); border-left-color:var(--now); padding-right:22px}
 .dp-block.planned.done{opacity:.5; text-decoration:line-through}
@@ -151,31 +176,31 @@ body.dragging .dp-free{background:color-mix(in srgb, var(--now-soft) 55%, transp
 .dp-items{list-style:none; margin:6px 0 0; padding:0; display:flex; flex-direction:column; gap:4px; max-height:520px; overflow:auto}
 .dp-items li{display:flex; flex-wrap:wrap; align-items:center; gap:4px 6px; padding:5px 6px; border:1px solid var(--line); border-left:4px solid var(--cc, var(--muted)); background:var(--surface); font-size:12.5px; cursor:grab}
 .dp-items li .tt{flex:1 1 140px}
-.dp-items li button{font:inherit; font-size:11.5px; font-weight:700; color:var(--on-now); background:var(--now); border:0; border-radius:3px; padding:2px 8px; cursor:pointer}
+.dp-items li button{font:inherit; font-size:11.5px; font-weight:700; color:var(--on-now); background:var(--now); border:0; padding:2px 8px; cursor:pointer}
 .dp-items .nofit{color:var(--muted)}
 .row.cal{background:repeating-linear-gradient(135deg, transparent 0 8px, var(--surface-2) 8px 9px)}
 .tag.yours{background:var(--ink); color:var(--surface)}
-.bkstage{display:inline-block; margin-left:8px; padding:1px 8px; font-size:11.5px; font-weight:700; border-radius:3px; vertical-align:1px; white-space:nowrap}
+.bkstage{display:inline-block; margin-left:8px; padding:1px 8px; font-size:11.5px; font-weight:700; vertical-align:1px; white-space:nowrap}
 .bkstage.claimed{background:var(--c2-soft); color:var(--c2)} .bkstage.open{background:var(--surface-2); color:var(--muted); border:1px solid var(--line)}
 .bkstage.due{background:var(--c4-soft); color:var(--c4)} .bkstage.urgent{background:var(--alert); color:#fff} .bkstage.nogroup{background:var(--surface-2); color:var(--muted)}
 .bkstrip{display:flex; flex-wrap:wrap; align-items:center; gap:6px 4px; margin:0 0 12px; padding:8px 12px; background:var(--surface); border:1px solid var(--line); border-left:4px solid var(--alert); font-size:13px}
 .bkstrip > b{margin:0 6px 0 4px} .bkstrip a{margin-left:auto; font-weight:600}
-.cvmark{display:inline-flex; align-items:center; justify-content:center; min-width:18px; height:18px; margin:0 2px 0 -2px; font-size:11px; font-weight:800; letter-spacing:-.08em; line-height:1; vertical-align:middle; border-radius:3px}
+.cvmark{display:inline-flex; align-items:center; justify-content:center; min-width:18px; height:18px; margin:0 2px 0 -2px; font-size:11px; font-weight:800; letter-spacing:-.08em; line-height:1; vertical-align:middle;}
 .cvmark.cv{color:var(--c2)} .cvmark.both{color:var(--on-now); background:var(--c2); padding:0 2px}
 .cvmark.half{color:var(--c3); font-size:13px} .cvmark.un{color:var(--muted); font-weight:600}
 .cvmark.conf{color:var(--alert)} .cvmark.conf .ic{width:15px; height:15px}
 .cvmark.no{width:9px; min-width:9px; height:9px; border:1.5px solid var(--line); border-radius:50%}
-.appview .cvcard input[type=password],.appview .cvcard input[type=number],.appview .cvcard input[type=url]{font:inherit; font-size:13px; color:var(--ink); background:var(--surface); border:1px solid var(--muted); border-radius:4px; padding:6px 8px}
+.appview .cvcard input[type=password],.appview .cvcard input[type=number],.appview .cvcard input[type=url]{font:inherit; font-size:13px; color:var(--ink); background:var(--surface); border:1px solid var(--muted); padding:6px 8px}
 .appview .cvcard input[type=password]{width:min(420px, 100%)}
 .appview .cvcard input[type=number]{width:70px}
 .appview .cvcard .row{display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:8px 0}
-.appview .cvcard button{font:inherit; font-size:13px; font-weight:700; color:var(--on-now); background:var(--now); border:1px solid var(--now); border-radius:4px; padding:6px 14px; cursor:pointer}
+.appview .cvcard button{font:inherit; font-size:13px; font-weight:700; color:var(--on-now); background:var(--now); border:1px solid var(--now); padding:6px 14px; cursor:pointer}
 .appview .cvcard button.plain{color:var(--ink); background:transparent; border-color:var(--muted)}
 .appview .cvcard .err{color:var(--alert); font-weight:600}
 .appview .cvlegend{display:flex; flex-wrap:wrap; gap:6px 16px; font-size:13px; margin:8px 0 0}
 .appview .cvlegend > span{display:inline-flex; align-items:center; gap:6px}
 .appview .acct-delete{margin:12px 0 0}
-.appview .acct-delete button{font:inherit; font-size:13px; font-weight:700; padding:6px 14px; border:1px solid var(--alert); border-radius:4px; background:transparent; color:var(--alert); cursor:pointer}
+.appview .acct-delete button{font:inherit; font-size:13px; font-weight:700; padding:6px 14px; border:1px solid var(--alert); background:transparent; color:var(--alert); cursor:pointer}
 .appview .acct-delete button.armed{background:var(--alert); color:#fff}
 .appview .acct-delete .msg{font-size:13px; color:var(--muted)}
 .appview .here{display:inline-block; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; padding:1px 7px; background:var(--now); color:var(--on-now); margin-left:6px; vertical-align:2px}
@@ -639,11 +664,11 @@ body.colored table.all tr:not(.done) .tt{color:var(--cc)}
 .pop.about .prog{margin:10px 0 0}
 .pop.about .prog label{display:block; font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); margin:0 0 3px}
 .pop.about .prog .row{display:flex; gap:6px; align-items:stretch}
-.pop.about .prog textarea,.pop.about .prog select{flex:1 1 auto; min-width:0; font:inherit; font-size:12.5px; color:var(--ink); background:var(--surface); border:1px solid var(--muted); border-radius:4px; padding:6px 8px}
+.pop.about .prog textarea,.pop.about .prog select{flex:1 1 auto; min-width:0; font:inherit; font-size:12.5px; color:var(--ink); background:var(--surface); border:1px solid var(--muted); padding:6px 8px}
 .pop.about .prog textarea{resize:vertical; min-height:44px; font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11.5px}
 .pop.about .prog textarea::placeholder{color:var(--muted); font-family:"Public Sans",Arial,sans-serif}
 .pop.about .prog textarea:focus,.pop.about .prog select:focus,.pop.about .prog button:focus-visible{outline:2px solid var(--now); outline-offset:1px; border-color:var(--now)}
-.pop.about .prog button{flex:0 0 auto; font:inherit; font-size:12.5px; font-weight:700; color:var(--on-now); background:var(--now); border:1px solid var(--now); border-radius:4px; padding:6px 14px; cursor:pointer}
+.pop.about .prog button{flex:0 0 auto; font:inherit; font-size:12.5px; font-weight:700; color:var(--on-now); background:var(--now); border:1px solid var(--now); padding:6px 14px; cursor:pointer}
 .pop.about .prog button:hover{filter:brightness(1.1)}
 .pop.about .prog button.wide{flex:1 1 auto}
 .pop.about .prog button:disabled{opacity:.4; cursor:default}
@@ -1176,59 +1201,63 @@ function rateCard(id, grade){
   var plain = JSON.parse(JSON.stringify(next));
   C.reviews[id] = { card_id: id, fsrs: plain, due: plain.due };
   C.api.review(id, plain, plain.due).catch(function(){ state.cardErr = "That review could not be saved; it is kept until the page is reloaded."; });
-  state.drill.shown = false; state.drill.queue.shift(); state.drill.done++; renderTerm();
+  if (state.flipped) delete state.flipped[id];
+  renderTerm();
 }
 function renderCardsView(t){
-  var head = '<div class="sechead"><h2>Cards</h2><span class="note">Study cards for each lab and exam, drilled with spaced repetition so you know them on the day.</span></div>';
+  var head = '<div class="sechead"><h2>Cards</h2><span class="note">Study cards for each lab and exam. Click a card to turn it over; rate how well you knew it and spaced repetition brings it back just before you would forget it.</span></div>';
   if (!window.TRACKER_CONFIG) return '<section class="appview">' + head + '<div class="card"><p>Cards need an account, so they live on the hosted tracker: ' + appLink() + '. There you drill cards made from the lectures and lab material, check classmates\' cards and write your own.</p></div></section>';
   var C = state.cards;
   if (!C) return '<section class="appview">' + head + '<div class="card"><p>Loading cards...</p></div></section>';
   if (C.signedOut) return '<section class="appview">' + head + '<div class="card"><p>Sign in (top right) to drill, check and write cards. Cards are shared with classmates once someone other than their writer has checked them.</p></div></section>';
   if (C.error) return '<section class="appview">' + head + '<div class="card"><p class="err">The cards could not be loaded just now.</p></div></section>';
-  var pool = drillable(t), due = pool.filter(isDue), today = todayIso();
+  var pool = drillable(t), due = pool.filter(isDue), today = todayIso(), f = state.cardFilter || "due";
   var sets = {}; pool.forEach(function(c){ cardEvents(t, c).forEach(function(e){ if (e.a.due < today) return; var k = e.code + ":" + e.a.id; (sets[k] = sets[k] || { k: k, e: e, cards: [] }).cards.push(c); }); });
-  var setRows = Object.keys(sets).map(function(k){ return sets[k]; }).sort(function(p, q){ return p.e.a.due.localeCompare(q.e.a.due); }).map(function(s){
-    var known = s.cards.filter(function(c){ return recallOn(c, s.e.a.due) >= 0.9; }).length, dueN = s.cards.filter(isDue).length;
-    return '<li style="' + colorVars(s.e.code) + '">' + chip(s.e.code) + ' <b>' + esc(shortTitle(s.e.a.title)) + '</b> <small>' + esc(longDay(s.e.a.due)) + '</small> <span class="cs-n">' + s.cards.length + ' cards, ' + dueN + ' due, ' + known + ' likely known on the day</span><button type="button" data-drill="' + esc(s.k) + '"' + (dueN ? '' : ' disabled') + '>Drill these</button></li>';
-  }).join("");
-  // the drill
-  var drill = "";
-  if (state.drill && state.drill.queue.length) {
-    var c = C.list.find(function(x){ return x.id === state.drill.queue[0]; }), ev = nextEvent(t, c);
-    drill = '<div class="card drillcard"><div class="dr-meta">' + chip(c.course) + ' ' + (ev ? 'for ' + esc(shortTitle(ev.a.title)) + ', ' + esc(longDay(ev.a.due)) : '') + ' <small>' + state.drill.queue.length + ' to go</small>' + (c.status !== "shared" ? ' <span class="tag">not checked yet</span>' : '') + '</div>' +
-      '<div class="dr-prompt">' + esc(c.prompt) + '</div>' +
-      (state.drill.shown ? '<div class="dr-answer">' + (c.kind === "question" ? '<small>Where the answer is:</small> ' : '') + esc(c.answer || "(no answer written)") + '<div class="dr-src">Check it in: ' + cardSourcesLinks(c) + '</div></div>' +
-        flagUi(c.id, '') +
-        '<div class="dr-rate"><button type="button" data-rate="1" class="again">Again</button><button type="button" data-rate="2">Hard</button><button type="button" data-rate="3" class="good">Good</button><button type="button" data-rate="4">Easy</button></div>'
-       : '<div class="dr-rate"><button type="button" data-reveal="1" class="good">Show the answer</button></div>') +
-      '<div class="dr-foot"><button type="button" class="plain" data-drillstop="1">Stop</button></div></div>';
-  } else if (state.drill) drill = '<div class="card drillcard"><p><b>Done.</b> ' + state.drill.done + ' cards reviewed. The next ones come back when FSRS says you are about to forget them.</p><button type="button" class="plain" data-drillstop="1">Close</button></div>';
-  // to check
-  var toCheck = C.list.filter(function(c){ return c.status === "draft" && c.owner !== C.me && !C.checked[c.id]; }).slice(0, 30).map(function(c){
-    return '<li style="' + colorVars(c.course) + '">' + chip(c.course) + (c.ai_drafted ? ' <span class="tag">AI draft</span>' : '') + (c.kind === "answer" ? ' <span class="tag">group answer</span>' : '') + '<div class="ck-p">' + esc(c.prompt) + '</div><div class="ck-a">' + esc(c.answer) + '</div><div class="ck-s">Sources: ' + cardSourcesLinks(c) + '</div>' +
-      flagUi(c.id, '<button type="button" data-cardcheck="' + esc(c.id) + '">Correct: share it</button>') + '</li>';
-  }).join("");
-  var flagged = C.maintainer ? C.list.filter(function(c){ return c.status === "flagged"; }).map(function(c){
-    var why = C.flags.filter(function(f){ return f.card_id === c.id; }).map(function(f){ return f.reason; }).filter(Boolean).join("; ");
-    return '<li>' + chip(c.course) + '<div class="ck-p">' + esc(c.prompt) + '</div><div class="ck-a">' + esc(c.answer) + '</div>' + (why ? '<div class="ck-s">Flagged: ' + esc(why) + '</div>' : '') + '<div class="ck-b"><button type="button" data-settle="keep" data-card="' + esc(c.id) + '">Keep it</button><button type="button" class="plain" data-settle="remove" data-card="' + esc(c.id) + '">Remove it</button></div></li>';
-  }).join("") : "";
+  var setList = Object.keys(sets).map(function(k){ return sets[k]; }).sort(function(p, q){ return p.e.a.due.localeCompare(q.e.a.due); });
+  var shown = f === "due" ? due : f === "all" ? pool : (sets[f] ? sets[f].cards : []);
+  var filters = '<button type="button" data-cardfilter="due"' + (f === "due" ? ' aria-pressed="true"' : '') + '>Due now <b>' + due.length + '</b></button>' +
+    setList.map(function(s){ var dn = s.cards.filter(isDue).length, known = s.cards.filter(function(c){ return recallOn(c, s.e.a.due) >= 0.9; }).length;
+      return '<button type="button" data-cardfilter="' + esc(s.k) + '"' + (f === s.k ? ' aria-pressed="true"' : '') + ' style="' + colorVars(s.e.code) + '" title="' + esc(s.cards.length + " cards, " + dn + " due, " + known + " likely known on " + longDay(s.e.a.due)) + '"><span class="dot"></span>' + esc(shortTitle(s.e.a.title).split(",")[0]) + ' <small>' + esc(longDay(s.e.a.due)) + '</small> <b>' + dn + '/' + s.cards.length + '</b></button>'; }).join("") +
+    '<button type="button" data-cardfilter="all"' + (f === "all" ? ' aria-pressed="true"' : '') + '>All <b>' + pool.length + '</b></button>';
+  var grid = shown.length ? '<div class="fgrid">' + shown.map(function(c){ return flipCard(t, c, "drill"); }).join("") + '</div>'
+    : '<p class="note">' + (f === "due" ? (pool.length ? "Nothing is due: every card is scheduled for later. Pick a set above to look at its cards anyway." : "No checked cards yet. Check some below, or write your own.") : "No cards here.") + '</p>';
+  var drafts = C.list.filter(function(c){ return c.status === "draft" && c.owner !== C.me && !C.checked[c.id]; }).slice(0, 30);
+  var flagged = C.maintainer ? C.list.filter(function(c){ return c.status === "flagged"; }) : [];
   var mineG = (C.groups || []).map(function(g){ return g.course + " Group " + g.group_number; }).join(", ");
   var courseOpts = Object.keys(COURSES).filter(function(k){ return COURSES[k].canvasId; }).map(function(k){ return '<option value="' + esc(k) + '">' + esc(label(k)) + '</option>'; }).join("");
   var write = '<div class="card cvcard"><h3>' + ic("plus") + 'Write a card</h3><p class="note">Concept: one idea a lab or exam tests, with the answer. Question: a graded question word for word, and where its answer is found, never the answer itself. Group answer: your group\'s own answer to a graded question, seen only by your group' + (mineG ? ' (' + esc(mineG) + ')' : ' (your group is known once you connect Canvas in Hosted app)') + '.</p>' +
-    '<div class="row"><select id="cw-kind"><option value="concept">Concept card</option><option value="question">Question card</option><option value="answer"' + (mineG ? '' : ' disabled') + '>Group answer card</option></select><select id="cw-course">' + courseOpts + '</select><input type="text" id="cw-src" placeholder="Sources, as in Canvas: 4.2, 9.7" style="flex:1 1 200px; font:inherit; font-size:13px; border:1px solid var(--muted); border-radius:4px; padding:6px 8px; background:var(--surface); color:var(--ink)"></div>' +
-    '<div class="row"><textarea id="cw-prompt" rows="2" placeholder="Front: the question" style="flex:1 1 100%"></textarea></div><div class="row"><textarea id="cw-answer" rows="3" placeholder="Back: the answer, or for a question card where the answer is found" style="flex:1 1 100%"></textarea></div>' +
+    '<div class="row"><select id="cw-kind"><option value="concept">Concept card</option><option value="question">Question card</option><option value="answer"' + (mineG ? '' : ' disabled') + '>Group answer card</option></select><select id="cw-course">' + courseOpts + '</select><input type="text" id="cw-src" class="fld" placeholder="Sources, as in Canvas: 4.2, 9.7"></div>' +
+    '<div class="row"><textarea id="cw-prompt" rows="2" placeholder="Front: the question"></textarea></div><div class="row"><textarea id="cw-answer" rows="3" placeholder="Back: the answer, or for a question card where the answer is found"></textarea></div>' +
     '<div class="row"><button type="button" data-cardwrite="1">Save as a draft</button><small>Shared once a classmate checks it.</small></div></div>';
-  return '<section class="appview cardsview">' + head + (state.cardErr ? '<p class="err">' + esc(state.cardErr) + '</p>' : '') + drill +
+  return '<section class="appview cardsview">' + head + (state.cardErr ? '<p class="err">' + esc(state.cardErr) + '</p>' : '') +
     '<div class="card"><h3>' + ic("target") + 'Drill<span class="sum">' + due.length + ' of ' + pool.length + ' due</span></h3>' +
-      '<div class="row"><button type="button" data-drill="all"' + (due.length ? '' : ' disabled') + '>Drill all due cards</button><label><input type="radio" name="dgoal" value="event"' + (state.drillGoal === "event" ? ' checked' : '') + '> until the lab or exam</label><label><input type="radio" name="dgoal" value="mastered"' + (state.drillGoal === "mastered" ? ' checked' : '') + '> until mastered</label></div>' +
-      (setRows ? '<ul class="csets">' + setRows + '</ul>' : '<p class="note">No checked cards yet for an upcoming lab or exam. Check some below, or write your own.</p>') + '</div>' +
-    (toCheck ? '<div class="card"><h3>' + ic("check-circle") + 'To check<span class="sum">read it against its sources; one check shares it with everyone</span></h3><ul class="cklist">' + toCheck + '</ul></div>' : '') +
-    (flagged ? '<div class="card"><h3>' + ic("warning") + 'Flagged<span class="sum">Maintainer</span></h3><ul class="cklist">' + flagged + '</ul></div>' : '') +
+      '<div class="fbar">' + filters + '</div>' +
+      '<div class="row"><span class="small">Plan reviews</span><label><input type="radio" name="dgoal" value="event"' + (state.drillGoal === "event" ? ' checked' : '') + '> until the lab or exam</label><label><input type="radio" name="dgoal" value="mastered"' + (state.drillGoal === "mastered" ? ' checked' : '') + '> until mastered</label></div>' +
+      grid + '</div>' +
+    (drafts.length ? '<div class="card"><h3>' + ic("check-circle") + 'To check<span class="sum">turn a card over, read it against its sources; one check shares it with everyone</span></h3><div class="fgrid">' + drafts.map(function(c){ return flipCard(t, c, "check"); }).join("") + '</div></div>' : '') +
+    (flagged.length ? '<div class="card"><h3>' + ic("warning") + 'Flagged<span class="sum">Maintainer</span></h3><div class="fgrid">' + flagged.map(function(c){ return flipCard(t, c, "settle"); }).join("") + '</div></div>' : '') +
     write + '</section>';
+}
+// One card, both sides. A click anywhere but on a control turns it over (CSS: .fcard.flipped).
+function flipCard(t, c, mode){
+  var C = state.cards, ev = nextEvent(t, c), rv = C.reviews[c.id], flipped = !!(state.flipped && state.flipped[c.id]);
+  var meta = chip(c.course) + (ev ? '<span class="fc-ev">' + esc(shortTitle(ev.a.title).split(",")[0]) + ', ' + esc(longDay(ev.a.due)) + '</span>' : '');
+  var tags = (c.ai_drafted ? '<span class="tag">AI draft</span>' : '') + (c.kind === "question" ? '<span class="tag">graded question</span>' : '') + (c.kind === "answer" ? '<span class="tag">group answer</span>' : '') + (c.status !== "shared" && mode === "drill" ? '<span class="tag">not checked yet</span>' : '');
+  var dueTxt = mode === "drill" ? (rv ? (isDue(c) ? "due now" : "next " + longDay(iso(new Date(rv.due)))) : "new") : "";
+  var controls = mode === "drill" ? '<div class="fc-rate"><button type="button" data-rate="1" data-card="' + esc(c.id) + '" class="again">Again</button><button type="button" data-rate="2" data-card="' + esc(c.id) + '">Hard</button><button type="button" data-rate="3" data-card="' + esc(c.id) + '" class="good">Good</button><button type="button" data-rate="4" data-card="' + esc(c.id) + '">Easy</button></div>' + flagUi(c.id, '')
+    : mode === "check" ? flagUi(c.id, '<button type="button" data-cardcheck="' + esc(c.id) + '">Correct: share it</button>')
+    : '<div class="ck-b"><button type="button" data-settle="keep" data-card="' + esc(c.id) + '">Keep it</button><button type="button" class="plain" data-settle="remove" data-card="' + esc(c.id) + '">Remove it</button></div>';
+  var why = mode === "settle" ? C.flags.filter(function(x){ return x.card_id === c.id; }).map(function(x){ return x.reason; }).filter(Boolean).join("; ") : "";
+  return '<div class="fcard' + (flipped ? ' flipped' : '') + '" data-flip="' + esc(c.id) + '" style="' + colorVars(c.course) + '" tabindex="0" role="button" aria-pressed="' + flipped + '" aria-label="Card: ' + esc(c.prompt.slice(0, 80)) + '. Press to turn over.">' +
+    '<div class="fc-in">' +
+      '<div class="fc-face fc-front"><div class="fc-meta">' + meta + '</div><div class="fc-q">' + esc(c.prompt) + '</div><div class="fc-foot">' + tags + '<span class="fc-due">' + esc(dueTxt) + '</span><span class="fc-hint">click to turn over</span></div></div>' +
+      '<div class="fc-face fc-back"><div class="fc-meta">' + meta + '</div><div class="fc-a">' + (c.kind === "question" ? '<small>Where the answer is:</small> ' : '') + esc(c.answer || "(no answer written)") + '</div>' +
+        '<div class="fc-src">Check it in: ' + cardSourcesLinks(c) + '</div>' + (why ? '<div class="fc-src">Flagged: ' + esc(why) + '</div>' : '') + controls + '</div>' +
+    '</div></div>';
 }
 // Flag a card: an inline reason, then Send. A flagged card is hidden until the Maintainer decides.
 function flagUi(id, before){
-  if (state.flagging === id) return '<div class="ck-b"><input type="text" id="flag-why" maxlength="500" placeholder="What is wrong? (optional)" style="flex:1 1 220px; font:inherit; font-size:13px; border:1px solid var(--muted); border-radius:4px; padding:5px 8px; background:var(--surface); color:var(--ink)"><button type="button" data-flagsend="' + esc(id) + '">Send flag</button><button type="button" class="plain" data-flagcancel="1">Cancel</button></div>';
+  if (state.flagging === id) return '<div class="ck-b"><input type="text" id="flag-why" maxlength="500" placeholder="What is wrong? (optional)" style="flex:1 1 220px; font:inherit; font-size:13px; border:1px solid var(--muted); padding:5px 8px; background:var(--surface); color:var(--ink)"><button type="button" data-flagsend="' + esc(id) + '">Send flag</button><button type="button" class="plain" data-flagcancel="1">Cancel</button></div>';
   return '<div class="ck-b">' + before + '<button type="button" class="plain" data-flagopen="' + esc(id) + '">Something is wrong</button></div>';
 }
 function cardSources(code, text){
@@ -2639,7 +2668,7 @@ function calendarCard(){
     : '<p>Add the secret iCal address of a calendar (Google: Settings, the calendar, <i>Secret address in iCal format</i>). Only you can see it. Events appear in Week by week and Day, marked as yours; an event whose description links a Canvas assignment is tied to it.</p>' +
       (links.length ? '<ul>' + rowsHtml + '</ul>' : '') +
       (state.calErr ? '<p class="err">' + esc(state.calErr) + '</p>' : '') +
-      (links.length < 5 ? '<div class="row"><input type="url" id="cal-url" placeholder="https://calendar.google.com/calendar/ical/.../basic.ics" style="flex:1 1 320px" aria-label="Calendar address"><input type="text" id="cal-label" placeholder="Name, e.g. Group 8" maxlength="60" style="width:160px; font:inherit; font-size:13px; border:1px solid var(--muted); border-radius:4px; padding:6px 8px; background:var(--surface); color:var(--ink)" aria-label="Calendar name"><button type="button" data-cal="add">Add</button></div>' : '<p class="note">Five calendars is the most.</p>') +
+      (links.length < 5 ? '<div class="row"><input type="url" id="cal-url" placeholder="https://calendar.google.com/calendar/ical/.../basic.ics" style="flex:1 1 320px" aria-label="Calendar address"><input type="text" id="cal-label" placeholder="Name, e.g. Group 8" maxlength="60" style="width:160px; font:inherit; font-size:13px; border:1px solid var(--muted); padding:6px 8px; background:var(--surface); color:var(--ink)" aria-label="Calendar name"><button type="button" data-cal="add">Add</button></div>' : '<p class="note">Five calendars is the most.</p>') +
       '<p class="note">Supported: Google Calendar, Outlook and Office 365, iCloud, Canvas and TimeEdit addresses.</p>') +
   '</div>';
 }
@@ -2698,17 +2727,18 @@ document.addEventListener("click", function(e){
     setTimeout(function(){ rb.textContent = "Copy as a report"; }, 2000);
     return;
   }
-  var cb = e.target.closest && e.target.closest("button[data-drill], button[data-reveal], button[data-rate], button[data-drillstop], button[data-cardcheck], button[data-flagopen], button[data-flagsend], button[data-flagcancel], button[data-settle], button[data-cardwrite]");
+  var fc = e.target.closest && e.target.closest(".fcard[data-flip]");
+  if (fc && !e.target.closest("button, a, input, textarea, select, label")) {
+    state.flipped = state.flipped || {}; state.flipped[fc.dataset.flip] = !state.flipped[fc.dataset.flip];
+    fc.classList.toggle("flipped", !!state.flipped[fc.dataset.flip]); fc.setAttribute("aria-pressed", String(!!state.flipped[fc.dataset.flip]));
+    return;
+  }
+  var cf = e.target.closest && e.target.closest("button[data-cardfilter]");
+  if (cf) { state.cardFilter = cf.dataset.cardfilter; state.flipped = {}; renderTerm(); return; }
+  var cb = e.target.closest && e.target.closest("button[data-rate], button[data-cardcheck], button[data-flagopen], button[data-flagsend], button[data-flagcancel], button[data-settle], button[data-cardwrite]");
   if (cb && state.cards && state.cards.api) {
     var C = state.cards, api = C.api, again = function(){ state.cards = null; loadCards(); };
-    if (cb.dataset.drill) {
-      var pool = drillable(term()).filter(isDue);
-      if (cb.dataset.drill !== "all") pool = pool.filter(function(c){ return cardEvents(term(), c).some(function(ev){ return ev.code + ":" + ev.a.id === cb.dataset.drill; }); });
-      state.drill = { queue: pool.map(function(c){ return c.id; }), shown: false, done: 0 }; renderTerm(); window.scrollTo(0, 0);
-    }
-    else if (cb.dataset.reveal) { state.drill.shown = true; renderTerm(); }
-    else if (cb.dataset.rate) rateCard(state.drill.queue[0], Number(cb.dataset.rate));
-    else if (cb.dataset.drillstop) { state.drill = null; renderTerm(); }
+    if (cb.dataset.rate) rateCard(cb.dataset.card, Number(cb.dataset.rate));
     else if (cb.dataset.cardcheck) { cb.disabled = true; api.check(cb.dataset.cardcheck).then(again).catch(function(){ state.cardErr = "That check could not be saved."; renderTerm(); }); }
     else if (cb.dataset.flagopen) { state.flagging = cb.dataset.flagopen; renderTerm(); }
     else if (cb.dataset.flagcancel) { state.flagging = null; renderTerm(); }
@@ -2716,7 +2746,6 @@ document.addEventListener("click", function(e){
       var why = (document.getElementById("flag-why") || {}).value || "", fid = cb.dataset.flagsend; cb.disabled = true;
       api.flag(fid, why.trim().slice(0, 500)).then(function(){
         state.flagging = null;
-        if (state.drill && state.drill.queue[0] === fid) { state.drill.queue.shift(); state.drill.shown = false; }
         again();
       }).catch(function(){ state.cardErr = "That flag could not be sent."; renderTerm(); });
     }
@@ -2827,6 +2856,11 @@ document.addEventListener("click", function(e){
   else if (b.id === "ping-toggle") { state.ping = !state.ping; lsSet(LS.ping, state.ping ? "1" : "0"); applyDisplay(); }
   else if (b.dataset.themeSet) { state.theme = b.dataset.themeSet; lsSet(LS.theme, state.theme); applyTheme(); }
   else if (b.id === "color-toggle") { state.colored = !state.colored; lsSet(LS.colored, state.colored ? "1" : "0"); applyDisplay(); }
+});
+// Cards: Enter or Space on a focused card turns it over.
+document.addEventListener("keydown", function(e){
+  var fc = e.target && e.target.classList && e.target.classList.contains("fcard") ? e.target : null;
+  if (fc && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); fc.click(); }
 });
 // Day plan: drag an unplaced item onto a free 15-minute slot. The item must fit before the next busy time.
 document.addEventListener("dragstart", function(e){ var li = e.target.closest && e.target.closest(".dp-items li[data-ref]"); if (!li) return; e.dataTransfer.setData("text/plain", li.dataset.ref); e.dataTransfer.effectAllowed = "move"; document.body.classList.add("dragging"); });
