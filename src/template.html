@@ -300,7 +300,7 @@ h1{font-size:20px; letter-spacing:-.015em; margin-right:6px}
 .pop summary{list-style:none; display:inline-flex; align-items:center; gap:5px; font-size:12.5px; font-weight:600; color:var(--muted); background:var(--surface); padding:5px 8px; cursor:pointer}
 .pop summary::-webkit-details-marker{display:none}
 .pop[open] summary{color:var(--on-now); background:var(--now); border-color:var(--now)}
-.pop .panel{position:absolute; right:0; top:calc(100% + 6px); z-index:30; background:var(--surface); box-shadow:0 6px 18px rgba(0,0,0,.14); padding:10px 12px; width:max-content; font-size:12.5px; color:var(--muted)}
+.pop .panel{position:absolute; right:0; top:calc(100% + 6px); z-index:30; background:var(--surface); padding:10px 12px; width:max-content; font-size:12.5px; color:var(--muted)}
 .pop .panel p{margin:0 0 6px}
 .pop.about .panel{width:min(540px, calc(100vw - 32px)); white-space:normal; font-size:13px; line-height:1.5; padding:14px 16px}
 .pop.about .panel h3{font-size:14px; color:var(--ink); margin-bottom:6px}
@@ -687,7 +687,11 @@ svg.focus .ge.tl.hl{opacity:.5; stroke-width:1.4}
 .card,.pop .panel{isolation:isolate; background:none; border:0; box-shadow:none}
 .card{position:relative}
 .card::before,.pop .panel::before{content:""; position:absolute; inset:0; z-index:-1; background:var(--surface); clip-path:polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%)}
-.pop .panel{filter:drop-shadow(0 6px 14px rgba(0,0,0,.18))}
+:root{--pop-lift:drop-shadow(0 10px 24px rgba(10,20,50,.22)) drop-shadow(0 2px 4px rgba(10,20,50,.14))}
+/* Popups float above everything: a clear shadow in light mode, a cyan glow in dark mode, following the cut shape. */
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){--pop-lift:drop-shadow(0 0 14px rgba(0,228,253,.24)) drop-shadow(0 8px 24px rgba(0,228,253,.14)) drop-shadow(0 0 1px rgba(0,228,253,.6))} }
+:root[data-theme="dark"]{--pop-lift:drop-shadow(0 0 14px rgba(0,228,253,.24)) drop-shadow(0 8px 24px rgba(0,228,253,.14)) drop-shadow(0 0 1px rgba(0,228,253,.6))}
+.pop .panel,.rail-tip{filter:var(--pop-lift)}
 .rail-card.slim{background:none}
 .rail-card.slim::before{background:color-mix(in srgb, var(--surface) 86%, transparent); clip-path:none}
 /* Everything else is cut directly, in proportion: --bev is the size of the cut. */
