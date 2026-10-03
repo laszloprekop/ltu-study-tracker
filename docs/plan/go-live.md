@@ -21,7 +21,9 @@ First real sync, run from the Mac with the Vault token: stored 13:18 UTC.
 
 1. Same project, + New, Docker Image: `ghcr.io/laszloprekop/ltu-study-tracker:latest`. No
    registry login is needed: the image is public and holds no secrets.
-2. Domain: `https://ltu-studytracker.dentaku.se:3000` (3000 is the port inside the container).
+2. Domain: `https://ltu-studytracker.dentaku.se:3000` (3000 is the port inside the container), and
+   **Ports Exposes: `3000`**. Coolify defaults that field to 80 and passes it to the app as `PORT`,
+   which then listens where the proxy is not looking.
 3. Environment variables:
 
    | Name | Value |
