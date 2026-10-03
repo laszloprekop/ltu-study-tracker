@@ -115,9 +115,11 @@ lists everything. The lists live in one place in `src/template.html` (`APP_INFO`
   the session nears and slots run out, on the booking task and in a strip at the top.
 - Calendar Links (signed in, at most five, fetched only from known calendar providers): their
   events among the sessions, marked as the Student's, counted as busy time.
+- The Day Plan in Day: one day in 15-minute slots with the free slots and this week's unplaced
+  work; place it with a suggested slot or by dragging (`docs/plan/release-3.md`). This one also
+  works on the claude.ai page.
 
 **Coming next** (`docs/plan/release-1.md`, then the design in `CONTEXT.md` and `docs/adr/`)
-- Release 3: a Day Plan of both courses in 15-minute slots, with free slots for group work.
 - Release 4: study cards: flashcards for every lab and exam from the lectures, lab questions and
   course checklists, with spaced repetition planned so each card is known on the event's day;
   checked by a classmate before sharing, and anyone can flag a wrong one.

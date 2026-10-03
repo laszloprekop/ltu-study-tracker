@@ -98,6 +98,29 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
 .appview li b{color:var(--ink)}
 .appview .grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:14px}
 .appview .note{color:var(--muted); font-size:13px; margin:8px 0 0}
+.dayplan .dp{display:grid; grid-template-columns:minmax(0, 3fr) minmax(240px, 2fr); gap:16px}
+@media (max-width:760px){ .dayplan .dp{grid-template-columns:1fr} }
+.dp-grid{position:relative; margin-left:44px}
+.dp-line{position:absolute; left:0; right:0; border-top:1px solid var(--line); opacity:.45}
+.dp-line.hour{opacity:1}
+.dp-line span{position:absolute; left:-44px; top:-8px; font-size:11px; color:var(--muted); font-family:"IBM Plex Mono",monospace}
+.dp-free{position:absolute; left:0; right:0; background:transparent; border-left:3px dashed color-mix(in srgb, var(--now) 45%, transparent)}
+body.dragging .dp-free{background:color-mix(in srgb, var(--now-soft) 55%, transparent)}
+.dp-free:hover,body.dragging .dp-free:hover{background:var(--now-soft)}
+.dp-free.nofit{background:var(--alert-soft)}
+.dp-block{position:absolute; left:6px; right:4px; overflow:hidden; padding:1px 6px; font-size:12px; line-height:1.25; background:var(--surface-2); border-left:4px solid var(--cc, var(--muted)); border-radius:2px; box-sizing:border-box}
+.dp-block.cal{background:repeating-linear-gradient(135deg, var(--surface-2) 0 8px, var(--surface) 8px 9px)}
+.dp-block.planned{background:color-mix(in srgb, var(--now-soft) 70%, var(--surface)); border-left-color:var(--now); padding-right:22px}
+.dp-block.planned.done{opacity:.5; text-decoration:line-through}
+.dp-x{position:absolute; top:0; right:2px; border:0; background:transparent; color:var(--muted); font-size:15px; line-height:1; cursor:pointer}
+.dp-due{position:absolute; left:0; right:0; border-top:2px solid var(--cc, var(--alert))}
+.dp-due span{position:absolute; right:4px; top:-9px; padding:0 4px; font-size:11px; font-weight:700; background:var(--surface); color:var(--cc, var(--alert))}
+.dp-side h4{margin:0 0 2px; font-size:12px; letter-spacing:.06em; text-transform:uppercase}
+.dp-items{list-style:none; margin:6px 0 0; padding:0; display:flex; flex-direction:column; gap:4px; max-height:520px; overflow:auto}
+.dp-items li{display:flex; flex-wrap:wrap; align-items:center; gap:4px 6px; padding:5px 6px; border:1px solid var(--line); border-left:4px solid var(--cc, var(--muted)); background:var(--surface); font-size:12.5px; cursor:grab}
+.dp-items li .tt{flex:1 1 140px}
+.dp-items li button{font:inherit; font-size:11.5px; font-weight:700; color:var(--on-now); background:var(--now); border:0; border-radius:3px; padding:2px 8px; cursor:pointer}
+.dp-items .nofit{color:var(--muted)}
 .row.cal{background:repeating-linear-gradient(135deg, transparent 0 8px, var(--surface-2) 8px 9px)}
 .tag.yours{background:var(--ink); color:var(--surface)}
 .bkstage{display:inline-block; margin-left:8px; padding:1px 8px; font-size:11.5px; font-weight:700; border-radius:3px; vertical-align:1px; white-space:nowrap}
@@ -693,8 +716,8 @@ body.colored table.all tr:not(.done) .tt{color:var(--cc)}
 
 /* ---------- Helpers ---------- */
 const P = DATA.plan, INV = DATA.inventory, COURSES = P.COURSES, TEACHERS = P.TEACHERS, TERMS = P.TERMS, PROGRESS = DATA.progress || null;
-const LS = { hours: "ltu-plan-hours", openedCounts: "ltu-plan-opened-counts", groups: "ltu-plan-groups", canvasCache: "ltu-plan-canvas-cache", movedFolded: "ltu-plan-moved-folded", exportedAt: "ltu-plan-exported-at", unlocked: "ltu-plan-unlocked", ticks: "ltu-plan-ticks", tickAt: "ltu-plan-tick-at", muted: "ltu-plan-muted", filter: "ltu-plan-filter", term: "ltu-plan-term", view: "ltu-plan-view", open: "ltu-plan-open", weeks: "ltu-plan-weeks", size: "ltu-plan-size", ping: "ltu-plan-ping", colored: "ltu-plan-colored", theme: "ltu-plan-theme", mapOpen: "ltu-plan-map-open", mapPos: "ltu-plan-map-pos", mapAll: "ltu-plan-map-all", mapHops: "ltu-plan-map-hops", mapMode: "ltu-plan-map-mode", railSlim: "ltu-plan-map-rail", snaps: "ltu-plan-snaps", legacy: "lp2-shared-ticks" };
-const state = { checked: {}, tickAt: {}, cal: null, calLinks: null, calErr: null, bookings: null, canvas: null, canvasErr: null, openedCounts: true, groups: {}, exportedAt: null, unlocked: false, muted: {}, filter: "all", term: null, view: "week", day: null, open: {}, weeks: {}, size: 100, ping: true, colored: true, theme: "system", hours: { start: "09:00", end: "17:00" }, mapOpen: null, mapSel: null, mapSels: [], mapAll: false, mapHops: 5, mapMode: "select", railSlim: false };
+const LS = { hours: "ltu-plan-hours", planned: "ltu-plan-planned", openedCounts: "ltu-plan-opened-counts", groups: "ltu-plan-groups", canvasCache: "ltu-plan-canvas-cache", movedFolded: "ltu-plan-moved-folded", exportedAt: "ltu-plan-exported-at", unlocked: "ltu-plan-unlocked", ticks: "ltu-plan-ticks", tickAt: "ltu-plan-tick-at", muted: "ltu-plan-muted", filter: "ltu-plan-filter", term: "ltu-plan-term", view: "ltu-plan-view", open: "ltu-plan-open", weeks: "ltu-plan-weeks", size: "ltu-plan-size", ping: "ltu-plan-ping", colored: "ltu-plan-colored", theme: "ltu-plan-theme", mapOpen: "ltu-plan-map-open", mapPos: "ltu-plan-map-pos", mapAll: "ltu-plan-map-all", mapHops: "ltu-plan-map-hops", mapMode: "ltu-plan-map-mode", railSlim: "ltu-plan-map-rail", snaps: "ltu-plan-snaps", legacy: "lp2-shared-ticks" };
+const state = { checked: {}, tickAt: {}, planned: {}, cal: null, calLinks: null, calErr: null, bookings: null, canvas: null, canvasErr: null, openedCounts: true, groups: {}, exportedAt: null, unlocked: false, muted: {}, filter: "all", term: null, view: "week", day: null, open: {}, weeks: {}, size: 100, ping: true, colored: true, theme: "system", hours: { start: "09:00", end: "17:00" }, mapOpen: null, mapSel: null, mapSels: [], mapAll: false, mapHops: 5, mapMode: "select", railSlim: false };
 let store = null, saveTimer = null;
 
 function esc(s){ return String(s == null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
@@ -1015,6 +1038,73 @@ function renderWeekView(t){
   jump.hidden = idx < 0; if (idx >= 0) jump.href = "#today";
   return '<section><div class="sechead"><h2>Week by week</h2><span class="note">MUST items carry a red stripe. Sessions have no box, they are attended. The caret by a week number folds it.</span></div><div class="weeks">' + html + '</div></section>';
 }
+/* ---------- Day Plan (release 3) ---------- */
+// One day in 15-minute slots: what is fixed (sessions, the Student's calendar, their Group's booked
+// slot, deadlines), the Free Slots inside working hours, and the Planned Blocks the Student put
+// there (CONTEXT.md). Planned Blocks merge between devices per block by the later change.
+var SLOT = 15;
+function mergePlanned(inc){
+  Object.keys(inc || {}).forEach(function(k){ var x = inc[k], mine = state.planned[k]; if (x && typeof x === "object" && x.at && (!mine || x.at > mine.at)) state.planned[k] = x; });
+}
+function plannedOn(d){ return Object.keys(state.planned).map(function(k){ return Object.assign({ pid: k }, state.planned[k]); }).filter(function(b){ return !b.gone && b.date === d; }); }
+function plannedRefs(){ var out = {}; Object.keys(state.planned).forEach(function(k){ var b = state.planned[k]; if (!b.gone && b.ref) out[b.ref] = b; }); return out; }
+function fixedOn(t, d){
+  var rows = withCalendar(t, timeline(t)).filter(function(r){ return r.date === d; }), out = [];
+  rows.forEach(function(r){
+    if (r.kind === "session" && r.time) { var s = toMin(r.time), e = r.end ? toMin(r.end) : s + 60; out.push({ s: s, e: Math.max(e, s + SLOT), title: r.title, code: r.code, cal: !!r.cal, kind: "fixed" }); }
+    else if (r.kind === "deadline" && r.time) out.push({ s: toMin(r.time), e: toMin(r.time), title: r.title.replace(/ due \d\d:\d\d$/, ""), code: r.code, kind: "due" });
+  });
+  ((state.bookings && state.bookings.bookings) || []).forEach(function(b){ if (b.mine && b.date === d) { var s = toMin(b.mine); out.push({ s: s, e: s + SLOT, title: "Lab session with the teacher (your slot)", code: b.id.split(":")[0], kind: "fixed" }); } });
+  return out;
+}
+function freeOn(busy){
+  var s = toMin(state.hours.start), e = toMin(state.hours.end); if (s == null || e == null || e <= s) return [];
+  var out = [], cur = s;
+  busy.slice().sort(function(a, b){ return a[0] - b[0]; }).forEach(function(b){ if (b[0] > cur) out.push([cur, Math.min(b[0], e)]); cur = Math.max(cur, b[1]); });
+  if (cur < e) out.push([cur, e]);
+  return out.filter(function(w){ return w[1] - w[0] >= SLOT; });
+}
+// What still needs a time this week: unfinished tasks and material, longest first within each.
+function unplaced(t, d){
+  var mon = monday(d), next = addDays(mon, 7), planned = plannedRefs(), out = [];
+  taskRows(t).forEach(function(r){ if (r.date >= mon && r.date < next && !isDone(r.id) && !state.muted[r.id] && !planned[r.id]) out.push({ ref: r.id, title: r.title, code: r.code, mins: 30, by: r.date }); });
+  studyBlocks(t).filter(function(b){ return b.week === mon; }).forEach(function(b){ b.items.forEach(function(i){ var id = "m:" + b.code + ":" + i.id; if (!isDone(id) && !state.muted[id] && !planned[id]) out.push({ ref: id, title: (i.number ? i.number + " " : "") + i.title, code: b.code, mins: Math.min(180, Math.max(SLOT, Math.ceil((i.minutes || 20) / SLOT) * SLOT)), by: addDays(mon, 6) }); }); });
+  return out;
+}
+// The hint: the first Free Slot long enough for the item. Never placed without the Student.
+function hintFor(item, wins){ var w = wins.find(function(x){ return x[1] - x[0] >= item.mins; }); return w ? w[0] : null; }
+function renderDayPlan(t, d){
+  var fixed = fixedOn(t, d), planned = plannedOn(d);
+  var busy = fixed.filter(function(f){ return f.kind === "fixed"; }).map(function(f){ return [f.s, f.e]; }).concat(planned.map(function(b){ var s = toMin(b.start); return [s, s + b.mins]; }));
+  var wins = freeOn(busy), items = unplaced(t, d), dow = new Date(d + "T00:00:00").getDay();
+  var first = Math.min(toMin(state.hours.start), Math.min.apply(null, fixed.map(function(f){ return f.s; }).concat([24 * 60])));
+  var last = Math.max(toMin(state.hours.end), Math.max.apply(null, fixed.map(function(f){ return f.e; }).concat([0])));
+  first = Math.max(6 * 60, Math.floor(first / 60) * 60); last = Math.min(23 * 60 + 45, Math.ceil(last / 60) * 60);
+  var H = 15, top = function(m){ return (m - first) / SLOT * H; }, grid = "";
+  for (var m = first; m < last; m += SLOT) grid += '<div class="dp-line' + (m % 60 === 0 ? ' hour' : '') + '" style="top:' + top(m) + 'px">' + (m % 60 === 0 ? '<span>' + fmtT(m) + '</span>' : '') + '</div>';
+  wins.forEach(function(w){ for (var m2 = w[0]; m2 + SLOT <= w[1]; m2 += SLOT) grid += '<div class="dp-free" data-slot="' + fmtT(m2) + '" style="top:' + top(m2) + 'px; height:' + H + 'px" title="Free ' + fmtT(m2) + '"></div>'; });
+  fixed.forEach(function(f){
+    if (f.kind === "due") grid += '<div class="dp-due" style="top:' + top(Math.min(f.s, last)) + 'px' + (f.code ? '; ' + colorVars(f.code) : '') + '"><span>' + esc(fmtT(f.s) + " due: " + f.title) + '</span></div>';
+    else grid += '<div class="dp-block' + (f.cal ? ' cal' : '') + '" style="top:' + top(f.s) + 'px; height:' + Math.max(H, top(f.e) - top(f.s)) + 'px' + (f.code ? '; ' + colorVars(f.code) : '') + '"><b>' + esc(fmtT(f.s) + "\u2013" + fmtT(f.e)) + '</b> ' + esc(f.title) + (f.cal ? ' <span class="tag yours">yours</span>' : '') + '</div>';
+  });
+  planned.forEach(function(b){ var s = toMin(b.start), done = b.ref && isDone(b.ref);
+    grid += '<div class="dp-block planned' + (done ? ' done' : '') + '" style="top:' + top(s) + 'px; height:' + Math.max(H, b.mins / SLOT * H) + 'px' + (b.code ? '; ' + colorVars(b.code) : '') + '"><b>' + esc(fmtT(s) + "\u2013" + fmtT(s + b.mins)) + '</b> ' + esc(b.title) + '<button type="button" class="dp-x" data-unplan="' + esc(b.pid) + '" title="Remove from the plan" aria-label="Remove from the plan">&times;</button></div>'; });
+  var list = items.length ? items.slice(0, 24).map(function(it){
+    var h = hintFor(it, wins);
+    return '<li draggable="true" data-ref="' + esc(it.ref) + '" data-mins="' + it.mins + '" style="' + colorVars(it.code) + '">' + chip(it.code) + '<span class="tt">' + esc(it.title) + '</span> <small>' + it.mins + ' min</small>' +
+      (h != null ? '<button type="button" data-place="' + esc(it.ref) + '" data-at="' + fmtT(h) + '" title="Put it in the first free slot long enough for it">Place at ' + fmtT(h) + '</button>' : '<small class="nofit">no free slot long enough</small>') + '</li>';
+  }).join("") : '<li class="none">Everything this week has a time or is done.</li>';
+  var freeMin = wins.reduce(function(a, w){ return a + w[1] - w[0]; }, 0);
+  return '<div class="card dayplan"><h3>' + ic("clock") + 'Day plan<span class="sum">' + (dow === 0 || dow === 6 ? 'weekend, ' : '') + fmtMin(freeMin).replace("~", "") + ' free in ' + esc(state.hours.start) + '\u2013' + esc(state.hours.end) + '</span></h3>' +
+    '<div class="dp"><div class="dp-grid" style="height:' + top(last) + 'px">' + grid + '</div>' +
+    '<div class="dp-side"><h4>Unplaced this week</h4><p class="note">Place puts an item in the first free slot that fits; or drag it onto a free slot.</p><ul class="dp-items">' + list + '</ul></div></div></div>';
+}
+function placeItem(ref, at, d){
+  var t = term(), it = unplaced(t, d).find(function(x){ return x.ref === ref; }); if (!it) return;
+  var pid = "p" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  state.planned[pid] = { ref: ref, date: d, start: at, mins: it.mins, title: it.title, code: it.code, at: new Date().toISOString() };
+  save(); renderTerm();
+}
 function renderDayView(t){
   var d = state.day || todayIso();
   var rows = withCalendar(t, timeline(t)), mon = monday(d), next = addDays(mon, 7), horizon = addDays(d, SOON_DAYS);
@@ -1031,6 +1121,7 @@ function renderDayView(t){
   return '<section>' +
     '<div class="dayctl"><input type="date" id="daypick" value="' + d + '"><button type="button" id="day-prev">&larr; Day</button><button type="button" id="day-today">Today</button><button type="button" id="day-next">Day &rarr;</button><span class="note">' + esc(fullDay(d)) + ', week ' + isoWeek(d) + '</span></div>' +
     anns.map(function(a){ return annBlock(a, a.code); }).join("") +
+    renderDayPlan(t, d) +
     '<div class="day">' +
     card("chalkboard-teacher", "Sessions today", today.length ? today.length + " to attend" : "", rowsOf(today), "sessions-card") +
     card("users-three", "Free for group work", "", '<div class="freeday" data-freeday="' + d + '"></div>') +
@@ -2040,13 +2131,14 @@ function applyDisplay(){
 function save(){
   lsSet(LS.ticks, JSON.stringify(state.checked));
   lsSet(LS.tickAt, JSON.stringify(state.tickAt));
+  lsSet(LS.planned, JSON.stringify(state.planned));
   lsSet(LS.muted, JSON.stringify(state.muted));
   if (state.exportedAt) lsSet(LS.exportedAt, state.exportedAt);
   snapshot();
   renderMoved();
   if (!store) return;
   clearTimeout(saveTimer);
-  saveTimer = setTimeout(function(){ store.set({ checked: state.checked, tickAt: state.tickAt, exportedAt: state.exportedAt, muted: state.muted, snaps: state.snaps, updated: new Date().toISOString() }).catch(function(){ store = null; }); }, 400);
+  saveTimer = setTimeout(function(){ store.set({ checked: state.checked, tickAt: state.tickAt, planned: state.planned, exportedAt: state.exportedAt, muted: state.muted, snaps: state.snaps, updated: new Date().toISOString() }).catch(function(){ store = null; }); }, 400);
 }
 /* ---------- Snapshots, export and import ---------- */
 // Every save also stores the day's state under its date, so a day's snapshot is how it ended; the
@@ -2069,7 +2161,7 @@ function mergeSnaps(snaps){
   pruneSnaps(); lsSet(LS.snaps, JSON.stringify(state.snaps));
 }
 // Version 2 carries when each tick was last set or cleared (tickAt), so a clear can travel too.
-function exportCode(){ var days = {}; Object.keys(state.snaps || {}).filter(isDay).forEach(function(k){ days[k] = state.snaps[k]; }); return JSON.stringify({ ltu: 2, at: new Date().toISOString(), checked: state.checked, tickAt: state.tickAt, muted: state.muted, snaps: days }); }
+function exportCode(){ var days = {}; Object.keys(state.snaps || {}).filter(isDay).forEach(function(k){ days[k] = state.snaps[k]; }); return JSON.stringify({ ltu: 2, at: new Date().toISOString(), checked: state.checked, tickAt: state.tickAt, planned: state.planned, muted: state.muted, snaps: days }); }
 // Set or clear one tick and note when.
 function setTick(id, on, at){ if (on) state.checked[id] = true; else delete state.checked[id]; state.tickAt[id] = at || new Date().toISOString(); }
 // Bring ticks from elsewhere (a code, the account copy) in. Per id the later change wins. A side
@@ -2090,6 +2182,7 @@ function importCode(text){
   var o; try { o = JSON.parse(String(text || "").trim()); } catch (e) { return "That is not a progress code."; }
   if (!o || (o.ltu !== 1 && o.ltu !== 2)) return "That is not a progress code.";
   var changed = mergeTicks(o.checked, o.ltu === 2 ? o.tickAt : null);
+  mergePlanned(o.planned);
   Object.keys(o.muted || {}).forEach(function(k){ state.muted[k] = true; });
   mergeSnaps(o.snaps);
   save(); applyState();
@@ -2232,10 +2325,10 @@ var APP_INFO = {
     ["Works without an account", "Without signing in it works like this page: ticks stay in that browser."],
     ["Your Canvas status beside your ticks", "Paste your own Canvas token and each task shows what Canvas has recorded (submitted, posted, marked done or opened) next to your tick, with a warning sign when you ticked a hand-in Canvas has no submission for."],
     ["Lab bookings and their deadlines", "Your group's slot read from the signup sheet, with a warning that grows as the session comes closer and the free slots run out."],
-    ["Your own calendar", "Add a calendar link, such as your group's, and its events appear among the sessions, marked as yours, and count as busy time."]
+    ["Your own calendar", "Add a calendar link, such as your group's, and its events appear among the sessions, marked as yours, and count as busy time."],
+    ["A day in 15-minute slots", "Day shows both courses in one day plan: sessions, your calendar, your lab slot and deadlines, the free slots between them, and this week's unplaced work with a suggested slot. Place it with one press or drag it, and the plan follows you to your other devices."]
   ],
   planned: [
-    ["A day in 15-minute slots", "Release 3: both courses in one day, with the free slots between them to place group work and self-study."],
     ["Study cards", "Release 4: flashcards for every lab and exam, drawn from the lectures, the lab questions and the course's own checklists. Spaced repetition shows each card just before you would forget it and plans the reviews so you know it on the day of the lab or exam. Cards are checked by a classmate before they are shared, and anyone can flag a wrong one."],
     ["Prep chains", "Release 5: every lab session, quiz, midterm and oral exam with everything that prepares for it, lectures, readings, quizzes, group sessions and card sets, drawn back from the event on a timeline, so you see what should be done by when, and which lecture is taught too late for the lab that needs it."]
   ],
@@ -2274,7 +2367,7 @@ function renderMoved(nudge){
       '<button type="button" class="mv-fold" data-moved="fold" aria-expanded="' + String(!folded) + '" title="' + (folded ? "Show the steps" : "Fold to one line") + '" aria-label="' + (folded ? "Show the steps" : "Fold to one line") + '">' + ic("caret-down") + '</button></div>' +
     (folded ? "" : '<div class="mv-body">' +
       '<div><h4>How to move</h4>' + moveSteps() + '</div>' +
-      '<div><h4>Why move</h4>' + infoList([APP_INFO.now[0], APP_INFO.now[4], APP_INFO.now[5]], "ul") + '<p style="margin:6px 0 0"><b>Coming:</b> study cards with spaced repetition before every exam, prep chains from each lab and exam back to its lectures, and a day plan in 15-minute slots. All of it, and how your data is kept: <a href="#" data-goview="app">Hosted app</a>.</p></div>' +
+      '<div><h4>Why move</h4>' + infoList([APP_INFO.now[0], APP_INFO.now[4], APP_INFO.now[5]], "ul") + '<p style="margin:6px 0 0"><b>Coming:</b> study cards with spaced repetition before every exam, and prep chains from each lab and exam back to its lectures. A day plan in 15-minute slots is already here. All of it, and how your data is kept: <a href="#" data-goview="app">Hosted app</a>.</p></div>' +
       (stateHtml ? '<p class="mv-state">' + stateHtml + '</p>' : '') + '</div>');
   el.hidden = false;
   el.classList.toggle("folded", folded); el.classList.toggle("drift", drift);
@@ -2359,6 +2452,12 @@ function renderAppView(){
   '</section>';
 }
 document.addEventListener("click", function(e){
+  var pl = e.target.closest && e.target.closest("button[data-place], button[data-unplan]");
+  if (pl) {
+    if (pl.dataset.unplan) { state.planned[pl.dataset.unplan] = { gone: true, at: new Date().toISOString() }; save(); renderTerm(); }
+    else placeItem(pl.dataset.place, pl.dataset.at, state.day || todayIso());
+    return;
+  }
   var cab = e.target.closest && e.target.closest("button[data-cal], button[data-cal-remove]");
   if (cab) {
     window.claude.use("calendars").then(function(c){
@@ -2448,6 +2547,19 @@ document.addEventListener("click", function(e){
   else if (b.dataset.themeSet) { state.theme = b.dataset.themeSet; lsSet(LS.theme, state.theme); applyTheme(); }
   else if (b.id === "color-toggle") { state.colored = !state.colored; lsSet(LS.colored, state.colored ? "1" : "0"); applyDisplay(); }
 });
+// Day plan: drag an unplaced item onto a free 15-minute slot. The item must fit before the next busy time.
+document.addEventListener("dragstart", function(e){ var li = e.target.closest && e.target.closest(".dp-items li[data-ref]"); if (!li) return; e.dataTransfer.setData("text/plain", li.dataset.ref); e.dataTransfer.effectAllowed = "move"; document.body.classList.add("dragging"); });
+document.addEventListener("dragend", function(){ document.body.classList.remove("dragging"); });
+document.addEventListener("dragover", function(e){ var c = e.target.closest && e.target.closest(".dp-free"); if (c) { e.preventDefault(); e.dataTransfer.dropEffect = "move"; } });
+document.addEventListener("drop", function(e){
+  var c = e.target.closest && e.target.closest(".dp-free"); if (!c) return;
+  e.preventDefault(); document.body.classList.remove("dragging");
+  var ref = e.dataTransfer.getData("text/plain"), li = document.querySelector('.dp-items li[data-ref="' + (window.CSS && CSS.escape ? CSS.escape(ref) : ref) + '"]');
+  var mins = li ? Number(li.dataset.mins) : 30, at = toMin(c.dataset.slot), n = 0;
+  for (var m = at; m < at + mins; m += SLOT) if (document.querySelector('.dp-free[data-slot="' + fmtT(m) + '"]')) n++;
+  if (n * SLOT < mins) { c.classList.add("nofit"); setTimeout(function(){ c.classList.remove("nofit"); }, 900); return; }
+  placeItem(ref, c.dataset.slot, state.day || todayIso());
+});
 // Remember each foldable block's state. "toggle" does not bubble, so listen in the capture phase.
 document.addEventListener("toggle", function(e){
   var d = e.target; if (!d || !d.dataset || !d.dataset.key) return;
@@ -2463,6 +2575,7 @@ function defaultTerm(){
 }
 state.checked = migrate(lsJson(LS.ticks) || lsJson(LS.legacy) || {});
 state.tickAt = migrateAt(lsJson(LS.tickAt) || {});
+state.planned = lsJson(LS.planned) || {};
 state.exportedAt = lsGet(LS.exportedAt) || null;
 state.openedCounts = lsGet(LS.openedCounts) !== "0";
 state.groups = lsJson(LS.groups) || {};
@@ -2512,6 +2625,7 @@ if (window.TRACKER_CONFIG && window.claude && window.claude.use) window.claude.u
     var snap = await ref.get();
     if (snap && snap.data) {
       mergeTicks(snap.data.checked, snap.data.tickAt);
+      mergePlanned(snap.data.planned);
       if (snap.data.exportedAt && (!state.exportedAt || snap.data.exportedAt > state.exportedAt)) state.exportedAt = snap.data.exportedAt;
       Object.keys(snap.data.muted || {}).forEach(function(k){ state.muted[k] = true; });
       mergeSnaps(snap.data.snaps);
