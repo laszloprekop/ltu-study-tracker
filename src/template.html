@@ -132,7 +132,11 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
 .fc-in{flex:1 1 auto; min-width:0; display:grid; min-height:140cqw; transition:transform .55s cubic-bezier(.2,.7,.2,1); transform-style:preserve-3d}
 .fcard.flipped .fc-in{transform:rotateY(180deg)}
 /* the face carries the shadow, its body the cut corner, so the shadow follows the bevelled shape */
-.fc-face{grid-area:1 / 1; display:flex; backface-visibility:hidden; -webkit-backface-visibility:hidden; filter:drop-shadow(0 8px 12px rgba(10,20,50,.13)) drop-shadow(0 1px 2px rgba(10,20,50,.10))}
+:root{--card-lift:drop-shadow(0 8px 12px rgba(10,20,50,.13)) drop-shadow(0 1px 2px rgba(10,20,50,.10))}
+/* In dark mode a dark shadow disappears: the cards get a faint cyan glow instead. */
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){--card-lift:drop-shadow(0 0 10px rgba(0,228,253,.16)) drop-shadow(0 6px 14px rgba(0,228,253,.10))} }
+:root[data-theme="dark"]{--card-lift:drop-shadow(0 0 10px rgba(0,228,253,.16)) drop-shadow(0 6px 14px rgba(0,228,253,.10))}
+.fc-face{grid-area:1 / 1; display:flex; backface-visibility:hidden; -webkit-backface-visibility:hidden; filter:var(--card-lift)}
 .fc-back{transform:rotateY(180deg)}
 .fc-body{position:relative; flex:1 1 auto; min-width:0; overflow-wrap:anywhere; display:flex; flex-direction:column; gap:7px; padding:16px 14px 14px; background:var(--surface); border:1px solid var(--line); --bev:16px; --bdc:var(--line);
   clip-path:polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%)}
