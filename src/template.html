@@ -98,6 +98,11 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
 .appview li b{color:var(--ink)}
 .appview .grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:14px}
 .appview .note{color:var(--muted); font-size:13px; margin:8px 0 0}
+.bkstage{display:inline-block; margin-left:8px; padding:1px 8px; font-size:11.5px; font-weight:700; border-radius:3px; vertical-align:1px; white-space:nowrap}
+.bkstage.claimed{background:var(--c2-soft); color:var(--c2)} .bkstage.open{background:var(--surface-2); color:var(--muted); border:1px solid var(--line)}
+.bkstage.due{background:var(--c4-soft); color:var(--c4)} .bkstage.urgent{background:var(--alert); color:#fff} .bkstage.nogroup{background:var(--surface-2); color:var(--muted)}
+.bkstrip{display:flex; flex-wrap:wrap; align-items:center; gap:6px 4px; margin:0 0 12px; padding:8px 12px; background:var(--surface); border:1px solid var(--line); border-left:4px solid var(--alert); font-size:13px}
+.bkstrip > b{margin:0 6px 0 4px} .bkstrip a{margin-left:auto; font-weight:600}
 .cvmark{display:inline-flex; align-items:center; justify-content:center; min-width:18px; height:18px; margin:0 2px 0 -2px; font-size:11px; font-weight:800; letter-spacing:-.08em; line-height:1; vertical-align:middle; border-radius:3px}
 .cvmark.cv{color:var(--c2)} .cvmark.both{color:var(--on-now); background:var(--c2); padding:0 2px}
 .cvmark.half{color:var(--c3); font-size:13px} .cvmark.un{color:var(--muted); font-weight:600}
@@ -599,6 +604,7 @@ body.colored table.all tr:not(.done) .tt{color:var(--cc)}
 <!--__ICONS__-->
 <div class="wrap" id="wrap">
   <div class="moved" id="moved" hidden role="status"></div>
+  <div class="bkstrip" id="bkstrip" hidden></div>
   <header class="top">
     <div class="hrow">
       <h1>LTU Study Tracker</h1>
@@ -686,7 +692,7 @@ body.colored table.all tr:not(.done) .tt{color:var(--cc)}
 /* ---------- Helpers ---------- */
 const P = DATA.plan, INV = DATA.inventory, COURSES = P.COURSES, TEACHERS = P.TEACHERS, TERMS = P.TERMS, PROGRESS = DATA.progress || null;
 const LS = { hours: "ltu-plan-hours", openedCounts: "ltu-plan-opened-counts", groups: "ltu-plan-groups", canvasCache: "ltu-plan-canvas-cache", movedFolded: "ltu-plan-moved-folded", exportedAt: "ltu-plan-exported-at", unlocked: "ltu-plan-unlocked", ticks: "ltu-plan-ticks", tickAt: "ltu-plan-tick-at", muted: "ltu-plan-muted", filter: "ltu-plan-filter", term: "ltu-plan-term", view: "ltu-plan-view", open: "ltu-plan-open", weeks: "ltu-plan-weeks", size: "ltu-plan-size", ping: "ltu-plan-ping", colored: "ltu-plan-colored", theme: "ltu-plan-theme", mapOpen: "ltu-plan-map-open", mapPos: "ltu-plan-map-pos", mapAll: "ltu-plan-map-all", mapHops: "ltu-plan-map-hops", mapMode: "ltu-plan-map-mode", railSlim: "ltu-plan-map-rail", snaps: "ltu-plan-snaps", legacy: "lp2-shared-ticks" };
-const state = { checked: {}, tickAt: {}, canvas: null, canvasErr: null, openedCounts: true, groups: {}, exportedAt: null, unlocked: false, muted: {}, filter: "all", term: null, view: "week", day: null, open: {}, weeks: {}, size: 100, ping: true, colored: true, theme: "system", hours: { start: "09:00", end: "17:00" }, mapOpen: null, mapSel: null, mapSels: [], mapAll: false, mapHops: 5, mapMode: "select", railSlim: false };
+const state = { checked: {}, tickAt: {}, bookings: null, canvas: null, canvasErr: null, openedCounts: true, groups: {}, exportedAt: null, unlocked: false, muted: {}, filter: "all", term: null, view: "week", day: null, open: {}, weeks: {}, size: 100, ping: true, colored: true, theme: "system", hours: { start: "09:00", end: "17:00" }, mapOpen: null, mapSel: null, mapSels: [], mapAll: false, mapHops: 5, mapMode: "select", railSlim: false };
 let store = null, saveTimer = null;
 
 function esc(s){ return String(s == null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
@@ -1961,6 +1967,7 @@ function applyState(){
     host.classList.toggle("muted", !!state.muted[id]);
   });
   applyCanvasMarks();
+  applyBookings();
   // what is left per week, shown when a week is folded
   document.querySelectorAll(".week").forEach(function(w){
     var left = 0, total = 0;
@@ -2138,7 +2145,49 @@ function refreshCanvas(){
     if (!cv || !cv.has()) { state.canvas = null; return; }
     return cv.read(canvasIds()).then(function(data){ state.canvas = data; state.canvasErr = null; lsSet(LS.canvasCache, JSON.stringify(data)); })
       .catch(function(e){ state.canvasErr = e.code === "token" ? "Canvas did not accept the token. It may have expired: make a new one." : "Canvas could not be reached just now. The marks are from the last read."; });
-  }).then(function(){ applyState(); if (state.view === "app") renderTerm(); });
+  }).then(function(){ applyState(); if (state.view === "app") renderTerm(); return refreshBookings(); });
+}
+
+/* ---------- Bookings (release 2) ---------- */
+// A Booking's stage for the Student's Group (CONTEXT.md, Booking): Claimed, Urgent (two days or
+// less, or one free slot), Due (a week or less), Open. Read from the signup sheet by the app.
+function bookingStage(b){
+  if (!b || b.error || !b.date || b.date < todayIso()) return null;
+  var days = Math.round((new Date(b.date + "T12:00:00") - new Date(todayIso() + "T12:00:00")) / 86400000);
+  var when = longDay(b.date) + (b.times.length ? ", " + b.times[0] + " to " + addMinutes(b.times[b.times.length - 1], 15) : "");
+  var odd = b.headingTime && b.times.length && b.headingTime !== b.times[0] ? " The sheet's heading says " + b.headingTime + " but its slots start at " + b.times[0] + ": ask before booking." : "";
+  if (b.mine) return { cls: "claimed", label: "Booked " + b.mine, tip: "Your group holds the " + b.mine + " slot. Session " + when + "." + odd };
+  if (!b.group) return { cls: "nogroup", label: "Group unknown", tip: "Set your group number in Hosted app to see whether your group has a slot. " + b.free + " of " + b.times.length + " slots free." + odd };
+  var cls = b.free <= 1 || days <= 2 ? "urgent" : days <= 7 ? "due" : "open";
+  var label = (cls === "urgent" ? "Book now: " : cls === "due" ? "Book this week: " : "Not booked: ") + b.free + " of " + b.times.length + " free";
+  return { cls: cls, label: label, tip: "Group " + b.group + " has no slot yet. Session " + when + "." + odd };
+}
+// The booking task's own link (data/plan.mjs), so the sheet's address lives in one place.
+function sheetLink(b){ var t = TERMS.reduce(function(a, x){ return a.concat(x.tasks); }, []).find(function(x){ return x.id === b.task; }); return t && t.links && t.links[0] ? t.links[0][1] : null; }
+function addMinutes(hhmm, m){ var t = parseInt(hhmm, 10) * 60 + parseInt(hhmm.slice(3), 10) + m; return String(Math.floor(t / 60)).padStart(2, "0") + ":" + String(t % 60).padStart(2, "0"); }
+function applyBookings(){
+  var list = (state.bookings && state.bookings.bookings) || [], strip = document.getElementById("bkstrip"), urgent = [];
+  list.forEach(function(b){
+    var host = document.querySelector('[data-id="t:' + b.task + '"]'), st = bookingStage(b);
+    if (st && st.cls !== "claimed" && st.cls !== "open") urgent.push({ b: b, st: st });
+    if (!host) return;
+    var tt = host.querySelector(".tt"), badge = host.querySelector(".bkstage");
+    if (!st) { if (badge) badge.remove(); return; }
+    if (!badge && tt) { badge = document.createElement("span"); tt.insertAdjacentElement("afterend", badge); }
+    if (badge) { badge.className = "bkstage " + st.cls; badge.textContent = st.label; badge.title = st.tip; }
+  });
+  if (!strip) return;
+  strip.hidden = !urgent.length;
+  strip.innerHTML = urgent.length ? ic("calendar-check") + "<b>Bookings</b>" + urgent.map(function(u){
+    var a = assignments(u.b.for.split(":")[0]).find(function(x){ return String(x.id) === u.b.for.split(":")[1]; });
+    return '<span class="bkstage ' + u.st.cls + '" title="' + esc(u.st.tip) + '">' + esc((a ? shortTitle(a.title).split(",")[0] : u.b.id) + ": " + u.st.label + ", " + longDay(u.b.date)) + '</span>';
+  }).join("") + (sheetLink(urgent[0].b) ? '<a href="' + esc(sheetLink(urgent[0].b)) + '" target="_blank" rel="noopener">Signup sheet</a>' : '') : "";
+}
+function refreshBookings(){
+  if (!window.TRACKER_CONFIG || !window.claude || !window.claude.use || !(P.BOOKINGS || []).length) return Promise.resolve();
+  var groups = Object.keys(COURSES).map(function(c){ var g = groupOf(c); return g ? c + ":" + g : null; }).filter(Boolean).join(",");
+  return window.claude.use("bookings").then(function(bk){ return bk ? bk.read(groups) : null; })
+    .then(function(data){ if (data) { state.bookings = data; applyBookings(); } }).catch(function(){});
 }
 
 /* ---------- The move to the hosted tracker (release 1, step 6) ---------- */
@@ -2310,7 +2359,7 @@ document.addEventListener("change", function(e){
   if (!b) return;
   if (b.id === "daypick") { state.day = b.value || todayIso(); renderTerm(); return; }
   if (b.id === "cv-opened") { state.openedCounts = b.checked; lsSet(LS.openedCounts, b.checked ? "1" : "0"); applyState(); renderTerm(); return; }
-  if (b.dataset && b.dataset.group) { var gv = parseInt(b.value, 10); if (gv > 0 && gv < 100) state.groups[b.dataset.group] = gv; else delete state.groups[b.dataset.group]; lsSet(LS.groups, JSON.stringify(state.groups)); renderTerm(); return; }
+  if (b.dataset && b.dataset.group) { var gv = parseInt(b.value, 10); if (gv > 0 && gv < 100) state.groups[b.dataset.group] = gv; else delete state.groups[b.dataset.group]; lsSet(LS.groups, JSON.stringify(state.groups)); renderTerm(); refreshBookings(); return; }
   if (b.id === "g-hops") { state.mapHops = Number(b.value); lsSet(LS.mapHops, String(state.mapHops)); document.getElementById("g-hops-v").textContent = hopsLabel(); applySel(term()); return; }
   if (b.classList.contains("hstart") || b.classList.contains("hend")) {
     if (b.classList.contains("hstart")) state.hours.start = b.value || "09:00"; else state.hours.end = b.value || "17:00";
@@ -2379,7 +2428,7 @@ renderTerm();
 renderMoved();
 // The hosted app: show the last Canvas read at once, then read again (and when the tab comes back after a while).
 if (window.TRACKER_CONFIG && window.claude && window.claude.use) window.claude.use("canvas").then(function(cv){
-  if (!cv || !cv.has()) { state.canvas = null; return; }
+  if (!cv || !cv.has()) { state.canvas = null; refreshBookings(); return; }
   state.canvasHint = cv.hint(); refreshCanvas();
   var last = Date.now();
   document.addEventListener("visibilitychange", function(){ if (!document.hidden && Date.now() - last > 15 * 60 * 1000) { last = Date.now(); refreshCanvas(); } });

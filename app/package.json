@@ -10,7 +10,8 @@
     "prebuild": "npm run prepare-page",
     "build": "next build",
     "start": "next start",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "node --experimental-strip-types --no-warnings test/signup-sheet.test.ts"
   },
   "engines": {
     "node": ">=22"

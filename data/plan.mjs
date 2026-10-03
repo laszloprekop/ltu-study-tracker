@@ -224,6 +224,17 @@ export const TERMS = [
   }
 ];
 
+// Bookings (release 2): sessions that happen only once a Group claims a slot. The app reads the
+// sheet's slots at request time, keeps no names, and shows the Booking's stage on its task row.
+// section is the sheet's heading prefix ("Lab3 - Oct 16th - ..."); task is the TASKS_LP2 id.
+const SIGNUP_DOC = "1S9Bi-W6wMoTd7FH7IqcS04B09B25Hml7PrTGBL33xuM";
+export const BOOKINGS = [
+  { id: "Z0025E:lab3", course: "Z0025E", for: "Z0025E:3043", sheet: SIGNUP_DOC, section: "Lab3", task: "w42-book3" },
+  { id: "Z0025E:lab4", course: "Z0025E", for: "Z0025E:3044", sheet: SIGNUP_DOC, section: "Lab4", task: "w44-book4" },
+  { id: "Z0025E:lab5", course: "Z0025E", for: "Z0025E:3045", sheet: SIGNUP_DOC, section: "Lab5", task: "w45-book5" },
+  { id: "Z0025E:lab6", course: "Z0025E", for: "Z0025E:3040", sheet: SIGNUP_DOC, section: "Lab6", task: "w46-book6" }
+];
+
 // Where the tracker has moved (release 1, step 6). null keeps the claude.ai page as it is. Set it to
 // the app's https address once a real sign-in there has been tested: the artifact then shows a move
 // banner, and locks ticking after a Student exports, until they unlock it. The app ignores it.

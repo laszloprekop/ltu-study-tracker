@@ -6,7 +6,7 @@
 //   withData(html, data)            the marker replaced by DATA
 import { readFileSync, readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { TEACHERS, COURSES, TERMS, LEGACY_IDS, MOVED_TO } from "../../data/plan.mjs";
+import { TEACHERS, COURSES, TERMS, LEGACY_IDS, MOVED_TO, BOOKINGS } from "../../data/plan.mjs";
 
 const root = p => fileURLToPath(new URL("../../" + p, import.meta.url));
 export const MARKER = "/*__DATA__*/";
@@ -46,6 +46,13 @@ export function checkPlan(inventory) {
     }
   }
   for (const [code, c] of Object.entries(COURSES)) for (const o of c.optional || []) for (const r of o.refs) if (!refMatches(code, r).length) problems.push(`${code} optional ref "${r}" matches nothing`);
+  const taskIds = new Set(TERMS.flatMap(t => t.tasks.map(x => x.id)));
+  for (const b of BOOKINGS) {
+    const [code, id] = b.for.split(":");
+    if (!isAssignment(code, id)) problems.push(`booking ${b.id} is for ${b.for}, which is no Canvas assignment`);
+    if (!taskIds.has(b.task)) problems.push(`booking ${b.id} names task ${b.task}, which does not exist`);
+    if (!/^[A-Za-z0-9_-]{20,}$/.test(b.sheet)) problems.push(`booking ${b.id} has no valid sheet id`);
+  }
   return problems;
 }
 
@@ -59,7 +66,7 @@ function teachers() {
 // progress is the Maintainer's own Canvas completion state: only ever for a --private build.
 export function buildData(inventory, progress = null) {
   if (MOVED_TO !== null && !/^https:\/\/[a-z0-9.-]+\/?$/i.test(MOVED_TO)) throw new Error("MOVED_TO in data/plan.mjs must be null or an https address");
-  return { built: new Date().toISOString(), private: !!progress, plan: { TEACHERS: teachers(), COURSES, TERMS, LEGACY_IDS, MOVED_TO }, inventory, progress };
+  return { built: new Date().toISOString(), private: !!progress, plan: { TEACHERS: teachers(), COURSES, TERMS, LEGACY_IDS, MOVED_TO, BOOKINGS }, inventory, progress };
 }
 
 export function shell() {

@@ -59,6 +59,17 @@
         if (!session) return null;
         if (name === "user") return { id: function () { return Promise.resolve(session.user.id); } };
         if (name === "db") return { doc: function (path) { return /^data\/users\/[^/]+\/progress$/.test(path) ? progress : null; } };
+        // Not part of the claude.ai runtime: lab Bookings from the signup sheets (signed in only).
+        if (name === "bookings") return {
+          read: function (groups) {
+            return sb.auth.getSession().then(function (r) {
+              var t = r && r.data && r.data.session && r.data.session.access_token;
+              if (!t) return null;
+              return fetch("/api/bookings?groups=" + encodeURIComponent(groups), { headers: { authorization: "Bearer " + t } })
+                .then(function (res) { return res.ok ? res.json() : null; });
+            });
+          },
+        };
         // Not part of the claude.ai runtime: the hosted app's own account calls.
         if (name === "account") return {
           email: (session.user && session.user.email) || null,

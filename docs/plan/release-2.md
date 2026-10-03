@@ -48,6 +48,11 @@ browser for now, not yet with the Account).
 
 ### 4. Bookings from the signup sheet
 
+Done 2026-10-03. The sheet parser is tested against the real layout (`npm test` in `app/`) and
+reads the live sheet; the route refuses anyone not signed in. Stages tested in the browser with
+made-up Booking data; not yet with a real session. Claims from a Calendar Event or entered by a
+member, and pinning a slot, are left for later.
+
 - `data/plan.mjs` names each Booking: course, the assessment it is for, the sheet, the section.
 - `GET /api/bookings` (signed-in only) reads the sheet's text export, at most every five minutes,
   and returns per Booking: the session's date and slot times, how many slots are free, and the
