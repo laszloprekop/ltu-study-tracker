@@ -235,6 +235,36 @@ export const BOOKINGS = [
   { id: "Z0025E:lab6", course: "Z0025E", for: "Z0025E:3040", sheet: SIGNUP_DOC, section: "Lab6", task: "w46-book6" }
 ];
 
+// Disagreements (CONTEXT.md): two sources in a Course giving different values for one fact. Each is
+// tied to a row: "d:<course>:<assignment id>" or a session "s:<course>:<date>:<start>". For a
+// deadline, the page uses the earliest value not yet past until settled names the source to trust.
+// From the teacher reports in docs/reports/; source URLs are Canvas pages or files.
+export const DISAGREEMENTS = [
+  { about: "d:Z7005E:3024", fact: "deadline", values: [
+    { source: "Canvas assignment and the Schema", date: "2026-11-25", time: "17:00" },
+    { source: "HomeExam2025.pdf", date: "2026-12-08", time: "09:00", url: "https://ltuedu.instructure.com/courses/613/files/38058" }] },
+  { about: "d:Z7005E:3021", fact: "deadline", values: [
+    { source: "Canvas assignment and the Schema", date: "2026-10-21", time: "17:00" },
+    { source: "Laboration 5 text", says: "deadline 24 September, 17:00" }] },
+  { about: "s:Z7005E:2026-10-22:10:30", fact: "length", values: [
+    { source: "Schema", says: "10:30 to 12:00" },
+    { source: "Workshop 2 page (3.3)", says: "about 3 hours of steps" }] },
+  { about: "s:Z0025E:2026-10-16:13:00", fact: "time", values: [
+    { source: "Homepage", says: "13:00 to 15:00" },
+    { source: "Lab Signup Sheet heading", says: "13:00" },
+    { source: "Lab Signup Sheet slots", says: "09:00 to 11:00" }] },
+  { about: "d:Z0025E:3030", fact: "deadline", values: [
+    { source: "Canvas", date: "2026-10-23", time: "23:59" },
+    { source: "L00 Course Introduction.pdf (2025 schedule)", date: "2026-11-14", time: "23:59" }] },
+  { about: "d:Z0025E:3031", fact: "deadline", values: [
+    { source: "Canvas", date: "2026-11-20", time: "23:59" },
+    { source: "L00 Course Introduction.pdf (2025 schedule)", date: "2026-12-12", time: "23:59" }] },
+  ...[["3043", "2026-10-16", "13:00"], ["3044", "2026-10-30", "10:00"], ["3045", "2026-11-06", "13:00"], ["3040", "2026-11-13", "13:00"]].map(([id, date, time]) => (
+    { about: "d:Z0025E:" + id, fact: "deadline", values: [
+      { source: "Canvas assignment", date, time: "23:59" },
+      { source: "9.1 Lab Overview: submit before your scheduled lab assessment", date, time }] }))
+];
+
 // Where the tracker has moved (release 1, step 6). null keeps the claude.ai page as it is. Set it to
 // the app's https address once a real sign-in there has been tested: the artifact then shows a move
 // banner, and locks ticking after a Student exports, until they unlock it. The app ignores it.

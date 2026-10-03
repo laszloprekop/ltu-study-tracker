@@ -98,6 +98,19 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
 .appview li b{color:var(--ink)}
 .appview .grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:14px}
 .appview .note{color:var(--muted); font-size:13px; margin:8px 0 0}
+.tag.disagree{display:inline-flex; align-items:center; gap:3px; background:var(--c4-soft); color:var(--c4)} .tag.disagree .ic{width:12px; height:12px}
+.chains{padding:6px 10px}
+.chain{border-left:4px solid var(--cc, var(--muted)); margin:6px 0; background:var(--surface)}
+.chain summary{display:flex; flex-wrap:wrap; align-items:center; gap:4px 8px; padding:6px 8px; cursor:pointer}
+.chain .cdate{min-width:110px; font-size:12.5px} .chain .cprog{margin-left:auto; color:var(--muted); font-size:12.5px} .chain .late{color:var(--alert)}
+.chain .prep{list-style:none; margin:0; padding:0 8px 8px 20px; display:flex; flex-direction:column; gap:3px}
+.chain .prep li{display:flex; flex-wrap:wrap; align-items:center; gap:4px 8px; font-size:13.5px}
+.chain .prep li.done .tt{text-decoration:line-through; opacity:.6}
+.chain .pdate{color:var(--muted); font-size:12px} .chain .pdate.doby{border:1px dashed var(--muted); border-radius:3px; padding:0 5px}
+.tag.late{display:inline-flex; align-items:center; gap:3px; background:var(--alert-soft); color:var(--alert)} .tag.late .ic{width:12px; height:12px}
+.grid2{display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:14px}
+.disagreements h3{display:flex; align-items:center; gap:8px} .disagreements .copyrep{margin-left:auto; font:inherit; font-size:12px; font-weight:700; padding:4px 10px; border:1px solid var(--muted); border-radius:4px; background:transparent; color:var(--ink); cursor:pointer}
+.disagreements ul{margin:6px 0 0; padding-left:18px; font-size:13.5px} .disagreements li{margin:4px 0}
 .cardsview .csets,.cardsview .cklist{list-style:none; margin:8px 0 0; padding:0; display:flex; flex-direction:column; gap:6px}
 .cardsview .csets li{display:flex; flex-wrap:wrap; align-items:center; gap:4px 8px; padding:6px 8px; border-left:4px solid var(--cc, var(--muted)); background:var(--surface-2)}
 .cardsview .cs-n{flex:1 1 auto; color:var(--muted); font-size:12.5px}
@@ -863,8 +876,9 @@ function deadlineRows(t){
     assignments(code).forEach(function(a){
       if (!a.due) return;
       if (a.kind === "quiz") { var g = code + ":quizzes:" + a.due; (groups[g] = groups[g] || { code: code, due: a.due, dueTime: a.dueTime, list: [] }).list.push(a); return; }
-      rows.push({ kind: "deadline", level: "must", id: "d:" + code + ":" + a.id, code: code, date: a.due, time: a.dueTime,
-        title: shortTitle(a.title) + " due " + a.dueTime, pts: a.points ? a.points + " p" : "", why: t.notes[code + ":" + a.id] || "", akind: a.kind,
+      var use = disagreedDeadline("d:" + code + ":" + a.id, a.due, a.dueTime);
+      rows.push({ kind: "deadline", level: "must", id: "d:" + code + ":" + a.id, code: code, date: use.date, time: use.time, disagree: disagreementOf("d:" + code + ":" + a.id),
+        title: shortTitle(a.title) + " due " + use.time, pts: a.points ? a.points + " p" : "", why: t.notes[code + ":" + a.id] || "", akind: a.kind,
         est: (itemByNumber(code, a.number) || {}).statedMinutes || null,
         links: [["Submit", a.url]].concat(a.moduleItemUrl ? [["In the module", a.moduleItemUrl]] : []) });
     });
@@ -887,7 +901,7 @@ function sessionRows(t){
     (s.also || []).forEach(function(r){ var x = itemByNumber(s.course, r); if (x) links.push([x.number + " " + x.title.slice(0, 28), x.url]); });
     (s.links || []).forEach(function(l){ links.push(l); });
     var prep = (s.prep || []).reduce(function(a, r){ return a.concat(expand(s.course, r)); }, []);
-    return { kind: "session", level: sessionLevel(s), code: s.course, date: s.date, time: s.start, end: s.end, title: s.title, why: s.why || "", status: s.status || "", links: links, prep: prep, skind: s.kind, ref: s.ref || null, key: "s:" + s.course + ":" + s.date + ":" + (s.start || "") };
+    return { kind: "session", level: sessionLevel(s), code: s.course, date: s.date, time: s.start, end: s.end, title: s.title, disagree: disagreementOf("s:" + s.course + ":" + s.date + ":" + (s.start || "")), why: s.why || "", status: s.status || "", links: links, prep: prep, skind: s.kind, ref: s.ref || null, key: "s:" + s.course + ":" + s.date + ":" + (s.start || "") };
   });
 }
 function taskRows(t){
@@ -931,6 +945,65 @@ function calRow(r){
     '<span class="body"><span class="block"><span class="t">' + ic("calendar-dot", "kic") + '<span class="tt">' + esc(r.title) + '</span>' + tag + feeds + '</span>' +
     (r.location && !/^https?:/.test(r.location) ? '<span class="why">' + esc(r.location) + '</span>' : '') + '</span></span></div>';
 }
+/* ---------- Disagreements and Chains (release 5) ---------- */
+// Disagreements: data/plan.mjs DISAGREEMENTS. For a deadline the earliest value not yet past is
+// used until the Maintainer settles one (settled: the index of the source to trust).
+function disagreementOf(id){ return (P.DISAGREEMENTS || []).find(function(d){ return d.about === id; }) || null; }
+function disagreeText(d){ return "Sources disagree about the " + d.fact + ": " + d.values.map(function(v){ return v.source + ": " + (v.says || (v.date ? longDay(v.date) + (v.time ? " " + v.time : "") : "")); }).join("; ") + (d.settled != null ? ". Settled: " + d.values[d.settled].source : ". Until settled the page uses the earliest that has not passed."); }
+function disagreedDeadline(id, date, time){
+  var d = disagreementOf(id); if (!d || d.fact !== "deadline") return { date: date, time: time };
+  if (d.settled != null && d.values[d.settled].date) return { date: d.values[d.settled].date, time: d.values[d.settled].time || time };
+  var now = todayIso(), best = { date: date, time: time };
+  d.values.forEach(function(v){ if (v.date && v.date >= now && (v.date + " " + (v.time || "23:59")) < (best.date + " " + (best.time || "23:59"))) best = { date: v.date, time: v.time || best.time }; });
+  return best;
+}
+function disagreementReport(code){
+  var list = (P.DISAGREEMENTS || []).filter(function(d){ return d.about.split(":")[1] === code; });
+  return COURSES[code].name + " (" + code + "): places where the course material disagrees\n\n" + list.map(function(d, n){
+    return (n + 1) + ". " + d.fact.charAt(0).toUpperCase() + d.fact.slice(1) + " of " + aboutTitle(d.about) + ":\n" + d.values.map(function(v){ return "   - " + v.source + ": " + (v.says || (v.date ? v.date + (v.time ? " " + v.time : "") : "")) + (v.url ? " (" + v.url + ")" : ""); }).join("\n");
+  }).join("\n\n") + "\n";
+}
+function aboutTitle(id){
+  var p = id.split(":");
+  if (p[0] === "d") { var a = assignments(p[1]).find(function(x){ return String(x.id) === p[2]; }); return a ? a.title : id; }
+  var s = term().sessions.find(function(x){ return "s:" + x.course + ":" + x.date + ":" + (x.start || "") === id; }); return s ? s.title + " (" + longDay(s.date) + ")" : id;
+}
+// Key Events (CONTEXT.md): sessions where something is decided (lab sessions with the teacher,
+// workshops, the interview, the final seminar, the oral exam) and the exams with a deadline.
+var KEY_SESSION = { lab: 1, workshop: 1, interview: 1, seminar: 1, exam: 1 };
+function keyEvents(t){
+  var out = [];
+  sessionRows(t).forEach(function(r){ if (KEY_SESSION[r.skind]) out.push({ key: r.key, code: r.code, date: r.date, time: r.time, title: r.title, row: r, kind: "session" }); });
+  deadlineRows(t).forEach(function(r){ if (r.akind === "exam") out.push({ key: r.id, code: r.code, date: r.date, time: r.time, title: r.title.replace(/ due \d\d:\d\d$/, ""), row: r, kind: "deadline", aid: r.id.split(":")[2] }); });
+  return out.sort(function(a, b){ return (a.date + (a.time || "")).localeCompare(b.date + (b.time || "")); });
+}
+// When the Course teaches an item (its Taught Date): a session on its page, or its study week.
+function taughtDate(t, code, item){
+  var s = t.sessions.find(function(x){ return x.course === code && x.ref && item.number && x.ref === item.number; });
+  if (s) return s.date;
+  var w = t.study.find(function(x){ return x.course === code && x.refs.some(function(r){ return item.number && (item.number === r || item.number.indexOf(r + ".") === 0); }); });
+  return w ? w.week : null;
+}
+function prepOf(t, ke){
+  var out = [], seen = {}, add = function(p){ if (!seen[p.id]) { seen[p.id] = 1; out.push(p); } };
+  var material = function(code, list){ list.forEach(function(i){ var td = taughtDate(t, code, i); add({ id: "m:" + code + ":" + i.id, code: code, title: (i.number ? i.number + " " : "") + i.title, url: i.url, taught: td, late: !!td && td > ke.date, minutes: i.minutes || null }); }); };
+  // Assignment ids are numbers in the inventory; ids taken from a row id are text.
+  if (ke.kind === "deadline") material(ke.code, needsOf(t, ke.code, Number(ke.aid)));
+  else {
+    var n = /\bLab (\d+)\b/.exec(ke.title), b = ke.row.skind === "lab" && n ? (P.BOOKINGS || []).find(function(x){ return x.course === ke.code && x.section === "Lab" + n[1]; }) : null;
+    if (b) {
+      var task = t.tasks.find(function(x){ return x.id === b.task; });
+      if (task) add({ id: "t:" + task.id, code: ke.code, title: task.title, date: task.date });
+      var aid = b.for.split(":")[1], rep = deadlineRows(t).find(function(r){ return r.id === "d:" + b.for; });
+      if (rep) add({ id: rep.id, code: ke.code, title: rep.title, date: rep.date, url: rep.links && rep.links[0] && rep.links[0][1] });
+      material(ke.code, needsOf(t, ke.code, Number(aid)));
+    }
+    material(ke.code, ke.row.prep || []);
+  }
+  return out;
+}
+function prepReady(p){ return isDone(p.id); }
+
 function timeline(t){
   var rows = deadlineRows(t).concat(sessionRows(t)).concat(taskRows(t));
   rows.sort(function(a, b){ return a.date.localeCompare(b.date) || String(a.time || "").localeCompare(String(b.time || "")) || (a.kind === "session" ? -1 : 1); });
@@ -976,6 +1049,7 @@ function row(r, opts){
   opts = opts || {};
   if (r.cal) return calRow(r);
   var tags = "";
+  if (r.disagree) tags += '<span class="tag disagree" title="' + esc(disagreeText(r.disagree)) + '">' + ic("warning", "sm") + 'sources disagree</span>';
   if (r.status === "expected") tags += '<span class="tag expected" title="Date from the Homepage timetable, lecture number from module order. Not yet named by the teacher.">expected</span>';
   if (r.pts) tags += '<span class="tag pts">' + esc(r.pts) + '</span>';
   if (r.feeds) tags += '<a class="tag feeds" href="' + esc(r.feeds.url) + '" target="_blank" rel="noopener" title="This task feeds this deadline, open it in Canvas">for ' + esc(r.feeds.title) + (r.feeds.date ? ", " + esc(dayLabel(r.feeds.date)) : "") + ' ' + ic("arrow-square-out", "sm") + '</a>';
@@ -1255,6 +1329,34 @@ function renderDayView(t){
     card("clipboard-text", "Tasks and later this week", "", rowsOf(tasks, { withDay: true }) + rowsOf(upcoming, { withDay: true })) +
     '</div></section>';
 }
+function renderChains(t){
+  var today = todayIso(), list = keyEvents(t).filter(function(k){ return k.date >= today; });
+  if (!list.length) return "";
+  var html = list.map(function(ke, n){
+    var prep = prepOf(t, ke), ready = prep.filter(prepReady).length, late = prep.filter(function(p){ return p.late; }).length;
+    var doBy = addDays(ke.date, -2);
+    var rows = prep.map(function(p){
+      var when = p.date ? '<span class="pdate">due ' + esc(longDay(p.date)) + '</span>' : p.taught ? '<span class="pdate">taught ' + esc(longDay(p.taught)) + '</span>' : '<span class="pdate doby" title="A suggested date: two days before the event, no date in the course">do by ' + esc(longDay(doBy)) + '</span>';
+      return '<li class="' + hostClass(p.id, "") + '" data-id="' + esc(p.id) + '" style="' + colorVars(p.code) + '">' + box(p.id) + '<label for="' + esc(p.id) + '"><span class="tt">' + esc(p.title) + '</span></label>' + when + (p.late ? '<span class="tag late" title="The course teaches this after the event that needs it: study it ahead">' + ic("warning", "sm") + 'taught after it is needed</span>' : '') + (p.url ? ' <a href="' + esc(p.url) + '" target="_blank" rel="noopener" title="Open in Canvas">' + ic("arrow-square-out", "sm ext") + '</a>' : '') + '</li>';
+    }).join("");
+    var cardsN = state.cards && state.cards.list ? drillable(t).filter(function(c){ return cardEvents(t, c).some(function(e){ return ke.kind === "deadline" ? e.code + ":" + e.a.id === ke.code + ":" + ke.aid : false; }); }).length : 0;
+    return '<details class="chain" data-key="chain:' + esc(ke.key) + '"' + (state.open["chain:" + ke.key] != null ? (state.open["chain:" + ke.key] ? ' open' : '') : (n < 2 ? ' open' : '')) + ' style="' + colorVars(ke.code) + '">' +
+      '<summary>' + '<span class="cdate mono">' + esc(longDay(ke.date)) + (ke.time ? " " + esc(ke.time) : "") + '</span>' + chip(ke.code) + '<b>' + esc(ke.title) + '</b>' + (ke.row.disagree ? ' <span class="tag disagree" title="' + esc(disagreeText(ke.row.disagree)) + '">' + ic("warning", "sm") + '</span>' : '') +
+        '<span class="cprog">' + (prep.length ? ready + " of " + prep.length + " ready" : "nothing linked yet") + (late ? ', <b class="late">' + late + ' taught late</b>' : '') + (cardsN ? ', ' + cardsN + ' cards' : '') + '</span></summary>' +
+      (prep.length ? '<ul class="prep">' + rows + '</ul>' : '<p class="note">The course names no material for this one yet.</p>') + '</details>';
+  }).join("");
+  return '<section><div class="sechead"><h2>Key events and what leads to them</h2><span class="note">Each lab session, workshop and exam with the work that prepares for it. Hollow dates are suggestions: the course gives none.</span></div><div class="card chains">' + html + '</div></section>';
+}
+function renderDisagreements(t){
+  var codes = t.courses.filter(function(c){ return (P.DISAGREEMENTS || []).some(function(d){ return d.about.split(":")[1] === c; }); });
+  if (!codes.length) return "";
+  return '<section><div class="sechead"><h2>Where sources disagree</h2><span class="note">Until a teacher settles them the page uses the earliest deadline that has not passed.</span></div><div class="grid2">' + codes.map(function(code){
+    var list = (P.DISAGREEMENTS || []).filter(function(d){ return d.about.split(":")[1] === code; });
+    return '<div class="card disagreements" style="' + colorVars(code) + '"><h3>' + chip(code) + ' ' + list.length + ' disagreement' + (list.length === 1 ? '' : 's') + '<button type="button" class="copyrep" data-report="' + esc(code) + '">Copy as a report</button></h3><ul>' + list.map(function(d){
+      return '<li><b>' + esc(aboutTitle(d.about)) + '</b>, ' + esc(d.fact) + ':<ul>' + d.values.map(function(v){ return '<li>' + esc(v.source) + ': ' + esc(v.says || (v.date ? longDay(v.date) + (v.time ? " " + v.time : "") : "")) + (v.url ? ' <a href="' + esc(v.url) + '" target="_blank" rel="noopener">' + ic("arrow-square-out", "sm ext") + '</a>' : '') + '</li>'; }).join("") + '</ul></li>';
+    }).join("") + '</ul></div>';
+  }).join("") + '</div></section>';
+}
 function renderAllView(t){
   var rows = deadlineRows(t).sort(function(a, b){ return a.date.localeCompare(b.date) || a.time.localeCompare(b.time); });
   var today = todayIso();
@@ -1264,7 +1366,7 @@ function renderAllView(t){
       '<td class="n"><label for="' + esc(r.id) + '">' + rowIcon(r) + '<span class="tt">' + esc(r.title.replace(/ due \d\d:\d\d$/, "").replace(/ close \d\d:\d\d$/, " close")) + '</span></label>' + (r.why ? '<div class="why" style="color:var(--muted);font-size:12.5px">' + esc(r.why) + '</div>' : '') + '</td>' +
       '<td>' + esc(r.pts) + (r.est ? '<br><small class="est">' + fmtMin(r.est) + '</small>' : '') + '</td><td>' + links(r.links) + '</td></tr>';
   }).join("");
-  return '<section><div class="sechead"><h2>All deadlines</h2><span class="note">Both courses, in date order, straight from Canvas.</span></div><div class="card tablewrap"><table class="all"><thead><tr><th></th><th>Due</th><th>Course</th><th>What</th><th>Points</th><th>Links</th></tr></thead><tbody>' + tr + '</tbody></table></div></section>';
+  return renderChains(t) + '<section><div class="sechead"><h2>All deadlines</h2><span class="note">Both courses, in date order, straight from Canvas.</span></div><div class="card tablewrap"><table class="all"><thead><tr><th></th><th>Due</th><th>Course</th><th>What</th><th>Points</th><th>Links</th></tr></thead><tbody>' + tr + '</tbody></table></div></section>' + renderDisagreements(t);
 }
 function renderQuick(t){
   var out = [];
@@ -1823,6 +1925,13 @@ function rowNodeId(t, r){
 }
 // The selection is a list of keys (rail events or graph nodes); the last one is the primary shown in details.
 // Shift, Cmd or Ctrl with a click adds or removes; a plain click replaces.
+// Map: step through the Key Events in date order; the selected one's chain lights up.
+function stepKeyEvent(dir){
+  var list = keyEvents(term()), today = todayIso(), at = list.findIndex(function(k){ return k.key === state.mapSel; });
+  if (at < 0) at = list.findIndex(function(k){ return k.date >= today; }) - (dir > 0 ? 1 : 0);
+  var next = list[Math.max(0, Math.min(list.length - 1, at + dir))];
+  if (next) selectKey(next.key, false);
+}
 function selectKey(key, additive){
   if (additive) { var i = state.mapSels.indexOf(key); if (i >= 0) state.mapSels.splice(i, 1); else state.mapSels.push(key); }
   else state.mapSels = key ? [key] : [];
@@ -1915,10 +2024,11 @@ function detailFor(t, key){
 function hopsLabel(){ return state.mapHops >= 5 ? "all" : state.mapHops + (state.mapHops === 1 ? " hop" : " hops"); }
 function renderMapView(t){
   // Nothing chosen yet: start on today's first event, or the next one coming up.
-  if (!state.mapSel) { var today = todayIso(), first = timeline(t).find(function(r){ return r.date >= today; }); if (first) selectKey(first.id || first.key, false); }
+  // Opens on the next Key Event (release 5); its chain lights up.
+  if (!state.mapSel) { var today = todayIso(), ke = keyEvents(t).find(function(k){ return k.date >= today; }), first = ke ? { key: ke.key } : timeline(t).find(function(r){ return r.date >= today; }); if (first) selectKey(first.id || first.key, false); }
   return '<section><div class="map' + (state.railSlim ? ' rail-slim' : '') + '">' + railCard(t) + '<div class="rail-tip" id="rail-tip" hidden></div>' +
     '<div class="card mapcard"><h3>' + ic("tree-structure") + '<span class="t">Canvas map</span><span class="why" style="display:inline;text-transform:none;letter-spacing:0;font-weight:400">material inside, sessions, deadlines and tasks around the ring in date order. Hover or click a node to see its links, shift-click to select several, drag to pan, scroll to zoom</span></h3>' +
-      '<div class="gwrap" id="gwrap">' + svgGraph(t) + '<div class="gtools"><button type="button" id="g-fit" title="Fit the whole graph">' + ic("arrows-in", "sm") + 'Fit</button><button type="button" id="g-open" title="Open every module"' + (state.mapAll ? ' disabled' : '') + '>Open all</button><button type="button" id="g-close" title="Close every module"' + (state.mapAll ? ' disabled' : '') + '>Close all</button><button type="button" id="g-settle" title="Forget the saved positions and lay the material out afresh">Re-settle</button><span class="seg mode" role="group" aria-label="What a click on a module does"><button type="button" id="g-mode-select" data-mode="select" title="Clicking a module or section selects it" aria-pressed="' + (state.mapMode === "select" ? "true" : "false") + '">Select</button><button type="button" id="g-mode-fold" data-mode="fold" title="Clicking a module or section opens or closes it" aria-pressed="' + (state.mapMode === "fold" ? "true" : "false") + '"' + (state.mapAll ? ' disabled' : '') + '>Close</button></span>' +
+      '<div class="gwrap" id="gwrap">' + svgGraph(t) + '<div class="gtools"><button type="button" id="g-kprev" title="The previous key event and its chain">&#9664;</button><button type="button" id="g-knext" title="The next key event and its chain">Key event &#9654;</button><button type="button" id="g-fit" title="Fit the whole graph">' + ic("arrows-in", "sm") + 'Fit</button><button type="button" id="g-open" title="Open every module"' + (state.mapAll ? ' disabled' : '') + '>Open all</button><button type="button" id="g-close" title="Close every module"' + (state.mapAll ? ' disabled' : '') + '>Close all</button><button type="button" id="g-settle" title="Forget the saved positions and lay the material out afresh">Re-settle</button><span class="seg mode" role="group" aria-label="What a click on a module does"><button type="button" id="g-mode-select" data-mode="select" title="Clicking a module or section selects it" aria-pressed="' + (state.mapMode === "select" ? "true" : "false") + '">Select</button><button type="button" id="g-mode-fold" data-mode="fold" title="Clicking a module or section opens or closes it" aria-pressed="' + (state.mapMode === "fold" ? "true" : "false") + '"' + (state.mapAll ? ' disabled' : '') + '>Close</button></span>' +
       '<button type="button" id="g-all" title="Draw closed modules and sections open too; their contents stay faded until they join a chain" aria-pressed="' + (state.mapAll ? "true" : "false") + '">' + ic(state.mapAll ? "eye" : "eye-slash", "sm") + '</button>' +
       '<label class="reach" title="How far a highlighted chain reaches from the node: link steps in either direction, the jump to the ring counts as one"><span>Reach</span><input type="range" id="g-hops" min="1" max="5" step="1" value="' + state.mapHops + '"><b id="g-hops-v">' + hopsLabel() + '</b></label></div>' +
       '<details class="legend-g" data-key="legend"' + (state.open.legend === false ? '' : ' open') + '><summary class="lt">' + ic("caret-down", "sm caret") + 'Legend</summary>' +
@@ -2129,6 +2239,7 @@ function bindMap(t){
     }
     else if (b.id === "sel-clear") { selectKey(null, false); refreshMap(t, null, false); }
     else if (b.id === "g-fit") fitMap();
+    else if (b.id === "g-knext" || b.id === "g-kprev") stepKeyEvent(b.id === "g-knext" ? 1 : -1);
     else if (b.id === "g-settle") { mapPos = {}; lsSet(LS.mapPos, "{}"); refreshMap(t, null, true); runSim(1); setTimeout(fitMap, 900); }
     else if (b.id === "g-all") { state.mapAll = !state.mapAll; lsSet(LS.mapAll, state.mapAll ? "1" : "0"); b.setAttribute("aria-pressed", String(state.mapAll)); b.innerHTML = ic(state.mapAll ? "eye" : "eye-slash", "sm"); document.getElementById("g-open").disabled = state.mapAll; document.getElementById("g-close").disabled = state.mapAll; document.getElementById("g-mode-fold").disabled = state.mapAll; if (state.mapAll && state.mapMode === "fold") { state.mapMode = "select"; lsSet(LS.mapMode, "select"); document.getElementById("g-mode-select").setAttribute("aria-pressed", "true"); document.getElementById("g-mode-fold").setAttribute("aria-pressed", "false"); } refreshMap(t, null, true); setTimeout(fitMap, 700); }
     else if (b.dataset.mode) { state.mapMode = b.dataset.mode; lsSet(LS.mapMode, state.mapMode); document.querySelectorAll("#gwrap .mode button").forEach(function(x){ x.setAttribute("aria-pressed", String(x.dataset.mode === state.mapMode)); }); }
@@ -2454,10 +2565,11 @@ var APP_INFO = {
     ["Lab bookings and their deadlines", "Your group's slot read from the signup sheet, with a warning that grows as the session comes closer and the free slots run out."],
     ["Your own calendar", "Add a calendar link, such as your group's, and its events appear among the sessions, marked as yours, and count as busy time."],
     ["Study cards", "The Cards view drills flashcards for every lab and exam, made from the lectures and lab material. Spaced repetition shows each card just before you would forget it and plans the reviews so you know it on the day of the lab or exam. Cards are checked by a classmate before they are shared, anyone can flag a wrong one, and your group's answers to graded questions stay within your group."],
+    ["Prep chains", "All deadlines opens with every lab session, workshop and exam and the work that leads to it: the booking, the report, the lectures and readings, each with the day the course teaches it, a warning when that is after the event needs it, and a suggested do-by date where the course gives none. The map opens on the next one and steps through them."],
+    ["Where sources disagree", "When Canvas, a PDF and a sign-up sheet give different dates, the row says so and the page uses the earliest one that has not passed, so a stale date never makes you late."],
     ["A day in 15-minute slots", "Day shows both courses in one day plan: sessions, your calendar, your lab slot and deadlines, the free slots between them, and this week's unplaced work with a suggested slot. Place it with one press or drag it, and the plan follows you to your other devices."]
   ],
   planned: [
-    ["Prep chains", "Release 5: every lab session, quiz, midterm and oral exam with everything that prepares for it, lectures, readings, quizzes, group sessions and card sets, drawn back from the event on a timeline, so you see what should be done by when, and which lecture is taught too late for the lab that needs it."]
   ],
   privacy: [
     ["Only you can read your ticks", "They are one row in the database that a rule inside the database lets only your account read or change. The rule is tested on every change to the database."],
@@ -2494,7 +2606,7 @@ function renderMoved(nudge){
       '<button type="button" class="mv-fold" data-moved="fold" aria-expanded="' + String(!folded) + '" title="' + (folded ? "Show the steps" : "Fold to one line") + '" aria-label="' + (folded ? "Show the steps" : "Fold to one line") + '">' + ic("caret-down") + '</button></div>' +
     (folded ? "" : '<div class="mv-body">' +
       '<div><h4>How to move</h4>' + moveSteps() + '</div>' +
-      '<div><h4>Why move</h4>' + infoList([APP_INFO.now[0], APP_INFO.now[4], APP_INFO.now[5]], "ul") + '<p style="margin:6px 0 0"><b>Coming:</b> prep chains from each lab and exam back to its lectures. A day plan in 15-minute slots and study cards are already here. All of it, and how your data is kept: <a href="#" data-goview="app">Hosted app</a>.</p></div>' +
+      '<div><h4>Why move</h4>' + infoList([APP_INFO.now[0], APP_INFO.now[4], APP_INFO.now[5]], "ul") + '<p style="margin:6px 0 0"><b>Also there:</b> study cards with spaced repetition before every exam, prep chains from each lab and exam back to its lectures, and a day plan in 15-minute slots. All of it, and how your data is kept: <a href="#" data-goview="app">Hosted app</a>.</p></div>' +
       (stateHtml ? '<p class="mv-state">' + stateHtml + '</p>' : '') + '</div>');
   el.hidden = false;
   el.classList.toggle("folded", folded); el.classList.toggle("drift", drift);
@@ -2579,6 +2691,13 @@ function renderAppView(){
   '</section>';
 }
 document.addEventListener("click", function(e){
+  var rb = e.target.closest && e.target.closest("button[data-report]");
+  if (rb) {
+    var text = disagreementReport(rb.dataset.report);
+    (navigator.clipboard && navigator.clipboard.writeText ? navigator.clipboard.writeText(text) : Promise.reject()).then(function(){ rb.textContent = "Copied"; }).catch(function(){ rb.textContent = "Copy failed"; });
+    setTimeout(function(){ rb.textContent = "Copy as a report"; }, 2000);
+    return;
+  }
   var cb = e.target.closest && e.target.closest("button[data-drill], button[data-reveal], button[data-rate], button[data-drillstop], button[data-cardcheck], button[data-flagopen], button[data-flagsend], button[data-flagcancel], button[data-settle], button[data-cardwrite]");
   if (cb && state.cards && state.cards.api) {
     var C = state.cards, api = C.api, again = function(){ state.cards = null; loadCards(); };

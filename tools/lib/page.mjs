@@ -6,7 +6,7 @@
 //   withData(html, data)            the marker replaced by DATA
 import { readFileSync, readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { TEACHERS, COURSES, TERMS, LEGACY_IDS, MOVED_TO, BOOKINGS } from "../../data/plan.mjs";
+import { TEACHERS, COURSES, TERMS, LEGACY_IDS, MOVED_TO, BOOKINGS, DISAGREEMENTS } from "../../data/plan.mjs";
 
 const root = p => fileURLToPath(new URL("../../" + p, import.meta.url));
 export const MARKER = "/*__DATA__*/";
@@ -47,6 +47,13 @@ export function checkPlan(inventory) {
   }
   for (const [code, c] of Object.entries(COURSES)) for (const o of c.optional || []) for (const r of o.refs) if (!refMatches(code, r).length) problems.push(`${code} optional ref "${r}" matches nothing`);
   const taskIds = new Set(TERMS.flatMap(t => t.tasks.map(x => x.id)));
+  const sessionKeys = new Set(TERMS.flatMap(t => t.sessions.map(x => `s:${x.course}:${x.date}:${x.start || ""}`)));
+  for (const d of DISAGREEMENTS) {
+    const [kind, code, id] = d.about.split(":");
+    if (kind === "d" && !isAssignment(code, id)) problems.push(`disagreement about ${d.about}: no such assignment`);
+    if (kind === "s" && !sessionKeys.has(d.about)) problems.push(`disagreement about ${d.about}: no such session`);
+    if (!["d", "s"].includes(kind) || (d.values || []).length < 2) problems.push(`disagreement about ${d.about}: needs a d: or s: id and two values`);
+  }
   for (const b of BOOKINGS) {
     const [code, id] = b.for.split(":");
     if (!isAssignment(code, id)) problems.push(`booking ${b.id} is for ${b.for}, which is no Canvas assignment`);
@@ -66,7 +73,7 @@ function teachers() {
 // progress is the Maintainer's own Canvas completion state: only ever for a --private build.
 export function buildData(inventory, progress = null) {
   if (MOVED_TO !== null && !/^https:\/\/[a-z0-9.-]+\/?$/i.test(MOVED_TO)) throw new Error("MOVED_TO in data/plan.mjs must be null or an https address");
-  return { built: new Date().toISOString(), private: !!progress, plan: { TEACHERS: teachers(), COURSES, TERMS, LEGACY_IDS, MOVED_TO, BOOKINGS }, inventory, progress };
+  return { built: new Date().toISOString(), private: !!progress, plan: { TEACHERS: teachers(), COURSES, TERMS, LEGACY_IDS, MOVED_TO, BOOKINGS, DISAGREEMENTS }, inventory, progress };
 }
 
 export function shell() {

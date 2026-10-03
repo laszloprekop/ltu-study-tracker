@@ -118,15 +118,17 @@ lists everything. The lists live in one place in `src/template.html` (`APP_INFO`
 - The Day Plan in Day: one day in 15-minute slots with the free slots and this week's unplaced
   work; place it with a suggested slot or by dragging (`docs/plan/release-3.md`). This one also
   works on the claude.ai page.
+- Prep chains (`docs/plan/release-5.md`): in All deadlines every Key Event with its Prep, Taught
+  Dates, warnings for material taught after it is needed, hollow Do-By Dates; the map opens on the
+  next Key Event and steps through them. Disagreements (`DISAGREEMENTS` in `data/plan.mjs`) mark
+  their rows, the earliest not-yet-past deadline is used, and each course's list copies as a
+  report for the teacher. These work on the claude.ai page too.
 - Cards (`docs/plan/release-4.md`): drill with FSRS at 90% recall, aimed at each card's next lab or
   exam (Drill Goal); Card Sets per event from the cards' Sources; check and flag classmates'
   drafts; write Concept, Question and Group answer cards. Drafts from the Maintainer's machine:
   `node tools/cards/upload.mjs data/cards/<file>.json`.
 
 **Coming next** (`docs/plan/release-1.md`, then the design in `CONTEXT.md` and `docs/adr/`)
-- Release 5: prep chains: every lab session, quiz, midterm and oral exam with the lectures,
-  readings, quizzes, group sessions and card sets that prepare for it, drawn back on a timeline,
-  including lectures taught too late for the lab that needs them.
 
 **Privacy and security**
 - A Student's ticks are one database row that a row-level security rule lets only their account
