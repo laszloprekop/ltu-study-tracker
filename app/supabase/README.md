@@ -16,6 +16,10 @@ Then run `tests/rls.sql` the same way; it rolls back and prints `ok` or `FAIL` p
 | 20261003000005_calendar_link.sql | 2026-10-03 |
 | 20261003000006_calendar_link_check.sql | 2026-10-03 |
 | 20261003000007_planned_blocks.sql | 2026-10-03 |
+| 20261003000008_cards.sql | 2026-10-03 |
+| 20261003000009_settle_flag.sql | 2026-10-03 |
+| 20261003000010_card_edit_drops_checks.sql | 2026-10-03 |
+| 20261003000011_flag_drafts.sql | 2026-10-03 |
 
 ## The sync role
 

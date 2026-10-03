@@ -64,7 +64,7 @@ export async function trackerHtml(): Promise<string> {
     '<!doctype html><html lang="en"><head><meta charset="utf-8">' +
     '<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">' +
     "<script>window.TRACKER_CONFIG=" + JSON.stringify(cfg).replace(/</g, "\\u003c") + ";</script>" +
-    (cfg ? '<script src="/vendor/supabase.js"></script><script src="/bridge.js"></script>' : "") +
+    (cfg ? '<script src="/vendor/supabase.js"></script><script src="/vendor/ts-fsrs.js"></script><script src="/bridge.js"></script>' : "") +
     "</head><body>";
   // A replacer function, so "$" sequences in the data are never read as replacement patterns.
   return head + shellHtml.replace(MARKER, () => "const DATA = " + dataJs(data) + ";") + "</body></html>";

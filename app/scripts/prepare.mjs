@@ -31,4 +31,5 @@ writeFileSync(at("../sync/package.json"), JSON.stringify({ type: "module", priva
 
 mkdirSync(at("../public/vendor"), { recursive: true });
 copyFileSync(at("../node_modules/@supabase/supabase-js/dist/umd/supabase.js"), at("../public/vendor/supabase.js"));
+copyFileSync(at("../node_modules/ts-fsrs/dist/index.umd.js"), at("../public/vendor/ts-fsrs.js"));
 console.log("Prepared tracker/, sync/ and public/vendor/supabase.js");

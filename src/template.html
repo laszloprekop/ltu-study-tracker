@@ -98,6 +98,25 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
 .appview li b{color:var(--ink)}
 .appview .grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:14px}
 .appview .note{color:var(--muted); font-size:13px; margin:8px 0 0}
+.cardsview .csets,.cardsview .cklist{list-style:none; margin:8px 0 0; padding:0; display:flex; flex-direction:column; gap:6px}
+.cardsview .csets li{display:flex; flex-wrap:wrap; align-items:center; gap:4px 8px; padding:6px 8px; border-left:4px solid var(--cc, var(--muted)); background:var(--surface-2)}
+.cardsview .cs-n{flex:1 1 auto; color:var(--muted); font-size:12.5px}
+.cardsview button{font:inherit; font-size:13px; font-weight:700; color:var(--on-now); background:var(--now); border:1px solid var(--now); border-radius:4px; padding:5px 12px; cursor:pointer}
+.cardsview button.plain{color:var(--ink); background:transparent; border-color:var(--muted)}
+.cardsview button:disabled{opacity:.4; cursor:default}
+.cardsview .cklist li{padding:8px 10px; border:1px solid var(--line); background:var(--surface)}
+.cardsview .ck-p{font-weight:700; margin:4px 0 2px} .cardsview .ck-a{white-space:pre-wrap} .cardsview .ck-s{color:var(--muted); font-size:12.5px; margin-top:4px}
+.cardsview .ck-b{display:flex; gap:8px; margin-top:6px}
+.cardsview select{font:inherit; font-size:13px; border:1px solid var(--muted); border-radius:4px; padding:5px 8px; background:var(--surface); color:var(--ink)}
+.cardsview textarea{font:inherit; font-size:13.5px; border:1px solid var(--muted); border-radius:4px; padding:6px 8px; background:var(--surface); color:var(--ink)}
+.drillcard{border:2px solid var(--now)}
+.drillcard .dr-meta{font-size:12.5px; color:var(--muted); display:flex; flex-wrap:wrap; gap:6px; align-items:center}
+.drillcard .dr-prompt{font-size:20px; font-weight:700; margin:14px 0; font-family:Archivo,sans-serif}
+.drillcard .dr-answer{font-size:16px; padding:10px 12px; background:var(--surface-2); border-left:4px solid var(--now); white-space:pre-wrap}
+.drillcard .dr-src{font-size:12.5px; color:var(--muted); margin-top:8px; white-space:normal}
+.drillcard .dr-rate{display:flex; flex-wrap:wrap; gap:8px; margin-top:12px}
+.drillcard .dr-rate button{min-width:90px} .drillcard .dr-rate .again{background:var(--alert); border-color:var(--alert)}
+.drillcard .dr-foot{margin-top:10px}
 .dayplan .dp{display:grid; grid-template-columns:minmax(0, 3fr) minmax(240px, 2fr); gap:16px}
 @media (max-width:760px){ .dayplan .dp{grid-template-columns:1fr} }
 .dp-grid{position:relative; margin-left:44px}
@@ -693,6 +712,7 @@ body.colored table.all tr:not(.done) .tt{color:var(--cc)}
         <button type="button" id="v-day" data-view="day"><svg class="ic"><use href="#i-calendar-dot"/></svg>Day</button>
         <button type="button" id="v-all" data-view="all"><svg class="ic"><use href="#i-list-checks"/></svg>All deadlines</button>
         <button type="button" id="v-map" data-view="map"><svg class="ic"><use href="#i-tree-structure"/></svg>Map</button>
+        <button type="button" id="v-cards" data-view="cards" title="Study cards with spaced repetition, aimed at each lab and exam"><svg class="ic"><use href="#i-books"/></svg>Cards</button>
         <button type="button" id="v-app" data-view="app" title="The hosted app: what it does, what is coming, privacy and security"><svg class="ic"><use href="#i-shield-check"/></svg>Hosted app</button>
       </div>
       <div class="seg" role="group" aria-label="Show courses" id="filter"></div>
@@ -716,8 +736,8 @@ body.colored table.all tr:not(.done) .tt{color:var(--cc)}
 
 /* ---------- Helpers ---------- */
 const P = DATA.plan, INV = DATA.inventory, COURSES = P.COURSES, TEACHERS = P.TEACHERS, TERMS = P.TERMS, PROGRESS = DATA.progress || null;
-const LS = { hours: "ltu-plan-hours", planned: "ltu-plan-planned", openedCounts: "ltu-plan-opened-counts", groups: "ltu-plan-groups", canvasCache: "ltu-plan-canvas-cache", movedFolded: "ltu-plan-moved-folded", exportedAt: "ltu-plan-exported-at", unlocked: "ltu-plan-unlocked", ticks: "ltu-plan-ticks", tickAt: "ltu-plan-tick-at", muted: "ltu-plan-muted", filter: "ltu-plan-filter", term: "ltu-plan-term", view: "ltu-plan-view", open: "ltu-plan-open", weeks: "ltu-plan-weeks", size: "ltu-plan-size", ping: "ltu-plan-ping", colored: "ltu-plan-colored", theme: "ltu-plan-theme", mapOpen: "ltu-plan-map-open", mapPos: "ltu-plan-map-pos", mapAll: "ltu-plan-map-all", mapHops: "ltu-plan-map-hops", mapMode: "ltu-plan-map-mode", railSlim: "ltu-plan-map-rail", snaps: "ltu-plan-snaps", legacy: "lp2-shared-ticks" };
-const state = { checked: {}, tickAt: {}, planned: {}, cal: null, calLinks: null, calErr: null, bookings: null, canvas: null, canvasErr: null, openedCounts: true, groups: {}, exportedAt: null, unlocked: false, muted: {}, filter: "all", term: null, view: "week", day: null, open: {}, weeks: {}, size: 100, ping: true, colored: true, theme: "system", hours: { start: "09:00", end: "17:00" }, mapOpen: null, mapSel: null, mapSels: [], mapAll: false, mapHops: 5, mapMode: "select", railSlim: false };
+const LS = { hours: "ltu-plan-hours", drillGoal: "ltu-plan-drill-goal", planned: "ltu-plan-planned", openedCounts: "ltu-plan-opened-counts", groups: "ltu-plan-groups", canvasCache: "ltu-plan-canvas-cache", movedFolded: "ltu-plan-moved-folded", exportedAt: "ltu-plan-exported-at", unlocked: "ltu-plan-unlocked", ticks: "ltu-plan-ticks", tickAt: "ltu-plan-tick-at", muted: "ltu-plan-muted", filter: "ltu-plan-filter", term: "ltu-plan-term", view: "ltu-plan-view", open: "ltu-plan-open", weeks: "ltu-plan-weeks", size: "ltu-plan-size", ping: "ltu-plan-ping", colored: "ltu-plan-colored", theme: "ltu-plan-theme", mapOpen: "ltu-plan-map-open", mapPos: "ltu-plan-map-pos", mapAll: "ltu-plan-map-all", mapHops: "ltu-plan-map-hops", mapMode: "ltu-plan-map-mode", railSlim: "ltu-plan-map-rail", snaps: "ltu-plan-snaps", legacy: "lp2-shared-ticks" };
+const state = { checked: {}, tickAt: {}, planned: {}, cards: null, cardsLoading: false, drill: null, drillGoal: "event", cal: null, calLinks: null, calErr: null, bookings: null, canvas: null, canvasErr: null, openedCounts: true, groups: {}, exportedAt: null, unlocked: false, muted: {}, filter: "all", term: null, view: "week", day: null, open: {}, weeks: {}, size: 100, ping: true, colored: true, theme: "system", hours: { start: "09:00", end: "17:00" }, mapOpen: null, mapSel: null, mapSels: [], mapAll: false, mapHops: 5, mapMode: "select", railSlim: false };
 let store = null, saveTimer = null;
 
 function esc(s){ return String(s == null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
@@ -1038,6 +1058,111 @@ function renderWeekView(t){
   jump.hidden = idx < 0; if (idx >= 0) jump.href = "#today";
   return '<section><div class="sechead"><h2>Week by week</h2><span class="note">MUST items carry a red stripe. Sessions have no box, they are attended. The caret by a week number folds it.</span></div><div class="weeks">' + html + '</div></section>';
 }
+/* ---------- Cards (release 4) ---------- */
+// Cards live in the database with their rules (app/supabase/migrations/..._cards.sql); this view
+// drills, checks and writes them. Reviews are planned by FSRS at 90% recall; with the Drill Goal
+// "until the Key Event" no Review is set after the next event a Card prepares for.
+function cardItem(src){ var p = src.split(":"), code = p[1]; if (p[0] === "m") return { code: code, item: items(code).find(function(i){ return String(i.id) === p[2]; }) || null }; return { code: code, item: null, aid: p[2] }; }
+function cardEvents(t, c){
+  var out = {};
+  (c.sources || []).forEach(function(s){
+    var x = cardItem(s);
+    if (x.aid) { var a = assignments(x.code).find(function(y){ return String(y.id) === x.aid; }); if (a) out[x.code + ":" + a.id] = { code: x.code, a: a }; }
+    else if (x.item) neededFor(t, x.code, x.item).forEach(function(a){ out[x.code + ":" + a.id] = { code: x.code, a: a }; });
+  });
+  return Object.keys(out).map(function(k){ return out[k]; }).filter(function(e){ return e.a.due; }).sort(function(p, q){ return p.a.due.localeCompare(q.a.due); });
+}
+function nextEvent(t, c){ var today = todayIso(); return cardEvents(t, c).find(function(e){ return e.a.due >= today; }) || null; }
+function cardSourcesText(c){ return (c.sources || []).map(function(s){ var x = cardItem(s); return x.item ? (x.item.number ? x.item.number + " " : "") + x.item.title : x.aid ? "assignment " + x.aid : s; }).join("; "); }
+function cardSourcesLinks(c){ return (c.sources || []).map(function(s){ var x = cardItem(s); return x.item && x.item.url ? '<a href="' + esc(x.item.url) + '" target="_blank" rel="noopener">' + esc((x.item.number ? x.item.number + " " : "") + x.item.title) + '</a>' : esc(cardSourcesText({ sources: [s] })); }).join(", "); }
+function loadCards(){
+  if (!window.TRACKER_CONFIG || !window.claude || !window.claude.use) return;
+  state.cardsLoading = true;
+  window.claude.use("cards").then(function(api){
+    if (!api) { state.cards = { signedOut: true }; return; }
+    return Promise.all([api.list(), api.myChecks(), api.reviews(), api.maintainer(), api.groups()]).then(function(r){
+      var rev = {}; r[2].forEach(function(x){ rev[x.card_id] = x; });
+      var mine = {}; r[1].forEach(function(x){ mine[x.card_id] = true; });
+      state.cards = { api: api, me: api.me, list: r[0], checked: mine, reviews: rev, maintainer: !!r[3], groups: r[4], flags: [] };
+      if (r[3]) return api.flags().then(function(f){ state.cards.flags = f; });
+    });
+  }).catch(function(){ state.cards = { error: true }; }).then(function(){ state.cardsLoading = false; if (state.view === "cards") renderTerm(); });
+}
+function fsrsApi(){ return window.FSRS ? window.FSRS.fsrs(window.FSRS.generatorParameters({ request_retention: 0.9, enable_fuzz: false })) : null; }
+function fsrsCard(rv){ if (!rv) return window.FSRS.createEmptyCard(new Date()); var c = Object.assign({}, rv.fsrs); c.due = new Date(c.due); if (c.last_review) c.last_review = new Date(c.last_review); return c; }
+function drillable(t){ var C = state.cards; return C.list.filter(function(c){ return c.status === "shared" || c.owner === C.me; }); }
+function isDue(c){ var rv = state.cards.reviews[c.id]; return !rv || new Date(rv.due) <= new Date(); }
+// Recall on the event day, from FSRS, as a share of 1.
+function recallOn(c, day){ var rv = state.cards.reviews[c.id], f = fsrsApi(); if (!rv || !f) return 0; try { return f.get_retrievability(fsrsCard(rv), new Date(day + "T09:00:00"), false); } catch (e) { return 0; } }
+function rateCard(id, grade){
+  var C = state.cards, c = C.list.find(function(x){ return x.id === id; }), f = fsrsApi(); if (!c || !f) return;
+  var now = new Date(), res = f.repeat(fsrsCard(C.reviews[id]), now)[grade], next = res.card;
+  var ev = state.drillGoal === "event" ? nextEvent(term(), c) : null;
+  if (ev) { var cap = new Date(ev.a.due + "T07:00:00"); if (next.due > cap) next.due = cap > now ? cap : new Date(now.getTime() + 10 * 60000); }
+  var plain = JSON.parse(JSON.stringify(next));
+  C.reviews[id] = { card_id: id, fsrs: plain, due: plain.due };
+  C.api.review(id, plain, plain.due).catch(function(){ state.cardErr = "That review could not be saved; it is kept until the page is reloaded."; });
+  state.drill.shown = false; state.drill.queue.shift(); state.drill.done++; renderTerm();
+}
+function renderCardsView(t){
+  var head = '<div class="sechead"><h2>Cards</h2><span class="note">Study cards for each lab and exam, drilled with spaced repetition so you know them on the day.</span></div>';
+  if (!window.TRACKER_CONFIG) return '<section class="appview">' + head + '<div class="card"><p>Cards need an account, so they live on the hosted tracker: ' + appLink() + '. There you drill cards made from the lectures and lab material, check classmates\' cards and write your own.</p></div></section>';
+  var C = state.cards;
+  if (!C) return '<section class="appview">' + head + '<div class="card"><p>Loading cards...</p></div></section>';
+  if (C.signedOut) return '<section class="appview">' + head + '<div class="card"><p>Sign in (top right) to drill, check and write cards. Cards are shared with classmates once someone other than their writer has checked them.</p></div></section>';
+  if (C.error) return '<section class="appview">' + head + '<div class="card"><p class="err">The cards could not be loaded just now.</p></div></section>';
+  var pool = drillable(t), due = pool.filter(isDue), today = todayIso();
+  var sets = {}; pool.forEach(function(c){ cardEvents(t, c).forEach(function(e){ if (e.a.due < today) return; var k = e.code + ":" + e.a.id; (sets[k] = sets[k] || { k: k, e: e, cards: [] }).cards.push(c); }); });
+  var setRows = Object.keys(sets).map(function(k){ return sets[k]; }).sort(function(p, q){ return p.e.a.due.localeCompare(q.e.a.due); }).map(function(s){
+    var known = s.cards.filter(function(c){ return recallOn(c, s.e.a.due) >= 0.9; }).length, dueN = s.cards.filter(isDue).length;
+    return '<li style="' + colorVars(s.e.code) + '">' + chip(s.e.code) + ' <b>' + esc(shortTitle(s.e.a.title)) + '</b> <small>' + esc(longDay(s.e.a.due)) + '</small> <span class="cs-n">' + s.cards.length + ' cards, ' + dueN + ' due, ' + known + ' likely known on the day</span><button type="button" data-drill="' + esc(s.k) + '"' + (dueN ? '' : ' disabled') + '>Drill these</button></li>';
+  }).join("");
+  // the drill
+  var drill = "";
+  if (state.drill && state.drill.queue.length) {
+    var c = C.list.find(function(x){ return x.id === state.drill.queue[0]; }), ev = nextEvent(t, c);
+    drill = '<div class="card drillcard"><div class="dr-meta">' + chip(c.course) + ' ' + (ev ? 'for ' + esc(shortTitle(ev.a.title)) + ', ' + esc(longDay(ev.a.due)) : '') + ' <small>' + state.drill.queue.length + ' to go</small>' + (c.status !== "shared" ? ' <span class="tag">not checked yet</span>' : '') + '</div>' +
+      '<div class="dr-prompt">' + esc(c.prompt) + '</div>' +
+      (state.drill.shown ? '<div class="dr-answer">' + (c.kind === "question" ? '<small>Where the answer is:</small> ' : '') + esc(c.answer || "(no answer written)") + '<div class="dr-src">Check it in: ' + cardSourcesLinks(c) + '</div></div>' +
+        flagUi(c.id, '') +
+        '<div class="dr-rate"><button type="button" data-rate="1" class="again">Again</button><button type="button" data-rate="2">Hard</button><button type="button" data-rate="3" class="good">Good</button><button type="button" data-rate="4">Easy</button></div>'
+       : '<div class="dr-rate"><button type="button" data-reveal="1" class="good">Show the answer</button></div>') +
+      '<div class="dr-foot"><button type="button" class="plain" data-drillstop="1">Stop</button></div></div>';
+  } else if (state.drill) drill = '<div class="card drillcard"><p><b>Done.</b> ' + state.drill.done + ' cards reviewed. The next ones come back when FSRS says you are about to forget them.</p><button type="button" class="plain" data-drillstop="1">Close</button></div>';
+  // to check
+  var toCheck = C.list.filter(function(c){ return c.status === "draft" && c.owner !== C.me && !C.checked[c.id]; }).slice(0, 30).map(function(c){
+    return '<li style="' + colorVars(c.course) + '">' + chip(c.course) + (c.ai_drafted ? ' <span class="tag">AI draft</span>' : '') + (c.kind === "answer" ? ' <span class="tag">group answer</span>' : '') + '<div class="ck-p">' + esc(c.prompt) + '</div><div class="ck-a">' + esc(c.answer) + '</div><div class="ck-s">Sources: ' + cardSourcesLinks(c) + '</div>' +
+      flagUi(c.id, '<button type="button" data-cardcheck="' + esc(c.id) + '">Correct: share it</button>') + '</li>';
+  }).join("");
+  var flagged = C.maintainer ? C.list.filter(function(c){ return c.status === "flagged"; }).map(function(c){
+    var why = C.flags.filter(function(f){ return f.card_id === c.id; }).map(function(f){ return f.reason; }).filter(Boolean).join("; ");
+    return '<li>' + chip(c.course) + '<div class="ck-p">' + esc(c.prompt) + '</div><div class="ck-a">' + esc(c.answer) + '</div>' + (why ? '<div class="ck-s">Flagged: ' + esc(why) + '</div>' : '') + '<div class="ck-b"><button type="button" data-settle="keep" data-card="' + esc(c.id) + '">Keep it</button><button type="button" class="plain" data-settle="remove" data-card="' + esc(c.id) + '">Remove it</button></div></li>';
+  }).join("") : "";
+  var mineG = (C.groups || []).map(function(g){ return g.course + " Group " + g.group_number; }).join(", ");
+  var courseOpts = Object.keys(COURSES).filter(function(k){ return COURSES[k].canvasId; }).map(function(k){ return '<option value="' + esc(k) + '">' + esc(label(k)) + '</option>'; }).join("");
+  var write = '<div class="card cvcard"><h3>' + ic("plus") + 'Write a card</h3><p class="note">Concept: one idea a lab or exam tests, with the answer. Question: a graded question word for word, and where its answer is found, never the answer itself. Group answer: your group\'s own answer to a graded question, seen only by your group' + (mineG ? ' (' + esc(mineG) + ')' : ' (your group is known once you connect Canvas in Hosted app)') + '.</p>' +
+    '<div class="row"><select id="cw-kind"><option value="concept">Concept card</option><option value="question">Question card</option><option value="answer"' + (mineG ? '' : ' disabled') + '>Group answer card</option></select><select id="cw-course">' + courseOpts + '</select><input type="text" id="cw-src" placeholder="Sources, as in Canvas: 4.2, 9.7" style="flex:1 1 200px; font:inherit; font-size:13px; border:1px solid var(--muted); border-radius:4px; padding:6px 8px; background:var(--surface); color:var(--ink)"></div>' +
+    '<div class="row"><textarea id="cw-prompt" rows="2" placeholder="Front: the question" style="flex:1 1 100%"></textarea></div><div class="row"><textarea id="cw-answer" rows="3" placeholder="Back: the answer, or for a question card where the answer is found" style="flex:1 1 100%"></textarea></div>' +
+    '<div class="row"><button type="button" data-cardwrite="1">Save as a draft</button><small>Shared once a classmate checks it.</small></div></div>';
+  return '<section class="appview cardsview">' + head + (state.cardErr ? '<p class="err">' + esc(state.cardErr) + '</p>' : '') + drill +
+    '<div class="card"><h3>' + ic("target") + 'Drill<span class="sum">' + due.length + ' of ' + pool.length + ' due</span></h3>' +
+      '<div class="row"><button type="button" data-drill="all"' + (due.length ? '' : ' disabled') + '>Drill all due cards</button><label><input type="radio" name="dgoal" value="event"' + (state.drillGoal === "event" ? ' checked' : '') + '> until the lab or exam</label><label><input type="radio" name="dgoal" value="mastered"' + (state.drillGoal === "mastered" ? ' checked' : '') + '> until mastered</label></div>' +
+      (setRows ? '<ul class="csets">' + setRows + '</ul>' : '<p class="note">No checked cards yet for an upcoming lab or exam. Check some below, or write your own.</p>') + '</div>' +
+    (toCheck ? '<div class="card"><h3>' + ic("check-circle") + 'To check<span class="sum">read it against its sources; one check shares it with everyone</span></h3><ul class="cklist">' + toCheck + '</ul></div>' : '') +
+    (flagged ? '<div class="card"><h3>' + ic("warning") + 'Flagged<span class="sum">Maintainer</span></h3><ul class="cklist">' + flagged + '</ul></div>' : '') +
+    write + '</section>';
+}
+// Flag a card: an inline reason, then Send. A flagged card is hidden until the Maintainer decides.
+function flagUi(id, before){
+  if (state.flagging === id) return '<div class="ck-b"><input type="text" id="flag-why" maxlength="500" placeholder="What is wrong? (optional)" style="flex:1 1 220px; font:inherit; font-size:13px; border:1px solid var(--muted); border-radius:4px; padding:5px 8px; background:var(--surface); color:var(--ink)"><button type="button" data-flagsend="' + esc(id) + '">Send flag</button><button type="button" class="plain" data-flagcancel="1">Cancel</button></div>';
+  return '<div class="ck-b">' + before + '<button type="button" class="plain" data-flagopen="' + esc(id) + '">Something is wrong</button></div>';
+}
+function cardSources(code, text){
+  var all = items(code), out = [], bad = [];
+  String(text || "").split(/[,;\s]+/).filter(Boolean).forEach(function(n){ var it = all.find(function(i){ return i.number === n; }); if (it) out.push("m:" + code + ":" + it.id); else bad.push(n); });
+  return { ids: out, bad: bad };
+}
+
 /* ---------- Day Plan (release 3) ---------- */
 // One day in 15-minute slots: what is fixed (sessions, the Student's calendar, their Group's booked
 // slot, deadlines), the Free Slots inside working hours, and the Planned Blocks the Student put
@@ -1200,11 +1325,13 @@ function renderTerm(){
   if (t.upcoming && !t.courses.length) { body = '<section><div class="card empty"><h3>' + esc(t.label + ", " + t.period) + '</h3><p>' + esc(t.upcoming) + '</p></div></section>'; document.getElementById("jump").hidden = true; }
   else if (state.view === "map") body = renderMapView(t);
   else if (state.view === "app") body = renderAppView();
+  else if (state.view === "cards") body = renderCardsView(t);
   else body = (state.view === "day" ? renderDayView(t) : state.view === "all" ? renderAllView(t) : renderWeekView(t)) + renderQuick(t) + renderCourses(t) + renderRhythm(t);
   if (state.view !== "week") document.getElementById("jump").hidden = true;
   document.getElementById("termbody").innerHTML = body;
   if (state.view === "map") bindMap(t);
   if (state.view === "app") bindAccountDelete();
+  if (state.view === "cards" && !state.cards && !state.cardsLoading) loadCards();
   applyFilter();
 }
 
@@ -2326,10 +2453,10 @@ var APP_INFO = {
     ["Your Canvas status beside your ticks", "Paste your own Canvas token and each task shows what Canvas has recorded (submitted, posted, marked done or opened) next to your tick, with a warning sign when you ticked a hand-in Canvas has no submission for."],
     ["Lab bookings and their deadlines", "Your group's slot read from the signup sheet, with a warning that grows as the session comes closer and the free slots run out."],
     ["Your own calendar", "Add a calendar link, such as your group's, and its events appear among the sessions, marked as yours, and count as busy time."],
+    ["Study cards", "The Cards view drills flashcards for every lab and exam, made from the lectures and lab material. Spaced repetition shows each card just before you would forget it and plans the reviews so you know it on the day of the lab or exam. Cards are checked by a classmate before they are shared, anyone can flag a wrong one, and your group's answers to graded questions stay within your group."],
     ["A day in 15-minute slots", "Day shows both courses in one day plan: sessions, your calendar, your lab slot and deadlines, the free slots between them, and this week's unplaced work with a suggested slot. Place it with one press or drag it, and the plan follows you to your other devices."]
   ],
   planned: [
-    ["Study cards", "Release 4: flashcards for every lab and exam, drawn from the lectures, the lab questions and the course's own checklists. Spaced repetition shows each card just before you would forget it and plans the reviews so you know it on the day of the lab or exam. Cards are checked by a classmate before they are shared, and anyone can flag a wrong one."],
     ["Prep chains", "Release 5: every lab session, quiz, midterm and oral exam with everything that prepares for it, lectures, readings, quizzes, group sessions and card sets, drawn back from the event on a timeline, so you see what should be done by when, and which lecture is taught too late for the lab that needs it."]
   ],
   privacy: [
@@ -2367,7 +2494,7 @@ function renderMoved(nudge){
       '<button type="button" class="mv-fold" data-moved="fold" aria-expanded="' + String(!folded) + '" title="' + (folded ? "Show the steps" : "Fold to one line") + '" aria-label="' + (folded ? "Show the steps" : "Fold to one line") + '">' + ic("caret-down") + '</button></div>' +
     (folded ? "" : '<div class="mv-body">' +
       '<div><h4>How to move</h4>' + moveSteps() + '</div>' +
-      '<div><h4>Why move</h4>' + infoList([APP_INFO.now[0], APP_INFO.now[4], APP_INFO.now[5]], "ul") + '<p style="margin:6px 0 0"><b>Coming:</b> study cards with spaced repetition before every exam, and prep chains from each lab and exam back to its lectures. A day plan in 15-minute slots is already here. All of it, and how your data is kept: <a href="#" data-goview="app">Hosted app</a>.</p></div>' +
+      '<div><h4>Why move</h4>' + infoList([APP_INFO.now[0], APP_INFO.now[4], APP_INFO.now[5]], "ul") + '<p style="margin:6px 0 0"><b>Coming:</b> prep chains from each lab and exam back to its lectures. A day plan in 15-minute slots and study cards are already here. All of it, and how your data is kept: <a href="#" data-goview="app">Hosted app</a>.</p></div>' +
       (stateHtml ? '<p class="mv-state">' + stateHtml + '</p>' : '') + '</div>');
   el.hidden = false;
   el.classList.toggle("folded", folded); el.classList.toggle("drift", drift);
@@ -2452,6 +2579,40 @@ function renderAppView(){
   '</section>';
 }
 document.addEventListener("click", function(e){
+  var cb = e.target.closest && e.target.closest("button[data-drill], button[data-reveal], button[data-rate], button[data-drillstop], button[data-cardcheck], button[data-flagopen], button[data-flagsend], button[data-flagcancel], button[data-settle], button[data-cardwrite]");
+  if (cb && state.cards && state.cards.api) {
+    var C = state.cards, api = C.api, again = function(){ state.cards = null; loadCards(); };
+    if (cb.dataset.drill) {
+      var pool = drillable(term()).filter(isDue);
+      if (cb.dataset.drill !== "all") pool = pool.filter(function(c){ return cardEvents(term(), c).some(function(ev){ return ev.code + ":" + ev.a.id === cb.dataset.drill; }); });
+      state.drill = { queue: pool.map(function(c){ return c.id; }), shown: false, done: 0 }; renderTerm(); window.scrollTo(0, 0);
+    }
+    else if (cb.dataset.reveal) { state.drill.shown = true; renderTerm(); }
+    else if (cb.dataset.rate) rateCard(state.drill.queue[0], Number(cb.dataset.rate));
+    else if (cb.dataset.drillstop) { state.drill = null; renderTerm(); }
+    else if (cb.dataset.cardcheck) { cb.disabled = true; api.check(cb.dataset.cardcheck).then(again).catch(function(){ state.cardErr = "That check could not be saved."; renderTerm(); }); }
+    else if (cb.dataset.flagopen) { state.flagging = cb.dataset.flagopen; renderTerm(); }
+    else if (cb.dataset.flagcancel) { state.flagging = null; renderTerm(); }
+    else if (cb.dataset.flagsend) {
+      var why = (document.getElementById("flag-why") || {}).value || "", fid = cb.dataset.flagsend; cb.disabled = true;
+      api.flag(fid, why.trim().slice(0, 500)).then(function(){
+        state.flagging = null;
+        if (state.drill && state.drill.queue[0] === fid) { state.drill.queue.shift(); state.drill.shown = false; }
+        again();
+      }).catch(function(){ state.cardErr = "That flag could not be sent."; renderTerm(); });
+    }
+    else if (cb.dataset.settle) api.settle(cb.dataset.card, cb.dataset.settle === "keep").then(again).catch(function(){ state.cardErr = "That could not be settled."; renderTerm(); });
+    else if (cb.dataset.cardwrite) {
+      var kind = document.getElementById("cw-kind").value, code = document.getElementById("cw-course").value, src = cardSources(code, document.getElementById("cw-src").value);
+      var pr = document.getElementById("cw-prompt").value.trim(), an = document.getElementById("cw-answer").value.trim();
+      if (pr.length < 3 || !src.ids.length || src.bad.length) { state.cardErr = !src.ids.length || src.bad.length ? "Give at least one source by its number in Canvas" + (src.bad.length ? " (not found: " + src.bad.join(", ") + ")" : "") + "." : "Write the front of the card."; renderTerm(); return; }
+      var g = kind === "answer" ? (C.groups.find(function(x){ return x.course === code; }) || {}).group_number : null;
+      if (kind === "answer" && !g) { state.cardErr = "Your group in " + code + " is not known yet: connect Canvas in Hosted app."; renderTerm(); return; }
+      state.cardErr = null; cb.disabled = true;
+      api.add({ kind: kind, course: code, sources: src.ids, prompt: pr, answer: an, group_number: g || null }).then(again).catch(function(){ state.cardErr = "The card could not be saved."; renderTerm(); });
+    }
+    return;
+  }
   var pl = e.target.closest && e.target.closest("button[data-place], button[data-unplan]");
   if (pl) {
     if (pl.dataset.unplan) { state.planned[pl.dataset.unplan] = { gone: true, at: new Date().toISOString() }; save(); renderTerm(); }
@@ -2520,6 +2681,7 @@ document.addEventListener("change", function(e){
   var b = e.target;
   if (!b) return;
   if (b.id === "daypick") { state.day = b.value || todayIso(); renderTerm(); return; }
+  if (b.name === "dgoal") { state.drillGoal = b.value === "mastered" ? "mastered" : "event"; lsSet(LS.drillGoal, state.drillGoal); return; }
   if (b.id === "cv-opened") { state.openedCounts = b.checked; lsSet(LS.openedCounts, b.checked ? "1" : "0"); applyState(); renderTerm(); return; }
   if (b.dataset && b.dataset.group) { var gv = parseInt(b.value, 10); if (gv > 0 && gv < 100) state.groups[b.dataset.group] = gv; else delete state.groups[b.dataset.group]; lsSet(LS.groups, JSON.stringify(state.groups)); renderTerm(); refreshBookings(); return; }
   if (b.id === "g-hops") { state.mapHops = Number(b.value); lsSet(LS.mapHops, String(state.mapHops)); document.getElementById("g-hops-v").textContent = hopsLabel(); applySel(term()); return; }
@@ -2576,6 +2738,7 @@ function defaultTerm(){
 state.checked = migrate(lsJson(LS.ticks) || lsJson(LS.legacy) || {});
 state.tickAt = migrateAt(lsJson(LS.tickAt) || {});
 state.planned = lsJson(LS.planned) || {};
+state.drillGoal = lsGet(LS.drillGoal) === "mastered" ? "mastered" : "event";
 state.exportedAt = lsGet(LS.exportedAt) || null;
 state.openedCounts = lsGet(LS.openedCounts) !== "0";
 state.groups = lsJson(LS.groups) || {};
@@ -2591,7 +2754,7 @@ state.colored = lsGet(LS.colored) !== "0";
 var th = lsGet(LS.theme); if (th === "light" || th === "dark" || th === "system") state.theme = th;
 var sh = lsJson(LS.hours); if (sh && toMin(sh.start) != null && toMin(sh.end) != null) state.hours = sh;
 state.filter = lsGet(LS.filter) || "all";
-var sv = lsGet(LS.view); if (sv === "day" || sv === "all" || sv === "week" || sv === "map" || sv === "app") state.view = sv;
+var sv = lsGet(LS.view); if (sv === "day" || sv === "all" || sv === "week" || sv === "map" || sv === "app" || sv === "cards") state.view = sv;
 state.mapOpen = lsJson(LS.mapOpen);
 state.mapAll = lsGet(LS.mapAll) !== "0";   // on unless the viewer switched it off
 var hp = Number(lsGet(LS.mapHops)); if (hp >= 1 && hp <= 5) state.mapHops = hp;   // 5 means no limit

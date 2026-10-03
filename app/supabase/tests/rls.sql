@@ -97,6 +97,75 @@ do $$ begin
   exception when insufficient_privilege then raise notice 'ok anon cannot read links'; end;
 end $$;
 
+-- Cards (release 4): A writes, B and C check and flag, M settles; A and C are in Group 8
+reset role;
+insert into auth.users (id, aud, role, email) values
+  ('00000000-0000-0000-0000-00000000000c', 'authenticated', 'authenticated', 'c@test.invalid'),
+  ('00000000-0000-0000-0000-00000000000d', 'authenticated', 'authenticated', 'm@test.invalid');
+insert into public.app_maintainer values ('00000000-0000-0000-0000-00000000000d');
+set local role tracker_sync;
+select public.record_groups('00000000-0000-0000-0000-00000000000a', '{"Z0025E": 8}');
+select public.record_groups('00000000-0000-0000-0000-00000000000c', '{"Z0025E": 8}');
+select public.record_groups('00000000-0000-0000-0000-00000000000b', '{"Z0025E": 3}');
+reset role; set local role authenticated;
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000a","role":"authenticated"}', true);
+insert into public.card (id, kind, prompt, answer, sources, course) values ('10000000-0000-0000-0000-000000000001', 'concept', 'What does a /26 mask leave for hosts?', '62 usable addresses', '{m:Z0025E:19900}', 'Z0025E');
+insert into public.card (id, kind, prompt, answer, sources, course, group_number) values ('10000000-0000-0000-0000-000000000002', 'answer', 'Reflection 3', 'Our answer', '{d:Z0025E:3043}', 'Z0025E', 8);
+do $$ begin
+  begin insert into public.card (kind, prompt, sources, course, ai_drafted) values ('concept', 'Fake AI card', '{m:Z0025E:1}', 'Z0025E', true); raise notice 'FAIL a Student marked a card AI-drafted';
+  exception when insufficient_privilege then raise notice 'ok only the upload marks AI drafts'; end;
+  begin insert into public.card (kind, prompt, sources, course, group_number) values ('answer', 'For group 3', '{d:Z0025E:3043}', 'Z0025E', 3); raise notice 'FAIL an Answer Card for another group';
+  exception when insufficient_privilege then raise notice 'ok no Answer Cards for another group'; end;
+  begin insert into public.card (kind, prompt, sources, course, group_number) values ('concept', 'Grouped concept', '{m:Z0025E:1}', 'Z0025E', 8); raise notice 'FAIL a grouped Concept Card';
+  exception when check_violation then raise notice 'ok only Answer Cards belong to a group'; end;
+  begin insert into public.card (kind, prompt, sources, course) values ('concept', 'Bad source', '{whatever}', 'Z0025E'); raise notice 'FAIL a card without a Course Plan source';
+  exception when check_violation then raise notice 'ok sources must be Course Plan ids'; end;
+  begin insert into public.card_check (card_id) values ('10000000-0000-0000-0000-000000000001'); raise notice 'FAIL the owner checked their own card';
+  exception when insufficient_privilege then raise notice 'ok no checking your own card'; end;
+  begin update public.card set status = 'shared' where id = '10000000-0000-0000-0000-000000000001'; raise notice 'FAIL a Student set the status';
+  exception when insufficient_privilege then raise notice 'ok status only by the rules'; end;
+end $$;
+-- B: sees the concept draft, not the group's answer; checks the concept, cannot check the answer
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000b","role":"authenticated"}', true);
+select 'B sees cards: ' || string_agg(kind, ',' order by kind) from public.card;
+insert into public.card_check (card_id) values ('10000000-0000-0000-0000-000000000001');
+do $$ begin
+  begin insert into public.card_check (card_id) values ('10000000-0000-0000-0000-000000000002'); raise notice 'FAIL B checked another group''s answer';
+  exception when insufficient_privilege then raise notice 'ok answers are checked inside the group'; end;
+end $$;
+select 'concept after B checks: ' || status from public.card where id = '10000000-0000-0000-0000-000000000001';
+-- C (group 8): sees and checks the answer; a review is C's alone
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000c","role":"authenticated"}', true);
+select 'C sees cards: ' || string_agg(kind, ',' order by kind) from public.card;
+insert into public.card_check (card_id) values ('10000000-0000-0000-0000-000000000002');
+insert into public.review (card_id, fsrs, due) values ('10000000-0000-0000-0000-000000000001', '{"state":1}', now());
+-- B flags the shared concept: hidden from C, still seen by A (owner) and M (maintainer)
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000b","role":"authenticated"}', true);
+select 'B sees reviews: ' || count(*) from public.review;
+insert into public.card_flag (card_id, reason) values ('10000000-0000-0000-0000-000000000001', 'wrong count');
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000c","role":"authenticated"}', true);
+select 'C sees the flagged concept: ' || count(*) from public.card where id = '10000000-0000-0000-0000-000000000001';
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000d","role":"authenticated"}', true);
+select 'M sees flags: ' || count(*) from public.card_flag;
+select public.settle_flag('10000000-0000-0000-0000-000000000001', true);
+select 'after M keeps it: ' || status from public.card where id = '10000000-0000-0000-0000-000000000001';
+-- A edits the shared concept: back to draft, its checks gone
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000a","role":"authenticated"}', true);
+update public.card set answer = '62 hosts (64 minus network and broadcast)' where id = '10000000-0000-0000-0000-000000000001';
+select 'after A edits: ' || status || ', checks ' || (select count(*) from public.card_check where card_id = '10000000-0000-0000-0000-000000000001') from public.card where id = '10000000-0000-0000-0000-000000000001';
+do $$ begin
+  begin perform public.settle_flag('10000000-0000-0000-0000-000000000001', false); raise notice 'FAIL a Student settled a flag';
+  exception when insufficient_privilege then raise notice 'ok only the Maintainer settles flags'; end;
+  begin perform public.record_groups(auth.uid(), '{"Z0025E": 3}'); raise notice 'FAIL a Student set their own group';
+  exception when insufficient_privilege then raise notice 'ok groups only from Canvas'; end;
+end $$;
+reset role; set local role anon;
+select set_config('request.jwt.claims', '{"role":"anon"}', true);
+do $$ begin
+  begin perform 1 from public.card; raise notice 'FAIL anon can read cards';
+  exception when insufficient_privilege then raise notice 'ok anon cannot read cards'; end;
+end $$;
+
 -- Deleting one's own account removes it and its progress, and nobody else's
 reset role; set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000b","role":"authenticated"}', true);
