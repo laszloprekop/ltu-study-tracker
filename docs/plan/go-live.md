@@ -52,6 +52,9 @@ image digest GHCR had as latest. In GitHub, `COOLIFY_TOKEN` is the token alone, 
 
 ## 4. The hourly sync
 
+Done 2026-10-03: scheduled task `course-plan-sync` at `7 * * * *`; the first run from Coolify
+started 14:15:05 and stored the plan at 14:15:59 UTC (about a minute per run).
+
 1. Coolify, the app, Scheduled Tasks, + Add: name `course-plan-sync`, command
    `node scripts/sync.mjs`, frequency `7 * * * *` (seven minutes past every hour).
 2. Run it once by hand from the same screen. Its log ends with
