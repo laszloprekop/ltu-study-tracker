@@ -12,6 +12,9 @@ COPY --chown=nextjs:nodejs .next/standalone ./
 COPY --chown=nextjs:nodejs .next/static ./.next/static
 COPY --chown=nextjs:nodejs public ./public
 COPY --chown=nextjs:nodejs tracker ./tracker
+# The hourly Course Plan sync: node scripts/sync.mjs (a Coolify scheduled task)
+COPY --chown=nextjs:nodejs sync ./sync
+COPY --chown=nextjs:nodejs scripts/sync.mjs ./scripts/sync.mjs
 
 USER nextjs
 EXPOSE 3000

@@ -1,57 +1,16 @@
 #!/usr/bin/env node
 // Builds ltu-study-tracker.html from src/template.html, data/plan.mjs and data/canvas-inventory.json.
-// Teacher photos are inlined as data URIs, because the published page cannot load images from elsewhere.
 // With --private, data/my-progress.json (your own Canvas completion state) is included and the output is
-// ltu-study-tracker.private.html, git-ignored, never the shared page.
+// ltu-study-tracker.private.html, git-ignored, never the shared page. The pieces live in tools/lib/page.mjs,
+// which the app's hourly sync uses too.
 
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { TEACHERS, COURSES, TERMS, LEGACY_IDS } from "../data/plan.mjs";
+import { checkPlan, buildData, shell, withData, readInventory } from "./lib/page.mjs";
 
 const root = p => fileURLToPath(new URL("../" + p, import.meta.url));
-const template = readFileSync(root("src/template.html"), "utf8");
-// The page must stay ASCII (see the JSON escaping below), so a stray typed character stops the build.
-const stray = /[^\x00-\x7e]/.exec(template);
-if (stray) { const line = template.slice(0, stray.index).split("\n").length; console.error(`src/template.html has a non-ASCII character on line ${line}: use a \\uXXXX escape or an HTML entity.`); process.exit(1); }
-const inventory = JSON.parse(readFileSync(root("data/canvas-inventory.json"), "utf8"));
-
-const teachers = {};
-for (const [key, t] of Object.entries(TEACHERS)) {
-  const photo = t.photo ? "data:image/jpeg;base64," + readFileSync(root(t.photo)).toString("base64") : null;
-  teachers[key] = { ...t, photo };
-}
-
-// Fail the build on refs that match nothing: a silent miss would hide work from the page.
-function itemsOf(code) { return (inventory.courses[code]?.modules || []).flatMap(m => m.items); }
-function refMatches(code, ref) {
-  const items = itemsOf(code);
-  if (ref.startsWith("#")) return items.filter(i => i.title.toLowerCase().startsWith(ref.slice(1).toLowerCase()));
-  const [num, type] = ref.split("@");
-  return items.filter(i => i.number && (i.number === num || i.number.startsWith(num + ".")) && (!type || i.type === type));
-}
-const problems = [];
-for (const term of TERMS) {
-  for (const s of term.study) for (const r of s.refs) if (!refMatches(s.course, r).length) problems.push(`${term.id} study ${s.week} ${s.course} ref "${r}" matches nothing`);
-  for (const s of term.sessions) {
-    for (const r of [s.ref, ...(s.also || []), ...(s.prep || [])].filter(Boolean)) if (!refMatches(s.course, r).length) problems.push(`${term.id} session ${s.date} ${s.course} ref "${r}" matches nothing`);
-    if (!term.courses.includes(s.course)) problems.push(`${term.id} session ${s.date} names course ${s.course}, not in the term`);
-  }
-  for (const key of Object.keys(term.notes)) {
-    const [code, id] = key.split(":");
-    if (id !== "quizzes" && !(inventory.courses[code]?.assignments || []).some(a => String(a.id) === id)) problems.push(`${term.id} note ${key} names no Canvas assignment`);
-  }
-  for (const [key, refs] of Object.entries(term.needs || {})) {
-    const [code, id] = key.split(":");
-    if (!(inventory.courses[code]?.assignments || []).some(a => String(a.id) === id)) problems.push(`${term.id} needs ${key} names no Canvas assignment`);
-    for (const r of refs) if (!refMatches(code, r).length) problems.push(`${term.id} needs ${key} ref "${r}" matches nothing`);
-  }
-  const ids = new Set();
-  for (const t of term.tasks) {
-    if (ids.has(t.id)) problems.push(`duplicate task id ${t.id}`); ids.add(t.id);
-    if (t.for) { const [code, id] = t.for.split(":"); if (!(inventory.courses[code]?.assignments || []).some(a => String(a.id) === id)) problems.push(`task ${t.id} is for ${t.for}, which is no Canvas assignment`); }
-  }
-}
-for (const [code, c] of Object.entries(COURSES)) for (const o of c.optional || []) for (const r of o.refs) if (!refMatches(code, r).length) problems.push(`${code} optional ref "${r}" matches nothing`);
+const inventory = readInventory();
+const problems = checkPlan(inventory);
 if (problems.length) { console.error("Build stopped:\n  " + problems.join("\n  ")); process.exit(1); }
 
 const isPrivate = process.argv.includes("--private");
@@ -60,23 +19,8 @@ if (isPrivate) {
   if (!existsSync(root("data/my-progress.json"))) { console.error("No data/my-progress.json. Run: npm run progress"); process.exit(1); }
   progress = JSON.parse(readFileSync(root("data/my-progress.json"), "utf8"));
 }
-const data = { built: new Date().toISOString(), private: isPrivate, plan: { TEACHERS: teachers, COURSES, TERMS, LEGACY_IDS }, inventory, progress };
-// ASCII only, so the file reads correctly whatever charset a server claims.
-const json = JSON.stringify(data).replace(/<\/script/gi, "<\\/script")
-  .replace(/[\u007f-\uffff]/g, ch => "\\u" + ch.charCodeAt(0).toString(16).padStart(4, "0"));
-// Phosphor duotone icons as one hidden sprite; the page uses them with <use href="#i-name">.
-const iconDir = root("assets/icons");
-const { readdirSync } = await import("node:fs");
-const symbols = readdirSync(iconDir).filter(f => f.endsWith(".svg")).sort().map(f => {
-  const svg = readFileSync(iconDir + "/" + f, "utf8");
-  const inner = svg.replace(/^[\s\S]*?<svg[^>]*>/, "").replace(/<\/svg>\s*$/, "");
-  return `<symbol id="i-${f.slice(0, -4)}" viewBox="0 0 256 256">${inner}</symbol>`;
-}).join("");
-const sprite = `<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">${symbols}</svg>`;
-const marker = "/*__DATA__*/";
-if (!template.includes(marker)) { console.error("src/template.html has no /*__DATA__*/ marker"); process.exit(1); }
-const html = "<!-- Generated by tools/build.mjs from src/template.html, data/plan.mjs and data/canvas-inventory.json. Do not edit. -->\n" +
-  template.replace(marker, "const DATA = " + json + ";").replace("<!--__ICONS__-->", sprite);
+let html;
+try { html = withData(shell(), buildData(inventory, progress)); } catch (e) { console.error(e.message); process.exit(1); }
 const outName = isPrivate ? "ltu-study-tracker.private.html" : "ltu-study-tracker.html";
 writeFileSync(root(outName), html);
 const kb = Math.round(Buffer.byteLength(html) / 1024);

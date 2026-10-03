@@ -44,6 +44,30 @@ do $$ begin
   exception when insufficient_privilege then raise notice 'ok anon cannot save'; end;
 end $$;
 
+-- The sync role: reads the token, writes the plan, sees nothing personal
+reset role;
+grant tracker_sync to postgres;  -- only so this test can act as the sync; rolled back below
+select vault.create_secret('test-token-not-real', 'canvas_sync_token_test');
+set local role tracker_sync;
+select set_config('request.jwt.claims', '{"role":"tracker_sync"}', true);
+select 'sync stores plan at: ' || (public.store_course_plan('{"plan":{},"inventory":{},"private":false,"progress":null}') is not null);
+do $$ begin
+  begin perform public.store_course_plan('{"plan":{},"inventory":{},"private":true,"progress":{"x":1}}'); raise notice 'FAIL private plan accepted';
+  exception when invalid_parameter_value then raise notice 'ok private plan refused'; end;
+  begin perform 1 from public.progress; raise notice 'FAIL sync can read progress';
+  exception when insufficient_privilege then raise notice 'ok sync cannot read progress'; end;
+  begin perform 1 from vault.decrypted_secrets; raise notice 'FAIL sync can read all of vault';
+  exception when insufficient_privilege then raise notice 'ok sync cannot read vault directly'; end;
+end $$;
+reset role; set local role authenticated;
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000a","role":"authenticated"}', true);
+do $$ begin
+  begin perform public.sync_canvas_token(); raise notice 'FAIL a Student can read the sync token';
+  exception when insufficient_privilege then raise notice 'ok a Student cannot read the sync token'; end;
+  begin perform public.store_course_plan('{"plan":{},"inventory":{}}'); raise notice 'FAIL a Student can write the plan';
+  exception when insufficient_privilege then raise notice 'ok a Student cannot write the plan'; end;
+end $$;
+
 reset role;
 select 'A row still there after B delete: ' || count(*) from public.progress where user_id = '00000000-0000-0000-0000-00000000000a';
 rollback;

@@ -167,7 +167,7 @@ async function courseInventory(code, course) {
   return out;
 }
 
-async function buildInventory() {
+export async function buildInventory() {
   const inv = { generatedAt: new Date().toISOString(), courses: {} };
   for (const [code, course] of Object.entries(COURSES)) {
     if (!course.canvasId) continue;
@@ -285,7 +285,10 @@ async function progress() {
   console.log(`Wrote ${PROGRESS} (git-ignored). Build a private page with: npm run build:private`);
 }
 
-const cmd = process.argv[2] || "check";
-const run = { courses, inventory, check, calendar, announcements, progress }[cmd];
-if (!run) { console.error(`Unknown command "${cmd}". Use: courses | inventory | check | calendar | announcements | progress`); process.exit(2); }
-run().catch(e => { console.error(e.message); process.exit(1); });
+// Run as a command only when started directly; the app's sync imports buildInventory.
+if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
+  const cmd = process.argv[2] || "check";
+  const run = { courses, inventory, check, calendar, announcements, progress }[cmd];
+  if (!run) { console.error(`Unknown command "${cmd}". Use: courses | inventory | check | calendar | announcements | progress`); process.exit(2); }
+  run().catch(e => { console.error(e.message); process.exit(1); });
+}

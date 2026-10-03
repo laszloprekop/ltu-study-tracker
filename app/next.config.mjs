@@ -5,7 +5,7 @@ const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   devIndicators: false,
-  // The page is read from tracker/ at request time; ship it with the standalone server.
-  outputFileTracingIncludes: { "/": ["./tracker/**"] },
+  // tracker/ (page shell, built-in plan) is read at request time; the Dockerfile copies it, and
+  // sync/ for the hourly job, next to the standalone server.
 };
 export default nextConfig;

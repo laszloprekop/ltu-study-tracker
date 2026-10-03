@@ -77,16 +77,23 @@ Done and applied 2026-10-03 (`app/supabase/`).
 
 ### 4. Hourly Course Plan sync on the server
 
-- The Maintainer creates a Canvas token named "tracker-sync" with an expiry at the end of the term.
-  It goes into Supabase Vault; only the sync job's database role may read it (ADR 0001).
-- The job runs `buildInventory` (`tools/canvas-sync.mjs`) and the plan merge from `tools/build.mjs`
-  against `data/plan.mjs` as built into the image, and writes `course_plan`. Its Canvas client
-  accepts only GET and only the endpoints the inventory uses; anything else throws.
-- Trigger: a Coolify scheduled task every hour calling a protected route, and once after every
-  deploy, so a push of `data/plan.mjs` shows within minutes.
-- The page shows "Course Plan synced <time>". If a sync fails, the last good plan stays and the
-  time turns amber after three hours.
-- `npm run check` keeps working on the Maintainer's machine as before.
+Built and tested 2026-10-03; switched on once the Sync Token exists and the app is deployed.
+
+- `app/scripts/sync.mjs`, run in the app container by a Coolify scheduled task every hour:
+  reads the Sync Token from Vault, builds the inventory (`tools/canvas-sync.mjs`) with GET requests
+  to an allowlist of five path patterns, checks `data/plan.mjs` against it (`tools/lib/page.mjs`)
+  and stores the Course Plan. A failed check stores nothing; the last good plan stays.
+- Deviation from the first draft, for least privilege: no service-role key in the app. The sync
+  acts as the database role `tracker_sync` (`SYNC_JWT`), which can only read the Sync Token and
+  replace the Course Plan. `store_course_plan` also refuses any plan carrying completion state.
+- The page is served with the Course Plan from the database (cached five minutes), falling back to
+  the plan built into the image. The "read from Canvas" line now has a time, and on the hosted app
+  turns amber with a note when the last read is over three hours old.
+- `node scripts/sync.mjs --dry-run` (in `app/`, with `CANVAS_ENV_FILE` pointing at the repo's
+  `.env`) runs it on the Maintainer's machine without Vault and stores nothing.
+- Tested: the dry run against Canvas; the role through the public API (reads the token, stores the
+  plan; Students and Guests refused); the app serving the stored plan. Not yet run with a real Sync
+  Token or on a schedule.
 
 ### 5. Sign-in, merge and import
 

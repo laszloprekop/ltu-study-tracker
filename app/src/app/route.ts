@@ -2,7 +2,7 @@ import { supabaseOrigin, trackerHtml } from "@/lib/tracker-page";
 
 export const dynamic = "force-dynamic";
 
-export function GET() {
+export async function GET() {
   const sb = supabaseOrigin();
   // The page keeps its scripts and styles inline (it is also a single-file artifact), so scripts
   // need 'unsafe-inline'. Everything else is narrowed: data only to Supabase, no framing, no plugins.
@@ -18,7 +18,7 @@ export function GET() {
     "form-action 'self'",
     "object-src 'none'",
   ].join("; ");
-  return new Response(trackerHtml(), {
+  return new Response(await trackerHtml(), {
     headers: {
       "content-type": "text/html; charset=utf-8",
       "cache-control": "no-store",

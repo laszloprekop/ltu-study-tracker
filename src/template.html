@@ -62,6 +62,7 @@ button{font:inherit}
 
 /* ---------- Header ---------- */
 header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; background:var(--bg); padding-block:10px 8px; margin-bottom:12px; display:flex; flex-direction:column; gap:8px}
+#asof.stale{color:var(--c4); font-weight:600}
 .hrow{display:flex; flex-wrap:wrap; gap:8px 14px; align-items:center}
 h1{font-size:20px; letter-spacing:-.015em; margin-right:6px}
 .terms{display:flex; flex-wrap:wrap; gap:4px 16px; align-items:baseline}
@@ -994,7 +995,10 @@ function renderTerm(){
   var t = term();
   computePrepMust(t);
   renderTermLine(t);
-  document.getElementById("asof").textContent = "Deadlines and module items read from Canvas on " + longDay(INV.generatedAt.slice(0, 10)) + " " + INV.generatedAt.slice(0, 4) + "." + (t.extra ? " " + t.extra : "") + (PROGRESS ? " This is a private build: the Canvas marks are your own account's." : "");
+  // On the hosted app the Course Plan syncs hourly, so an old read means the sync has stopped.
+  var read = new Date(INV.generatedAt), stale = !!window.TRACKER_CONFIG && Date.now() - read.getTime() > 3 * 3600 * 1000;
+  var asof = document.getElementById("asof"); asof.classList.toggle("stale", stale);
+  asof.textContent = "Deadlines and module items read from Canvas on " + longDay(iso(read)) + " " + read.getFullYear() + " at " + String(read.getHours()).padStart(2, "0") + ":" + String(read.getMinutes()).padStart(2, "0") + "." + (stale ? " That is over three hours ago, so the hourly update may have stopped." : "") + (t.extra ? " " + t.extra : "") + (PROGRESS ? " This is a private build: the Canvas marks are your own account's." : "");
   renderTabs(); renderFilter(t);
   document.querySelectorAll("#views button").forEach(function(b){ b.setAttribute("aria-pressed", String(b.dataset.view === state.view)); });
   document.body.classList.toggle("mapview", state.view === "map");
