@@ -19,6 +19,9 @@ First real sync, run from the Mac with the Vault token: stored 13:18 UTC.
 
 ## 2. The app in Coolify
 
+Done 2026-10-03: live at https://ltu-studytracker.dentaku.se (Let's Encrypt, healthy, PORT 3000,
+no service role key in the container, today's Course Plan from the database).
+
 1. Same project, + New, Docker Image: `ghcr.io/laszloprekop/ltu-study-tracker:latest`. No
    registry login is needed: the image is public and holds no secrets.
 2. Domain: `https://ltu-studytracker.dentaku.se:3000` (3000 is the port inside the container), and
