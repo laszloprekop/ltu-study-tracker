@@ -63,10 +63,40 @@ button{font:inherit}
 /* ---------- Header ---------- */
 header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; background:var(--bg); padding-block:10px 8px; margin-bottom:12px; display:flex; flex-direction:column; gap:8px}
 #asof.stale{color:var(--c4); font-weight:600}
-.moved{margin:0 0 12px; padding:10px 14px; background:var(--now-soft); color:var(--ink); border-left:4px solid var(--now); font-size:14px; line-height:1.45}
-.moved.drift{background:var(--alert-soft); border-left-color:var(--alert)}
-.moved a{color:inherit; font-weight:600}
-.moved button{margin-left:8px; font:inherit; font-size:13px; padding:2px 10px; border:1px solid currentColor; background:transparent; color:inherit; cursor:pointer}
+.moved{--rad:#ff6a00; margin:0 0 14px; background:var(--rad); color:#000; border:2px solid #000; box-shadow:0 0 0 3px var(--rad), 0 6px 24px rgba(255,106,0,.35)}
+.moved .mv-head{display:flex; align-items:center; gap:12px; padding:10px 14px}
+.moved .mv-head .ic.big{width:40px; height:40px; flex:0 0 40px; color:#000}
+.moved .mv-title{flex:1 1 auto; font-size:16px; font-weight:700; line-height:1.3}
+.moved a{color:#000; font-weight:700; text-decoration:underline; text-underline-offset:2px}
+.moved button{font:inherit; font-size:13px; font-weight:700; padding:4px 12px; border:2px solid #000; background:transparent; color:#000; cursor:pointer}
+.moved button:hover{background:#000; color:var(--rad)}
+.moved .mv-fold{flex:0 0 auto; padding:4px 8px}
+.moved .mv-fold .ic{transition:transform .2s}
+.moved .mv-body{padding:0 14px 14px 66px; font-size:14px; line-height:1.5; display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:6px 28px}
+.moved .mv-body h4{margin:6px 0 4px; font-size:12px; letter-spacing:.06em; text-transform:uppercase}
+.moved ol,.moved ul{margin:0; padding-left:20px}
+.moved li{margin:2px 0}
+.moved .mv-state{grid-column:1 / -1; margin:6px 0 0; padding:8px 10px; background:rgba(0,0,0,.08); border-left:4px solid #000}
+.moved.drift .mv-state{background:#000; color:var(--rad)}
+.moved.drift .mv-state a,.moved.drift .mv-state button{color:var(--rad); border-color:var(--rad)}
+.moved .mv-state button{margin-left:8px}
+.moved.folded{background:var(--surface-2); color:var(--muted); border:1px solid var(--line); box-shadow:none}
+.moved.folded .mv-head{padding:5px 12px}
+.moved.folded .mv-head .ic.big{width:20px; height:20px; flex-basis:20px; color:var(--muted)}
+.moved.folded .mv-title{font-size:13px; font-weight:600}
+.moved.folded a,.moved.folded button{color:var(--muted); border-color:var(--line)}
+.moved.folded button:hover{background:var(--line); color:var(--ink)}
+.moved.folded .mv-fold .ic{transform:rotate(-90deg)}
+.moved.folded.drift .mv-title b{color:var(--alert)}
+@media (max-width:700px){ .moved .mv-body{padding-left:14px} }
+.appview .card{padding:16px 20px}
+.appview h3{display:flex; align-items:center; gap:8px; margin:0 0 8px}
+.appview ul,.appview ol{margin:4px 0 0; padding-left:20px; line-height:1.55}
+.appview li{margin:4px 0}
+.appview li b{color:var(--ink)}
+.appview .grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:14px}
+.appview .note{color:var(--muted); font-size:13px; margin:8px 0 0}
+.appview .here{display:inline-block; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; padding:1px 7px; background:var(--now); color:var(--on-now); margin-left:6px; vertical-align:2px}
 .locked input[type=checkbox]{cursor:not-allowed}
 .hrow{display:flex; flex-wrap:wrap; gap:8px 14px; align-items:center}
 h1{font-size:20px; letter-spacing:-.015em; margin-right:6px}
@@ -598,6 +628,7 @@ body.colored table.all tr:not(.done) .tt{color:var(--cc)}
         <button type="button" id="v-day" data-view="day"><svg class="ic"><use href="#i-calendar-dot"/></svg>Day</button>
         <button type="button" id="v-all" data-view="all"><svg class="ic"><use href="#i-list-checks"/></svg>All deadlines</button>
         <button type="button" id="v-map" data-view="map"><svg class="ic"><use href="#i-tree-structure"/></svg>Map</button>
+        <button type="button" id="v-app" data-view="app" title="The hosted app: what it does, what is coming, privacy and security"><svg class="ic"><use href="#i-shield-check"/></svg>Hosted app</button>
       </div>
       <div class="seg" role="group" aria-label="Show courses" id="filter"></div>
       <a class="jump" id="jump" href="#" hidden><svg class="ic"><use href="#i-arrow-line-down"/></svg>Today</a>
@@ -620,7 +651,7 @@ body.colored table.all tr:not(.done) .tt{color:var(--cc)}
 
 /* ---------- Helpers ---------- */
 const P = DATA.plan, INV = DATA.inventory, COURSES = P.COURSES, TEACHERS = P.TEACHERS, TERMS = P.TERMS, PROGRESS = DATA.progress || null;
-const LS = { hours: "ltu-plan-hours", exportedAt: "ltu-plan-exported-at", unlocked: "ltu-plan-unlocked", ticks: "ltu-plan-ticks", tickAt: "ltu-plan-tick-at", muted: "ltu-plan-muted", filter: "ltu-plan-filter", term: "ltu-plan-term", view: "ltu-plan-view", open: "ltu-plan-open", weeks: "ltu-plan-weeks", size: "ltu-plan-size", ping: "ltu-plan-ping", colored: "ltu-plan-colored", theme: "ltu-plan-theme", mapOpen: "ltu-plan-map-open", mapPos: "ltu-plan-map-pos", mapAll: "ltu-plan-map-all", mapHops: "ltu-plan-map-hops", mapMode: "ltu-plan-map-mode", railSlim: "ltu-plan-map-rail", snaps: "ltu-plan-snaps", legacy: "lp2-shared-ticks" };
+const LS = { hours: "ltu-plan-hours", movedFolded: "ltu-plan-moved-folded", exportedAt: "ltu-plan-exported-at", unlocked: "ltu-plan-unlocked", ticks: "ltu-plan-ticks", tickAt: "ltu-plan-tick-at", muted: "ltu-plan-muted", filter: "ltu-plan-filter", term: "ltu-plan-term", view: "ltu-plan-view", open: "ltu-plan-open", weeks: "ltu-plan-weeks", size: "ltu-plan-size", ping: "ltu-plan-ping", colored: "ltu-plan-colored", theme: "ltu-plan-theme", mapOpen: "ltu-plan-map-open", mapPos: "ltu-plan-map-pos", mapAll: "ltu-plan-map-all", mapHops: "ltu-plan-map-hops", mapMode: "ltu-plan-map-mode", railSlim: "ltu-plan-map-rail", snaps: "ltu-plan-snaps", legacy: "lp2-shared-ticks" };
 const state = { checked: {}, tickAt: {}, exportedAt: null, unlocked: false, muted: {}, filter: "all", term: null, view: "week", day: null, open: {}, weeks: {}, size: 100, ping: true, colored: true, theme: "system", hours: { start: "09:00", end: "17:00" }, mapOpen: null, mapSel: null, mapSels: [], mapAll: false, mapHops: 5, mapMode: "select", railSlim: false };
 let store = null, saveTimer = null;
 
@@ -1011,6 +1042,7 @@ function renderTerm(){
   var body;
   if (t.upcoming && !t.courses.length) { body = '<section><div class="card empty"><h3>' + esc(t.label + ", " + t.period) + '</h3><p>' + esc(t.upcoming) + '</p></div></section>'; document.getElementById("jump").hidden = true; }
   else if (state.view === "map") body = renderMapView(t);
+  else if (state.view === "app") body = renderAppView();
   else body = (state.view === "day" ? renderDayView(t) : state.view === "all" ? renderAllView(t) : renderWeekView(t)) + renderQuick(t) + renderCourses(t) + renderRhythm(t);
   if (state.view !== "week") document.getElementById("jump").hidden = true;
   document.getElementById("termbody").innerHTML = body;
@@ -2023,21 +2055,83 @@ function movedTo(){ return !window.TRACKER_CONFIG && P.MOVED_TO ? P.MOVED_TO : n
 // Ticks changed after the last export would be lost on the way over: the banner says so.
 function drifted(){ var e = state.exportedAt; return !!e && Object.keys(state.tickAt).some(function(k){ return state.tickAt[k] > e; }); }
 function ticksLocked(){ return !!movedTo() && !!state.exportedAt && !state.unlocked; }
+// What the hosted app does, will do, and how it treats data. One list, used by the banner on the
+// claude.ai page and by the Hosted app view in both places. Planned items name their release.
+var APP_INFO = {
+  now: [
+    ["Ticks on every device", "Sign in with Google and your ticks follow you to the phone, the laptop and the library computer. No claude.ai account needed."],
+    ["Two devices never undo each other", "Each tick remembers when it changed, and per task the later change wins, an untick included."],
+    ["Updates itself every hour", "Deadlines, modules and announcements are read from Canvas every hour. The page shows when, and warns if the update stops."],
+    ["Works without an account", "Without signing in it works like this page: ticks stay in that browser."]
+  ],
+  planned: [
+    ["Your Canvas status beside your ticks", "Release 2: what Canvas has recorded (submitted, posted, marked done) next to your own tick, and a warning sign when you ticked a hand-in Canvas has no submission for."],
+    ["Lab bookings and their deadlines", "Release 2: your group's slot read from the signup sheet, and a warning that grows as the booking deadline comes closer."],
+    ["Your own calendar", "Release 2: a calendar link of your choice, such as a group calendar, mixed into the plan and marked as yours."],
+    ["A day in 15-minute slots", "Release 3: both courses in one day, with the free slots between them to place group work and self-study."],
+    ["Flashcards before every exam", "Release 4: spaced repetition aimed at the exam day, from cards checked by a classmate."],
+    ["What leads where", "Release 5: each lab, quiz and exam with everything that prepares for it, on a timeline."]
+  ],
+  privacy: [
+    ["Only you can read your ticks", "They are one row in the database that a rule inside the database lets only your account read or change. The rule is tested on every change to the database."],
+    ["Google is asked for your name and email only", "Signing in gives the tracker no access to your mail, files or calendar."],
+    ["Your Canvas token will never be stored", "From release 2 you can paste your own Canvas token. It stays in your browser and only passes through the server on its way to Canvas."],
+    ["Nothing about guests is kept", "Without signing in, no ticks or account exist on the server."],
+    ["No ads, analytics or tracking", "The page talks only to the tracker's own server and database, loads its typeface from Google Fonts, and visits Google only while you sign in. A content security policy blocks everything else, and the page cannot be shown inside another site."],
+    ["Graded answers stay in your group", "Release 4: shared flashcards explain concepts and point to the material; written answers to graded questions are visible only to the group that wrote them."],
+    ["Hosted in the EU", "On a server at Hetzner in the EU, over HTTPS. The plan is read from Canvas by a job that can only read a short list of course pages and never sees anyone's grades or progress."],
+    ["Delete everything yourself", "Planned: one button that removes your account and ticks from the server."]
+  ]
+};
+function infoList(rows, tag){ return "<" + tag + ">" + rows.map(function(r){ return "<li><b>" + esc(r[0]) + ".</b> " + esc(r[1]) + "</li>"; }).join("") + "</" + tag + ">"; }
+function appLink(){ var to = P.MOVED_TO || location.origin; return '<a href="' + esc(to) + '" target="_blank" rel="noopener">' + esc(to.replace(/^https?:\/\//, "").replace(/\/$/, "")) + '</a>'; }
+function moveSteps(){
+  return '<ol><li>Here, open <b>?</b> (About) at the top right and press <b>Export</b>. It copies a code with all your ticks.</li>' +
+    '<li>Open ' + appLink() + '. Press <b>Sign in</b> to keep your ticks on every device, or skip it and use it in this browser only.</li>' +
+    '<li>There, open <b>?</b> (About), paste the code into the box and press <b>Import</b>.</li>' +
+    '<li>Ticking here then locks, so the two pages stay the same. You can unlock it.</li></ol>';
+}
 function renderMoved(nudge){
   var el = document.getElementById("moved"), to = movedTo(); if (!el) return;
   document.body.classList.toggle("locked", ticksLocked());
   if (!to) { el.hidden = true; return; }
-  var link = '<a href="' + esc(to) + '" target="_blank" rel="noopener">' + esc(to.replace(/^https:\/\//, "").replace(/\/$/, "")) + '</a>';
-  var how = 'Open <b>?</b> (About) here, press <b>Export</b>, and paste the code into <b>Import</b> there.';
-  var html, drift = drifted();
-  if (!state.exportedAt) html = 'This tracker has moved to ' + link + ', where you can sign in and keep your ticks on every device. To bring your ticks along: ' + how;
-  else if (!state.unlocked) html = (drift ? '<b>Out of sync:</b> ticks changed here after the last export, so ' + link + ' does not have them. ' + how + ' ' : 'Your ticks were exported on ' + esc(longDay(iso(new Date(state.exportedAt)))) + '. ') + 'Ticking is locked here so this page and ' + link + ' stay the same.' + (nudge ? ' <b>Unlock to tick here.</b>' : '') + '<button type="button" data-moved="unlock">Unlock ticking</button>';
-  else if (drift) html = '<b>Out of sync:</b> you changed ticks here after the last export, so ' + link + ' does not have them. ' + how + '<button type="button" data-moved="lock">Lock again</button>';
-  else html = 'Ticking is unlocked. Changes here reach ' + link + ' only when you export and import again.<button type="button" data-moved="lock">Lock again</button>';
-  el.innerHTML = html; el.hidden = false; el.classList.toggle("drift", drift);
+  var link = appLink(), drift = drifted(), folded = lsGet(LS.movedFolded) === "1", line, stateHtml;
+  if (!state.exportedAt) { line = "This tracker has moved to " + link; stateHtml = ""; }
+  else if (drift) { line = "<b>Out of sync:</b> ticks changed here after the last export"; stateHtml = '<b>Out of sync:</b> ticks changed here after your last export, so ' + link + ' does not have them yet. Export again and import there.'; }
+  else if (!state.unlocked) { line = "Moved to " + link + ". Ticks exported " + esc(longDay(iso(new Date(state.exportedAt)))) + ", ticking locked here"; stateHtml = 'Your ticks were exported on ' + esc(longDay(iso(new Date(state.exportedAt)))) + '. Ticking is locked here so this page and ' + link + ' stay the same.' + (nudge ? ' <b>Unlock to tick here.</b>' : ''); }
+  else { line = "Moved to " + link + ". Ticking unlocked here"; stateHtml = 'Ticking is unlocked. Changes here reach ' + link + ' only when you export and import again.'; }
+  if (stateHtml) stateHtml += state.unlocked ? '<button type="button" data-moved="lock">Lock again</button>' : '<button type="button" data-moved="unlock">Unlock ticking</button>';
+  el.innerHTML = '<div class="mv-head">' + ic("warning", "big") + '<div class="mv-title">' + line + '</div>' +
+      '<button type="button" class="mv-fold" data-moved="fold" aria-expanded="' + String(!folded) + '" title="' + (folded ? "Show the steps" : "Fold to one line") + '" aria-label="' + (folded ? "Show the steps" : "Fold to one line") + '">' + ic("caret-down") + '</button></div>' +
+    (folded ? "" : '<div class="mv-body">' +
+      '<div><h4>How to move</h4>' + moveSteps() + '</div>' +
+      '<div><h4>Why move</h4>' + infoList(APP_INFO.now.slice(0, 3), "ul") + '<p style="margin:6px 0 0">More on the way, and how your data is kept: <a href="#" data-goview="app">Hosted app</a>.</p></div>' +
+      (stateHtml ? '<p class="mv-state">' + stateHtml + '</p>' : '') + '</div>');
+  el.hidden = false;
+  el.classList.toggle("folded", folded); el.classList.toggle("drift", drift);
+  if (nudge && folded) { lsSet(LS.movedFolded, "0"); renderMoved(true); }
+}
+function renderAppView(){
+  var hosted = !!window.TRACKER_CONFIG;
+  var intro = hosted
+    ? '<p>You are on the hosted tracker. Use <b>Sign in</b> at the top right to keep your ticks on every device; without it they stay in this browser.</p>' +
+      '<h3>Bringing ticks from the old claude.ai page</h3><ol><li>On the old page, open <b>?</b> (About) and press <b>Export</b>.</li><li>Here, open <b>?</b> (About), paste the code and press <b>Import</b>. Ticks merge: per task the later change wins.</li></ol>'
+    : '<p>This page has a successor at ' + appLink() + ': the same tracker, as its own website.</p><h3>How to move</h3>' + moveSteps();
+  return '<section class="appview"><div class="sechead"><h2>Hosted app</h2><span class="note">' + (hosted ? "What this site does, what is coming, and how it treats your data." : "Why moving is worth it, and how the new site treats your data.") + '</span></div>' +
+    '<div class="card">' + intro + '</div>' +
+    '<div class="grid" style="margin-top:14px">' +
+      '<div class="card"><h3>' + ic("check-circle") + 'What it does today' + (hosted ? '<span class="here">here</span>' : '') + '</h3>' + infoList(APP_INFO.now, "ul") + '</div>' +
+      '<div class="card"><h3>' + ic("flag-checkered") + 'Coming next</h3>' + infoList(APP_INFO.planned, "ul") + '<p class="note">Planned, in this order. Each release keeps everything before it working.</p></div>' +
+    '</div>' +
+    '<div class="card" style="margin-top:14px"><h3>' + ic("shield-check") + 'Privacy and security</h3>' + infoList(APP_INFO.privacy, "ul") +
+      '<p class="note">Unofficial, made by a student. Questions about your data go to the person who shared this page with you.</p></div>' +
+  '</section>';
 }
 document.addEventListener("click", function(e){
+  var g = e.target.closest && e.target.closest("[data-goview]");
+  if (g) { e.preventDefault(); state.view = g.dataset.goview; lsSet(LS.view, state.view); renderTerm(); window.scrollTo(0, 0); return; }
   var b = e.target.closest && e.target.closest("button[data-moved]"); if (!b) return;
+  if (b.dataset.moved === "fold") { lsSet(LS.movedFolded, lsGet(LS.movedFolded) === "1" ? "0" : "1"); renderMoved(); return; }
   state.unlocked = b.dataset.moved === "unlock"; lsSet(LS.unlocked, state.unlocked ? "1" : "0"); renderMoved();
 });
 
@@ -2123,7 +2217,7 @@ state.colored = lsGet(LS.colored) !== "0";
 var th = lsGet(LS.theme); if (th === "light" || th === "dark" || th === "system") state.theme = th;
 var sh = lsJson(LS.hours); if (sh && toMin(sh.start) != null && toMin(sh.end) != null) state.hours = sh;
 state.filter = lsGet(LS.filter) || "all";
-var sv = lsGet(LS.view); if (sv === "day" || sv === "all" || sv === "week" || sv === "map") state.view = sv;
+var sv = lsGet(LS.view); if (sv === "day" || sv === "all" || sv === "week" || sv === "map" || sv === "app") state.view = sv;
 state.mapOpen = lsJson(LS.mapOpen);
 state.mapAll = lsGet(LS.mapAll) !== "0";   // on unless the viewer switched it off
 var hp = Number(lsGet(LS.mapHops)); if (hp >= 1 && hp <= 5) state.mapHops = hp;   // 5 means no limit

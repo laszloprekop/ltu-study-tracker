@@ -89,9 +89,48 @@ origin, keys `ltu-plan-ticks`, `ltu-plan-muted`, `ltu-plan-snaps`) and, for a vi
 an id from the owner's organisation, also in the artifact database at `data/users/<id>/progress`,
 a subtree private to that viewer. Every save also stores the day's state under its date; the last
 seven days are kept. The About panel shows the count and last save, copies an export code (ticks,
-muted items, snapshots) to the clipboard, brings a pasted code in (ticks are added, snapshots
-merged by date, nothing removed), and restores a snapshot day; the state before a restore is kept
-as "before the last restore", so a restore can be undone. Loading never removes a tick.
+muted items, snapshots, and since version 2 when each tick was last set or cleared) to the
+clipboard, brings a pasted code in, and restores a snapshot day; the state before a restore is kept
+as "before the last restore", so a restore can be undone. Bringing ticks in, from a code or from the
+account copy on load, keeps per task the later change, so an untick travels too; a tick without a
+time (a version 1 code) can only be added. `npm test` checks this rule against the page's own code.
+
+## The hosted app
+
+The same page also runs as its own site, https://ltu-studytracker.dentaku.se (`app/`, see
+`docs/plan/release-1.md`). On the claude.ai page an orange banner (folds to one line, remembered
+per viewer) gives the steps to move and the main reasons; the **Hosted app** view, in both places,
+lists everything. The lists live in one place in `src/template.html` (`APP_INFO`).
+
+**What it does today**
+- Ticks on every device with a Google sign-in; no claude.ai account needed.
+- Two devices never undo each other: per task the later change wins, an untick included.
+- The Course Plan updates itself from Canvas every hour; the page shows when, and turns the line
+  amber if the last read is over three hours old.
+- Without signing in it works like the claude.ai page: ticks stay in that browser.
+
+**Coming next** (`docs/plan/release-1.md`, then the design in `CONTEXT.md` and `docs/adr/`)
+- Release 2: the Student's own Canvas status beside each tick (with a warning for a ticked hand-in
+  Canvas has no submission for), the Group's lab booking from the signup sheet with warnings before
+  booking closes, a calendar link of their choice.
+- Release 3: a Day Plan of both courses in 15-minute slots, with free slots for group work.
+- Release 4: flashcards with spaced repetition aimed at each exam day.
+- Release 5: every lab, quiz and exam with what prepares for it, on a timeline.
+
+**Privacy and security**
+- A Student's ticks are one database row that a row-level security rule lets only their account
+  read or change; `app/supabase/tests/rls.sql` checks every rule.
+- Sign-in asks Google for name and email only (scopes `openid email profile`).
+- A Student's Canvas token (release 2) never reaches server storage; the one stored Canvas token is
+  the Maintainer's Sync Token, encrypted in Vault and readable only by the sync role (ADR 0001).
+- Guests leave no ticks or account on the server.
+- No ads, analytics or tracking scripts. A content security policy limits the page to its own
+  server and database, Google Fonts, and Google during sign-in, and forbids framing.
+- Written answers to graded questions stay inside the Group (ADR 0002); privacy is enforced in the
+  database, not only in the page (ADR 0003).
+- Hosted on Hetzner in the EU over HTTPS. The sync reads Canvas with GET requests to a fixed list
+  of course paths and stores nothing about any Student.
+- Planned: deleting one's account and ticks with one button.
 
 ## What an assessment needs
 
