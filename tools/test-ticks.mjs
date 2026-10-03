@@ -14,11 +14,11 @@ const grab = name => {
   for (; ; i++) { if (src[i] === "{") d++; else if (src[i] === "}" && --d === 0) break; }
   return src.slice(s, i + 1);
 };
-const code = ["migrate", "migrateAt", "setTick", "mergeTicks"].map(grab).join("\n");
-const make = (checked = {}, tickAt = {}) => {
-  const state = { checked: { ...checked }, tickAt: { ...tickAt } };
+const code = ["migrate", "migrateAt", "setTick", "mergeTicks", "mergePlanned"].map(grab).join("\n");
+const make = (checked = {}, tickAt = {}, planned = {}) => {
+  const state = { checked: { ...checked }, tickAt: { ...tickAt }, planned: { ...planned } };
   const P = { LEGACY_IDS: { "w42-lab3": "d:Z0025E:3043" } };
-  const f = new Function("state", "P", code + "; return { setTick, mergeTicks };")(state, P);
+  const f = new Function("state", "P", code + "; return { setTick, mergeTicks, mergePlanned };")(state, P);
   return { state, ...f };
 };
 const T1 = "2026-10-01T10:00:00.000Z", T2 = "2026-10-02T10:00:00.000Z";
@@ -57,5 +57,12 @@ test("setTick notes the time of a clear", () => {
   t.setTick("t:a", false, T2);
   assert.equal(t.state.checked["t:a"], undefined);
   assert.equal(t.state.tickAt["t:a"], T2);
+});
+test("Planned Blocks: the later change per block wins, a removal too", () => {
+  const t = make({}, {}, { p1: { date: "2026-10-05", start: "10:30", mins: 30, at: T1 }, p2: { date: "2026-10-05", start: "14:00", mins: 15, at: T2 } });
+  t.mergePlanned({ p1: { gone: true, at: T2 }, p2: { date: "2026-10-06", start: "09:00", mins: 15, at: T1 }, p3: { date: "2026-10-07", start: "13:00", mins: 60, at: T1 } });
+  assert.equal(t.state.planned.p1.gone, true);
+  assert.equal(t.state.planned.p2.date, "2026-10-05");
+  assert.equal(t.state.planned.p3.mins, 60);
 });
 console.log(`${n} passed`);
