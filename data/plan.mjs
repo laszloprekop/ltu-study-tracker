@@ -224,6 +224,11 @@ export const TERMS = [
   }
 ];
 
+// Where the tracker has moved (release 1, step 6). null keeps the claude.ai page as it is. Set it to
+// the app's https address once a real sign-in there has been tested: the artifact then shows a move
+// banner, and locks ticking after a Student exports, until they unlock it. The app ignores it.
+export const MOVED_TO = null;
+
 // Tick box ids used by earlier versions of the page, so nobody loses progress.
 export const LEGACY_IDS = {
   "w39-lab1": "d:Z0025E:3041", "w40-lab1": "d:Z7005E:3013", "w40-lab2": "d:Z0025E:3042", "w41-lab2": "d:Z7005E:3015",

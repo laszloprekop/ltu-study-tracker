@@ -63,6 +63,11 @@ button{font:inherit}
 /* ---------- Header ---------- */
 header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; background:var(--bg); padding-block:10px 8px; margin-bottom:12px; display:flex; flex-direction:column; gap:8px}
 #asof.stale{color:var(--c4); font-weight:600}
+.moved{margin:0 0 12px; padding:10px 14px; background:var(--now-soft); color:var(--ink); border-left:4px solid var(--now); font-size:14px; line-height:1.45}
+.moved.drift{background:var(--alert-soft); border-left-color:var(--alert)}
+.moved a{color:inherit; font-weight:600}
+.moved button{margin-left:8px; font:inherit; font-size:13px; padding:2px 10px; border:1px solid currentColor; background:transparent; color:inherit; cursor:pointer}
+.locked input[type=checkbox]{cursor:not-allowed}
 .hrow{display:flex; flex-wrap:wrap; gap:8px 14px; align-items:center}
 h1{font-size:20px; letter-spacing:-.015em; margin-right:6px}
 .terms{display:flex; flex-wrap:wrap; gap:4px 16px; align-items:baseline}
@@ -536,6 +541,7 @@ body.colored table.all tr:not(.done) .tt{color:var(--cc)}
 
 <!--__ICONS__-->
 <div class="wrap" id="wrap">
+  <div class="moved" id="moved" hidden role="status"></div>
   <header class="top">
     <div class="hrow">
       <h1>LTU Study Tracker</h1>
@@ -614,8 +620,8 @@ body.colored table.all tr:not(.done) .tt{color:var(--cc)}
 
 /* ---------- Helpers ---------- */
 const P = DATA.plan, INV = DATA.inventory, COURSES = P.COURSES, TEACHERS = P.TEACHERS, TERMS = P.TERMS, PROGRESS = DATA.progress || null;
-const LS = { hours: "ltu-plan-hours", ticks: "ltu-plan-ticks", tickAt: "ltu-plan-tick-at", muted: "ltu-plan-muted", filter: "ltu-plan-filter", term: "ltu-plan-term", view: "ltu-plan-view", open: "ltu-plan-open", weeks: "ltu-plan-weeks", size: "ltu-plan-size", ping: "ltu-plan-ping", colored: "ltu-plan-colored", theme: "ltu-plan-theme", mapOpen: "ltu-plan-map-open", mapPos: "ltu-plan-map-pos", mapAll: "ltu-plan-map-all", mapHops: "ltu-plan-map-hops", mapMode: "ltu-plan-map-mode", railSlim: "ltu-plan-map-rail", snaps: "ltu-plan-snaps", legacy: "lp2-shared-ticks" };
-const state = { checked: {}, tickAt: {}, muted: {}, filter: "all", term: null, view: "week", day: null, open: {}, weeks: {}, size: 100, ping: true, colored: true, theme: "system", hours: { start: "09:00", end: "17:00" }, mapOpen: null, mapSel: null, mapSels: [], mapAll: false, mapHops: 5, mapMode: "select", railSlim: false };
+const LS = { hours: "ltu-plan-hours", exportedAt: "ltu-plan-exported-at", unlocked: "ltu-plan-unlocked", ticks: "ltu-plan-ticks", tickAt: "ltu-plan-tick-at", muted: "ltu-plan-muted", filter: "ltu-plan-filter", term: "ltu-plan-term", view: "ltu-plan-view", open: "ltu-plan-open", weeks: "ltu-plan-weeks", size: "ltu-plan-size", ping: "ltu-plan-ping", colored: "ltu-plan-colored", theme: "ltu-plan-theme", mapOpen: "ltu-plan-map-open", mapPos: "ltu-plan-map-pos", mapAll: "ltu-plan-map-all", mapHops: "ltu-plan-map-hops", mapMode: "ltu-plan-map-mode", railSlim: "ltu-plan-map-rail", snaps: "ltu-plan-snaps", legacy: "lp2-shared-ticks" };
+const state = { checked: {}, tickAt: {}, exportedAt: null, unlocked: false, muted: {}, filter: "all", term: null, view: "week", day: null, open: {}, weeks: {}, size: 100, ping: true, colored: true, theme: "system", hours: { start: "09:00", end: "17:00" }, mapOpen: null, mapSel: null, mapSels: [], mapAll: false, mapHops: 5, mapMode: "select", railSlim: false };
 let store = null, saveTimer = null;
 
 function esc(s){ return String(s == null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
@@ -1934,10 +1940,12 @@ function save(){
   lsSet(LS.ticks, JSON.stringify(state.checked));
   lsSet(LS.tickAt, JSON.stringify(state.tickAt));
   lsSet(LS.muted, JSON.stringify(state.muted));
+  if (state.exportedAt) lsSet(LS.exportedAt, state.exportedAt);
   snapshot();
+  renderMoved();
   if (!store) return;
   clearTimeout(saveTimer);
-  saveTimer = setTimeout(function(){ store.set({ checked: state.checked, tickAt: state.tickAt, muted: state.muted, snaps: state.snaps, updated: new Date().toISOString() }).catch(function(){ store = null; }); }, 400);
+  saveTimer = setTimeout(function(){ store.set({ checked: state.checked, tickAt: state.tickAt, exportedAt: state.exportedAt, muted: state.muted, snaps: state.snaps, updated: new Date().toISOString() }).catch(function(){ store = null; }); }, 400);
 }
 /* ---------- Snapshots, export and import ---------- */
 // Every save also stores the day's state under its date, so a day's snapshot is how it ended; the
@@ -2009,6 +2017,30 @@ function renderProgressPanel(msg){
   document.getElementById("prog-restore").disabled = !opts.length;
   var out = document.getElementById("prog-msg"); if (out) out.textContent = msg || "";
 }
+/* ---------- The move to the hosted tracker (release 1, step 6) ---------- */
+// Only on the claude.ai page, and only once data/plan.mjs names the new address (MOVED_TO).
+function movedTo(){ return !window.TRACKER_CONFIG && P.MOVED_TO ? P.MOVED_TO : null; }
+// Ticks changed after the last export would be lost on the way over: the banner says so.
+function drifted(){ var e = state.exportedAt; return !!e && Object.keys(state.tickAt).some(function(k){ return state.tickAt[k] > e; }); }
+function ticksLocked(){ return !!movedTo() && !!state.exportedAt && !state.unlocked; }
+function renderMoved(nudge){
+  var el = document.getElementById("moved"), to = movedTo(); if (!el) return;
+  document.body.classList.toggle("locked", ticksLocked());
+  if (!to) { el.hidden = true; return; }
+  var link = '<a href="' + esc(to) + '" target="_blank" rel="noopener">' + esc(to.replace(/^https:\/\//, "").replace(/\/$/, "")) + '</a>';
+  var how = 'Open <b>?</b> (About) here, press <b>Export</b>, and paste the code into <b>Import</b> there.';
+  var html, drift = drifted();
+  if (!state.exportedAt) html = 'This tracker has moved to ' + link + ', where you can sign in and keep your ticks on every device. To bring your ticks along: ' + how;
+  else if (!state.unlocked) html = (drift ? '<b>Out of sync:</b> ticks changed here after the last export, so ' + link + ' does not have them. ' + how + ' ' : 'Your ticks were exported on ' + esc(longDay(iso(new Date(state.exportedAt)))) + '. ') + 'Ticking is locked here so this page and ' + link + ' stay the same.' + (nudge ? ' <b>Unlock to tick here.</b>' : '') + '<button type="button" data-moved="unlock">Unlock ticking</button>';
+  else if (drift) html = '<b>Out of sync:</b> you changed ticks here after the last export, so ' + link + ' does not have them. ' + how + '<button type="button" data-moved="lock">Lock again</button>';
+  else html = 'Ticking is unlocked. Changes here reach ' + link + ' only when you export and import again.<button type="button" data-moved="lock">Lock again</button>';
+  el.innerHTML = html; el.hidden = false; el.classList.toggle("drift", drift);
+}
+document.addEventListener("click", function(e){
+  var b = e.target.closest && e.target.closest("button[data-moved]"); if (!b) return;
+  state.unlocked = b.dataset.moved === "unlock"; lsSet(LS.unlocked, state.unlocked ? "1" : "0"); renderMoved();
+});
+
 // Old tick ids from earlier page versions map onto the new ones.
 function migrate(checked){
   var out = {};
@@ -2026,6 +2058,7 @@ document.addEventListener("click", function(e){
   var b = e.target.closest && e.target.closest("button"); if (!b) return;
   if (b.id === "prog-export") {
     var code = exportCode(), box = document.getElementById("prog-code");
+    if (movedTo()) { state.exportedAt = new Date().toISOString(); state.unlocked = false; lsSet(LS.unlocked, "0"); save(); }
     (navigator.clipboard && navigator.clipboard.writeText ? navigator.clipboard.writeText(code) : Promise.reject())
       .then(function(){ renderProgressPanel("Copied. Paste it into the same box on another device, or keep it somewhere safe."); })
       .catch(function(){ box.value = code; box.select(); renderProgressPanel("Clipboard not available: the code is in the box, copy it from there."); });
@@ -2044,6 +2077,7 @@ document.addEventListener("change", function(e){
     lsSet(LS.hours, JSON.stringify(state.hours)); applyFree(); return;
   }
   if (b.type !== "checkbox") return;
+  if (ticksLocked()) { b.checked = !b.checked; renderMoved(true); return; }
   setTick(b.id, b.checked);
   applyState(); save();
 });
@@ -2077,6 +2111,8 @@ function defaultTerm(){
 }
 state.checked = migrate(lsJson(LS.ticks) || lsJson(LS.legacy) || {});
 state.tickAt = migrateAt(lsJson(LS.tickAt) || {});
+state.exportedAt = lsGet(LS.exportedAt) || null;
+state.unlocked = lsGet(LS.unlocked) === "1";
 state.muted = lsJson(LS.muted) || {};
 state.snaps = lsJson(LS.snaps) || {};
 state.open = lsJson(LS.open) || {};
@@ -2097,6 +2133,7 @@ var savedTerm = lsGet(LS.term);
 state.term = TERMS.some(function(t){ return t.id === savedTerm; }) ? savedTerm : defaultTerm();
 applyDisplay();
 renderTerm();
+renderMoved();
 
 // Each viewer's ticks live in their own private subtree, data/users/<id>/, which nobody else can read.
 // Viewers without an id (outside the author's organisation, or signed out) keep ticks in this browser only.
@@ -2112,6 +2149,7 @@ renderTerm();
     var snap = await ref.get();
     if (snap && snap.data) {
       mergeTicks(snap.data.checked, snap.data.tickAt);
+      if (snap.data.exportedAt && (!state.exportedAt || snap.data.exportedAt > state.exportedAt)) state.exportedAt = snap.data.exportedAt;
       Object.keys(snap.data.muted || {}).forEach(function(k){ state.muted[k] = true; });
       mergeSnaps(snap.data.snaps);
       lsSet(LS.ticks, JSON.stringify(state.checked)); lsSet(LS.tickAt, JSON.stringify(state.tickAt)); lsSet(LS.muted, JSON.stringify(state.muted));

@@ -106,11 +106,16 @@ in at the first sign-in; import already takes both code versions. Untested until
 
 ### 6. The artifact points to the app
 
-- A banner for everyone: the tracker has moved, with the app's address and how to bring Ticks
-  (export here, import there).
-- Exporting records it in the viewer's own progress document and locks the tick boxes. The banner
-  then offers Unlock; any Tick changed after the last export switches it to Out of Sync.
-- The artifact keeps being rebuilt from the same `data/plan.mjs` until it is retired.
+Built and tested 2026-10-03, switched off: `MOVED_TO = null` in `data/plan.mjs`. Setting it to
+`"https://ltu-studytracker.dentaku.se"` and republishing turns it on. Only after a real sign-in
+on the app has worked.
+
+- On the claude.ai page only (never in the app): a banner names the new address and how to bring
+  Ticks (Export here, Import there).
+- Export records the time (`exportedAt`, kept with the Ticks) and locks the tick boxes; a click on a
+  locked box is undone and the banner asks to unlock. Unlock is per browser.
+- Any Tick changed after the last export turns the banner red: Out of Sync, export and import again.
+- Tested with a build that had the switch on: all seven states, and that a reload keeps them.
 
 ## Settled with the Maintainer (2026-10-03)
 

@@ -6,7 +6,7 @@
 //   withData(html, data)            the marker replaced by DATA
 import { readFileSync, readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { TEACHERS, COURSES, TERMS, LEGACY_IDS } from "../../data/plan.mjs";
+import { TEACHERS, COURSES, TERMS, LEGACY_IDS, MOVED_TO } from "../../data/plan.mjs";
 
 const root = p => fileURLToPath(new URL("../../" + p, import.meta.url));
 export const MARKER = "/*__DATA__*/";
@@ -58,7 +58,8 @@ function teachers() {
 
 // progress is the Maintainer's own Canvas completion state: only ever for a --private build.
 export function buildData(inventory, progress = null) {
-  return { built: new Date().toISOString(), private: !!progress, plan: { TEACHERS: teachers(), COURSES, TERMS, LEGACY_IDS }, inventory, progress };
+  if (MOVED_TO !== null && !/^https:\/\/[a-z0-9.-]+\/?$/i.test(MOVED_TO)) throw new Error("MOVED_TO in data/plan.mjs must be null or an https address");
+  return { built: new Date().toISOString(), private: !!progress, plan: { TEACHERS: teachers(), COURSES, TERMS, LEGACY_IDS, MOVED_TO }, inventory, progress };
 }
 
 export function shell() {
