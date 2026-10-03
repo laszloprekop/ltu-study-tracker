@@ -27,7 +27,7 @@ npm run update          # inventory + build, the usual refresh
 npm run inventory       # rewrite data/canvas-inventory.json from Canvas
 npm run build           # rebuild ltu-study-tracker.html; fails on any ref that matches nothing
 npm run check           # diff the committed inventory against live Canvas (dates, points, new items, announcements)
-npm run palette         # regenerate the theme colours in src/template.html from the reference hues (tools/palette.mjs)
+npm run palette         # regenerate the Ice and Neon colours in src/template.html (tools/palette.mjs)
 # tools/contrast-scan.js: paste into the browser console on the built page for a WCAG contrast audit of the visible text
 npm run announcements   # print the announcements per course
 npm run courses         # list your Canvas courses with ids

@@ -1,14 +1,18 @@
 #!/usr/bin/env node
-// Generates the theme colours in src/template.html from a handful of reference hues.
+// Generates the theme colours in src/template.html: two palettes, each in light and dark.
 //
-//   node tools/palette.mjs          print the light and dark :root blocks
-//   node tools/palette.mjs --write  replace the three blocks in src/template.html
+//   node tools/palette.mjs          print the palette CSS
+//   node tools/palette.mjs --check  print the contrast of the main pairs
+//   node tools/palette.mjs --write  replace the block between the palette markers in src/template.html
 //
-// Every colour is built in OKLCH (perceptual lightness L 0..1, chroma C, hue H in degrees): the
-// hue comes from the reference image, the lightness is fixed per role so text stays legible, and
-// the chroma is pushed to the edge of what sRGB can show. That is what makes the tints fluorescent.
-// Reference: the 2018 Viacom neon set, sampled 2026-09-30: magenta #f020a0, green #00f030,
-// cyan #30a0b0, coral #f06060, cream #f0f0d0, navy #000020, pale grey #ece5ec.
+// Every colour is built in OKLCH (perceptual lightness L 0..1, chroma C, hue H in degrees), the
+// lightness fixed per role so text stays legible. Mix colours in OKLCH too (color-mix(in oklch, ...)).
+//
+// Ice (the default): calm, low chroma, a frosted Nordic mood. Chroma is capped per role and the
+// lightness is the calmest one that still reaches WCAG AA (4.5:1) on every background.
+// Neon (data-palette="neon"): chroma pushed to the edge of what sRGB can show, so the tints are
+// fluorescent. Reference: the 2018 Viacom neon set, sampled 2026-09-30: magenta #f020a0, green
+// #00f030, cyan #30a0b0, coral #f06060, cream #f0f0d0, navy #000020, pale grey #ece5ec.
 
 import { readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -64,18 +68,26 @@ function vivid([lo, hi], H, floors = [], ratio = 4.5) {
   return fallback.hex;
 }
 
-// ---- reference hues ----
+// The calmest colour of a hue at a fixed chroma: in light mode the lightest lightness that still
+// reaches `ratio` against every floor, in dark mode the darkest. Reported if none passes.
+function calm([lo, hi], H, C, floors, dark, ratio = 4.5) {
+  const Ls = []; for (let L = lo; L <= hi + 1e-9; L += 0.005) Ls.push(L);
+  if (!dark) Ls.reverse();
+  for (const L of Ls) { const hex = oklch(L, H, C); if (Math.min(...floors.map(f => contrast(hex, f))) >= ratio) return hex; }
+  console.error(`no lightness in ${lo}..${hi} at hue ${H} chroma ${C} reaches ${ratio}:1`);
+  return oklch(dark ? hi : lo, H, C);
+}
+
+// ---- Neon ----
 const H = {
   magenta: rgbToOklch("#f020a0").H, green: rgbToOklch("#00f030").H, cyan: rgbToOklch("#30a0b0").H,
   coral: rgbToOklch("#f06060").H, cream: rgbToOklch("#f0f0d0").H, navy: rgbToOklch("#000020").H, grey: rgbToOklch("#ece5ec").H
 };
 H.orange = (H.coral + 30) % 360;                 // between coral and yellow, for a fifth course colour
 H.violet = 300;
-
-// ---- roles ----
 // Courses: 1 magenta, 2 green, 3 cyan, 4 orange, 5 violet. Alert coral, ok green, now cyan.
-const courses = [H.magenta, H.green, H.cyan, H.orange, H.violet];
-function theme(dark) {
+const neonCourses = [H.magenta, H.green, H.cyan, H.orange, H.violet];
+function neon(dark) {
   const text = dark ? [0.60, 0.88] : [0.40, 0.62];   // accent as text or a stroke: legible on the backgrounds, then as vivid as it gets
   const soft = dark ? [0.28, 0.36] : [0.92, 0.96];   // accent as a faint background under ordinary text
   const tint = dark ? [0.60, 0.88] : [0.70, 0.86];   // accent as a solid block behind dark label text (chips, MUST, tags)
@@ -91,15 +103,51 @@ function theme(dark) {
   // text accents must read on every surface they appear on; "on-now" text must read on "now"
   const floors = dark ? [v.bg, v.surface, v["surface-2"]] : [v.surface, v.bg, v["surface-2"]];
   v["on-tint"] = dark ? v.bg : v.ink;
-  courses.forEach((h, i) => { v["c" + (i + 1)] = vivid(text, h, floors); v["c" + (i + 1) + "-soft"] = vivid(soft, h); v["c" + (i + 1) + "-tint"] = vivid(tint, h, [v["on-tint"]]); });
+  neonCourses.forEach((h, i) => { v["c" + (i + 1)] = vivid(text, h, floors); v["c" + (i + 1) + "-soft"] = vivid(soft, h); v["c" + (i + 1) + "-tint"] = vivid(tint, h, [v["on-tint"]]); });
   v.alert = vivid(text, H.coral, floors); v["alert-soft"] = vivid(soft, H.coral); v["alert-tint"] = vivid(tint, H.coral, [v["on-tint"]]);
   v.ok = vivid(text, H.green, floors); v.now = vivid(text, H.cyan, floors); v["now-soft"] = vivid(soft, H.cyan); v["now-tint"] = vivid(tint, H.cyan, [v["on-tint"]]);
   v["on-now"] = dark ? v.bg : "#ffffff";
   // the teacher's announcement box: a fully saturated cyan block with dark text on it, like the reference
   v.ann = vivid([0.80, 0.88], H.cyan); v["on-ann"] = dark ? v.bg : v.ink;
   v.shadow = dark ? "0 1px 2px rgba(0,0,0,.4)" : "0 1px 2px rgba(0,0,32,.08)";
+  // flip cards and popups: a navy shadow in light mode; in dark mode a shadow disappears, so a cyan glow
+  v["card-lift"] = dark ? "drop-shadow(0 0 10px rgba(0,228,253,.16)) drop-shadow(0 6px 14px rgba(0,228,253,.10))" : "drop-shadow(0 8px 12px rgba(10,20,50,.13)) drop-shadow(0 1px 2px rgba(10,20,50,.10))";
+  v["pop-lift"] = dark ? "drop-shadow(0 0 14px rgba(0,228,253,.24)) drop-shadow(0 8px 24px rgba(0,228,253,.14)) drop-shadow(0 0 1px rgba(0,228,253,.6))" : "drop-shadow(0 10px 24px rgba(10,20,50,.22)) drop-shadow(0 2px 4px rgba(10,20,50,.14))";
   return v;
 }
+
+// ---- Ice ----
+// Hues: ice (frosted glass) and fjord (deep water) for the neutrals, then the landscape.
+const I = { ice: 205, fjord: 235, glacier: 200, moss: 150, heather: 345, cloudberry: 70, twilight: 290, rust: 30, pine: 160, sky: 237 };
+// Courses: 1 glacier, 2 moss, 3 heather, 4 cloudberry, 5 twilight. Alert rust, ok pine, now heather, announcements sky.
+const iceCourses = [I.glacier, I.moss, I.heather, I.cloudberry, I.twilight];
+function ice(dark) {
+  const v = {};
+  if (dark) {
+    // graphite with a trace of fjord blue, not black: calm, and a shadow still shows on it
+    v.bg = oklch(0.19, I.fjord, 0.007); v.surface = oklch(0.23, I.fjord, 0.008); v["surface-2"] = oklch(0.27, I.fjord, 0.008);
+    v.ink = oklch(0.93, I.ice, 0.008); v.muted = oklch(0.74, I.ice, 0.014); v.line = oklch(0.34, I.fjord, 0.008);
+  } else {
+    v.bg = oklch(0.945, I.ice, 0.004); v.surface = oklch(0.988, I.ice, 0.0015); v["surface-2"] = oklch(0.968, I.ice, 0.003);
+    v.ink = oklch(0.27, I.fjord, 0.020); v.muted = oklch(0.50, I.fjord, 0.012); v.line = oklch(0.885, I.ice, 0.006);
+  }
+  const floors = [v.bg, v.surface, v["surface-2"]];
+  const text = (h, c) => calm(dark ? [0.70, 0.90] : [0.35, 0.60], h, c, floors, dark);
+  const soft = h => oklch(dark ? 0.31 : 0.93, h, dark ? 0.016 : 0.014);
+  const tint = h => oklch(dark ? 0.78 : 0.82, h, dark ? 0.042 : 0.04);
+  v["on-tint"] = dark ? v.bg : v.ink;
+  iceCourses.forEach((h, i) => { v["c" + (i + 1)] = text(h, 0.055); v["c" + (i + 1) + "-soft"] = soft(h); v["c" + (i + 1) + "-tint"] = tint(h); });
+  v.alert = text(I.rust, 0.07); v["alert-soft"] = soft(I.rust); v["alert-tint"] = tint(I.rust);
+  v.ok = text(I.pine, 0.055); v.now = text(I.heather, 0.055); v["now-soft"] = soft(I.heather); v["now-tint"] = tint(I.heather);
+  v["on-now"] = dark ? v.bg : "#ffffff";
+  v.ann = oklch(dark ? 0.80 : 0.90, I.sky, dark ? 0.035 : 0.028); v["on-ann"] = v["on-tint"];
+  v.shadow = dark ? "0 1px 3px rgba(0,0,0,.45)" : "0 1px 3px rgba(30,40,45,.10)";
+  // no glow: a soft shadow, and in dark mode a faint frost edge so the cut shape still reads
+  v["card-lift"] = dark ? "drop-shadow(0 0 1px rgba(205,225,239,.16)) drop-shadow(0 6px 14px rgba(0,0,0,.45))" : "drop-shadow(0 8px 12px rgba(30,40,45,.10)) drop-shadow(0 1px 2px rgba(30,40,45,.08))";
+  v["pop-lift"] = dark ? "drop-shadow(0 0 1px rgba(205,225,239,.30)) drop-shadow(0 10px 28px rgba(0,0,0,.60))" : "drop-shadow(0 10px 24px rgba(30,40,45,.18)) drop-shadow(0 2px 4px rgba(30,40,45,.12))";
+  return v;
+}
+
 function block(v, indent) {
   const line = pairs => indent + pairs.map(([k, val]) => `--${k}:${val};`).join(" ");
   return [
@@ -109,25 +157,36 @@ function block(v, indent) {
     line([["alert", v.alert], ["alert-soft", v["alert-soft"]], ["alert-tint", v["alert-tint"]]]),
     line([["ok", v.ok], ["now", v.now], ["now-soft", v["now-soft"]], ["now-tint", v["now-tint"]], ["on-now", v["on-now"]]]),
     line([["ann", v.ann], ["on-ann", v["on-ann"]], ["on-tint", v["on-tint"]]]),
-    line([["shadow", v.shadow]])
+    line([["shadow", v.shadow]]),
+    line([["card-lift", v["card-lift"]]]),
+    line([["pop-lift", v["pop-lift"]]])
   ].join("\n");
 }
-const light = theme(false), dark = theme(true);
-const out = {
-  light: block(light, "  "),
-  darkAuto: block(dark, "    ") + "\n    color-scheme:dark;",
-  darkSet: "  color-scheme:dark;\n" + block(dark, "  ")
-};
-if (!process.argv.includes("--write")) {
-  console.log(":root{\n" + out.light + "\n}\n@media (prefers-color-scheme:dark){\n  :root:not([data-theme=\"light\"]){\n" + out.darkAuto + "\n  }\n}\n:root[data-theme=\"dark\"]{\n" + out.darkSet + "\n}");
-  console.log("\nhues:", Object.entries(H).map(([k, h]) => k + " " + h.toFixed(0)).join(", "));
+// One palette in light and dark. `sel` narrows :root to the palette ("" for the default).
+// Dark follows the system unless the viewer picked light; data-theme="dark" forces it.
+function css(name, sel, light, dark) {
+  return [
+    `/* ${name}${sel ? "" : " (default)"} */`,
+    `:root${sel}{\n${block(light, "  ")}\n}`,
+    `@media (prefers-color-scheme:dark){\n  :root${sel}:not([data-theme="light"]){\n    color-scheme:dark;\n${block(dark, "    ")}\n  }\n}`,
+    `:root${sel}[data-theme="dark"]{\n  color-scheme:dark;\n${block(dark, "  ")}\n}`
+  ].join("\n");
+}
+// Neon comes second: its selectors are as specific or more, so it wins when data-palette="neon".
+const out = css("Ice", "", ice(false), ice(true)) + "\n" + css("Neon", '[data-palette="neon"]', neon(false), neon(true));
+
+if (process.argv.includes("--check")) {
+  for (const [n, v] of [["ice light", ice(false)], ["ice dark", ice(true)], ["neon light", neon(false)], ["neon dark", neon(true)]]) {
+    const r = (a, b) => contrast(v[a], v[b]).toFixed(1);
+    console.log(n.padEnd(11), "ink", r("ink", "bg"), "muted", r("muted", "surface"), "c1-5", [1, 2, 3, 4, 5].map(i => r("c" + i, "surface")).join(" "), "alert", r("alert", "surface"), "on-now", r("on-now", "now"), "on-ann", r("on-ann", "ann"));
+  }
+} else if (!process.argv.includes("--write")) {
+  console.log(out);
 } else {
   const file = fileURLToPath(new URL("../src/template.html", import.meta.url));
   let s = readFileSync(file, "utf8");
-  const swap = (re, body) => { if (!re.test(s)) { console.error("block not found: " + re); process.exit(1); } s = s.replace(re, body); };
-  swap(/(:root\{\n)[\s\S]*?(\n\})/, `$1${out.light}$2`);
-  swap(/(:root:not\(\[data-theme="light"\]\)\{\n)[\s\S]*?(\n  \})/, `$1${out.darkAuto}$2`);
-  swap(/(:root\[data-theme="dark"\]\{\n)[\s\S]*?(\n\})/, `$1${out.darkSet}$2`);
-  writeFileSync(file, s);
-  console.log("Wrote the three theme blocks into src/template.html");
+  const re = /(\/\* palette:start[^\n]*\n)[\s\S]*?(\/\* palette:end \*\/)/;
+  if (!re.test(s)) { console.error("palette markers not found in src/template.html"); process.exit(1); }
+  writeFileSync(file, s.replace(re, (_, a, b) => a + out + "\n" + b));
+  console.log("Wrote the palette block into src/template.html");
 }

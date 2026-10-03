@@ -5,7 +5,7 @@ Back to the [README](../README.md).
 
 ## Header, profile menu, footer and the info views
 
-- Header: text size and theme stay as shortcuts; **?** opens Help; the person icon at the far right
+- Header: text size, theme and palette stay as shortcuts; **?** opens Help; the person icon at the far right
   opens the profile menu: the account (Sign in with Google, Sign out), display settings (pulse,
   course colours, working hours), the Student's Canvas token and Groups, Calendar Links, progress
   (Import, Go back to a day, Export) and deleting the account. Laid out as a bento grid.
@@ -16,7 +16,7 @@ Back to the [README](../README.md).
   name that is not in `assets/icons` (`tools/fetch-icons.sh` fetches them).
 - Elements with the cut top-right corner keep their frame along the cut: a 1 px diagonal drawn on
   the inside of the cut, measured from the outer edge like the clip.
-- The favicon is a cyan square with the cut corner: `tools/make-favicon.py` writes SVG, ICO and a
+- The favicon is a glacier teal square with the cut corner: `tools/make-favicon.py` writes SVG, ICO and a
   180 px PNG to `assets/favicon/`; the app serves them from its head, the page carries the SVG inline.
 
 ## Where progress lives
@@ -64,14 +64,26 @@ recording, submit, module, page, booking, download) with the label on hover.
 
 ## Header and settings
 
-Row 1: study period tabs, then text size and theme (light, dark, or follow the system; "system"
-hands control back to the viewer's own theme), **?** (opens Help), and at the far right the
+Row 1: study period tabs, then text size, theme (light, dark, or follow the system; "system"
+hands control back to the viewer's own theme) and palette (snowflake: Ice, lightning: Neon; kept
+per viewer in `ltu-plan-palette`), **?** (opens Help), and at the far right the
 profile menu (person icon). Every other setting lives in that menu: Sign in or out, the pulse
 (target), course-coloured titles (beach ball, on by default), working hours, the Canvas token and
 Groups, Calendar Links, progress (Import, Go back to a day, Export) and deleting the account.
 Every link into Canvas ends with the external-link mark. Row 2: view, course filter, jump to
 Today, and one progress block (green bar deadlines and tasks, blue bar material). Below the sticky
 header: the full course names of the selected term and its period.
+
+## Palettes
+
+`tools/palette.mjs` generates every colour (`npm run palette` writes them between the
+`palette:start` and `palette:end` markers in the template), each palette in light and dark, all in
+OKLCH. **Ice** is the default: low chroma, a frosted Nordic mood, courses glacier, moss, heather,
+cloudberry and twilight, rust for alerts, heather for Now, sky blue for announcements, soft
+shadows. **Neon** (`data-palette="neon"` on the root) is the earlier fluorescent set with its cyan
+glow in dark mode. Text colours reach WCAG AA (4.5:1) on every background in both; `node
+tools/palette.mjs --check` prints the main pairs. Mix colours in OKLCH (`color-mix(in oklch, ...)`).
+The shadows of flip cards and popups (`--card-lift`, `--pop-lift`) belong to the palette too.
 
 ## Icons
 
