@@ -783,7 +783,8 @@ function itemLevel(code, item){
   if (item.req === "must_submit" || item.req === "must_contribute") return "must";
   return "nice";
 }
-function canvasDone(code, item){ return !!(PROGRESS && PROGRESS.courses[code] && PROGRESS.courses[code][item.id]); }
+// The private build's own Canvas state, or on the hosted app the Student's Completion (release 2).
+function canvasDone(code, item){ return !!(PROGRESS && PROGRESS.courses[code] && PROGRESS.courses[code][item.id]) || completionDone("m:" + code + ":" + item.id); }
 
 /* ---------- What an assessment tests ---------- */
 // The module item that stands for an assignment: a quiz, a lab hand-in, an exam.
@@ -923,7 +924,7 @@ function row(r, opts){
 function creq(code, i){
   if (!i.req) return '<span class="creq none" aria-hidden="true">' + ic("circle-dashed") + '</span>';
   var done = canvasDone(code, i);
-  var title = "Canvas tracks this item: " + (REQ[i.req] || i.req) + (PROGRESS ? (done ? ". Canvas counts it as done." : ". Not done in Canvas yet.") : ".");
+  var title = "Canvas tracks this item: " + (REQ[i.req] || i.req) + (PROGRESS || state.canvas ? (done ? ". Canvas counts it as done." : ". Not done in Canvas yet.") : ".");
   return '<span class="creq' + (done ? ' done' : '') + '" title="' + esc(title) + '">' + ic(done ? "check-circle" : "circle-dashed") + '</span>';
 }
 function matList(code, list, opts){
@@ -2112,15 +2113,15 @@ function canvasKind(id){
   if (kind === "m") { var r = c.items[p[2]]; return !r ? "un" : !r.completed ? "none" : r.type === "must_view" ? "opened" : "done"; }
   return "un";
 }
-function canvasDone(id){ var k = canvasKind(id); return k === "done" || (k === "opened" && state.openedCounts); }
+function completionDone(id){ var k = canvasKind(id); return k === "done" || (k === "opened" && state.openedCounts); }
 // What the page counts and greys out: the Student's Tick, or what Canvas has recorded.
-function isDone(id){ return !!state.checked[id] || canvasDone(id); }
+function isDone(id){ return !!state.checked[id] || completionDone(id); }
 // The second mark beside a tick box (CONTEXT.md, Status).
 function statusOf(id){
   var k = canvasKind(id), tick = !!state.checked[id];
   if (k === null) return null;
   if (k === "un") return { cls: "un", sym: "&#8722;", tip: "Canvas cannot record this; only your tick counts." + (tick ? " Done by you." : "") };
-  if (canvasDone(id)) return tick ? { cls: "both", sym: "&#10003;&#10003;", tip: "Confirmed: Canvas has it and you ticked it." } : { cls: "cv", sym: "&#10003;", tip: k === "opened" ? "Opened in Canvas, which counts as done (setting in Hosted app)." : "Done in Canvas." };
+  if (completionDone(id)) return tick ? { cls: "both", sym: "&#10003;&#10003;", tip: "Confirmed: Canvas has it and you ticked it." } : { cls: "cv", sym: "&#10003;", tip: k === "opened" ? "Opened in Canvas, which counts as done (setting in Hosted app)." : "Done in Canvas." };
   if (k === "opened") return { cls: "half", sym: "&#9680;", tip: "Opened in Canvas. Tick it once you have studied it." };
   if (tick) return { cls: "conf", sym: ic("warning", "sm"), tip: "Conflict: you ticked this, but Canvas has no " + (id.charAt(0) === "d" ? "submission" : "completion") + " for it." };
   return { cls: "no", sym: "", tip: "Not done in Canvas yet." };
