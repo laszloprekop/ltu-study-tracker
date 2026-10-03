@@ -75,6 +75,10 @@ export function shell() {
   const stray = /[^\x00-\x7e]/.exec(template);
   if (stray) throw new Error(`src/template.html has a non-ASCII character on line ${template.slice(0, stray.index).split("\n").length}: use a \\uXXXX escape or an HTML entity.`);
   if (!template.includes(MARKER)) throw new Error("src/template.html has no /*__DATA__*/ marker");
+  // Two functions of one name: the later silently replaces the earlier, so stop the build.
+  const names = [...template.matchAll(/^function (\w+)\(/gm)].map(m => m[1]);
+  const twice = names.filter((n, i) => names.indexOf(n) !== i);
+  if (twice.length) throw new Error(`src/template.html defines these functions twice: ${[...new Set(twice)].join(", ")}`);
   // Phosphor duotone icons as one hidden sprite; the page uses them with <use href="#i-name">.
   const iconDir = root("assets/icons");
   const symbols = readdirSync(iconDir).filter(f => f.endsWith(".svg")).sort().map(f => {
