@@ -35,8 +35,26 @@
     },
   };
 
+  // The Student's own Canvas token: kept in this browser only, sent to the relay per request,
+  // never stored on the server (ADR 0001). Works with or without signing in.
+  var TOKEN_KEY = "ltu-canvas-token";
+  function ls(k, v) { try { if (v === undefined) return localStorage.getItem(k); if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) { return null; } }
+  var canvas = {
+    has: function () { return !!ls(TOKEN_KEY); },
+    hint: function () { var t = ls(TOKEN_KEY) || ""; return t ? t.slice(0, t.indexOf("~") + 1) + "..." + t.slice(-4) : ""; },
+    set: function (t) { t = String(t || "").trim(); if (!/^\d+~[A-Za-z0-9]{20,}$/.test(t)) return false; ls(TOKEN_KEY, t); return true; },
+    forget: function () { ls(TOKEN_KEY, null); },
+    read: function (courseIds) {
+      var t = ls(TOKEN_KEY);
+      if (!t) return Promise.resolve(null);
+      return fetch("/api/me/canvas", { method: "POST", headers: { "content-type": "application/json", "x-canvas-token": t }, body: JSON.stringify({ courses: courseIds }) })
+        .then(function (res) { return res.json().then(function (body) { if (!res.ok) { var e = new Error(body.error || "canvas"); e.code = body.error || "canvas"; throw e; } return body; }); });
+    },
+  };
+
   window.claude = {
     use: function (name) {
+      if (name === "canvas") return Promise.resolve(canvas);
       return ready.then(function (session) {
         if (!session) return null;
         if (name === "user") return { id: function () { return Promise.resolve(session.user.id); } };

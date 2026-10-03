@@ -1,4 +1,6 @@
 <title>LTU Study Tracker</title>
+<!-- Favicon: a bright cyan square with a bevelled top-right corner. -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Cpath d=%22M2 2h20l8 8v20H2z%22 fill=%22%2300e4fd%22/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
@@ -96,6 +98,20 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
 .appview li b{color:var(--ink)}
 .appview .grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:14px}
 .appview .note{color:var(--muted); font-size:13px; margin:8px 0 0}
+.cvmark{display:inline-flex; align-items:center; justify-content:center; min-width:18px; height:18px; margin:0 2px 0 -2px; font-size:11px; font-weight:800; letter-spacing:-.08em; line-height:1; vertical-align:middle; border-radius:3px}
+.cvmark.cv{color:var(--c2)} .cvmark.both{color:var(--on-now); background:var(--c2); padding:0 2px}
+.cvmark.half{color:var(--c3); font-size:13px} .cvmark.un{color:var(--muted); font-weight:600}
+.cvmark.conf{color:var(--alert)} .cvmark.conf .ic{width:15px; height:15px}
+.cvmark.no{width:9px; min-width:9px; height:9px; border:1.5px solid var(--line); border-radius:50%}
+.appview .cvcard input[type=password],.appview .cvcard input[type=number],.appview .cvcard input[type=url]{font:inherit; font-size:13px; color:var(--ink); background:var(--surface); border:1px solid var(--muted); border-radius:4px; padding:6px 8px}
+.appview .cvcard input[type=password]{width:min(420px, 100%)}
+.appview .cvcard input[type=number]{width:70px}
+.appview .cvcard .row{display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:8px 0}
+.appview .cvcard button{font:inherit; font-size:13px; font-weight:700; color:var(--on-now); background:var(--now); border:1px solid var(--now); border-radius:4px; padding:6px 14px; cursor:pointer}
+.appview .cvcard button.plain{color:var(--ink); background:transparent; border-color:var(--muted)}
+.appview .cvcard .err{color:var(--alert); font-weight:600}
+.appview .cvlegend{display:flex; flex-wrap:wrap; gap:6px 16px; font-size:13px; margin:8px 0 0}
+.appview .cvlegend > span{display:inline-flex; align-items:center; gap:6px}
 .appview .acct-delete{margin:12px 0 0}
 .appview .acct-delete button{font:inherit; font-size:13px; font-weight:700; padding:6px 14px; border:1px solid var(--alert); border-radius:4px; background:transparent; color:var(--alert); cursor:pointer}
 .appview .acct-delete button.armed{background:var(--alert); color:#fff}
@@ -669,8 +685,8 @@ body.colored table.all tr:not(.done) .tt{color:var(--cc)}
 
 /* ---------- Helpers ---------- */
 const P = DATA.plan, INV = DATA.inventory, COURSES = P.COURSES, TEACHERS = P.TEACHERS, TERMS = P.TERMS, PROGRESS = DATA.progress || null;
-const LS = { hours: "ltu-plan-hours", movedFolded: "ltu-plan-moved-folded", exportedAt: "ltu-plan-exported-at", unlocked: "ltu-plan-unlocked", ticks: "ltu-plan-ticks", tickAt: "ltu-plan-tick-at", muted: "ltu-plan-muted", filter: "ltu-plan-filter", term: "ltu-plan-term", view: "ltu-plan-view", open: "ltu-plan-open", weeks: "ltu-plan-weeks", size: "ltu-plan-size", ping: "ltu-plan-ping", colored: "ltu-plan-colored", theme: "ltu-plan-theme", mapOpen: "ltu-plan-map-open", mapPos: "ltu-plan-map-pos", mapAll: "ltu-plan-map-all", mapHops: "ltu-plan-map-hops", mapMode: "ltu-plan-map-mode", railSlim: "ltu-plan-map-rail", snaps: "ltu-plan-snaps", legacy: "lp2-shared-ticks" };
-const state = { checked: {}, tickAt: {}, exportedAt: null, unlocked: false, muted: {}, filter: "all", term: null, view: "week", day: null, open: {}, weeks: {}, size: 100, ping: true, colored: true, theme: "system", hours: { start: "09:00", end: "17:00" }, mapOpen: null, mapSel: null, mapSels: [], mapAll: false, mapHops: 5, mapMode: "select", railSlim: false };
+const LS = { hours: "ltu-plan-hours", openedCounts: "ltu-plan-opened-counts", groups: "ltu-plan-groups", canvasCache: "ltu-plan-canvas-cache", movedFolded: "ltu-plan-moved-folded", exportedAt: "ltu-plan-exported-at", unlocked: "ltu-plan-unlocked", ticks: "ltu-plan-ticks", tickAt: "ltu-plan-tick-at", muted: "ltu-plan-muted", filter: "ltu-plan-filter", term: "ltu-plan-term", view: "ltu-plan-view", open: "ltu-plan-open", weeks: "ltu-plan-weeks", size: "ltu-plan-size", ping: "ltu-plan-ping", colored: "ltu-plan-colored", theme: "ltu-plan-theme", mapOpen: "ltu-plan-map-open", mapPos: "ltu-plan-map-pos", mapAll: "ltu-plan-map-all", mapHops: "ltu-plan-map-hops", mapMode: "ltu-plan-map-mode", railSlim: "ltu-plan-map-rail", snaps: "ltu-plan-snaps", legacy: "lp2-shared-ticks" };
+const state = { checked: {}, tickAt: {}, canvas: null, canvasErr: null, openedCounts: true, groups: {}, exportedAt: null, unlocked: false, muted: {}, filter: "all", term: null, view: "week", day: null, open: {}, weeks: {}, size: 100, ping: true, colored: true, theme: "system", hours: { start: "09:00", end: "17:00" }, mapOpen: null, mapSel: null, mapSels: [], mapAll: false, mapHops: 5, mapMode: "select", railSlim: false };
 let store = null, saveTimer = null;
 
 function esc(s){ return String(s == null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
@@ -870,7 +886,7 @@ function links(list){
 function lvl(level){ return '<span class="lvl ' + level + '">' + (level === "must" ? "MUST" : "NICE") + '</span>'; }
 function box(id){ return '<span class="box"><span class="ring"></span><input type="checkbox" id="' + esc(id) + '"></span>'; }
 function muteBtn(id){ return '<button type="button" class="mute" data-mute="' + esc(id) + '" title="Mute: not for me" aria-label="Mute">' + ic("prohibit") + '</button>'; }
-function hostClass(id, extra){ return (extra || "") + (id && state.checked[id] ? " done" : "") + (id && state.muted[id] ? " muted" : ""); }
+function hostClass(id, extra){ return (extra || "") + (id && isDone(id) ? " done" : "") + (id && state.muted[id] ? " muted" : ""); }
 function when(r, opts){
   opts = opts || {};
   var top = opts.withDay ? dayLabel(r.date) : "";
@@ -1308,8 +1324,8 @@ function svgGraph(t){
   var dep = g.deps.map(function(e, i){ return '<path class="ge dep' + (e.need ? ' need' : '') + '" data-dep="' + i + '" data-a="' + esc(e.a.id) + '" data-b="' + esc(e.b.id) + '" marker-end="url(#' + (e.need ? 'arrr' : 'arrb') + ')" d="M0 0"><title>' + (e.need ? 'Needed for the assessment' : 'Watch before the session') + '</title></path>'; }).join("");
   var nodes = g.nodes.map(function(n){
     var isSel = n.kind === "time" ? !!sel.rows[n.key] : !!sel.nodes[n.id];
-    var cls = "gn " + n.kind + (isSel ? " sel" : "") + (cur[n.id] ? " cur" : "") + (n.kind === "time" && n.row.level === "must" ? " must" : "") + (n.tick && state.checked[n.tick] ? " done" : "") + (n.tick && state.muted[n.tick] ? " muted" : "") +
-      (n.kind === "time" ? " " + n.row.kind + (n.row.id && state.checked[n.row.id] ? " done" : "") + (n.row.id && state.muted[n.row.id] ? " muted" : "") : "");
+    var cls = "gn " + n.kind + (isSel ? " sel" : "") + (cur[n.id] ? " cur" : "") + (n.kind === "time" && n.row.level === "must" ? " must" : "") + (n.tick && isDone(n.tick) ? " done" : "") + (n.tick && state.muted[n.tick] ? " muted" : "") +
+      (n.kind === "time" ? " " + n.row.kind + (n.row.id && isDone(n.row.id) ? " done" : "") + (n.row.id && state.muted[n.row.id] ? " muted" : "") : "");
     var must = (n.item && itemLevel(n.code, n.item) === "must") || (n.kind === "time" && n.row.level === "must");
     var badge = n.kind !== "item" && n.kind !== "time" && !n.open;
     var ids = ' data-node="' + esc(n.id) + '"' + (n.tick ? ' data-id="' + esc(n.tick) + '"' : n.kind === "time" && n.row.id ? ' data-id="' + esc(n.row.id) + '"' : '');
@@ -1607,14 +1623,14 @@ function detailFor(t, key){
       html += chip(node.code) + '<div class="dt">' + esc(k.name) + '</div>' + teachers(k.teachers) + '<ul class="rel">' + (k.rules || []).map(function(r){ return '<li>' + esc(r) + '</li>'; }).join("") + '</ul>' +
         '<div class="sec">Modules</div><ul class="rel">' + node.children.map(function(m){ return '<li><button type="button" data-goto="' + esc(m.id) + '">' + esc(m.label) + '</button> <span class="why" style="display:inline">' + m.children.length + ' items</span></li>'; }).join("") + '</ul>';
     } else if (node.kind === "section") {
-      var sdone = leafItems(node).filter(function(i){ return state.checked[i.tick]; }).length;
+      var sdone = leafItems(node).filter(function(i){ return isDone(i.tick); }).length;
       html += chip(node.code) + '<div class="dt">' + esc(node.label) + '</div><div class="kv"><span>In</span><b>' + esc(node.module.name) + '</b><span>Items</span><b>' + leafItems(node).length + ', ' + sdone + ' ticked</b></div>' +
-        '<div class="sec">Items</div><ul class="rel">' + node.children.map(function(i){ return '<li' + (state.checked[i.tick] ? ' style="opacity:.55"' : '') + '><button type="button" data-goto="' + esc(i.id) + '">' + ic(KIND_ICON[i.item.kind] || "book-open", "sm kic") + esc(i.label) + '</button></li>'; }).join("") + '</ul>';
+        '<div class="sec">Items</div><ul class="rel">' + node.children.map(function(i){ return '<li' + (isDone(i.tick) ? ' style="opacity:.55"' : '') + '><button type="button" data-goto="' + esc(i.id) + '">' + ic(KIND_ICON[i.item.kind] || "book-open", "sm kic") + esc(i.label) + '</button></li>'; }).join("") + '</ul>';
     } else if (node.kind === "module") {
-      var leaves = leafItems(node), done = leaves.filter(function(i){ return state.checked[i.tick]; }).length;
+      var leaves = leafItems(node), done = leaves.filter(function(i){ return isDone(i.tick); }).length;
       html += chip(node.code) + '<div class="dt">' + esc(node.label) + '</div><div class="kv"><span>Items</span><b>' + leaves.length + ', ' + done + ' ticked</b><span>Time</span><b>' + (fmtMin(matMinutes(leaves.map(function(i){ return i.item; }))) || "-") + '</b></div>' +
         '<span class="links"><a href="' + esc(node.module.url) + '" target="_blank" rel="noopener">Open module' + ext(node.module.url) + '</a></span>' +
-        '<div class="sec">' + (node.children[0] && node.children[0].kind === "section" ? "Sections" : "Items") + '</div><ul class="rel">' + node.children.map(function(i){ return '<li' + (i.tick && state.checked[i.tick] ? ' style="opacity:.55"' : '') + '><button type="button" data-goto="' + esc(i.id) + '">' + (i.item ? ic(KIND_ICON[i.item.kind] || "book-open", "sm kic") : '') + esc(i.label) + (i.kind === "section" ? ' <span class="why" style="display:inline">' + leafItems(i).length + ' items</span>' : '') + '</button></li>'; }).join("") + '</ul>';
+        '<div class="sec">' + (node.children[0] && node.children[0].kind === "section" ? "Sections" : "Items") + '</div><ul class="rel">' + node.children.map(function(i){ return '<li' + (i.tick && isDone(i.tick) ? ' style="opacity:.55"' : '') + '><button type="button" data-goto="' + esc(i.id) + '">' + (i.item ? ic(KIND_ICON[i.item.kind] || "book-open", "sm kic") : '') + esc(i.label) + (i.kind === "section" ? ' <span class="why" style="display:inline">' + leafItems(i).length + ' items</span>' : '') + '</button></li>'; }).join("") + '</ul>';
     } else {
       var i = node.item, level = itemLevel(node.code, i), mid = "m:" + node.code + ":" + node.module.id;
       html += chip(node.code) + lvl(level) + '<div class="dt">' + ic(KIND_ICON[i.kind] || "book-open", "kic") + esc((i.number ? i.number + " " : "") + i.title) + '</div>';
@@ -1638,9 +1654,9 @@ function detailFor(t, key){
       if (rel.length) html += '<div class="sec">Connected</div><ul class="rel">' + rel.map(function(x){ return '<li><span class="why" style="display:inline">' + esc(x[0]) + ':</span> ' + (x[2] ? '<button type="button" data-goto="' + esc(x[2]) + '">' + esc(x[1]) + '</button>' : esc(x[1])) + '</li>'; }).join("") + '</ul>';
       // what this assessment tests, by the section rule plus the plan's NEEDS entries
       if (i.assignmentId) {
-        var need = needsOf(t, node.code, i.assignmentId), needDone = need.filter(function(x){ return state.checked["m:" + node.code + ":" + x.id]; }).length;
+        var need = needsOf(t, node.code, i.assignmentId), needDone = need.filter(function(x){ return isDone("m:" + node.code + ":" + x.id); }).length;
         if (need.length) html += '<div class="sec">Needs</div><div class="why">' + need.length + ' items, ' + needDone + ' ticked' + (matMinutes(need) ? ', ' + fmtMin(matMinutes(need)) : '') + '</div><ul class="rel">' +
-          need.map(function(x){ return '<li' + (state.checked["m:" + node.code + ":" + x.id] ? ' style="opacity:.55"' : '') + '><button type="button" data-goto="' + esc(nodeIdOf(node.code, x)) + '">' + ic(KIND_ICON[x.kind] || "book-open", "sm kic") + esc((x.number ? x.number + " " : "") + x.title) + '</button></li>'; }).join("") + '</ul>';
+          need.map(function(x){ return '<li' + (isDone("m:" + node.code + ":" + x.id) ? ' style="opacity:.55"' : '') + '><button type="button" data-goto="' + esc(nodeIdOf(node.code, x)) + '">' + ic(KIND_ICON[x.kind] || "book-open", "sm kic") + esc((x.number ? x.number + " " : "") + x.title) + '</button></li>'; }).join("") + '</ul>';
       }
     }
   }
@@ -1941,9 +1957,10 @@ function applyState(){
   document.querySelectorAll('[data-id]').forEach(function(host){
     var id = host.dataset.id, b = host.querySelector('input[type=checkbox]');
     if (b) b.checked = !!state.checked[id];
-    host.classList.toggle("done", !!state.checked[id]);
+    host.classList.toggle("done", !!isDone(id));
     host.classList.toggle("muted", !!state.muted[id]);
   });
+  applyCanvasMarks();
   // what is left per week, shown when a week is folded
   document.querySelectorAll(".week").forEach(function(w){
     var left = 0, total = 0;
@@ -1965,8 +1982,8 @@ function applyState(){
 // Counts cover the whole term, not only the view on screen. Muted items are left out.
 function countTerm(t){
   var f = state.filter, work = [0, 0], mat = [0, 0];
-  deadlineRows(t).concat(taskRows(t)).forEach(function(r){ if ((f !== "all" && r.code !== f) || state.muted[r.id]) return; work[1]++; if (state.checked[r.id]) work[0]++; });
-  studyBlocks(t).forEach(function(b){ if (f !== "all" && b.code !== f) return; b.items.forEach(function(i){ var id = "m:" + b.code + ":" + i.id; if (state.muted[id]) return; mat[1]++; if (state.checked[id]) mat[0]++; }); });
+  deadlineRows(t).concat(taskRows(t)).forEach(function(r){ if ((f !== "all" && r.code !== f) || state.muted[r.id]) return; work[1]++; if (isDone(r.id)) work[0]++; });
+  studyBlocks(t).forEach(function(b){ if (f !== "all" && b.code !== f) return; b.items.forEach(function(i){ var id = "m:" + b.code + ":" + i.id; if (state.muted[id]) return; mat[1]++; if (isDone(id)) mat[0]++; }); });
   return { work: work, mat: mat };
 }
 // The viewer's own theme stamp, kept so "system" can hand control back to it.
@@ -2068,6 +2085,62 @@ function renderProgressPanel(msg){
   document.getElementById("prog-restore").disabled = !opts.length;
   var out = document.getElementById("prog-msg"); if (out) out.textContent = msg || "";
 }
+/* ---------- The Student's own Canvas (release 2) ---------- */
+// Only on the hosted app, with a token the Student pasted: what Canvas has recorded for them.
+// canvasKind(id): null (no Canvas data), "un" (Canvas cannot record this task), "none" (it could,
+// and has nothing), "opened", or "done". Ticks are never changed by it (CONTEXT.md, Completion).
+function canvasCourse(code){ var c = state.canvas && COURSES[code] && state.canvas.courses[COURSES[code].canvasId]; return c || null; }
+function canvasKind(id){
+  if (!state.canvas || !id) return null;
+  var p = id.split(":"), kind = p[0], code = p[1], c = canvasCourse(code);
+  if (kind === "t" || !c) return "un";
+  if (kind === "d") {
+    var subOf = function(aid){ var x = c.submissions[aid]; return x && (x.submitted || x.excused); };
+    if (p[2] === "quizzes") {
+      var qs = assignments(code).filter(function(a){ return a.kind === "quiz" && a.due === p[3]; }), done = qs.filter(function(a){ return subOf(a.id); }).length;
+      return !qs.length ? "un" : done === qs.length ? "done" : done ? "opened" : "none";
+    }
+    return c.submissions[p[2]] ? (subOf(p[2]) ? "done" : "none") : "un";
+  }
+  if (kind === "m") { var r = c.items[p[2]]; return !r ? "un" : !r.completed ? "none" : r.type === "must_view" ? "opened" : "done"; }
+  return "un";
+}
+function canvasDone(id){ var k = canvasKind(id); return k === "done" || (k === "opened" && state.openedCounts); }
+// What the page counts and greys out: the Student's Tick, or what Canvas has recorded.
+function isDone(id){ return !!state.checked[id] || canvasDone(id); }
+// The second mark beside a tick box (CONTEXT.md, Status).
+function statusOf(id){
+  var k = canvasKind(id), tick = !!state.checked[id];
+  if (k === null) return null;
+  if (k === "un") return { cls: "un", sym: "&#8722;", tip: "Canvas cannot record this; only your tick counts." + (tick ? " Done by you." : "") };
+  if (canvasDone(id)) return tick ? { cls: "both", sym: "&#10003;&#10003;", tip: "Confirmed: Canvas has it and you ticked it." } : { cls: "cv", sym: "&#10003;", tip: k === "opened" ? "Opened in Canvas, which counts as done (setting in Hosted app)." : "Done in Canvas." };
+  if (k === "opened") return { cls: "half", sym: "&#9680;", tip: "Opened in Canvas. Tick it once you have studied it." };
+  if (tick) return { cls: "conf", sym: ic("warning", "sm"), tip: "Conflict: you ticked this, but Canvas has no " + (id.charAt(0) === "d" ? "submission" : "completion") + " for it." };
+  return { cls: "no", sym: "", tip: "Not done in Canvas yet." };
+}
+function applyCanvasMarks(){
+  document.querySelectorAll("[data-id] .box").forEach(function(bx){
+    var host = bx.closest("[data-id]"), st = statusOf(host.dataset.id), m = bx.nextElementSibling;
+    if (!st) { if (m && m.classList.contains("cvmark")) m.remove(); return; }
+    if (!m || !m.classList.contains("cvmark")) { m = document.createElement("span"); bx.insertAdjacentElement("afterend", m); }
+    m.className = "cvmark " + st.cls; m.innerHTML = st.sym; m.title = st.tip; m.setAttribute("aria-label", st.tip);
+  });
+}
+function canvasIds(){ return Object.keys(COURSES).map(function(c){ return COURSES[c].canvasId; }).filter(Boolean); }
+function groupOf(code){
+  if (state.groups[code]) return state.groups[code];
+  var c = COURSES[code], g = state.canvas && c && state.canvas.groups.find(function(x){ return x.courseId === c.canvasId; });
+  return g ? g.number : null;
+}
+function refreshCanvas(){
+  if (!window.TRACKER_CONFIG || !window.claude || !window.claude.use) return Promise.resolve();
+  return window.claude.use("canvas").then(function(cv){
+    if (!cv || !cv.has()) { state.canvas = null; return; }
+    return cv.read(canvasIds()).then(function(data){ state.canvas = data; state.canvasErr = null; lsSet(LS.canvasCache, JSON.stringify(data)); })
+      .catch(function(e){ state.canvasErr = e.code === "token" ? "Canvas did not accept the token. It may have expired: make a new one." : "Canvas could not be reached just now. The marks are from the last read."; });
+  }).then(function(){ applyState(); if (state.view === "app") renderTerm(); });
+}
+
 /* ---------- The move to the hosted tracker (release 1, step 6) ---------- */
 // Only on the claude.ai page, and only once data/plan.mjs names the new address (MOVED_TO).
 function movedTo(){ return !window.TRACKER_CONFIG && P.MOVED_TO ? P.MOVED_TO : null; }
@@ -2147,6 +2220,26 @@ function bindAccountDelete(){
     });
   });
 }
+function canvasCard(){
+  var has = !!state.canvasHint, d = state.canvas;
+  var conflicts = d ? Object.keys(state.checked).filter(function(id){ var st = statusOf(id); return st && st.cls === "conf"; }).length : 0;
+  var groups = Object.keys(COURSES).filter(function(c){ return COURSES[c].canvasId; }).map(function(code){
+    var g = groupOf(code), from = state.groups[code] ? "set here" : g ? "from Canvas" : "unknown";
+    return '<label>' + chip(code) + ' Group <input type="number" min="1" max="99" data-group="' + esc(code) + '" value="' + (g || "") + '" placeholder="?"> <small>' + from + '</small></label>';
+  }).join(" ");
+  return '<div class="card cvcard" style="margin-top:14px"><h3>' + ic("link") + 'Your Canvas</h3>' +
+    (has ? '<p>Connected with token <code>' + esc(state.canvasHint) + '</code>' + (d ? ', read ' + esc(longDay(iso(new Date(d.readAt)))) + ' ' + String(new Date(d.readAt).getHours()).padStart(2, "0") + ':' + String(new Date(d.readAt).getMinutes()).padStart(2, "0") : '') + '.' + (conflicts ? ' <b class="err">' + conflicts + ' conflict' + (conflicts === 1 ? '' : 's') + '</b>: ticked here, nothing in Canvas.' : '') + '</p>' +
+        (state.canvasErr ? '<p class="err">' + esc(state.canvasErr) + '</p>' : '') +
+        '<div class="row"><button type="button" data-cv="refresh">Read Canvas again</button><button type="button" class="plain" data-cv="forget">Forget the token</button></div>'
+      : '<p>Paste a Canvas token to see, next to each tick, what Canvas has recorded for you: hand-ins, posts, pages marked done or opened. The token stays in this browser; the server only passes it on to Canvas and never stores it.</p>' +
+        '<ol><li>In Canvas: <b>Account</b>, <b>Settings</b>, <b>+ New access token</b>.</li><li>Purpose <i>Study tracker</i>, an expiry date at the end of the term, <b>Generate token</b>, and copy it.</li><li>Paste it here.</li></ol>' +
+        '<div class="row"><input type="password" id="cv-token" placeholder="Canvas token" autocomplete="off" aria-label="Canvas token"><button type="button" data-cv="save">Connect</button></div>' +
+        (state.canvasErr ? '<p class="err">' + esc(state.canvasErr) + '</p>' : '')) +
+    '<div class="cvlegend"><span><span class="cvmark both">&#10003;&#10003;</span> confirmed</span><span><span class="cvmark cv">&#10003;</span> done in Canvas</span><span><span class="cvmark half">&#9680;</span> opened</span><span><span class="cvmark conf">' + ic("warning", "sm") + '</span> conflict</span><span><span class="cvmark un">&#8722;</span> Canvas cannot record it</span></div>' +
+    '<div class="row"><label><input type="checkbox" id="cv-opened"' + (state.openedCounts ? ' checked' : '') + '> Opening a page in Canvas counts as done</label></div>' +
+    '<div class="row">' + groups + '</div>' +
+  '</div>';
+}
 function renderAppView(){
   var hosted = !!window.TRACKER_CONFIG;
   var intro = hosted
@@ -2155,6 +2248,7 @@ function renderAppView(){
     : '<p>This page has a successor at ' + appLink() + ': the same tracker, as its own website.</p><h3>How to move</h3>' + moveSteps();
   return '<section class="appview"><div class="sechead"><h2>Hosted app</h2><span class="note">' + (hosted ? "What this site does, what is coming, and how it treats your data." : "Why moving is worth it, and how the new site treats your data.") + '</span></div>' +
     '<div class="card">' + intro + '</div>' +
+    (hosted ? canvasCard() : '') +
     '<div class="grid" style="margin-top:14px">' +
       '<div class="card"><h3>' + ic("check-circle") + 'What it does today' + (hosted ? '<span class="here">here</span>' : '') + '</h3>' + infoList(APP_INFO.now, "ul") + '</div>' +
       '<div class="card"><h3>' + ic("flag-checkered") + 'Coming next</h3>' + infoList(APP_INFO.planned, "ul") + '<p class="note">Planned, in this order. Each release keeps everything before it working.</p></div>' +
@@ -2165,6 +2259,19 @@ function renderAppView(){
   '</section>';
 }
 document.addEventListener("click", function(e){
+  var cvb = e.target.closest && e.target.closest("button[data-cv]");
+  if (cvb) {
+    window.claude.use("canvas").then(function(cv){
+      if (cvb.dataset.cv === "save") {
+        var inp = document.getElementById("cv-token");
+        if (!cv.set(inp && inp.value)) { state.canvasErr = "That does not look like a Canvas token (digits, a tilde, then letters and digits)."; renderTerm(); return; }
+        state.canvasHint = cv.hint(); state.canvasErr = null; cvb.disabled = true; cvb.textContent = "Reading Canvas...";
+      } else if (cvb.dataset.cv === "forget") { cv.forget(); state.canvasHint = ""; state.canvas = null; state.canvasErr = null; lsSet(LS.canvasCache, ""); applyState(); renderTerm(); return; }
+      else { cvb.disabled = true; cvb.textContent = "Reading Canvas..."; }
+      refreshCanvas();
+    });
+    return;
+  }
   var g = e.target.closest && e.target.closest("[data-goview]");
   if (g) { e.preventDefault(); state.view = g.dataset.goview; lsSet(LS.view, state.view); renderTerm(); window.scrollTo(0, 0); return; }
   var b = e.target.closest && e.target.closest("button[data-moved]"); if (!b) return;
@@ -2202,6 +2309,8 @@ document.addEventListener("change", function(e){
   var b = e.target;
   if (!b) return;
   if (b.id === "daypick") { state.day = b.value || todayIso(); renderTerm(); return; }
+  if (b.id === "cv-opened") { state.openedCounts = b.checked; lsSet(LS.openedCounts, b.checked ? "1" : "0"); applyState(); renderTerm(); return; }
+  if (b.dataset && b.dataset.group) { var gv = parseInt(b.value, 10); if (gv > 0 && gv < 100) state.groups[b.dataset.group] = gv; else delete state.groups[b.dataset.group]; lsSet(LS.groups, JSON.stringify(state.groups)); renderTerm(); return; }
   if (b.id === "g-hops") { state.mapHops = Number(b.value); lsSet(LS.mapHops, String(state.mapHops)); document.getElementById("g-hops-v").textContent = hopsLabel(); applySel(term()); return; }
   if (b.classList.contains("hstart") || b.classList.contains("hend")) {
     if (b.classList.contains("hstart")) state.hours.start = b.value || "09:00"; else state.hours.end = b.value || "17:00";
@@ -2243,6 +2352,9 @@ function defaultTerm(){
 state.checked = migrate(lsJson(LS.ticks) || lsJson(LS.legacy) || {});
 state.tickAt = migrateAt(lsJson(LS.tickAt) || {});
 state.exportedAt = lsGet(LS.exportedAt) || null;
+state.openedCounts = lsGet(LS.openedCounts) !== "0";
+state.groups = lsJson(LS.groups) || {};
+if (window.TRACKER_CONFIG) { state.canvas = lsJson(LS.canvasCache) || null; }
 state.unlocked = lsGet(LS.unlocked) === "1";
 state.muted = lsJson(LS.muted) || {};
 state.snaps = lsJson(LS.snaps) || {};
@@ -2265,6 +2377,13 @@ state.term = TERMS.some(function(t){ return t.id === savedTerm; }) ? savedTerm :
 applyDisplay();
 renderTerm();
 renderMoved();
+// The hosted app: show the last Canvas read at once, then read again (and when the tab comes back after a while).
+if (window.TRACKER_CONFIG && window.claude && window.claude.use) window.claude.use("canvas").then(function(cv){
+  if (!cv || !cv.has()) { state.canvas = null; return; }
+  state.canvasHint = cv.hint(); refreshCanvas();
+  var last = Date.now();
+  document.addEventListener("visibilitychange", function(){ if (!document.hidden && Date.now() - last > 15 * 60 * 1000) { last = Date.now(); refreshCanvas(); } });
+});
 
 // Each viewer's ticks live in their own private subtree, data/users/<id>/, which nobody else can read.
 // Viewers without an id (outside the author's organisation, or signed out) keep ticks in this browser only.
