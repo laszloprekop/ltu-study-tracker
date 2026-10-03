@@ -14,8 +14,9 @@ _Avoid_: Class, subject
 
 **Course Plan**:
 Everything about a Course that is the same for every student: modules, deadlines, sessions,
-announcements and the hand-written parts (session times, needs, weekly notes). Synced by the
-Maintainer; shown, with its last sync date, to anyone, with or without a token.
+announcements and the hand-written parts (session times, needs, weekly notes). Its Canvas parts
+are synced hourly with the Sync Token, its hand-written parts come from the Maintainer; shown,
+with its last sync date, to anyone, with or without a token.
 _Avoid_: Shared data, public view, fallback
 
 **Student**:
@@ -25,6 +26,12 @@ _Avoid_: User, viewer
 **Maintainer**:
 The Student whose token syncs the Course Plan and who edits its hand-written parts.
 _Avoid_: Admin, owner
+
+**Sync Token**:
+A Canvas token the Maintainer creates only for syncing the Course Plan: expiring, stored
+encrypted, used only to read. The one Canvas token the tracker keeps; a Student's token is kept only
+if they opt in.
+_Avoid_: API key, admin token
 
 **Account**:
 A Student's Google login, under which their Personal Layer is kept across devices. A Student
@@ -52,7 +59,7 @@ _Avoid_: Team space, shared data
 
 **Calendar Link**:
 A secret iCal address a Student gives the tracker so it can read a calendar's events. Read-only,
-so it may be stored with the Account; a Canvas token never is.
+so it may be stored with the Account, unlike a Student's Canvas token.
 _Avoid_: Calendar URL, feed, ICS
 
 **Calendar Event**:
