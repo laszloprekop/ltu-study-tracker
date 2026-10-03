@@ -42,26 +42,38 @@ Done 2026-10-03.
 
 ### 2. App skeleton in `app/`
 
-- Next.js (App Router, TypeScript, `output: "standalone"`), copied in shape from
-  `epub-reader-web`: Supabase clients in `app/lib/supabase/`, Google sign-in, the auth callback
-  that uses `NEXT_PUBLIC_SITE_URL` because `request.url` is `0.0.0.0` in Docker.
-- GitHub Actions: lint, test, build on the runner, push the image to GHCR, call the Coolify webhook.
-  Coolify resource of type Docker Image.
-- Guest mode works with no sign-in: the page as today, Ticks in localStorage.
+Done 2026-10-03, not yet deployed.
+
+- Next.js 16 in `app/`, standalone output. It serves the same tracker page the artifact publishes
+  (`tools/build.mjs`, never the `--private` build) at `/`, plus `/health`.
+- The page reaches storage only through `window.claude.use("db")` and `use("user")`.
+  `app/public/bridge.js` provides both on top of Supabase, so the page runs unchanged in both
+  places. Signed out, both return null and Ticks stay in the browser (Guest).
+- Sign-in is Google through Supabase (PKCE, in the browser). The Sign in / Sign out button sits
+  with the page's settings buttons.
+- Headers: a content security policy (data only to the tracker's Supabase, no framing; scripts
+  need 'unsafe-inline' because the page is one file), nosniff, referrer and permissions policies.
+- Supabase address and anon key are read at run time (`NEXT_PUBLIC_SUPABASE_URL`,
+  `NEXT_PUBLIC_SUPABASE_ANON_KEY`), so the image holds no environment-specific values.
+- CI: `.github/workflows/app.yml` runs the tick tests, type check and build, pushes
+  `ghcr.io/laszloprekop/ltu-study-tracker`, and calls the Coolify webhook when `COOLIFY_WEBHOOK` and
+  `COOLIFY_TOKEN` are set (skipped otherwise).
 
 ### 3. Database, with row-level security from the first table
 
-SQL migrations in `app/supabase/migrations/`, applied as in Babel Bookshelf.
+Done and applied 2026-10-03 (`app/supabase/`).
 
 | Table | Rows | Who reads | Who writes |
 |---|---|---|---|
-| `course` | one per Course | anyone | sync job |
-| `course_plan` | the built Course Plan per Course, with `synced_at` | anyone | sync job |
-| `account` | one per Google login | its owner | its owner |
-| `tick` | `(account, task_id, on, at)` | its owner | its owner |
+| `progress` | one progress document per Account (`checked`, `tickAt`, `muted`, `snaps`) | its owner | only through `save_progress` |
+| `course_plan` | `current`: the built Course Plan, with `synced_at` | anyone, Guests too | the sync (service role) |
 
-Ticks are saved as rows, and the latest `at` wins on every write, so two devices of the same Student
-merge the same way an import does.
+- Deviation from the first draft: progress is one document per Account, the shape the page
+  already uses, instead of one row per Tick. `save_progress` merges it on the server by the same
+  rule as the page (per id the later change wins), so two devices cannot overwrite each other.
+- Accounts are Supabase's own `auth.users`; no separate table is needed yet.
+- `app/supabase/tests/rls.sql` checks every rule inside a rolled-back transaction: owners only,
+  no direct writes, Guests read the Course Plan and nothing else.
 
 ### 4. Hourly Course Plan sync on the server
 
@@ -77,6 +89,9 @@ merge the same way an import does.
 - `npm run check` keeps working on the Maintainer's machine as before.
 
 ### 5. Sign-in, merge and import
+
+Done with step 2: the page saves right after loading the account copy, so a Guest's Ticks merge
+in at the first sign-in; import already takes both code versions. Untested until a real sign-in.
 
 - Signing in with Google creates the `account`. On the first sign-in in a browser, the Guest's
   local Ticks merge in by the latest-change rule, once.

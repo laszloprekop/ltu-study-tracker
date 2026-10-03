@@ -22,3 +22,7 @@
   Canvas has them, so they can be found again in Canvas.
 - `CONTEXT.md` is the glossary for the hosted app (Course Plan, Personal Layer, Key Event, Card...).
   Use its terms in code and docs.
+- `app/` is the hosted tracker (Next.js, Supabase at ltu-studytracker-db.dentaku.se). It serves the
+  same built page through `app/public/bridge.js`; keep the page's `window.claude.use` calls as the
+  only storage seam. Migrations in `app/supabase/migrations/`, applied over SSH (see its README),
+  then `app/supabase/tests/rls.sql`. Never commit `app/.env.local`.

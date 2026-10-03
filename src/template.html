@@ -2114,6 +2114,7 @@ renderTerm();
       applyState();
     }
     store = ref;
+    save();   // ticks made here before signing in reach the account now, merged by the rule above
   } catch (e) {}
 })();
 </script>

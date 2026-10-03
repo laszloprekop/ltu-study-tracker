@@ -1,0 +1,29 @@
+{
+  "name": "ltu-study-tracker-app",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Hosted LTU Study Tracker: serves the tracker page with Supabase-backed accounts. See ../docs/plan/release-1.md.",
+  "scripts": {
+    "prepare-page": "node scripts/prepare.mjs",
+    "predev": "npm run prepare-page",
+    "dev": "next dev",
+    "prebuild": "npm run prepare-page",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "2.117.2",
+    "next": "16.3.8",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.5",
+    "@types/react": "19.3.0",
+    "typescript": "5.9.3"
+  }
+}

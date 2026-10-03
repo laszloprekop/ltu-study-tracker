@@ -1,0 +1,9 @@
+node_modules/
+.next/
+next-env.d.ts
+# Copied in by scripts/prepare.mjs from the repo's build output and node_modules
+tracker/
+public/vendor/
+.env*
+!.env.example
+*.tsbuildinfo
