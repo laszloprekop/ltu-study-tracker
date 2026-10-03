@@ -6,7 +6,7 @@ begin;
 insert into auth.users (id, aud, role, email) values
   ('00000000-0000-0000-0000-00000000000a', 'authenticated', 'authenticated', 'a@test.invalid'),
   ('00000000-0000-0000-0000-00000000000b', 'authenticated', 'authenticated', 'b@test.invalid');
-insert into public.course_plan (id, data) values ('current', '{"x":1}');
+insert into public.course_plan (id, data) values ('rls-test', '{"x":1}');
 
 -- Student A saves, as the page would
 set local role authenticated;
@@ -66,6 +66,20 @@ do $$ begin
   exception when insufficient_privilege then raise notice 'ok a Student cannot read the sync token'; end;
   begin perform public.store_course_plan('{"plan":{},"inventory":{}}'); raise notice 'FAIL a Student can write the plan';
   exception when insufficient_privilege then raise notice 'ok a Student cannot write the plan'; end;
+end $$;
+
+-- Deleting one's own account removes it and its progress, and nobody else's
+reset role; set local role authenticated;
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000b","role":"authenticated"}', true);
+select public.save_progress('{"checked":{"t:b":true},"tickAt":{"t:b":"2026-10-03T10:00:00Z"}}');
+select public.delete_my_account();
+reset role;
+select 'after B deletes: B users ' || (select count(*) from auth.users where id = '00000000-0000-0000-0000-00000000000b') || ', B progress ' || (select count(*) from public.progress where user_id = '00000000-0000-0000-0000-00000000000b') || ', A users ' || (select count(*) from auth.users where id = '00000000-0000-0000-0000-00000000000a') || ', A progress ' || (select count(*) from public.progress where user_id = '00000000-0000-0000-0000-00000000000a');
+set local role anon;
+select set_config('request.jwt.claims', '{"role":"anon"}', true);
+do $$ begin
+  begin perform public.delete_my_account(); raise notice 'FAIL anon can call delete';
+  exception when insufficient_privilege then raise notice 'ok anon cannot call delete'; end;
 end $$;
 
 reset role;

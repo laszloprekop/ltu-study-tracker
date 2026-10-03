@@ -63,16 +63,16 @@ button{font:inherit}
 /* ---------- Header ---------- */
 header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; background:var(--bg); padding-block:10px 8px; margin-bottom:12px; display:flex; flex-direction:column; gap:8px}
 #asof.stale{color:var(--c4); font-weight:600}
-.moved{--rad:#ff6a00; margin:0 0 14px; background:var(--rad); color:#000; border:2px solid #000; box-shadow:0 0 0 3px var(--rad), 0 6px 24px rgba(255,106,0,.35)}
+.moved{--rad:#ff6a00; font-family:Archivo,"Arial Narrow",sans-serif; font-stretch:72%; margin:0 0 14px; background:var(--rad); color:#000; border:2px solid #000; box-shadow:0 0 0 3px var(--rad), 0 6px 24px rgba(255,106,0,.35)}
 .moved .mv-head{display:flex; align-items:center; gap:12px; padding:10px 14px}
 .moved .mv-head .ic.big{width:40px; height:40px; flex:0 0 40px; color:#000}
-.moved .mv-title{flex:1 1 auto; font-size:16px; font-weight:700; line-height:1.3}
+.moved .mv-title{flex:1 1 auto; font-size:19px; font-weight:700; line-height:1.25; letter-spacing:.005em}
 .moved a{color:#000; font-weight:700; text-decoration:underline; text-underline-offset:2px}
-.moved button{font:inherit; font-size:13px; font-weight:700; padding:4px 12px; border:2px solid #000; background:transparent; color:#000; cursor:pointer}
+.moved button{font:inherit; font-size:14px; font-weight:700; padding:4px 12px; border:2px solid #000; background:transparent; color:#000; cursor:pointer}
 .moved button:hover{background:#000; color:var(--rad)}
 .moved .mv-fold{flex:0 0 auto; padding:4px 8px}
 .moved .mv-fold .ic{transition:transform .2s}
-.moved .mv-body{padding:0 14px 14px 66px; font-size:14px; line-height:1.5; display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:6px 28px}
+.moved .mv-body{padding:0 14px 14px 66px; font-size:15.5px; line-height:1.45; display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:6px 28px}
 .moved .mv-body h4{margin:6px 0 4px; font-size:12px; letter-spacing:.06em; text-transform:uppercase}
 .moved ol,.moved ul{margin:0; padding-left:20px}
 .moved li{margin:2px 0}
@@ -83,7 +83,7 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
 .moved.folded{background:var(--surface-2); color:var(--muted); border:1px solid var(--line); box-shadow:none}
 .moved.folded .mv-head{padding:5px 12px}
 .moved.folded .mv-head .ic.big{width:20px; height:20px; flex-basis:20px; color:var(--muted)}
-.moved.folded .mv-title{font-size:13px; font-weight:600}
+.moved.folded .mv-title{font-size:15px; font-weight:600}
 .moved.folded a,.moved.folded button{color:var(--muted); border-color:var(--line)}
 .moved.folded button:hover{background:var(--line); color:var(--ink)}
 .moved.folded .mv-fold .ic{transform:rotate(-90deg)}
@@ -96,6 +96,10 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
 .appview li b{color:var(--ink)}
 .appview .grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:14px}
 .appview .note{color:var(--muted); font-size:13px; margin:8px 0 0}
+.appview .acct-delete{margin:12px 0 0}
+.appview .acct-delete button{font:inherit; font-size:13px; font-weight:700; padding:6px 14px; border:1px solid var(--alert); border-radius:4px; background:transparent; color:var(--alert); cursor:pointer}
+.appview .acct-delete button.armed{background:var(--alert); color:#fff}
+.appview .acct-delete .msg{font-size:13px; color:var(--muted)}
 .appview .here{display:inline-block; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; padding:1px 7px; background:var(--now); color:var(--on-now); margin-left:6px; vertical-align:2px}
 .locked input[type=checkbox]{cursor:not-allowed}
 .hrow{display:flex; flex-wrap:wrap; gap:8px 14px; align-items:center}
@@ -554,10 +558,17 @@ body.colored table.all tr:not(.done) .tt{color:var(--cc)}
 .teacher:hover .tn{text-decoration:underline}
 .rhythm li{margin:6px 0}
 .pop.about .src{margin:14px 0 0; font-size:11.5px; color:var(--muted)}
-.pop.about .prog{display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin:6px 0}
-.pop.about .prog button,.pop.about .prog select{font:inherit; font-size:12px; font-weight:600; color:var(--ink); background:var(--bg); border:0; padding:4px 8px; cursor:pointer}
+.pop.about .prog{margin:10px 0 0}
+.pop.about .prog label{display:block; font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); margin:0 0 3px}
+.pop.about .prog .row{display:flex; gap:6px; align-items:stretch}
+.pop.about .prog textarea,.pop.about .prog select{flex:1 1 auto; min-width:0; font:inherit; font-size:12.5px; color:var(--ink); background:var(--surface); border:1px solid var(--muted); border-radius:4px; padding:6px 8px}
+.pop.about .prog textarea{resize:vertical; min-height:44px; font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11.5px}
+.pop.about .prog textarea::placeholder{color:var(--muted); font-family:"Public Sans",Arial,sans-serif}
+.pop.about .prog textarea:focus,.pop.about .prog select:focus,.pop.about .prog button:focus-visible{outline:2px solid var(--now); outline-offset:1px; border-color:var(--now)}
+.pop.about .prog button{flex:0 0 auto; font:inherit; font-size:12.5px; font-weight:700; color:var(--on-now); background:var(--now); border:1px solid var(--now); border-radius:4px; padding:6px 14px; cursor:pointer}
+.pop.about .prog button:hover{filter:brightness(1.1)}
+.pop.about .prog button.wide{flex:1 1 auto}
 .pop.about .prog button:disabled{opacity:.4; cursor:default}
-.pop.about .prog textarea{flex:1 1 200px; font:inherit; font-size:11.5px; background:var(--bg); color:var(--ink); border:0; padding:4px 6px; resize:vertical; min-height:30px}
 @media (max-width:680px){
   .week{grid-template-columns:1fr}
   .week .rail{ clip-path:polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%); display:flex; flex-wrap:wrap; gap:4px 12px; align-items:baseline; padding:12px 16px}
@@ -607,10 +618,17 @@ body.colored table.all tr:not(.done) .tt{color:var(--cc)}
             <h3 style="margin-top:12px">Your progress</h3>
             <p id="prog-info"></p>
             <div class="prog">
-              <button type="button" id="prog-export" title="Copy a code with your ticks and the last seven days to the clipboard">Copy export code</button>
-              <select id="prog-snaps" aria-label="Snapshot day"></select><button type="button" id="prog-restore" title="Go back to how your ticks stood at the end of that day; today is snapshotted first, so this can be undone">Restore that day</button>
+              <label for="prog-code">Import</label>
+              <div class="row"><textarea id="prog-code" rows="2" placeholder="Paste a code from Export on another page or device"></textarea><button type="button" id="prog-import" title="Bring the ticks in: per task the later change wins, so an untick comes along too">Import</button></div>
             </div>
-            <div class="prog"><textarea id="prog-code" rows="2" placeholder="Paste an export code here" aria-label="Export code"></textarea><button type="button" id="prog-import" title="Add the ticks and snapshots from the code; nothing is removed">Bring in</button></div>
+            <div class="prog">
+              <label for="prog-snaps">Go back to a day</label>
+              <div class="row"><select id="prog-snaps"></select><button type="button" id="prog-restore" title="Go back to how your ticks stood at the end of that day; the state before is kept, so this can be undone">Restore</button></div>
+            </div>
+            <div class="prog">
+              <label for="prog-export">Export</label>
+              <div class="row"><button type="button" id="prog-export" class="wide" title="Copy a code with your ticks and the last seven days to the clipboard">Export: copy a code with all ticks</button></div>
+            </div>
             <p class="src" id="prog-msg" style="margin-top:4px"></p>
             <p class="src">Unofficial, made by a student. <span id="asof"></span> Canvas is always right when the two disagree. Sessions come from the course schedule pages. Minutes are rough estimates from page length and video count, or the course's own figure where it gives one. Times are Stockholm time. Icons: Phosphor (MIT).</p>
           </div>
@@ -1047,6 +1065,7 @@ function renderTerm(){
   if (state.view !== "week") document.getElementById("jump").hidden = true;
   document.getElementById("termbody").innerHTML = body;
   if (state.view === "map") bindMap(t);
+  if (state.view === "app") bindAccountDelete();
   applyFilter();
 }
 
@@ -2069,8 +2088,8 @@ var APP_INFO = {
     ["Lab bookings and their deadlines", "Release 2: your group's slot read from the signup sheet, and a warning that grows as the booking deadline comes closer."],
     ["Your own calendar", "Release 2: a calendar link of your choice, such as a group calendar, mixed into the plan and marked as yours."],
     ["A day in 15-minute slots", "Release 3: both courses in one day, with the free slots between them to place group work and self-study."],
-    ["Flashcards before every exam", "Release 4: spaced repetition aimed at the exam day, from cards checked by a classmate."],
-    ["What leads where", "Release 5: each lab, quiz and exam with everything that prepares for it, on a timeline."]
+    ["Study cards", "Release 4: flashcards for every lab and exam, drawn from the lectures, the lab questions and the course's own checklists. Spaced repetition shows each card just before you would forget it and plans the reviews so you know it on the day of the lab or exam. Cards are checked by a classmate before they are shared, and anyone can flag a wrong one."],
+    ["Prep chains", "Release 5: every lab session, quiz, midterm and oral exam with everything that prepares for it, lectures, readings, quizzes, group sessions and card sets, drawn back from the event on a timeline, so you see what should be done by when, and which lecture is taught too late for the lab that needs it."]
   ],
   privacy: [
     ["Only you can read your ticks", "They are one row in the database that a rule inside the database lets only your account read or change. The rule is tested on every change to the database."],
@@ -2080,10 +2099,11 @@ var APP_INFO = {
     ["No ads, analytics or tracking", "The page talks only to the tracker's own server and database, loads its typeface from Google Fonts, and visits Google only while you sign in. A content security policy blocks everything else, and the page cannot be shown inside another site."],
     ["Graded answers stay in your group", "Release 4: shared flashcards explain concepts and point to the material; written answers to graded questions are visible only to the group that wrote them."],
     ["Hosted in the EU", "On a server at Hetzner in the EU, over HTTPS. The plan is read from Canvas by a job that can only read a short list of course pages and never sees anyone's grades or progress."],
-    ["Delete everything yourself", "Planned: one button that removes your account and ticks from the server."]
+    ["Delete everything yourself", "Signed in, the button below removes your account and your ticks from the server at once. Ticks in your browser stay until you clear them."],
+    ["The code is open", "Anyone can read how it works, these rules included.", "https://github.com/laszloprekop/ltu-study-tracker"]
   ]
 };
-function infoList(rows, tag){ return "<" + tag + ">" + rows.map(function(r){ return "<li><b>" + esc(r[0]) + ".</b> " + esc(r[1]) + "</li>"; }).join("") + "</" + tag + ">"; }
+function infoList(rows, tag){ return "<" + tag + ">" + rows.map(function(r){ return "<li><b>" + esc(r[0]) + ".</b> " + esc(r[1]) + (r[2] ? ' <a href="' + esc(r[2]) + '" target="_blank" rel="noopener">' + esc(r[2].replace(/^https:\/\//, "")) + '</a>' : "") + "</li>"; }).join("") + "</" + tag + ">"; }
 function appLink(){ var to = P.MOVED_TO || location.origin; return '<a href="' + esc(to) + '" target="_blank" rel="noopener">' + esc(to.replace(/^https?:\/\//, "").replace(/\/$/, "")) + '</a>'; }
 function moveSteps(){
   return '<ol><li>Here, open <b>?</b> (About) at the top right and press <b>Export</b>. It copies a code with all your ticks.</li>' +
@@ -2105,11 +2125,27 @@ function renderMoved(nudge){
       '<button type="button" class="mv-fold" data-moved="fold" aria-expanded="' + String(!folded) + '" title="' + (folded ? "Show the steps" : "Fold to one line") + '" aria-label="' + (folded ? "Show the steps" : "Fold to one line") + '">' + ic("caret-down") + '</button></div>' +
     (folded ? "" : '<div class="mv-body">' +
       '<div><h4>How to move</h4>' + moveSteps() + '</div>' +
-      '<div><h4>Why move</h4>' + infoList(APP_INFO.now.slice(0, 3), "ul") + '<p style="margin:6px 0 0">More on the way, and how your data is kept: <a href="#" data-goview="app">Hosted app</a>.</p></div>' +
+      '<div><h4>Why move</h4>' + infoList(APP_INFO.now.slice(0, 3), "ul") + '<p style="margin:6px 0 0"><b>Coming:</b> study cards with spaced repetition before every exam, prep chains from each lab and exam back to its lectures, a day plan in 15-minute slots, your own Canvas status and your group\'s lab bookings. All of it, and how your data is kept: <a href="#" data-goview="app">Hosted app</a>.</p></div>' +
       (stateHtml ? '<p class="mv-state">' + stateHtml + '</p>' : '') + '</div>');
   el.hidden = false;
   el.classList.toggle("folded", folded); el.classList.toggle("drift", drift);
   if (nudge && folded) { lsSet(LS.movedFolded, "0"); renderMoved(true); }
+}
+// Signed in on the hosted app: a two-step button that deletes the account and its ticks on the
+// server (public.delete_my_account). The first click arms it for ten seconds.
+function bindAccountDelete(){
+  var host = document.getElementById("acct-delete"); if (!host || !window.claude || !window.claude.use) return;
+  window.claude.use("account").then(function(acct){
+    if (!acct || !document.body.contains(host)) return;
+    host.innerHTML = '<button type="button" class="danger">Delete my account and ticks from the server</button><span class="msg"></span>';
+    var btn = host.querySelector("button"), msg = host.querySelector(".msg"), armed = null;
+    btn.addEventListener("click", function(){
+      if (!armed) { btn.textContent = "Click again to delete for good"; btn.classList.add("armed"); armed = setTimeout(function(){ armed = null; btn.textContent = "Delete my account and ticks from the server"; btn.classList.remove("armed"); }, 10000); return; }
+      clearTimeout(armed); btn.disabled = true; btn.textContent = "Deleting...";
+      acct.remove().then(function(){ store = null; msg.textContent = " Deleted. Your ticks stay in this browser only."; setTimeout(function(){ location.reload(); }, 2500); })
+        .catch(function(){ btn.disabled = false; btn.textContent = "Delete my account and ticks from the server"; msg.textContent = " That did not work. Nothing was deleted; try again later."; armed = null; btn.classList.remove("armed"); });
+    });
+  });
 }
 function renderAppView(){
   var hosted = !!window.TRACKER_CONFIG;
@@ -2124,6 +2160,7 @@ function renderAppView(){
       '<div class="card"><h3>' + ic("flag-checkered") + 'Coming next</h3>' + infoList(APP_INFO.planned, "ul") + '<p class="note">Planned, in this order. Each release keeps everything before it working.</p></div>' +
     '</div>' +
     '<div class="card" style="margin-top:14px"><h3>' + ic("shield-check") + 'Privacy and security</h3>' + infoList(APP_INFO.privacy, "ul") +
+      (hosted ? '<div id="acct-delete" class="acct-delete"></div>' : '') +
       '<p class="note">Unofficial, made by a student. Questions about your data go to the person who shared this page with you.</p></div>' +
   '</section>';
 }

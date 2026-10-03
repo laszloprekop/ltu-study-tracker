@@ -98,8 +98,8 @@ time (a version 1 code) can only be added. `npm test` checks this rule against t
 ## The hosted app
 
 The same page also runs as its own site, https://ltu-studytracker.dentaku.se (`app/`, see
-`docs/plan/release-1.md`). On the claude.ai page an orange banner (folds to one line, remembered
-per viewer) gives the steps to move and the main reasons; the **Hosted app** view, in both places,
+`docs/plan/release-1.md`). On the claude.ai page an orange banner in condensed Archivo (folds to one muted
+line, remembered per viewer) gives the steps to move and the main reasons; the **Hosted app** view, in both places,
 lists everything. The lists live in one place in `src/template.html` (`APP_INFO`).
 
 **What it does today**
@@ -114,8 +114,12 @@ lists everything. The lists live in one place in `src/template.html` (`APP_INFO`
   Canvas has no submission for), the Group's lab booking from the signup sheet with warnings before
   booking closes, a calendar link of their choice.
 - Release 3: a Day Plan of both courses in 15-minute slots, with free slots for group work.
-- Release 4: flashcards with spaced repetition aimed at each exam day.
-- Release 5: every lab, quiz and exam with what prepares for it, on a timeline.
+- Release 4: study cards: flashcards for every lab and exam from the lectures, lab questions and
+  course checklists, with spaced repetition planned so each card is known on the event's day;
+  checked by a classmate before sharing, and anyone can flag a wrong one.
+- Release 5: prep chains: every lab session, quiz, midterm and oral exam with the lectures,
+  readings, quizzes, group sessions and card sets that prepare for it, drawn back on a timeline,
+  including lectures taught too late for the lab that needs them.
 
 **Privacy and security**
 - A Student's ticks are one database row that a row-level security rule lets only their account
@@ -130,7 +134,9 @@ lists everything. The lists live in one place in `src/template.html` (`APP_INFO`
   database, not only in the page (ADR 0003).
 - Hosted on Hetzner in the EU over HTTPS. The sync reads Canvas with GET requests to a fixed list
   of course paths and stores nothing about any Student.
-- Planned: deleting one's account and ticks with one button.
+- Signed in, the Hosted app view has a two-step button that deletes the account and its ticks
+  from the server (`public.delete_my_account`); ticks in the browser stay.
+- The code is public: https://github.com/laszloprekop/ltu-study-tracker
 
 ## What an assessment needs
 

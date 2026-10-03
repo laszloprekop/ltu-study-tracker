@@ -41,6 +41,15 @@
         if (!session) return null;
         if (name === "user") return { id: function () { return Promise.resolve(session.user.id); } };
         if (name === "db") return { doc: function (path) { return /^data\/users\/[^/]+\/progress$/.test(path) ? progress : null; } };
+        // Not part of the claude.ai runtime: the hosted app's own account calls.
+        if (name === "account") return {
+          email: (session.user && session.user.email) || null,
+          // Deletes the account and its progress on the server, then signs out. Ticks in this
+          // browser stay, as for a Guest.
+          remove: function () {
+            return sb.rpc("delete_my_account").then(function (r) { if (r.error) throw r.error; return sb.auth.signOut(); });
+          },
+        };
         return null;
       });
     },
