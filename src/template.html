@@ -51,6 +51,8 @@
 }
 *{box-sizing:border-box; scrollbar-color:var(--line) transparent}
 :root[data-theme="light"]{color-scheme:light}
+/* hidden always wins: a class with its own display (the Bookings strip had display:flex) must not show an element meant to be hidden */
+[hidden]{display:none !important}
 body{margin:0; background:var(--bg); color:var(--ink); font-family:"Public Sans","Helvetica Neue",Arial,sans-serif; font-size:15px; line-height:1.55}
 .wrap{max-width:none; margin:0; padding-inline:clamp(16px, 2vw, 28px); padding-block:0 56px}
 h1,h2,h3{font-family:Archivo,"Helvetica Neue",Arial,sans-serif; text-wrap:balance; margin:0}
