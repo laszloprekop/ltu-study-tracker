@@ -1,5 +1,5 @@
 -- Privacy and merge test for the tracker database. Runs inside one transaction and rolls back.
--- ssh root@157.90.168.58 'docker exec -i supabase-db-aqhq0ki76r5bniaurku9xpzf psql -U postgres -qtA' < app/supabase/tests/rls.sql
+-- tools/db.sh -qtA < app/supabase/tests/rls.sql
 -- Every line printed should read 'ok ...' or show the expected value; any 'FAIL' is a broken rule.
 \set ON_ERROR_STOP 1
 begin;

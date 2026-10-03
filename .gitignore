@@ -3,3 +3,4 @@
 !.env.example
 data/my-progress.json
 ltu-study-tracker.private.html
+tools/server.env

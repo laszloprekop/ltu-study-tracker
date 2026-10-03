@@ -9,6 +9,7 @@
 // A card whose prompt is already in the database for its course is skipped, so a file can be sent again.
 import { readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
 import { readInventory } from "../lib/page.mjs";
 
 const [file] = process.argv.slice(2).filter(a => !a.startsWith("--")), dry = process.argv.includes("--dry-run"), update = process.argv.includes("--update");
@@ -36,6 +37,6 @@ const sql = ["\\set ON_ERROR_STOP 1", "begin;"].concat(updates).concat(rows.map(
   `insert into public.card (kind, prompt, answer, sources, course, owner, ai_drafted) select ${q(r.kind)}, ${q(r.prompt)}, ${q(r.answer)}, array[${r.sources.map(q).join(",")}], ${q(r.course)}, (select user_id from public.app_maintainer limit 1), true where not exists (select 1 from public.card where course = ${q(r.course)} and prompt = ${q(r.prompt)}) and exists (select 1 from public.app_maintainer);`
 )).concat(["commit;", "select count(*) || ' cards in the database' from public.card;"]).join("\n");
 if (dry) { console.log(`${rows.length} cards checked, nothing sent (dry run).`); process.exit(0); }
-const r = spawnSync("ssh", ["-o", "BatchMode=yes", "root@157.90.168.58", "docker exec -i supabase-db-aqhq0ki76r5bniaurku9xpzf psql -U postgres -qtA"], { input: sql, encoding: "utf8" });
+const r = spawnSync(fileURLToPath(new URL("../db.sh", import.meta.url)), ["-qtA"], { input: sql, encoding: "utf8" });
 if (r.status !== 0) { console.error("Upload failed:", (r.stderr || "").split("\n")[0]); process.exit(1); }
 console.log(`${rows.length} cards checked and sent. ${r.stdout.trim().split("\n").pop()}`);
