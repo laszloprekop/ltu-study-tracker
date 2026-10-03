@@ -223,6 +223,10 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
 .cardsview .ck-b{display:flex; gap:8px; margin-top:6px}
 .cardsview select{font:inherit; font-size:13px; border:1px solid var(--muted); padding:5px 8px; background:var(--surface); color:var(--ink)}
 .cardsview textarea{font:inherit; font-size:13.5px; border:1px solid var(--muted); padding:6px 8px; background:var(--surface); color:var(--ink)}
+.dayplan{padding:12px 16px 14px}
+.dayplan h3{display:flex; align-items:baseline; gap:10px; font-size:13.5px; margin:0 0 10px}
+.dayplan h3 .ic{color:var(--muted); align-self:center}
+.dayplan h3 .sum{font-weight:400; color:var(--muted); font-size:12.5px}
 .dayplan .dp{display:grid; grid-template-columns:minmax(0, 3fr) minmax(240px, 2fr); gap:16px}
 @media (max-width:760px){ .dayplan .dp{grid-template-columns:1fr} }
 .dp-grid{position:relative; margin-left:44px}
@@ -1407,7 +1411,7 @@ function renderDayPlan(t, d){
   }).join("") : '<li class="none">Everything this week has a time or is done.</li>';
   var freeMin = wins.reduce(function(a, w){ return a + w[1] - w[0]; }, 0);
   return '<div class="card dayplan"><h3>' + ic("clock") + 'Day plan<span class="sum">' + (dow === 0 || dow === 6 ? 'weekend, ' : '') + fmtMin(freeMin).replace("~", "") + ' free in ' + esc(state.hours.start) + '\u2013' + esc(state.hours.end) + '</span></h3>' +
-    '<div class="dp"><div class="dp-grid" style="height:' + top(last) + 'px">' + grid + '</div>' +
+    '<div class="dp"><div class="dp-grid" style="height:' + (top(last) + 22) + 'px">' + grid + '</div>' +
     '<div class="dp-side"><h4>Unplaced this week</h4><p class="note">Place puts an item in the first free slot that fits; or drag it onto a free slot.</p><ul class="dp-items">' + list + '</ul></div></div></div>';
 }
 function placeItem(ref, at, d){
