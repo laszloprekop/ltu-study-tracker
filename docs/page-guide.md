@@ -98,6 +98,15 @@ role's text: that is what keeps both palettes legible.
 Phosphor duotone icons (MIT, `assets/icons/LICENSE`). `tools/fetch-icons.sh` downloads the list it
 names into `assets/icons/`; the build inlines every SVG there as a hidden sprite, used in the
 template as `ic("name")`. Icons take the text colour they sit in, so they keep its contrast.
+Every label carries one, so its kind reads at a glance: MUST (warning diamond), NICE (sparkle),
+points (trophy), time (clock), work estimate (hourglass), forum post (chat), week flags (flag), a
+calendar event of the Student's own (calendar), and on Cards AI draft (robot), graded question
+(seal), group answer (people), not checked yet (dashed circle). The barbell means Cards everywhere:
+the Cards view, a Prepare chip, a card count. Icons inside labels are 12 px.
+
+Contrast: `tools/contrast-scan.js` audits the visible text; to cover a whole view, run it with the
+on-screen test removed, once per view, palette and theme. SVG text on map shapes is checked against
+the shape's own fill, with transitions off (a background tab pauses them).
 
 ## Pulse, mute, folding
 

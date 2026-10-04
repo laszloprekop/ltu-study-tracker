@@ -159,7 +159,7 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
 .appview li b{color:var(--ink)}
 .appview .grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:14px}
 .appview .note{color:var(--muted); font-size:13px; margin:8px 0 0}
-.tag.disagree{display:inline-flex; align-items:center; gap:3px; background:var(--c4-soft); color:var(--c4)} 
+.tag.disagree{display:inline-flex; align-items:center; gap:3px; background:var(--c4-container); color:var(--on-c4-container)} 
 .chains{padding:6px 10px}
 .chain{border-left:4px solid var(--cc, var(--muted)); margin:6px 0; background:var(--surface)}
 .chain summary{display:flex; flex-wrap:wrap; align-items:center; gap:4px 8px; padding:6px 8px; cursor:pointer}
@@ -168,7 +168,7 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
 .chain .prep li{display:flex; flex-wrap:wrap; align-items:center; gap:4px 8px; font-size:13.5px}
 .chain .prep li.done .tt{text-decoration:line-through; opacity:.6}
 .chain .pdate{color:var(--muted); font-size:12px} .chain .pdate.doby{border:1px dashed var(--muted); padding:0 5px}
-.tag.late{display:inline-flex; align-items:center; gap:3px; background:var(--alert-soft); color:var(--alert)} 
+.tag.late{display:inline-flex; align-items:center; gap:3px; background:var(--alert-container); color:var(--on-alert-container)} 
 .grid2{display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:14px}
 .disagreements h3{display:flex; align-items:center; gap:8px} .disagreements .copyrep{margin-left:auto; font:inherit; font-size:12px; font-weight:700; padding:4px 10px; border:1px solid var(--muted); background:transparent; color:var(--ink); cursor:pointer}
 .disagreements ul{margin:6px 0 0; padding-left:18px; font-size:13.5px} .disagreements li{margin:4px 0}
@@ -208,13 +208,19 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
 .fc-a p{margin:0 0 6px} .fc-a ul,.fc-a ol{margin:0 0 6px; padding-left:18px} .fc-a li{margin:2px 0}
 .fc-a code,.fc-back .insight code{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:.92em; padding:0 4px; background:var(--surface); box-shadow:inset 0 0 0 1px var(--line)}
 .fc-a .term,.fc-back .insight .term{color:var(--c3); font-weight:700}
-.fc-back .insight{flex:0 0 auto; margin:0; padding:6px 8px; font-size:13px; line-height:1.35; background:var(--now-soft); color:var(--ink); border-left:4px solid var(--now); clip-path:polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%)}
-.fc-back .insight b{display:block; font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--now)}
+/* inside the insight box text keeps the container pair; code chips keep the surface pair */
+.fc-back .insight .term{color:inherit; text-decoration:underline; text-underline-offset:2px}
+.fc-back .insight code{color:var(--ink)}
+.fc-back .insight{flex:0 0 auto; margin:0; padding:6px 8px; font-size:13px; line-height:1.35; background:var(--now-container); color:var(--on-now-container); border-left:4px solid var(--now); clip-path:polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%)}
+.fc-back .insight b{display:block; font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--on-now-container)}
 .fc-src{font-size:12px; line-height:1.3; color:var(--muted)}
 .fc-foot{display:flex; flex-wrap:wrap; align-items:center; gap:6px; font-size:11.5px; color:var(--muted)}
-.fc-due{margin-left:auto; font-weight:700} .fc-hint{flex-basis:100%; text-align:right; opacity:.7}
+.fc-due{margin-left:auto; font-weight:700} .fc-hint{flex-basis:100%; justify-content:flex-end}
 .fc-rate{display:flex; gap:4px} .fc-rate button{flex:1 1 0; min-width:0; padding:6px 2px; font-size:12.5px}
-.fc-rate .again{background:var(--alert); border-color:var(--alert)}
+.fc-rate .again{color:var(--on-alert-container); background:var(--alert-container); border-color:var(--alert-container)}
+.fc-rate button,.ck-b button{display:inline-flex; align-items:center; justify-content:center; gap:4px}
+/* four ratings share a narrow card: icon over the word, never a broken word */
+.fc-rate button{flex-direction:column; gap:1px; white-space:nowrap; font-size:12px; line-height:1.2}
 .fc-back .ck-b{display:flex; flex-wrap:wrap; gap:6px; margin:0}
 .fc-back .ck-b button.plain{border:0; background:transparent; padding:0; font-size:11.5px; font-weight:600; color:var(--muted); text-decoration:underline; clip-path:none}
 @media (prefers-reduced-motion:reduce){ .fc-in{transition:none} }
@@ -251,8 +257,8 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
 .infocard p{margin:0 0 8px; line-height:1.5} .infocard ul,.infocard ol{margin:0 0 8px; padding-left:20px; line-height:1.5} .infocard li{margin:3px 0}
 .infocard code{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:.92em; padding:0 4px; background:var(--surface-2); box-shadow:inset 0 0 0 1px var(--line)}
 .infocard .term{color:var(--c3)}
-.infocard .insight{margin:8px 0 0; padding:7px 10px; background:var(--now-soft); border-left:4px solid var(--now); clip-path:polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%)}
-.infocard .insight b{display:block; font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--now)}
+.infocard .insight{margin:8px 0 0; padding:7px 10px; background:var(--now-container); color:var(--on-now-container); border-left:4px solid var(--now); clip-path:polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%)}
+.infocard .insight b{display:block; font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--on-now-container)}
 .infocard .here{display:inline-block; margin-left:6px; padding:1px 7px; font-size:11px; font-weight:700; text-transform:uppercase; background:var(--now-container); color:var(--on-now-container)}
 .cvlegend{display:flex; flex-wrap:wrap; gap:6px 14px; font-size:13px; margin:8px 0 0} .cvlegend > span{display:inline-flex; align-items:center; gap:6px}
 /* A framed element with the cut corner: the frame stops at the cut, so draw the cut's own edge. */
@@ -309,8 +315,8 @@ body.dragging .dp-free{background:color-mix(in oklch, var(--now-soft) 55%, trans
 .row.cal{background:repeating-linear-gradient(135deg, transparent 0 8px, var(--surface-2) 8px 9px)}
 .tag.yours{background:var(--ink); color:var(--surface)}
 .bkstage{display:inline-block; margin-left:8px; padding:1px 8px; font-size:11.5px; font-weight:700; vertical-align:1px; white-space:nowrap}
-.bkstage.claimed{background:var(--c2-soft); color:var(--c2)} .bkstage.open{background:var(--surface-2); color:var(--muted); border:1px solid var(--line)}
-.bkstage.due{background:var(--c4-soft); color:var(--c4)} .bkstage.urgent{background:var(--alert); color:#fff} .bkstage.nogroup{background:var(--surface-2); color:var(--muted)}
+.bkstage.claimed{background:var(--c2-container); color:var(--on-c2-container)} .bkstage.open{background:var(--surface-2); color:var(--muted); border:1px solid var(--line)}
+.bkstage.due{background:var(--c4-container); color:var(--on-c4-container)} .bkstage.urgent{background:var(--alert); color:#fff} .bkstage.nogroup{background:var(--surface-2); color:var(--muted)}
 .bkstrip{display:flex; flex-wrap:wrap; align-items:center; gap:6px 4px; margin:0 0 12px; padding:8px 12px; background:var(--surface); border:1px solid var(--line); border-left:4px solid var(--alert); font-size:13px}
 .bkstrip > b{margin:0 6px 0 4px} .bkstrip a{margin-left:auto; font-weight:600}
 .cvmark{display:inline-flex; align-items:center; justify-content:center; min-width:18px; height:18px; margin:0 2px 0 -2px; font-size:11px; font-weight:800; letter-spacing:-.08em; line-height:1; vertical-align:middle;}
@@ -421,7 +427,7 @@ body:not(.noping) .endangered:not(.done):not(.muted) .box .ring{display:block}
 @keyframes pingring{0%{transform:scale(.55); opacity:.95} 100%{transform:scale(2.1); opacity:0}}
 @media (prefers-reduced-motion:reduce){ .bar span{transition:none} .box .ring{animation:none; inset:-3px; opacity:.8} }
 /* Labels: chip (course), lvl (MUST/NICE) and tag share one size, so they sit level in a row. */
-.tag,.lvl,.chip{display:inline-block; font-size:10.5px; line-height:1.5; letter-spacing:.05em; text-transform:uppercase; padding:1px 6px; vertical-align:1px; white-space:nowrap}
+.tag,.lvl,.chip{display:inline-flex; align-items:center; gap:3px; font-size:10.5px; line-height:1.5; letter-spacing:.05em; text-transform:uppercase; padding:1px 6px; vertical-align:1px; white-space:nowrap}
 .tag{font-weight:600; color:var(--muted); background:var(--bg); margin-left:6px}
 .tag.expected{color:var(--on-now-container); background:var(--now-container)}
 .tag.pts{color:var(--ink)}
@@ -431,6 +437,10 @@ a.tag.feeds:hover{text-decoration:underline}
 .lvl.must{color:var(--on-alert-container); background:var(--alert-container)}
 .lvl.nice{color:var(--muted); background:var(--surface-2)}
 .est{color:var(--muted); font-size:12px; white-space:nowrap}
+/* icons inside labels: small, in the label's own colour */
+.tag .ic,.lvl .ic,.flag .ic,.est .ic,.kind .ic,.fc-foot .ic,.fc-ev .ic,.cardsn .ic,.nref .ic{width:12px; height:12px}
+.kind span,.est,.cardsn,.fc-ev,.fc-due,.fc-hint,.flag{display:inline-flex; align-items:center; gap:3px}
+.kind span + span{margin-left:8px}
 .mute{flex:0 0 auto; display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; border:0; background:none; color:var(--muted); opacity:.4; cursor:pointer; border-radius:50%; padding:0}
 .mute:hover,.muted .mute{opacity:1}
 .muted .mute{color:var(--alert)}
@@ -479,7 +489,7 @@ a.tag.feeds:hover{text-decoration:underline}
 .week.collapsed .rail{display:flex; flex-wrap:wrap; gap:4px 14px; align-items:center; padding:10px 16px; border-right:0}
 .week.collapsed .rail .dates,.week.collapsed .rail .load,.week.collapsed .rail .left,.week.collapsed .flag{margin-top:0}
 .flag{display:inline-block; margin-top:8px; font-size:10.5px; letter-spacing:.07em; text-transform:uppercase; color:var(--on-alert-container); background:var(--alert-container); padding:2px 6px; font-weight:600}
-.flag.nowflag{color:var(--now); background:var(--now-soft)}
+.flag.nowflag{color:var(--on-now-container); background:var(--now-container)}
 .week .quiet{padding:14px 16px; color:var(--muted); font-size:13.5px}
 /* The Today playhead reaches left across the rail and peeks out of the card */
 .playhead{position:relative; z-index:2; display:flex; align-items:center; margin:12px 0 6px calc(-16px - var(--rail) - 14px)}
@@ -488,10 +498,10 @@ a.tag.feeds:hover{text-decoration:underline}
 
 /* Announcements and material blocks inside a week */
 .ann{display:flex; gap:8px; align-items:flex-start; margin:8px 0 2px; padding:8px 12px; background:var(--ann-container); color:var(--on-ann-container); font-size:13px}
-.ann > .ic{color:var(--on-ann-container); opacity:.8; margin-top:2px}
-.ann .k{font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; font-weight:600; color:var(--on-ann-container); opacity:.85; margin-right:8px}
+.ann > .ic{color:var(--on-ann-container); margin-top:2px}
+.ann .k{font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; font-weight:600; color:var(--on-ann-container); margin-right:8px}
 .ann a{color:inherit}
-.ann .why{color:var(--on-ann-container); opacity:.9}
+.ann .why{color:var(--on-ann-container)}
 .mat{margin-top:12px; padding-top:8px}
 .mat summary{cursor:pointer; font-size:13px; font-weight:600; list-style:none; display:flex; gap:8px; align-items:center; flex-wrap:wrap}
 .mat summary::-webkit-details-marker{display:none}
@@ -621,6 +631,7 @@ body.mapview #termbody section{flex:1 1 auto; min-height:0; margin-bottom:12px; 
 .rail-list .ev{display:block; width:100%; text-align:left; background:none; border:0; padding:4px 6px 4px 18px; font-size:13px; line-height:1.3; color:var(--ink); cursor:pointer}
 .rail-list .ev:hover{background:var(--surface-2)}
 .rail-list .ev[aria-current="true"]{background:var(--now-soft)}
+.rail-list .ev[aria-current="true"] small{color:var(--ink)}
 .rail-list .ev.rel,.rail-list .ev[data-rel]{box-shadow:inset 3px 0 0 var(--now)}
 .rail-list .ev .tt{display:inline}
 .rail-list .ev small{display:block; color:var(--muted); font-size:11px}
@@ -888,7 +899,7 @@ body.colored table.all tr:not(.done) .tt{color:var(--cc)}
         <button type="button" id="v-day" data-view="day"><svg class="ic"><use href="#i-calendar-dot"/></svg>Day</button>
         <button type="button" id="v-all" data-view="all"><svg class="ic"><use href="#i-list-checks"/></svg>All deadlines</button>
         <button type="button" id="v-map" data-view="map"><svg class="ic"><use href="#i-tree-structure"/></svg>Map</button>
-        <button type="button" id="v-cards" data-view="cards" title="Study cards with spaced repetition, aimed at each lab and exam"><svg class="ic"><use href="#i-books"/></svg>Cards</button>
+        <button type="button" id="v-cards" data-view="cards" title="Study cards with spaced repetition, aimed at each lab and exam"><svg class="ic"><use href="#i-barbell"/></svg>Cards</button>
       </div>
       <div class="seg" role="group" aria-label="Show courses" id="filter"></div>
       <a class="jump" id="jump" href="#" hidden><svg class="ic"><use href="#i-arrow-line-down"/></svg>Today</a>
@@ -1042,10 +1053,10 @@ function cardSetOf(code, aid){ var C = state.cards; return C && C.list ? drillab
 function prepareInner(code, aid){
   var need = needsOf(term(), code, aid), left = need.filter(function(x){ return !isDone("m:" + code + ":" + x.id); }), mins = matMinutes(left), set = cardSetOf(code, aid);
   return '<span class="nlab">Prepare</span>' +
-    (set.length ? '<button type="button" class="nref cards" data-cardgo="' + esc(code + ":" + aid) + '" title="Drill the ' + set.length + ' cards for this">' + ic("books", "sm") + set.length + (set.length === 1 ? ' card' : ' cards') + '</button>' : '') +
+    (set.length ? '<button type="button" class="nref cards" data-cardgo="' + esc(code + ":" + aid) + '" title="Drill the ' + set.length + (set.length === 1 ? ' card' : ' cards') + ' for this">' + ic("barbell", "sm") + set.length + '</button>' : '') +
     need.map(function(x){
       var src = "m:" + code + ":" + x.id, n = cardsWithSource(src).length, name = (x.number ? x.number + " " : "") + x.title, cls = "nref" + (isDone(src) ? " ok" : "");
-      return n ? '<button type="button" class="' + cls + ' cards" data-cardgo="' + esc(src) + '" title="' + esc(n + (n === 1 ? " card" : " cards") + " on " + name) + '">' + esc(x.number || shortTitle(x.title)) + '<sup>' + n + '</sup></button>'
+      return n ? '<button type="button" class="' + cls + ' cards" data-cardgo="' + esc(src) + '" title="' + esc(n + (n === 1 ? " card" : " cards") + " on " + name) + '">' + ic("barbell", "sm") + esc(x.number || shortTitle(x.title)) + '<sup>' + n + '</sup></button>'
         : '<a class="' + cls + '" href="' + esc(x.url || "") + '" target="_blank" rel="noopener" title="' + esc("Open in Canvas: " + name) + '">' + esc(x.number || shortTitle(x.title)) + '</a>';
     }).join("") + '<span class="nsum">' + (need.length - left.length) + ' of ' + need.length + ' ticked' + (mins ? ', ' + fmtMin(mins) + ' left' : '') + '</span>';
 }
@@ -1128,7 +1139,7 @@ function withCalendar(t, rows){
 }
 function calRow(r){
   var times = r.time ? ' data-start="' + esc(r.time) + '" data-end="' + esc(r.end || "") + '"' : '';
-  var tag = '<span class="tag yours" title="From your calendar' + (r.label ? ": " + esc(r.label) : "") + '">yours</span>';
+  var tag = '<span class="tag yours" title="From your calendar' + (r.label ? ": " + esc(r.label) : "") + '">' + ic("calendar", "sm") + 'yours</span>';
   var feeds = r.target ? '<a class="tag feeds" href="' + esc(r.target.url) + '" target="_blank" rel="noopener" title="This event is for this assessment">for ' + esc(shortTitle(r.target.title).split(",")[0]) + '</a>' : '';
   return '<div class="row session cal"' + (r.code ? ' style="' + colorVars(r.code) + '" data-course="' + r.code + '"' : '') + times + '>' + when(r, {}) +
     '<span class="body"><span class="block"><span class="t">' + ic("calendar-dot", "kic") + '<span class="tt">' + esc(r.title) + '</span>' + tag + feeds + '</span>' +
@@ -1219,7 +1230,7 @@ function links(list){
   if (!list || !list.length) return "";
   return '<span class="links">' + list.map(function(l){ var lab = l[0] + (isCanvas(l[1]) ? " (Canvas)" : ""); return '<a class="io" href="' + esc(l[1]) + '" target="_blank" rel="noopener" title="' + esc(lab) + '" aria-label="' + esc(lab) + '">' + ic(linkIcon(l[0], l[1])) + ext(l[1]) + '</a>'; }).join("") + '</span>';
 }
-function lvl(level){ return '<span class="lvl ' + level + '">' + (level === "must" ? "MUST" : "NICE") + '</span>'; }
+function lvl(level){ return '<span class="lvl ' + level + '">' + (level === "must" ? ic("warning-diamond", "sm") + "MUST" : ic("sparkle", "sm") + "NICE") + '</span>'; }
 function box(id){ return '<span class="box"><span class="ring"></span><input type="checkbox" id="' + esc(id) + '"></span>'; }
 function muteBtn(id){ return '<button type="button" class="mute" data-mute="' + esc(id) + '" title="Mute: not for me" aria-label="Mute">' + ic("prohibit") + '</button>'; }
 function hostClass(id, extra){ return (extra || "") + (id && isDone(id) ? " done" : "") + (id && state.muted[id] ? " muted" : ""); }
@@ -1239,10 +1250,10 @@ function row(r, opts){
   if (r.cal) return calRow(r);
   var tags = "";
   if (r.disagree) tags += '<span class="tag disagree" title="' + esc(disagreeText(r.disagree)) + '">' + ic("warning", "sm") + 'sources disagree</span>';
-  if (r.status === "expected") tags += '<span class="tag expected" title="Date from the Homepage timetable, lecture number from module order. Not yet named by the teacher.">expected</span>';
-  if (r.pts) tags += '<span class="tag pts">' + esc(r.pts) + '</span>';
+  if (r.status === "expected") tags += '<span class="tag expected" title="Date from the Homepage timetable, lecture number from module order. Not yet named by the teacher.">' + ic("hourglass-medium", "sm") + 'expected</span>';
+  if (r.pts) tags += '<span class="tag pts" title="Points">' + ic("trophy", "sm") + esc(r.pts) + '</span>';
   if (r.feeds) tags += '<a class="tag feeds" href="' + esc(r.feeds.url) + '" target="_blank" rel="noopener" title="This task feeds this deadline, open it in Canvas">for ' + esc(r.feeds.title) + (r.feeds.date ? ", " + esc(dayLabel(r.feeds.date)) : "") + ' ' + ic("arrow-square-out", "sm") + '</a>';
-  var est = r.est ? ' <span class="est">' + fmtMin(r.est) + ' of work</span>' : '';
+  var est = r.est ? ' <span class="est" title="' + esc(fmtMin(r.est)) + ' of work">' + ic("hourglass-medium", "sm") + fmtMin(r.est) + '</span>' : '';
   var kindTitle = r.kind === "session" ? (SESSION_KIND[r.skind] || "") : r.kind === "deadline" ? (KIND[r.akind] || "") : "";
   var text = '<span class="t">' + chip(r.code) + lvl(r.level) + (kindTitle ? '<span title="' + esc(kindTitle) + '">' + rowIcon(r) + '</span>' : rowIcon(r)) + '<span class="tt">' + esc(r.title) + '</span>' + tags + est + '</span>' + (r.why ? '<span class="why">' + esc(r.why) + '</span>' : '');
   var prep = r.prep && r.prep.length ? '<span class="why">Before it: ' + esc(r.prep.map(function(i){ return (i.number || "") + " " + i.title; }).join(", ").slice(0, 160)) + '</span>' : '';
@@ -1263,10 +1274,10 @@ function matList(code, list, opts){
   return '<ul>' + list.map(function(i){
     var id = "m:" + code + ":" + i.id, level = itemLevel(code, i);
     var end = opts.week && level === "must" && endangeredItem(opts.week);
-    var extra = [i.kind === "selfpaced" ? "post required" : "", i.minutes ? fmtMin(i.minutes) : ""].filter(Boolean).join(", ");
+    var extra = (i.kind === "selfpaced" ? '<span title="A forum post is required">' + ic("chat-text", "sm") + 'post</span>' : '') + (i.minutes ? '<span title="Time it takes">' + ic("clock", "sm") + fmtMin(i.minutes) + '</span>' : '');
     return '<li class="' + hostClass(id, "lvl-" + level + (end ? " endangered" : "")) + '" style="' + colorVars(code) + '" data-course="' + code + '" data-id="' + id + '">' + box(id) + creq(code, i) +
       '<label for="' + id + '">' + lvl(level) + ic(KIND_ICON[i.kind] || "book-open", "kic") + (i.number ? '<span class="num mono">' + esc(i.number) + '</span>' : '') +
-      '<span class="tt" title="' + esc(KIND[i.kind] || i.kind) + '">' + esc(i.title) + '</span>' + (extra ? '<span class="kind">' + esc(extra) + '</span>' : '') + (i.assignmentId ? prepareLine(code, i.assignmentId) : '') + '</label>' +
+      '<span class="tt" title="' + esc(KIND[i.kind] || i.kind) + '">' + esc(i.title) + '</span>' + (extra ? '<span class="kind">' + extra + '</span>' : '') + (i.assignmentId ? prepareLine(code, i.assignmentId) : '') + '</label>' +
       '<a class="go" href="' + esc(i.url) + '" target="_blank" rel="noopener" title="Open in Canvas" aria-label="Open in Canvas">' + ic("arrow-square-out") + '</a>' + muteBtn(id) + '</li>';
   }).join("") + '</ul>';
 }
@@ -1315,7 +1326,7 @@ function renderWeekView(t){
       (mins ? '<div class="load" title="Rough time for this week: the material estimates plus the effort the course states for its hand-ins">' + ic("hourglass-medium", "sm") + '<b class="hv">' + fmtMin(mins) + '</b> of work</div>' : '') +
       '<div class="load freeh" title="Working hours not taken by sessions, Monday to Friday"></div>' +
       '<div class="left"></div>' +
-      (isNow ? '<div class="flag nowflag">this week</div>' : '') + (flag ? '<div class="flag">' + esc(flag) + '</div>' : '') + '</div>' + body + '</div>';
+      (isNow ? '<div class="flag nowflag">' + ic("flag", "sm") + 'this week</div>' : '') + (flag ? '<div class="flag">' + ic("flag", "sm") + esc(flag) + '</div>' : '') + '</div>' + body + '</div>';
   }).join("");
   var jump = document.getElementById("jump"), idx = weeks.indexOf(curMon);
   jump.hidden = idx < 0; if (idx >= 0) jump.href = "#today";
@@ -1380,7 +1391,7 @@ function renderCardsView(t){
   var setList = Object.keys(sets).map(function(k){ return sets[k]; }).sort(function(p, q){ return p.e.a.due.localeCompare(q.e.a.due); });
   var itemF = /^m:/.test(f) ? cardItem(f) : null;
   var shown = f === "due" ? due : f === "all" ? pool : itemF ? pool.filter(function(c){ return (c.sources || []).indexOf(f) >= 0; }) : (sets[f] ? sets[f].cards : []);
-  var filters = '<button type="button" data-cardfilter="due"' + (f === "due" ? ' aria-pressed="true"' : '') + '>Due now <b>' + due.length + '</b></button>' +
+  var filters = '<button type="button" data-cardfilter="due"' + (f === "due" ? ' aria-pressed="true"' : '') + '>' + ic("clock", "sm") + 'Due now <b>' + due.length + '</b></button>' +
     setList.map(function(s){ var dn = s.cards.filter(isDue).length, known = s.cards.filter(function(c){ return recallOn(c, s.e.a.due) >= 0.9; }).length;
       return '<button type="button" data-cardfilter="' + esc(s.k) + '"' + (f === s.k ? ' aria-pressed="true"' : '') + ' style="' + colorVars(s.e.code) + '" title="' + esc(s.cards.length + " cards, " + dn + " due, " + known + " likely known on " + longDay(s.e.a.due)) + '"><span class="dot"></span>' + esc(shortTitle(s.e.a.title).split(",")[0]) + ' <small>' + esc(longDay(s.e.a.due)) + '</small> <b>' + dn + '/' + s.cards.length + '</b></button>'; }).join("") +
     '<button type="button" data-cardfilter="all"' + (f === "all" ? ' aria-pressed="true"' : '') + '>All <b>' + pool.length + '</b></button>' +
@@ -1396,7 +1407,7 @@ function renderCardsView(t){
     '<div class="row"><textarea id="cw-prompt" rows="2" placeholder="Front: the question"></textarea></div><div class="row"><textarea id="cw-answer" rows="5" placeholder="Back: the answer, or for a question card where the answer is found.&#10;- a list item&#10;`code` and **a term**&#10;Key: the one thing to remember"></textarea></div>' +
     '<div class="row"><button type="button" data-cardwrite="1">Save as a draft</button><small>Shared once a classmate checks it.</small></div></div>';
   return '<section class="appview cardsview">' + head + (state.cardErr ? '<p class="err">' + esc(state.cardErr) + '</p>' : '') +
-    '<div class="card"><h3>' + ic("target") + 'Drill<span class="sum">' + due.length + ' of ' + pool.length + ' due</span></h3>' +
+    '<div class="card"><h3>' + ic("barbell") + 'Drill<span class="sum">' + due.length + ' of ' + pool.length + ' due</span></h3>' +
       '<div class="fbar">' + filters + '</div>' +
       '<div class="row"><span class="small">Plan reviews</span><label><input type="radio" name="dgoal" value="event"' + (state.drillGoal === "event" ? ' checked' : '') + '> until the lab or exam</label><label><input type="radio" name="dgoal" value="mastered"' + (state.drillGoal === "mastered" ? ' checked' : '') + '> until mastered</label></div>' +
       grid + '</div>' +
@@ -1426,16 +1437,16 @@ function cardText(text){
 }
 function flipCard(t, c, mode){
   var C = state.cards, ev = nextEvent(t, c), rv = C.reviews[c.id], flipped = !!(state.flipped && state.flipped[c.id]);
-  var meta = chip(c.course) + (ev ? '<span class="fc-ev">' + esc(shortTitle(ev.a.title).split(",")[0]) + ', ' + esc(longDay(ev.a.due)) + '</span>' : '');
-  var tags = (c.ai_drafted ? '<span class="tag">AI draft</span>' : '') + (c.kind === "question" ? '<span class="tag">graded question</span>' : '') + (c.kind === "answer" ? '<span class="tag">group answer</span>' : '') + (c.status !== "shared" && mode === "drill" ? '<span class="tag">not checked yet</span>' : '');
+  var meta = chip(c.course) + (ev ? '<span class="fc-ev">' + ic("target", "sm") + esc(shortTitle(ev.a.title).split(",")[0]) + ', ' + esc(longDay(ev.a.due)) + '</span>' : '');
+  var tags = (c.ai_drafted ? '<span class="tag">' + ic("robot", "sm") + 'AI draft</span>' : '') + (c.kind === "question" ? '<span class="tag">' + ic("seal-question", "sm") + 'graded question</span>' : '') + (c.kind === "answer" ? '<span class="tag">' + ic("users-three", "sm") + 'group answer</span>' : '') + (c.status !== "shared" && mode === "drill" ? '<span class="tag">' + ic("circle-dashed", "sm") + 'not checked yet</span>' : '');
   var dueTxt = mode === "drill" ? (rv ? (isDue(c) ? "due now" : "next " + longDay(iso(new Date(rv.due)))) : "new") : "";
-  var controls = mode === "drill" ? '<div class="fc-rate"><button type="button" data-rate="1" data-card="' + esc(c.id) + '" class="again">Again</button><button type="button" data-rate="2" data-card="' + esc(c.id) + '">Hard</button><button type="button" data-rate="3" data-card="' + esc(c.id) + '" class="good">Good</button><button type="button" data-rate="4" data-card="' + esc(c.id) + '">Easy</button></div>' + flagUi(c.id, '')
-    : mode === "check" ? flagUi(c.id, '<button type="button" data-cardcheck="' + esc(c.id) + '">Correct: share it</button>')
-    : '<div class="ck-b"><button type="button" data-settle="keep" data-card="' + esc(c.id) + '">Keep it</button><button type="button" class="plain" data-settle="remove" data-card="' + esc(c.id) + '">Remove it</button></div>';
+  var controls = mode === "drill" ? '<div class="fc-rate"><button type="button" data-rate="1" data-card="' + esc(c.id) + '" class="again">' + ic("arrow-counter-clockwise", "sm") + 'Again</button><button type="button" data-rate="2" data-card="' + esc(c.id) + '">' + ic("mountains", "sm") + 'Hard</button><button type="button" data-rate="3" data-card="' + esc(c.id) + '" class="good">' + ic("check", "sm") + 'Good</button><button type="button" data-rate="4" data-card="' + esc(c.id) + '">' + ic("feather", "sm") + 'Easy</button></div>' + flagUi(c.id, '')
+    : mode === "check" ? flagUi(c.id, '<button type="button" data-cardcheck="' + esc(c.id) + '">' + ic("check-circle", "sm") + 'Correct: share it</button>')
+    : '<div class="ck-b"><button type="button" data-settle="keep" data-card="' + esc(c.id) + '">' + ic("check", "sm") + 'Keep it</button><button type="button" class="plain" data-settle="remove" data-card="' + esc(c.id) + '">' + ic("trash", "sm") + 'Remove it</button></div>';
   var why = mode === "settle" ? C.flags.filter(function(x){ return x.card_id === c.id; }).map(function(x){ return x.reason; }).filter(Boolean).join("; ") : "";
   return '<div class="fcard' + (flipped ? ' flipped' : '') + '" data-flip="' + esc(c.id) + '" style="' + colorVars(c.course) + '" tabindex="0" role="button" aria-pressed="' + flipped + '" aria-label="Card: ' + esc(c.prompt.slice(0, 80)) + '. Press to turn over.">' +
     '<div class="fc-in">' +
-      '<div class="fc-face fc-front"><div class="fc-body"><div class="fc-meta">' + meta + '</div><div class="fc-q">' + esc(c.prompt) + '</div><div class="fc-foot">' + tags + '<span class="fc-due">' + esc(dueTxt) + '</span><span class="fc-hint">click to turn over</span></div></div></div>' +
+      '<div class="fc-face fc-front"><div class="fc-body"><div class="fc-meta">' + meta + '</div><div class="fc-q">' + esc(c.prompt) + '</div><div class="fc-foot">' + tags + '' + (dueTxt ? '<span class="fc-due">' + ic("clock", "sm") + esc(dueTxt) + '</span>' : '') + '<span class="fc-hint">' + ic("hand-tap", "sm") + 'turn over</span></div></div></div>' +
       '<div class="fc-face fc-back"><div class="fc-body"><div class="fc-meta">' + meta + '</div><div class="fc-a">' + (c.kind === "question" ? '<small>Where the answer is:</small> ' : '') + (c.answer ? cardText(c.answer) : "(no answer written)") + '</div>' +
         (cardKey(c.answer) ? '<div class="insight"><b>Key</b> ' + cardInline(cardKey(c.answer)) + '</div>' : '') +
         '<div class="fc-src">Check it in: ' + cardSourcesLinks(c) + '</div>' + (why ? '<div class="fc-src">Flagged: ' + esc(why) + '</div>' : '') + controls + '</div></div>' +
@@ -1444,7 +1455,7 @@ function flipCard(t, c, mode){
 // Flag a card: an inline reason, then Send. A flagged card is hidden until the Maintainer decides.
 function flagUi(id, before){
   if (state.flagging === id) return '<div class="ck-b"><input type="text" id="flag-why" maxlength="500" placeholder="What is wrong? (optional)" style="flex:1 1 220px; font:inherit; font-size:13px; border:1px solid var(--muted); padding:5px 8px; background:var(--surface); color:var(--ink)"><button type="button" data-flagsend="' + esc(id) + '">Send flag</button><button type="button" class="plain" data-flagcancel="1">Cancel</button></div>';
-  return '<div class="ck-b">' + before + '<button type="button" class="plain" data-flagopen="' + esc(id) + '">Something is wrong</button></div>';
+  return '<div class="ck-b">' + before + '<button type="button" class="plain" data-flagopen="' + esc(id) + '">' + ic("flag", "sm") + 'Something is wrong</button></div>';
 }
 function cardSources(code, text){
   var all = items(code), out = [], bad = [];
@@ -1499,7 +1510,7 @@ function renderDayPlan(t, d){
   wins.forEach(function(w){ for (var m2 = w[0]; m2 + SLOT <= w[1]; m2 += SLOT) grid += '<div class="dp-free" data-slot="' + fmtT(m2) + '" style="top:' + top(m2) + 'px; height:' + H + 'px" title="Free ' + fmtT(m2) + '"></div>'; });
   fixed.forEach(function(f){
     if (f.kind === "due") grid += '<div class="dp-due" style="top:' + top(Math.min(f.s, last)) + 'px' + (f.code ? '; ' + colorVars(f.code) : '') + '"><span>' + esc(fmtT(f.s) + " due: " + f.title) + '</span></div>';
-    else grid += '<div class="dp-block' + (f.cal ? ' cal' : '') + '" style="top:' + top(f.s) + 'px; height:' + Math.max(H, top(f.e) - top(f.s)) + 'px' + (f.code ? '; ' + colorVars(f.code) : '') + '"><b>' + esc(fmtT(f.s) + "\u2013" + fmtT(f.e)) + '</b> ' + esc(f.title) + (f.cal ? ' <span class="tag yours">yours</span>' : '') + '</div>';
+    else grid += '<div class="dp-block' + (f.cal ? ' cal' : '') + '" style="top:' + top(f.s) + 'px; height:' + Math.max(H, top(f.e) - top(f.s)) + 'px' + (f.code ? '; ' + colorVars(f.code) : '') + '"><b>' + esc(fmtT(f.s) + "\u2013" + fmtT(f.e)) + '</b> ' + esc(f.title) + (f.cal ? ' <span class="tag yours">' + ic("calendar", "sm") + 'yours</span>' : '') + '</div>';
   });
   planned.forEach(function(b){ var s = toMin(b.start), done = b.ref && isDone(b.ref);
     grid += '<div class="dp-block planned' + (done ? ' done' : '') + '" style="top:' + top(s) + 'px; height:' + Math.max(H, b.mins / SLOT * H) + 'px' + (b.code ? '; ' + colorVars(b.code) : '') + '"><b>' + esc(fmtT(s) + "\u2013" + fmtT(s + b.mins)) + '</b> ' + esc(b.title) + '<button type="button" class="dp-x" data-unplan="' + esc(b.pid) + '" title="Remove from the plan" aria-label="Remove from the plan">' + ic("x") + '</button></div>'; });
@@ -1557,7 +1568,7 @@ function renderChains(t){
     var cardsN = state.cards && state.cards.list ? drillable(t).filter(function(c){ return cardEvents(t, c).some(function(e){ return ke.kind === "deadline" ? e.code + ":" + e.a.id === ke.code + ":" + ke.aid : false; }); }).length : 0;
     return '<details class="chain" data-key="chain:' + esc(ke.key) + '"' + (state.open["chain:" + ke.key] != null ? (state.open["chain:" + ke.key] ? ' open' : '') : (n < 2 ? ' open' : '')) + ' style="' + colorVars(ke.code) + '">' +
       '<summary>' + '<span class="cdate mono">' + esc(longDay(ke.date)) + (ke.time ? " " + esc(ke.time) : "") + '</span>' + chip(ke.code) + '<b>' + esc(ke.title) + '</b>' + (ke.row.disagree ? ' <span class="tag disagree" title="' + esc(disagreeText(ke.row.disagree)) + '">' + ic("warning", "sm") + '</span>' : '') +
-        '<span class="cprog">' + (prep.length ? ready + " of " + prep.length + " ready" : "nothing linked yet") + (late ? ', <b class="late">' + late + ' taught late</b>' : '') + (cardsN ? ', ' + cardsN + ' cards' : '') + '</span></summary>' +
+        '<span class="cprog">' + (prep.length ? ready + " of " + prep.length + " ready" : "nothing linked yet") + (late ? ', <b class="late">' + late + ' taught late</b>' : '') + (cardsN ? ', <span class="cardsn" title="' + cardsN + (cardsN === 1 ? ' card' : ' cards') + ' to drill">' + ic("barbell", "sm") + cardsN + '</span>' : '') + '</span></summary>' +
       (prep.length ? '<ul class="prep">' + rows + '</ul>' : '<p class="note">The course names no material for this one yet.</p>') + '</details>';
   }).join("");
   return '<section><div class="sechead"><h2>Key events and what leads to them</h2><span class="note">Each lab session, workshop and exam with the work that prepares for it. Hollow dates are suggestions: the course gives none.</span></div><div class="card chains">' + html + '</div></section>';
