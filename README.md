@@ -4,7 +4,7 @@ A study planner for students of LTU courses: what is on today, what is due, what
 it, and what has been done. Built for the classmates of Z7005E Programvaruteknik and Z0025E
 Computer Networks, autumn 2026; courses are data, so more can be added.
 
-![The Day view in dark mode: the day plan in 15-minute slots with free time and the week's unplaced work](docs/images/hero.png)
+![The Day Planner view in dark mode: the day plan in 15-minute slots with free time and the week's unplaced work](docs/images/hero.png)
 
 - **The web app:** https://ltu-studytracker.dentaku.se
 - **The original claude.ai page** (still served, points to the app): https://claude.ai/artifact/Tkm4xHdppNkcTGJ3xsrgoU

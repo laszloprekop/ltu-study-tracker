@@ -307,7 +307,14 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
 .dp-line span{position:absolute; left:-44px; top:-8px; font-size:11px; color:var(--muted); font-family:"IBM Plex Mono",monospace}
 .dp-free{position:absolute; left:0; right:0; background:transparent; border-left:3px dashed color-mix(in oklch, var(--now) 45%, transparent)}
 body.dragging .dp-free{background:color-mix(in oklch, var(--now-soft) 55%, transparent)}
-.dp-free:hover,body.dragging .dp-free:hover{background:var(--now-soft)}
+.dp-free:hover{background:var(--now-soft)}
+body.dragging .dp-free:hover{background:color-mix(in oklch, var(--now-soft) 55%, transparent)}
+.dp-free.target,body.dragging .dp-free.target{background:color-mix(in oklch, var(--ok) 35%, transparent)}
+.dp-free.nofit,body.dragging .dp-free.nofit{background:var(--alert-soft)}
+.dp-block.planned{cursor:grab; z-index:1}
+/* while dragging, placed items let the slots under them take the drop */
+body.dragging .dp-block,body.dragging .dp-due,body.dragging .dp-line{pointer-events:none}
+.dp-block.planned.moving{opacity:.35}
 .dp-free.nofit{background:var(--alert-soft)}
 .dp-block{position:absolute; left:6px; right:4px; overflow:hidden; padding:1px 6px; font-size:12px; line-height:1.25; background:var(--surface-2); border-left:4px solid var(--cc, var(--muted)); box-sizing:border-box}
 .dp-block.cal{background:repeating-linear-gradient(135deg, var(--surface-2) 0 8px, var(--surface) 8px 9px)}
@@ -959,7 +966,7 @@ body.colored table.all tr:not(.done) .tt{color:var(--cc)}
                 <div class="pp-row"><button type="button" id="ping-toggle" class="tgl" aria-pressed="true"><svg class="ic"><use href="#i-target"/></svg>Pulse what is due soon</button></div>
                 <div class="pp-row"><button type="button" id="color-toggle" class="tgl" aria-pressed="true"><svg class="ic"><use href="#i-beach-ball"/></svg>Colour titles by course</button></div>
                 <div class="pp-row"><svg class="ic"><use href="#i-clock"/></svg><span>Working hours</span><input type="time" class="hstart" aria-label="Start"><span>to</span><input type="time" class="hend" aria-label="End"></div>
-                <p class="note">Working hours set the free time in Day and Week by week.</p>
+                <p class="note">Working hours set the free time in Day Planner and Week by week.</p>
               </section>
               <div id="pp-dyn" class="pp-span"></div>
               <section class="pp-card pp-span" id="pp-progress"><h3><svg class="ic"><use href="#i-arrows-in"/></svg>Your progress</h3>
@@ -986,7 +993,7 @@ body.colored table.all tr:not(.done) .tt{color:var(--cc)}
     <div class="hrow">
       <div class="seg" role="group" aria-label="View" id="views">
         <button type="button" id="v-week" data-view="week"><svg class="ic"><use href="#i-calendar"/></svg>Week by week</button>
-        <button type="button" id="v-day" data-view="day"><svg class="ic"><use href="#i-calendar-dot"/></svg>Day</button>
+        <button type="button" id="v-day" data-view="day"><svg class="ic"><use href="#i-calendar-dot"/></svg>Day Planner</button>
         <button type="button" id="v-all" data-view="all"><svg class="ic"><use href="#i-list-checks"/></svg>All deadlines</button>
         <button type="button" id="v-map" data-view="map"><svg class="ic"><use href="#i-tree-structure"/></svg>Map</button>
         <button type="button" id="v-cards" data-view="cards" title="Study cards with spaced repetition, aimed at each lab and exam"><svg class="ic"><use href="#i-barbell"/></svg>Cards</button>
@@ -1514,7 +1521,7 @@ function shareLink(route, text){
 /* ---------- Pins: a Student's own Links, in the Pinned view (docs/plan/links.md) ---------- */
 // Kept in the progress document beside the Ticks, merged per Pin by the later change. Hosted app,
 // signed in. A Pin keeps its title from when it was pinned, shown only once its target is gone.
-var VIEW_NAME = { week: "Week by week", day: "Day", all: "All deadlines", map: "Map", cards: "Cards", pinned: "Pinned", about: "About", help: "Help", privacy: "Privacy", terms: "Terms" };
+var VIEW_NAME = { week: "Week by week", day: "Day Planner", all: "All deadlines", map: "Map", cards: "Cards", pinned: "Pinned", about: "About", help: "Help", privacy: "Privacy", terms: "Terms" };
 var VIEW_ICON = { week: "calendar", day: "calendar-dot", all: "list-checks", map: "tree-structure", cards: "barbell" };
 function pinsOn(){ return hostedApp() && !!state.signedIn; }
 function livePins(){
@@ -1835,7 +1842,7 @@ function cardSources(code, text){
 // One day in 15-minute slots: what is fixed (sessions, the Student's calendar, their Group's booked
 // slot, deadlines), the Free Slots inside working hours, and the Planned Blocks the Student put
 // there (CONTEXT.md). Planned Blocks merge between devices per block by the later change.
-var SLOT = 15;
+var SLOT = 15, dpModel = null, dpDrag = null;
 // Pins merge like Planned Blocks: per Pin the later change wins, an unpin included (kept as gone).
 function mergePins(inc){
   Object.keys(inc || {}).forEach(function(k){ var x = inc[k], mine = state.pins[k]; if (x && typeof x === "object" && x.at && (!mine || x.at > mine.at)) state.pins[k] = x; });
@@ -1872,20 +1879,23 @@ function unplaced(t, d){
 function hintFor(item, wins){ var w = wins.find(function(x){ return x[1] - x[0] >= item.mins; }); return w ? w[0] : null; }
 function renderDayPlan(t, d){
   var fixed = fixedOn(t, d), planned = plannedOn(d);
-  var busy = fixed.filter(function(f){ return f.kind === "fixed"; }).map(function(f){ return [f.s, f.e]; }).concat(planned.map(function(b){ var s = toMin(b.start); return [s, s + b.mins]; }));
-  var wins = freeOn(busy), items = unplaced(t, d), dow = new Date(d + "T00:00:00").getDay();
+  var fixedBusy = fixed.filter(function(f){ return f.kind === "fixed"; }).map(function(f){ return [f.s, f.e]; });
+  var busy = fixedBusy.concat(planned.map(function(b){ var s = toMin(b.start); return [s, s + b.mins]; }));
+  // wins: what is still free (hints, the free total); open: free of fixed times, the slots a drag may use
+  var wins = freeOn(busy), open = freeOn(fixedBusy), items = unplaced(t, d), dow = new Date(d + "T00:00:00").getDay();
+  dpModel = { open: open, planned: planned.map(function(b){ var s = toMin(b.start); return { pid: b.pid, s: s, e: s + b.mins }; }) };
   var first = Math.min(toMin(state.hours.start), Math.min.apply(null, fixed.map(function(f){ return f.s; }).concat([24 * 60])));
   var last = Math.max(toMin(state.hours.end), Math.max.apply(null, fixed.map(function(f){ return f.e; }).concat([0])));
   first = Math.max(6 * 60, Math.floor(first / 60) * 60); last = Math.min(23 * 60 + 45, Math.ceil(last / 60) * 60);
   var H = 15, top = function(m){ return (m - first) / SLOT * H; }, grid = "";
   for (var m = first; m < last; m += SLOT) grid += '<div class="dp-line' + (m % 60 === 0 ? ' hour' : '') + '" style="top:' + top(m) + 'px">' + (m % 60 === 0 ? '<span>' + fmtT(m) + '</span>' : '') + '</div>';
-  wins.forEach(function(w){ for (var m2 = w[0]; m2 + SLOT <= w[1]; m2 += SLOT) grid += '<div class="dp-free" data-slot="' + fmtT(m2) + '" style="top:' + top(m2) + 'px; height:' + H + 'px" title="Free ' + fmtT(m2) + '"></div>'; });
+  open.forEach(function(w){ for (var m2 = w[0]; m2 + SLOT <= w[1]; m2 += SLOT) grid += '<div class="dp-free" data-slot="' + fmtT(m2) + '" style="top:' + top(m2) + 'px; height:' + H + 'px" title="Free ' + fmtT(m2) + '"></div>'; });
   fixed.forEach(function(f){
     if (f.kind === "due") grid += '<div class="dp-due" style="top:' + top(Math.min(f.s, last)) + 'px' + (f.code ? '; ' + colorVars(f.code) : '') + '"><span>' + esc(fmtT(f.s) + " due: " + f.title) + '</span></div>';
     else grid += '<div class="dp-block' + (f.cal ? ' cal' : '') + '" style="top:' + top(f.s) + 'px; height:' + Math.max(H, top(f.e) - top(f.s)) + 'px' + (f.code ? '; ' + colorVars(f.code) : '') + '"><b>' + esc(fmtT(f.s) + "\u2013" + fmtT(f.e)) + '</b> ' + esc(f.title) + (f.cal ? ' <span class="tag yours">' + ic("calendar", "sm") + 'yours</span>' : '') + '</div>';
   });
   planned.forEach(function(b){ var s = toMin(b.start), done = b.ref && isDone(b.ref);
-    grid += '<div class="dp-block planned' + (done ? ' done' : '') + '" style="top:' + top(s) + 'px; height:' + Math.max(H, b.mins / SLOT * H) + 'px' + (b.code ? '; ' + colorVars(b.code) : '') + '"><b>' + esc(fmtT(s) + "\u2013" + fmtT(s + b.mins)) + '</b> ' + esc(b.title) + '<button type="button" class="dp-x" data-unplan="' + esc(b.pid) + '" title="Remove from the plan" aria-label="Remove from the plan">' + ic("x") + '</button></div>'; });
+    grid += '<div class="dp-block planned' + (done ? ' done' : '') + '" draggable="true" data-pid="' + esc(b.pid) + '" data-mins="' + b.mins + '" title="Drag to move it; drop it on the list to unplace it" style="top:' + top(s) + 'px; height:' + Math.max(H, b.mins / SLOT * H) + 'px' + (b.code ? '; ' + colorVars(b.code) : '') + '"><b>' + esc(fmtT(s) + "\u2013" + fmtT(s + b.mins)) + '</b> ' + esc(b.title) + '<button type="button" class="dp-x" data-unplan="' + esc(b.pid) + '" title="Remove from the plan" aria-label="Remove from the plan">' + ic("x") + '</button></div>'; });
   var list = items.length ? items.slice(0, 24).map(function(it){
     var h = hintFor(it, wins);
     return '<li draggable="true" data-ref="' + esc(it.ref) + '" data-mins="' + it.mins + '" style="' + colorVars(it.code) + '">' + chip(it.code) + '<span class="tt">' + esc(it.title) + '</span> <small>' + it.mins + ' min</small>' +
@@ -1894,7 +1904,7 @@ function renderDayPlan(t, d){
   var freeMin = wins.reduce(function(a, w){ return a + w[1] - w[0]; }, 0);
   return '<div class="card dayplan"><h3>' + ic("clock") + 'Day plan<span class="sum">' + (dow === 0 || dow === 6 ? 'weekend, ' : '') + fmtMin(freeMin).replace("~", "") + ' free in ' + esc(state.hours.start) + '\u2013' + esc(state.hours.end) + '</span></h3>' +
     '<div class="dp"><div class="dp-grid" style="height:' + (top(last) + 22) + 'px">' + grid + '</div>' +
-    '<div class="dp-side"><h4>Unplaced this week</h4><p class="note">Place puts an item in the first free slot that fits; or drag it onto a free slot.</p><ul class="dp-items">' + list + '</ul></div></div></div>';
+    '<div class="dp-side"><h4>Unplaced this week</h4><p class="note">Place puts an item in the first free slot that fits; or drag it onto a free slot. Placed items drag to another time, or back onto this list.</p><ul class="dp-items">' + list + '</ul></div></div></div>';
 }
 function placeItem(ref, at, d){
   var t = term(), it = unplaced(t, d).find(function(x){ return x.ref === ref; }); if (!it) return;
@@ -3312,7 +3322,7 @@ function renderInfoView(name){
     cards.push('<div class="card infocard span2"><h3>' + ic("check-circle") + 'What it does today' + (hosted ? '<span class="here">here</span>' : '') + '</h3>' + infoList(APP_INFO.now, "ul") + '</div>');
     cards.push('<div class="card infocard"><h3>' + ic("flag-checkered") + 'Coming later</h3>' + infoList(APP_INFO.planned, "ul") + '</div>');
   } else if (name === "help") {
-    cards.push(infoCard("calendar", "The views", "- **Week by week**: every session, deadline and task, week after week.\n- **Day**: one day in 15-minute slots, with free time and work to place.\n- **All deadlines**: each lab, workshop and exam with what leads to it, then every deadline.\n- **Map**: how the course material connects.\n- **Cards**: study cards for the next lab or exam."));
+    cards.push(infoCard("calendar", "The views", "- **Week by week**: every session, deadline and task, week after week.\n- **Day Planner**: one day in 15-minute slots, with free time and work to place.\n- **All deadlines**: each lab, workshop and exam with what leads to it, then every deadline.\n- **Map**: how the course material connects.\n- **Cards**: study cards for the next lab or exam."));
     cards.push(infoCard("check-circle", "Ticks and marks", "- The **tick box** is yours alone. Tick what you have done.\n- The " + "mute button" + " hides an item that is not for you from the counts.\n- **MUST**: graded or required, or needed for something that is. Red stripe.\n- **NICE**: readings and videos that help.\n- The **pulse** rings what is overdue or due within seven days.\n- **expected**: a lecture date from the timetable, not yet confirmed by the teacher.", '<div class="cvlegend"><span>' + statusIcon("both") + ' confirmed</span><span>' + statusIcon("cv") + ' done in Canvas</span><span>' + statusIcon("half") + ' opened</span><span>' + statusIcon("conf") + ' conflict</span><span>' + statusIcon("un") + ' Canvas cannot record it</span></div>'));
     cards.push(infoCard("arrows-in", "Bring your ticks along", "Ticks move between pages and devices as a **code**.\n1. Profile menu (person icon, top right): **Export**. The code is copied.\n2. On the other page or device: profile menu, paste it, **Import**.\nKey: per task the later change wins, so an untick moves too."));
     if (hosted) {
@@ -3533,18 +3543,48 @@ document.addEventListener("keydown", function(e){
   var fc = e.target && e.target.classList && e.target.classList.contains("fcard") ? e.target : null;
   if (fc && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); fc.click(); }
 });
-// Day plan: drag an unplaced item onto a free 15-minute slot. The item must fit before the next busy time.
-document.addEventListener("dragstart", function(e){ var li = e.target.closest && e.target.closest(".dp-items li[data-ref]"); if (!li) return; e.dataTransfer.setData("text/plain", li.dataset.ref); e.dataTransfer.effectAllowed = "move"; document.body.classList.add("dragging"); });
-document.addEventListener("dragend", function(){ document.body.classList.remove("dragging"); });
-document.addEventListener("dragover", function(e){ var c = e.target.closest && e.target.closest(".dp-free"); if (c) { e.preventDefault(); e.dataTransfer.dropEffect = "move"; } });
+// Day plan: drag an unplaced item, or a placed one, onto the free slots. The item keeps the point it
+// was grabbed by, so its top lands where it is shown; the slots it would take light up while dragging.
+// The fit is read from the plan (dpModel), not the page: its own old time counts as free.
+function dpFits(start, mins, pid){
+  var end = start + mins;
+  if (!dpModel || !dpModel.open.some(function(w){ return w[0] <= start && end <= w[1]; })) return false;
+  return !dpModel.planned.some(function(b){ return b.pid !== pid && b.s < end && start < b.e; });
+}
+function dpStart(slot){ return toMin(slot.dataset.slot) - (dpDrag ? dpDrag.offset : 0); }
+function dpPreview(start){
+  document.querySelectorAll(".dp-free.target, .dp-free.nofit").forEach(function(x){ x.classList.remove("target", "nofit"); });
+  if (start == null || !dpDrag) return;
+  var cls = dpFits(start, dpDrag.mins, dpDrag.pid) ? "target" : "nofit";
+  for (var m = start; m < start + dpDrag.mins; m += SLOT) { var x = document.querySelector('.dp-free[data-slot="' + fmtT(m) + '"]'); if (x) x.classList.add(cls); }
+}
+document.addEventListener("dragstart", function(e){
+  var li = e.target.closest && e.target.closest(".dp-items li[data-ref]"), blk = e.target.closest && e.target.closest(".dp-block.planned[data-pid]");
+  if (!li && !blk) return;
+  var mins = Number((li || blk).dataset.mins) || 30, offset = 0;
+  if (blk) { var r = blk.getBoundingClientRect(); offset = Math.max(0, Math.min(mins - SLOT, Math.floor((e.clientY - r.top) / 15) * SLOT)); }
+  dpDrag = { ref: li ? li.dataset.ref : null, pid: blk ? blk.dataset.pid : null, mins: mins, offset: offset };
+  e.dataTransfer.setData("text/plain", dpDrag.ref || dpDrag.pid); e.dataTransfer.effectAllowed = "move";
+  // after this frame, so the drag image is taken before the block turns see-through
+  setTimeout(function(){ document.body.classList.add("dragging"); if (blk) blk.classList.add("moving"); }, 0);
+});
+document.addEventListener("dragend", function(){ document.body.classList.remove("dragging"); document.querySelectorAll(".dp-block.moving").forEach(function(x){ x.classList.remove("moving"); }); dpPreview(null); dpDrag = null; });
+document.addEventListener("dragover", function(e){
+  if (!dpDrag) return;
+  var c = e.target.closest && e.target.closest(".dp-free");
+  if (c) { e.preventDefault(); e.dataTransfer.dropEffect = "move"; dpPreview(dpStart(c)); return; }
+  if (dpDrag.pid && e.target.closest && e.target.closest(".dp-side")) { e.preventDefault(); dpPreview(null); }
+});
 document.addEventListener("drop", function(e){
-  var c = e.target.closest && e.target.closest(".dp-free"); if (!c) return;
-  e.preventDefault(); document.body.classList.remove("dragging");
-  var ref = e.dataTransfer.getData("text/plain"), li = document.querySelector('.dp-items li[data-ref="' + (window.CSS && CSS.escape ? CSS.escape(ref) : ref) + '"]');
-  var mins = li ? Number(li.dataset.mins) : 30, at = toMin(c.dataset.slot), n = 0;
-  for (var m = at; m < at + mins; m += SLOT) if (document.querySelector('.dp-free[data-slot="' + fmtT(m) + '"]')) n++;
-  if (n * SLOT < mins) { c.classList.add("nofit"); setTimeout(function(){ c.classList.remove("nofit"); }, 900); return; }
-  placeItem(ref, c.dataset.slot, state.day || todayIso());
+  if (!dpDrag) return;
+  var drag = dpDrag, d = state.day || todayIso(), c = e.target.closest && e.target.closest(".dp-free");
+  if (!c && drag.pid && e.target.closest && e.target.closest(".dp-side")) { e.preventDefault(); state.planned[drag.pid] = { gone: true, at: new Date().toISOString() }; save(); renderTerm(); return; }
+  if (!c) return;
+  e.preventDefault();
+  var start = dpStart(c);
+  if (!dpFits(start, drag.mins, drag.pid)) { toast("It does not fit there: it would run into a session, another item or the end of the working hours."); return; }
+  if (drag.pid) { var b = state.planned[drag.pid]; if (b) { state.planned[drag.pid] = Object.assign({}, b, { start: fmtT(start), at: new Date().toISOString() }); save(); renderTerm(); } }
+  else placeItem(drag.ref, fmtT(start), d);
 });
 // Remember each foldable block's state. "toggle" does not bubble, so listen in the capture phase.
 document.addEventListener("toggle", function(e){

@@ -23,7 +23,7 @@ lists everything. The lists live in one place in `src/template.html` (`APP_INFO`
   the session nears and slots run out, on the booking task and in a strip at the top.
 - Calendar Links (signed in, at most five, fetched only from known calendar providers): their
   events among the sessions, marked as the Student's, counted as busy time.
-- The Day Plan in Day: one day in 15-minute slots with the free slots and this week's unplaced
+- The Day Plan in Day Planner: one day in 15-minute slots with the free slots and this week's unplaced
   work; place it with a suggested slot or by dragging (`docs/plan/release-3.md`). This one also
   works on the claude.ai page.
 - Prep chains (`docs/plan/release-5.md`): in All deadlines every Key Event with its Prep, Taught

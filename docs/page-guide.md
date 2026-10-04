@@ -164,7 +164,7 @@ the material blocks.
 Group activities have no fixed slot, so the page shows where they can go instead. Each day heading
 lists the windows inside the viewer's working hours (default 09:00 to 17:00, adjustable next to the
 week and day views, remembered per viewer) that no session occupies, with the longest window marked
-as the best candidate. The week rail sums the free hours Monday to Friday; the Day view has a "Free
+as the best candidate. The week rail sums the free hours Monday to Friday; the Day Planner view has a "Free
 for group work" card. Only sessions on screen count, so filtering to one course frees its time.
 
 ## Tick boxes
