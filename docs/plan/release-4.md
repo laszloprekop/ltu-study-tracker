@@ -66,7 +66,9 @@ with every term explained (`node tools/cards/upload.mjs <file> --update` changes
 AI drafts).
 
 - Card Sets per upcoming Key Event: a Card belongs to the Sets of the assessments its Sources
-  prepare for (the same `needsOf` the Map uses).
+  prepare for (the same `needsOf` the Map uses). So one Card can sit in several Sets (a Module 2 Card in the
+  Module 2 Quiz Set and the Midterm 1 Set). Its header names the Set being viewed, else the nearest
+  event, with `+N` and the others on hover; reviews are planned toward the nearest.
 - Drill: the due Cards, one at a time, answer revealed on demand, rated Again, Hard, Good or Easy.
   FSRS (`ts-fsrs`, request retention 0.9) schedules the next Review; with the Drill Goal "until
   the Key Event" a Review is never scheduled after its event, so the last ones crowd before it.

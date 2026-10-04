@@ -1435,9 +1435,13 @@ function cardText(text){
   close();
   return out;
 }
+// A Card belongs to the Card Set of every assessment its Sources prepare for (Module 2 Quiz and Midterm 1
+// alike). Its header names the Set being viewed, else the nearest; the rest are listed on hover.
 function flipCard(t, c, mode){
-  var C = state.cards, ev = nextEvent(t, c), rv = C.reviews[c.id], flipped = !!(state.flipped && state.flipped[c.id]);
-  var meta = chip(c.course) + (ev ? '<span class="fc-ev">' + ic("target", "sm") + esc(shortTitle(ev.a.title).split(",")[0]) + ', ' + esc(longDay(ev.a.due)) + '</span>' : '');
+  var C = state.cards, today = todayIso(), evs = cardEvents(t, c).filter(function(e){ return e.a.due >= today; }), rv = C.reviews[c.id], flipped = !!(state.flipped && state.flipped[c.id]);
+  var ev = evs.find(function(e){ return e.code + ":" + e.a.id === state.cardFilter; }) || evs[0] || null, others = evs.filter(function(e){ return e !== ev; });
+  var evName = function(e){ return shortTitle(e.a.title).split(",")[0] + ", " + longDay(e.a.due); };
+  var meta = chip(c.course) + (ev ? '<span class="fc-ev"' + (others.length ? ' title="' + esc("Also prepares for: " + others.map(evName).join("; ")) + '"' : '') + '>' + ic("target", "sm") + esc(evName(ev)) + (others.length ? ' <b>+' + others.length + '</b>' : '') + '</span>' : '');
   var tags = (c.ai_drafted ? '<span class="tag">' + ic("robot", "sm") + 'AI draft</span>' : '') + (c.kind === "question" ? '<span class="tag">' + ic("seal-question", "sm") + 'graded question</span>' : '') + (c.kind === "answer" ? '<span class="tag">' + ic("users-three", "sm") + 'group answer</span>' : '') + (c.status !== "shared" && mode === "drill" ? '<span class="tag">' + ic("circle-dashed", "sm") + 'not checked yet</span>' : '');
   var dueTxt = mode === "drill" ? (rv ? (isDue(c) ? "due now" : "next " + longDay(iso(new Date(rv.due)))) : "new") : "";
   var controls = mode === "drill" ? '<div class="fc-rate"><button type="button" data-rate="1" data-card="' + esc(c.id) + '" class="again">' + ic("arrow-counter-clockwise", "sm") + 'Again</button><button type="button" data-rate="2" data-card="' + esc(c.id) + '">' + ic("mountains", "sm") + 'Hard</button><button type="button" data-rate="3" data-card="' + esc(c.id) + '" class="good">' + ic("check", "sm") + 'Good</button><button type="button" data-rate="4" data-card="' + esc(c.id) + '">' + ic("feather", "sm") + 'Easy</button></div>' + flagUi(c.id, '')
