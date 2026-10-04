@@ -1,0 +1,157 @@
+{
+  "note": "AI-drafted hint Cards (Claude, 2026-10-04) for the textbook Knowledge Checks and interactive problems linked from Z0025E Module 2: how to approach each kind of question, not the answers. Uploaded unchecked; each needs a classmate's Check.",
+  "cards": [
+    {
+      "course": "Z0025E",
+      "sources": [
+        "2.3"
+      ],
+      "prompt": "Knowledge Check, Principles of Network Applications: how do you answer questions about client-server versus P2P?",
+      "answer": "Linked from 2.3 (Knowledge Check: Principles of Network Applications).\nTwo questions give the same list of properties: once ticking client-server, once P2P. See the card on client-server versus P2P.\n- Ask: is there a server that is **always on**, with a **fixed, well-known IP address**? That describes client-server.\n- Ask: does each process both **ask for** service and **give** service to others? That describes P2P, where a peer is client and server at once.\n- When a protocol is named, think of how it is normally used: who starts the conversation, and who is always waiting for it?\n- Trap: the two questions use opposite wordings (\"there is\" and \"there is not\" an always-on server). Compare your two sets of ticks: a property should not be in both.\nKey: always-on server with a known address means client-server; everyone serving everyone means P2P."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "2.3"
+      ],
+      "prompt": "Knowledge Check, Principles of Network Applications: how do you answer questions about the services TCP and UDP give an application?",
+      "answer": "Linked from 2.3 (Knowledge Check: Principles of Network Applications).\nTwo questions give the same six services: once for a UDP socket, once for a TCP socket. See the card \"TCP service versus UDP service\" for what each promises.\n- Read each option's explanation, not only its name: it says exactly what would be promised.\n- Put the six into three groups: what TCP adds, what UDP gives, and what **no** Internet transport protocol gives.\n- **Flow control** protects the receiver's buffer; **congestion control** protects the network. They are different services.\n- **Best effort** means \"tries, but promises nothing\". It cannot be true together with \"reliably transfers all data\" for the same protocol.\n- Trap: timing and throughput are what video and games need, but needing a service does not mean the protocol provides it.\nKey: tick only what the protocol promises, never what the application merely needs."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "2.4"
+      ],
+      "prompt": "Knowledge Check, Web and HTTP: how do you answer questions about an HTTP request or reply shown in full?",
+      "answer": "Linked from 2.4 (Knowledge Check: Web and HTTP).\nSeveral questions print a whole GET request or reply and ask about one detail. The interactive problems HTTP GET and HTTP RESPONSE practise the same reading.\n1. Find the line that decides the question before you read the options. The first line holds method, path and version (request), or version, status code and phrase (reply). Every other line is `Name: value`.\n2. Version: the text after `HTTP/` on the first line.\n3. Language preference: in `Accept-Language`, a language may carry `q=`, a weight from 0 to 1. No `q` means `q=1`. Highest weight is most wanted, lowest weight least wanted.\n4. Does the client hold a copy? Ask what an `If-Modified-Since` line would be for (see the card on conditional GET).\n5. Will the connection close? Read the version on the first line and any `Connection:` line together.\n6. What can be in a reply: only the status line, the header lines and the body. Ask of each option: is this an HTTP field, or does it belong to a lower layer (TCP or IP header)? The `Server:` line names the server software, not the host.\n- Trap: \"not enough information\" is tempting, but these messages usually contain the deciding line. Look again before choosing it.\n- Trap: \"least preferred\" means the lowest weight among the languages listed. A language that is not listed is not asked for at all.\nKey: find the deciding line first, then read the options."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "2.4"
+      ],
+      "prompt": "Knowledge Check, Web and HTTP: how do you answer questions about statelessness and cookies?",
+      "answer": "Linked from 2.4 (Knowledge Check: Web and HTTP).\nThree questions: what \"stateless\" means, what a cookie is for, and what the cookie value in a request means. See the card \"HTTP is stateless. How does a website still remember you?\"\n- **Stateless** is a property of the **server**: ask what the server remembers about earlier requests. Options about what the client remembers, or about a server that is down, describe something else.\n- A **cookie** is a value the server chose and the browser sends back with later requests. Ask where the information behind it is kept.\n- The hint in the question matters: a cookie lives in one **browser**. Two people sharing a browser look the same; one person with two browsers looks like two.\n- Ask of each option about the cookie value: could the server read this meaning out of the value alone, or only by looking the value up?\n- Trap: tracking and logging in are things sites build with cookies; they are not what a cookie itself is.\nKey: the cookie is a ticket number for one browser; the server keeps the data."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "2.4"
+      ],
+      "prompt": "Knowledge Check, Web and HTTP: how do you answer questions about GET, conditional GET, web caches and HTTP/2?",
+      "answer": "Linked from 2.4 (Knowledge Check: Web and HTTP).\nSee the cards on conditional GET, web caches and HTTP/2 (head-of-line blocking).\n- **GET**: check the direction in each option. Who sends a request, client or server? Sending data up to the server is a different method (`POST`).\n- **Conditional GET** and `If-Modified-Since`: the date describes the copy the client already has. Ask what the server compares it with. Options about server load, permissions, first requests or a future date describe some other mechanism.\n- **Web cache** advantages: picture where the cache sits (inside the institution's network) and what it adds to the path. Then ask of each option: does this save time, save the outside link, or does it need fewer devices or give the origin server more information?\n- **HTTP/2**: the L04 slides list what changed and what stayed (methods, status codes, most headers). Compare each option with that slide. Encryption comes with HTTP/3 in the slides, not HTTP/2.\nKey: ask who sends the message, and what the date or header really refers to."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "2.3"
+      ],
+      "prompt": "Knowledge Check, Email: how do you answer questions about the RTTs before the email itself can be sent?",
+      "answer": "Linked from 2.3 (Knowledge Check: Email).\nThe check shows the textbook's figure of an SMTP session. The L03 slides have no such figure; the textbook's Email video (linked from 2.3) walks through it.\n1. Draw a timeline: client on the left, server on the right. One **RTT** (round trip time) is one message there plus the answer back.\n2. First the **TCP connection setup**: the client asks to connect, the server answers.\n3. Then the **SMTP handshake**: the server greets with `220`, the client answers `HELO` and its name, the server answers `250`. Note who speaks first: the server's greeting comes only after the TCP connection is ready, and the client must wait for it.\n4. Stop when the handshake is over. `MAIL FROM`, `RCPT TO` and `DATA` belong to the message transfer, the next phase in the video.\n- A one-way message is half an RTT. Check whether the last message before the client starts is one it must wait for.\n- Trap: forgetting the TCP setup, or counting the transfer commands as handshaking.\nKey: count every wait for an answer, from the first connect to the last handshake reply."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "2.3"
+      ],
+      "prompt": "Knowledge Check, Email: how do you answer questions comparing HTTP with SMTP and matching mail protocols?",
+      "answer": "Linked from 2.3 (Knowledge Check: Email).\nSee the cards \"SMTP versus HTTP\" and \"SMTP versus IMAP\".\n- Three questions use the same list of properties: HTTP only, SMTP only, both. Make one table with three columns and answer all three from it. Each property goes in exactly one column (or none).\n- Sort by kind: **server port** (each protocol has its own; L03 slide \"Addressing processes\"), **direction** (push or pull), **how a message ends** and **shared features** (TCP, persistent connections, text commands with status codes).\n- `CRLF` is a line break (carriage return, line feed). A blank line ends an HTTP header; a line with only a dot (`CRLF.CRLF`) ends an SMTP message.\n- Trap: a feature you met first in the HTTP lecture may still be shared. Check the SMTP card before putting it in the HTTP-only column.\n- Matching mail protocols: for each function ask who starts the transfer and who receives it. SMTP pushes; IMAP pulls from a server to a mail **program**. If a function fits neither, there is an option for that.\nKey: one table, three columns, each property in one place."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "2.3"
+      ],
+      "prompt": "Knowledge Check, DNS: how do you answer questions about how long each DNS request takes?",
+      "answer": "Linked from 2.3 (Knowledge Check: DNS).\nThree questions share one scenario: requests at given times, a local DNS server that caches everything for a fixed time, iterative queries, 1 time unit per one-way message. See the card on iterative versus recursive queries.\n1. Write out a lookup with an empty cache: host to local server, local server to root and back, to the TLD server and back, to the authoritative server and back, local server to host. Count the one-way messages: that is the slowest case.\n2. Each thing already cached removes a pair of messages. TLD server cached: skip the root. The answer itself cached: only host to local server and back.\n3. Go through the requests in time order. For each ask: is this exact name cached? If not, is the TLD server for its ending (`.edu`, `.com`, `.org`) cached? Is the authoritative server for its domain cached?\n4. Note **when** each item enters the cache (when its reply arrives, not when the request starts) and when it expires (that time plus the caching time).\n- Trap: two names with the same ending but different organisations, e.g. `a.lund.se` and `b.ltu.se`: the TLD server is cached, the authoritative server is not.\n- Trap: a repeated request much later; check whether its entry has expired.\n- Requests can overlap: a request can only use replies that have already arrived.\nKey: count the one-way messages the cache cannot skip."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "2.3"
+      ],
+      "prompt": "Knowledge Check, DNS: how do you answer questions about DNS servers, records and caching?",
+      "answer": "Linked from 2.3 (Knowledge Check: DNS).\nSee the cards \"How is DNS organised\", \"Why is DNS spread over many servers\" and \"What do the DNS record types A, NS, CNAME and MX hold?\"\n- Matching server types: go down the tree (root, TLD, authoritative) and put the local server beside it. Match each description to the level it describes; do not be led by a word such as \"authoritative\" inside an option.\n- Record type questions: the wrong options describe the other three record types. Know all four pairs (name, value) from the record card.\n- Value of caching: ask whether each option is about speed and load, or claims a special right (priority, authority) that a cache cannot give.\n- Local DNS server: ask which record types it can cache, whether a cached copy can differ from the original before its **TTL** (time to live) runs out, and whether a host asks it first or last.\n- Authoritative server: ask whether it gives the answer itself or sends you elsewhere. Referrals come from higher in the tree.\n- Which caches help many users? Ask who shares the cache: one browser, or a whole institution.\nKey: match each statement to the level of the tree it describes; shared caches help everyone who shares them."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "2.4"
+      ],
+      "prompt": "Knowledge Check, Video Streaming and Content Distribution Networks: how do you answer questions about DASH, manifests and CDNs?",
+      "answer": "Linked from 2.4 (Knowledge Check: Video Streaming and Content Distribution Networks).\nSee the cards \"How does DASH adapt video quality to the network?\" and \"Why is video delivered by a CDN?\"\n- Learn the words as one chain: the video is cut into **chunks**; each chunk is stored at several **encoding rates** (qualities); a **manifest** file says where each version of each chunk is and its rate; with **DASH** (Dynamic Adaptive Streaming over HTTP) the client picks, chunk by chunk, the rate the network allows now; a **CDN** keeps copies at many sites; **enter deep** puts CDN servers inside access networks, **bring home** uses fewer, larger sites.\n- For \"what is X for\", ask who reads or uses X, and when.\n- Reject options that promise what the Internet does not offer (reserving bandwidth along a path) or that the lecture never mentions.\n- The matching list has more names than definitions. Know **OTT** (\"over the top\": a video service running on top of the ordinary Internet) and a video **frame** (one picture) so you can rule them out where they do not fit.\n- Trap: a single central server does not scale; clients sending to each other is P2P, not a CDN.\nKey: chunk, rate, manifest, DASH, CDN: know each link of the chain."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "2.3"
+      ],
+      "prompt": "Knowledge Check, Socket Programming: how do you answer questions about UDP and TCP socket properties?",
+      "answer": "Linked from 2.3 (Knowledge Check: Socket Programming).\nTwo questions give the same eight properties, once for UDP and once for TCP, and a third asks how a UDP server knows where to reply. See the card \"UDP socket versus TCP socket\".\n- Sort the eight into two columns; each belongs to one.\n- Use the L03 slide code: the second argument of `socket(AF_INET, ...)` gives the type (`SOCK_DGRAM` = datagrams, `SOCK_STREAM` = byte stream).\n- For each property ask: does it need a connection? A new socket per client, `accept()` and a reliable pipe all need one. Without a connection, the address has to travel with the data.\n- UDP reply: there is no connection and no `accept()`. Look at what `recvfrom()` returns in the slide code.\n- Trap: well-known ports belong to **servers**; a client's port is chosen when it opens its socket, so a server cannot know it in advance. DNS turns names into addresses; it cannot tell who just sent a datagram.\nKey: decide first whether there is a connection; the other properties follow from that."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "2.3"
+      ],
+      "prompt": "Knowledge Check, Socket Programming: how do you answer questions about counting sockets and what connect() does?",
+      "answer": "Linked from 2.3 (Knowledge Check: Socket Programming).\n- Counting sockets at a TCP server: list every socket the server code in the L03 slides creates, not only one per connected client. Which socket waits for new clients, and does it stay open?\n- A port number is not a socket: many TCP sockets on one server can share port `80`. They are told apart by the client's IP address and port.\n- `connect()`: trace the TCP client code in the slides. Which line creates the socket, and which line connects it? Who starts the connection, client or server? How many ends does one TCP connection have?\n- Trap: an option that also does the work of another call, or that swaps the roles of client and server.\nKey: count every socket the server code creates; the client always starts the connection."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "2.4"
+      ],
+      "prompt": "Interactive problem, HTTP GET: how do you solve it?",
+      "answer": "Linked from 2.4 (interactive problem: The HTTP GET message).\nEach try shows a new GET request and about eight short questions. Read it line by line:\n1. Request line, e.g. `GET /docs/notes.htm HTTP/1.1`: method, path, version. The **file name** is the last part of the path; the host name is on the `Host:` line.\n2. `Accept:` lists the media types the client takes, as `type/subtype` (e.g. `image/png`). A type counts only if it is listed exactly: `image/gif` in the list says nothing about `image/jpeg`.\n3. `Accept-Language:` codes such as `en-us` (US English), `en-gb` (British English), `fr` (French), `de` (German), `zh` (Chinese), `da` (Danish), `ar` (Arabic). `q=` is a weight from 0 to 1; no `q` means `1`. A language that is not listed is not accepted.\n4. `If-Modified-Since:` means a conditional GET (see that card): ask what the client must already have to send it.\n5. `User-Agent:` names the browser; it rarely matters.\nExample: `Accept-Language: de, en;q=0.5, en-gb;q=0.8` ranks German first (weight 1), then British English, then general English.\n- Trap: ranking by the order in the list. The weight decides, not the position.\nKey: each question has one line that answers it."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "2.4"
+      ],
+      "prompt": "Interactive problem, HTTP RESPONSE: how do you solve it?",
+      "answer": "Linked from 2.4 (interactive problem: The HTTP RESPONSE message).\nEach try shows a new reply; the questions are about the same fields every time.\n1. Status line, e.g. `HTTP/1.1 301 Moved Permanently`: version, **status code**, phrase. Success is a `2xx` code (see the card on status codes).\n2. `Content-Length:` the size of the body in **bytes**, not bits.\n3. Persistent or not: `Connection: close` means the server closes the TCP connection after this reply. With no such line, HTTP/1.1 keeps it open and HTTP/1.0 closes it.\n4. `Content-Type:` the type of the body, as `type/subtype`.\n5. `Server:` the server software and its version, e.g. `nginx/1.24.0`. Copy it in the exact form the question asks for.\n6. **ETag** (entity tag) is not taught in the course. It is a string the server gives one version of a resource, so a cache can tell versions apart. The question can ask about it even when the reply has no ETag line.\n- Trap: an error reply still has a body and a `Content-Length`: the server sends a short error page instead of the document.\nKey: status code for success, Content-Length for size, Connection for persistence."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "2.4"
+      ],
+      "prompt": "Interactive problem, Browser Cache: how do you solve it?",
+      "answer": "Linked from 2.4 (interactive problem: Browser Cache).\nA client asks for many objects one after another over HTTP/1.1 with `If-Modified-Since` (see the card on conditional GET). A share of the objects has not changed.\nAdd up what each request costs:\n- Every request costs one **RTT** (round trip time): the request goes out and a reply comes back, changed or not.\n- **Unchanged** object: the reply is `304 Not Modified` without the object, so no transmission time.\n- **Changed** object: add the time to transmit it.\n- Total = `N * RTT + C * T`, where `N` = number of requests, `C` = number of changed objects = `N * (percentage changed) / 100`, `T` = transmission time of one object.\n- The connection is already open (persistent HTTP/1.1), so no extra RTT for TCP setup. RTT and `T` are both in milliseconds, and so is the answer.\nExample with made-up numbers: 10 requests, RTT 30 ms, `T` = 2 ms, 70% unchanged: 3 changed, so `10 * 30 + 3 * 2 = 306` ms.\n- Trap: the problem gives the share that has **not** changed; the transmission time goes with the other share.\nKey: one RTT for every request, transmission time only for changed objects."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "2.4"
+      ],
+      "prompt": "Interactive problem, A comparison of client-server and P2P file distribution delays: how do you solve it?",
+      "answer": "Linked from 2.4 (interactive problem: A comparison of client-server and P2P file distribution delays).\nThe formulas are on the card \"Why does P2P file distribution scale better than client-server?\"; this is how to use them.\n1. One unit first: `F` (file size) is often in Gbits and rates in Mbps. `1 Gbit = 1000 Mbit`. Then Mbit divided by Mbps gives seconds.\n2. `N` = number of peers, `us` = server upload rate, `dmin` = the **smallest download** rate of the peers, `sum of ui` = all peers' upload rates added.\n3. Client-server: compute `N*F/us` and `F/dmin`; the time is the larger. The **root cause** is the term that is larger: the server (`s`), or the slowest peer (`c` plus that peer's number).\n4. P2P: compute `F/us`, `F/dmin` and `N*F/(us + sum of ui)`; the time is the largest. Root cause: server (`s`), client download (`c`) or combined upload (`cu`).\nExample: `F` = 2 Gbit = 2000 Mbit, 4 peers, `us` = 40 Mbps, downloads 30, 25, 50, 60 Mbps, uploads 10, 20, 15, 5 Mbps.\n- Client-server: `4*2000/40 = 200` s, `2000/25 = 80` s, so 200 s, caused by the server.\n- P2P: `2000/40 = 50` s, `2000/25 = 80` s, `8000/(40+50) = 88.9` s, so 88.9 s, caused by the combined upload.\n- Trap: taking the slowest **upload** rate, or the average, for `dmin`.\n- Trap: forgetting to add `us` to the peers' upload rates.\nKey: compute every term, take the largest; the largest term names the cause."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "2.3"
+      ],
+      "prompt": "Interactive problem, DNS Basics: how do you solve it?",
+      "answer": "Linked from 2.3 (interactive problem: DNS Basics).\nYou get the records on the TLD server and on a company's DNS server, then 13 short questions. Some are facts to learn, the rest are read off the record lists.\n- Write each record as `(name, value, type)`. Know the four types from the record card: **A** (host name, IP address), **NS** (domain, name of its authoritative server), **CNAME** (alias, real name), **MX** (domain, name of its mail server).\n- \"How many types at a server\": count the different types in that server's own list only.\n- Following a lookup: the TLD server answers with an NS record and, with it, an A record for the server that NS record names, so the local server can contact it directly. That server then gives the answer.\n- A website \"actually hosted on\" another name means one name is an alias for another. Mail for a domain needs the mail-server record.\n- \"name, value\" format: copy the two fields of the right record, in that order.\n- Facts asked: which transport protocol(s) DNS uses, its well-known port (named in the textbook's socket programming video, linked from 2.3), which server a host asks first, which server holds a company's records, and whether the local server caches.\n- Trap: the problem's own solution text may name more record types than the company's list holds. Count from the list.\nKey: read the answer off the record list; the type tells you which record."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "2.3"
+      ],
+      "prompt": "Interactive problem, DNS - Iterative vs Recursive Query: how do you solve it?",
+      "answer": "Linked from 2.3 (interactive problem: DNS - Iterative vs Recursive Query).\nThis is an animation, not a quiz: you choose the query type and watch the messages for one lookup. Use it to test that you can predict the messages before they play (see the card on iterative versus recursive queries).\n1. Before playing, write the servers in order: host, local DNS server, root, TLD, authoritative.\n2. Iterative: draw the arrows. Each server answers the local DNS server with a referral (\"ask this one next\"), so every arrow starts or ends at the local server.\n3. Recursive: each server passes the question one level down, and the answer comes back up the same chain.\n4. Count the one-way messages in each case, including host to local server and back. Then ask which server carries the most work in each, and why the root servers would be overloaded if every query were recursive.\n- Exam-style versions give a delay per message: total time = number of one-way messages times that delay, minus whatever a cache lets you skip.\nKey: iterative returns to the local server after every step; recursive goes down the chain and back."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "2.3"
+      ],
+      "prompt": "Interactive problem, Electronic Mail and SMTP: how do you solve it?",
+      "answer": "Linked from 2.3 (interactive problem: Electronic Mail and SMTP).\nA diagram numbers the steps of Alice sending an email to Bob, the same six steps as the L03 slides. See the cards \"How does an email travel from Alice's mail program to Bob's mailbox?\" and \"SMTP versus HTTP\".\n1. For each numbered point, find who talks to whom: Alice's mail program and her server, her server and Bob's server, or Bob's mail program and his server.\n2. Ask: is the mail **pushed** towards the receiver, or **pulled** by the reader? Pushing is SMTP; pulling is IMAP or, for webmail, HTTP.\n3. The problem says the mail programs use HTTP. Its solution applies that only to the pull step; it treats the sending steps as push steps, as the slides do.\n4. Facts asked: SMTP's transport protocol, push or pull for each protocol, and the server ports of SMTP and HTTP (L03 slide \"Addressing processes\").\n- Trap: some steps happen inside one machine (writing the mail, placing it in a mailbox) and use no network protocol; make sure the numbered point is an arrow between two machines.\nKey: sending is a push, reading is a pull."
+    }
+  ]
+}

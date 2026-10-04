@@ -1,0 +1,126 @@
+{
+  "note": "AI-drafted hint Cards (Claude, 2026-10-04) for the textbook Knowledge Checks and interactive problems linked from Z0025E Module 1: how to approach each kind of question, not the answers. Uploaded unchecked; each needs a classmate's Check.",
+  "cards": [
+    {
+      "course": "Z0025E",
+      "sources": [
+        "1.3"
+      ],
+      "prompt": "Knowledge Check, What is the Internet?: how do you answer questions about the two views of the Internet and about what counts as a protocol?",
+      "answer": "Linked from 1.3 (Knowledge Check: What is the Internet?).\n- The lecture gives two engineering views. Ask of each option: does it describe what the Internet is **built from**, or what it **does for applications**?\n- **Nuts-and-bolts view**: the parts. Devices, packet switches and links, the many networks they form, and the protocols that control them (see the card on the main components).\n- **Services view**: the Internet as an infrastructure that delivers data for applications, a platform to build them on.\n- Trap: a sentence about how a person uses the Internet in daily life is a user's view, not one of the two engineering views.\n- These questions say more than one option is right: tick every option that fits, not only the first.\n- **Protocol** scenarios: there is a protocol only if at least two parties exchange messages with an agreed format and order, and act on what they receive (see the card on network protocols). Something one person does alone has no protocol.\nKey: nuts-and-bolts = the parts, services = what it offers apps; a protocol needs two parties exchanging messages by rules."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "1.3"
+      ],
+      "prompt": "Knowledge Check, The Network Edge: how do you answer questions about access network speeds and physical media?",
+      "answer": "Linked from 1.3 (Knowledge Check: The Network Edge).\n- In the matching question each speed starts with **Wired** or **Wireless**. Sort by that first: it removes about half of the choices.\n- Then compare orders of magnitude: **Kbps** (thousand), **Mbps** (million), **Gbps** (thousand million), **Tbps** (million million bits per second).\n- Rates from the Network Edge video (8th edition): Wi-Fi tens to hundreds of Mbps; 4G cellular tens of Mbps; cable 40 Mbps to about 1.2 Gbps downstream, shared with the neighbours; DSL 24 to 52 Mbps downstream over the telephone line; Ethernet 100 Mbps or 1 Gbps at home, and much faster links elsewhere.\n- Read the small words: **per device**, **per user**, **per link**, **downstream** (towards the user). They also hint at which kind of network is meant.\n- Use 8th edition numbers only, as the question says: older books give lower speeds.\n- The physical-media question asks for the best rate **and** the lowest **bit error rate** (how often a bit arrives wrong). The video names which medium has both. Radio (Wi-Fi, cellular, satellite) suffers from noise and reflections; copper from electromagnetic noise.\nKey: sort by wired or wireless first, then by order of magnitude."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "1.3"
+      ],
+      "prompt": "Knowledge Check, Protocol Layers and Their Service Models: how do you answer questions about what each layer does and what its unit of data is called?",
+      "answer": "Linked from 1.3 (Knowledge Check: Protocol Layers and Their Service Models).\n- \"Match the function\": find the words that say **between whom** the data moves. Part of an application; process to process; host to host across the network; between neighbouring devices on one link; single bits on the medium. Each of these is exactly one layer (see the card on the five layers).\n- Trap: transport and network both move data end to end. Transport is about **processes** (running programs), network about **hosts** (see the card on transport versus network layer).\n- \"What is the packet called\": each layer has its own name for its unit of data, listed in the card on encapsulation. The physical layer moves bits, not packets.\n- \"Packet\" is the everyday word for any of them; in these questions give the exact layer name.\nKey: ask between whom the data moves; that names the layer, and the layer names the unit."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "1.3"
+      ],
+      "prompt": "Knowledge Check, Protocol Layers and Their Service Models: how do you answer questions about protocol headers and encapsulation?",
+      "answer": "Linked from 1.3 (Knowledge Check: Protocol Layers and Their Service Models).\n- Header figure: a frame on the way from a host to a router holds headers from several layers. Find which layer added each one.\n- Rule: the header added **last** sits **outermost**, at the front. Going down the stack, transport adds its header first, then network, then link (see the card on encapsulation).\n- So read the figure from the inside (next to the message) to the outside. The physical layer adds no header: it only sends bits.\n- Definition question: **encapsulation** happens going **down** the stack: take data from the layer above, add this layer's header, put the data in the payload (the data part) of this layer's packet.\n- Traps: taking the header off going up is the opposite (**decapsulation**). Other options describe real jobs (a retransmission timer, a checksum, a name lookup) that are not encapsulation.\nKey: each layer wraps from the outside, so the outermost header belongs to the lowest layer that adds one."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "1.4"
+      ],
+      "prompt": "Knowledge Check, The Network Core: how do you answer questions about routing versus forwarding and packet versus circuit switching?",
+      "answer": "Linked from 1.4 (Knowledge Check: The Network Core).\n- Routing versus forwarding: the two options swap the words. Remember which one is **local** (one router, input link to output link) and which is **global** (the whole path). See the card on forwarding and routing.\n- \"Which characteristics belong to packet (or circuit) switching?\": the same seven statements appear in both questions. Sort each statement once into one of two piles:\n- **Reserves** resources in advance, guaranteed rate, no queues, used by the old telephone network, built with **FDM** or **TDM** (dividing a link by frequency or by time slots).\n- Resources used **on demand**, packets may **queue** behind other users' packets, so **loss** and **variable delay** are possible; used by the Internet.\n- Then tick every statement in the right pile: more than one is correct each time.\nKey: reserve in advance = circuits; take turns on demand, with queues = packets."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "1.4"
+      ],
+      "prompt": "Knowledge Check, The Network Core: how do you answer questions about counting calls and choosing circuit or packet switching?",
+      "answer": "Linked from 1.4 (Knowledge Check: The Network Core).\n- Counting calls in a ring of circuit switches: each call holds one **circuit** (a reserved share) on every link it crosses. If calls may go between any two switches, the most calls fit when every call uses just **one** link. See the card on the Circuit Switching interactive problem for the method.\n- Choosing a technique for `N` users on a link of rate `R`: compute two totals.\n1. Total **average** demand: `N` times each user's average rate. If it is larger than `R`, the link is overloaded, and no technique works well.\n2. Total **peak** demand: `N` times each user's rate while sending. If it fits in `R`, every user can get a fixed share: circuit switching works, with no queues.\n3. Average fits but peak does not: only sharing on demand works, because users are rarely all active at once (see the card on why packet switching serves more users).\n- Made-up example: 4 users on 8 Mbps, each 1 Mbps average and 6 Mbps when sending: average 4 fits, peak 24 does not.\nKey: compare the average total and the peak total with the link rate."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "1.4",
+        "1.3"
+      ],
+      "prompt": "Knowledge Check, The Network Core: how do you answer questions about the network of networks and the traceroute exercise?",
+      "answer": "Linked from 1.4 (Knowledge Check: The Network Core).\n- \"Network of networks\" is about **structure**, not size or speed. Options that only say \"largest\" or \"fastest\" do not explain the phrase.\n- Look for options about many separate networks joined together: access networks at the edge, regional ISPs (Internet Service Providers), **tier-1** ISPs with national and global reach, and content provider networks (e.g. Google). The question says to tick two or more.\n- Traceroute exercise: run `traceroute gaia.cs.umass.edu` (macOS, Linux), `tracert gaia.cs.umass.edu` (Windows) or `tracepath` (Linux). The router you need is on the line just **before** the last one, which is the host itself (see the card on traceroute).\n- The path depends on your network and changes over time, so your result can differ from the one the site expects. If you see only two hops (a known problem on some networks), the site says to skip the question.\nKey: network of networks = many interconnected networks; traceroute's second-to-last line is the last router."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "1.4"
+      ],
+      "prompt": "Knowledge Check, Performance: how do you answer questions about delay components and computing transmission and propagation delay?",
+      "answer": "Linked from 1.4 (Knowledge Check: Performance).\n- Matching the delay names: look for the key word. Checking and table lookup in the router; **waiting** in a buffer; pushing bits **into** the link; bits **travelling** along the link. See the card on the four kinds of delay.\n- Transmission delay: `L/R`. `L` = packet size in **bits**, `R` = link rate in bits per second. Propagation delay: `d/s`. `d` = link length in **metres**, `s` = signal speed in metres per second.\n- Steps: convert first, then divide. Bytes to bits: multiply by 8. `k` = 10^3, `M` = 10^6, `G` = 10^9 (powers of 10, not 1024). km to m: multiply by 1000.\n- The wrong options are made by typical slips: forgetting the factor 8 (8 times too small), dividing `R/L` instead of `L/R` (a huge number of seconds), or a wrong power of 10.\n- Transmission delay does not depend on the link length; propagation delay does not depend on the packet size or the rate. A question about one link uses only that link's numbers.\n- Use the speed the question gives (here the speed of light, 3x10^8 m/s), even though the slides say about 2x10^8 m/s in cables.\nKey: convert to bits, bits per second and metres before you divide; L/R for transmission, d/s for propagation."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "1.4"
+      ],
+      "prompt": "Knowledge Check, Performance: how do you answer questions about end-to-end throughput and link utilization?",
+      "answer": "Linked from 1.4 (Knowledge Check: Performance).\n- Simple scenario: the throughput is the rate of the slowest link, not the sum of the rates (see the card on a file over two links). An option that adds the rates is a trap.\n- Shared middle link with `N` pairs and fair sharing: each pair gets `R/N` of it. Per-pair throughput = `min(Rs, Rc, R/N)`, the smallest of the server link, the client link and the fair share. Method in the card on the End-to-End Throughput interactive problem.\n- **Utilization** of a link = the rate the link really carries divided by its capacity. A number from 0 (idle) to 1 (full).\n- Each server or client link carries one pair's traffic: throughput divided by its own rate. The shared link carries **all `N`** pairs: `N` times the throughput, divided by `R`.\n- Even if the servers \"try to send at maximum rate\", each pair can only move as much as its bottleneck allows; use the throughput, not the server's link rate.\n- Give utilization as a decimal (e.g. `0.75` or `1.00`), not as a percentage.\nKey: throughput = smallest rate on the path; utilization = carried rate / capacity."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "1.4"
+      ],
+      "prompt": "Knowledge Check, Network Under Attack: how do you answer questions about security defences?",
+      "answer": "Linked from 1.4 (Knowledge Check: Network Under Attack).\n- Five descriptions, five defences, one each. Find the **goal** word in each description, then the defence that has that goal (see the card on sniffing, spoofing and denial of service).\n- **Confidentiality** (nobody else can read it): the defence that turns the content into unreadable code.\n- **Proving who you are**: the defence that checks identity, e.g. a password.\n- **Detecting changes** to a message and showing **who sent it**: the defence that attaches a value only the sender could make.\n- **Limiting** what given users may use or do: the defence that grants or refuses rights.\n- **Middleboxes** that filter or block traffic: devices in the network, not something the sender or receiver does to the message.\n- Trap: proving your identity and limiting your rights sound alike. The first asks \"who are you?\", the second \"what may you do?\".\nKey: match each description by its goal: hide, prove identity, detect tampering, limit rights, or filter traffic."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "1.4"
+      ],
+      "prompt": "Interactive problem, Circuit Switching: how do you solve it?",
+      "answer": "Linked from 1.4 (interactive problem: Circuit Switching). Four circuit switches A, B, C, D in a ring; each link has a number of **circuits** (reserved channels, one per call).\n- A call holds one circuit on **every** link it crosses, for the whole call.\n- Any calls allowed: the most calls fit when each call uses only one link. Then every circuit carries its own call.\n- When all circuits are busy, a new call request finds no free circuit: in circuit switching it is **blocked**, not queued.\n- Two-hop calls, clockwise only (A to C, B to D, C to A, D to B): each call uses exactly one of the links A-B or C-D, and exactly one of B-C or D-A. So the total is at most `min(AB + CD, BC + DA)`. Then build a mix of calls that reaches it.\n- Made-up example: AB = 8, BC = 5, CD = 7, DA = 4. Limit: `min(8 + 7, 5 + 4)` = 9. It is reached with 5 calls A to C and 4 calls C to A.\n- \"Can these calls all fit?\": every two-hop call needs 2 circuits. First check: total calls x 2 must not exceed the total circuits. Then add up the demand on each link and compare with its circuits; one overfull link is enough to say no.\nKey: a call holds one circuit on each link it uses; count circuits per link."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "1.4"
+      ],
+      "prompt": "Interactive problem, One-hop Transmission Delay: how do you solve it?",
+      "answer": "Linked from 1.4 (interactive problem: One-hop Transmission Delay). One router sends packets over one link.\n- **Transmission delay** `= L/R`: `L` = packet length in bits, `R` = link rate in bits per second. The result is in seconds (see the card on store-and-forward).\n- Convert `R` first: `R` in Mbps times 10^6 gives bits per second.\n- **Packets per second** the link can send `= R/L`, the inverse: one packet takes `L/R` seconds, so `R/L` of them fit in one second. The worked solution counts only whole packets.\n- Made-up example: `L` = 4000 bits, `R` = 2 Mbps = 2 000 000 bps. Delay = 4000 / 2 000 000 = 0.002 s; packets per second = 2 000 000 / 4000 = 500.\n- Rounding: \"two decimals after leading zeros\" means keep two digits after the zeros, e.g. `0.00034`, not `0.00`.\nKey: L/R seconds per packet, R/L packets per second."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "1.4"
+      ],
+      "prompt": "Interactive problem, Queuing Delay: how do you solve it?",
+      "answer": "Linked from 1.4 (interactive problem: Queuing Delay). Given: link rate `R` (bps), packet length `L` (bits), and `a`, the average number of packets arriving per second.\n1. **Traffic intensity** `I = La/R`: bits arriving per second divided by bits the link can send per second. No unit (see the card on queuing delay and packet loss).\n2. Put `I` into the delay formula the problem states, using exactly the form the site uses. Its worked solutions compute `I x (L/R) x (1 - I)`.\n3. The formula gives seconds; the question asks for **milliseconds**: multiply by 1000.\n- Made-up example: `R` = 1 000 000 bps, `L` = 1000 bits, `a` = 100. `I` = 1000 x 100 / 1 000 000 = 0.1. `L/R` = 0.001 s. Site formula: 0.1 x 0.001 x 0.9 = 0.00009 s = 0.09 ms.\n- The \"does it vary in practice\" question: think of how bursty real traffic is, and what that does to a queue.\n- Buffer questions: the site compares the packets that arrive with the packets that can leave in one second; a buffer cannot hold fewer than 0 packets. With a limited buffer, the packets that arrive when it is full are **dropped**: arrivals minus buffer size, if that is positive.\n- Caution: textbook queuing theory divides by `(1 - I)` instead, so the delay grows without limit as `I` nears 1, as on the slides. The site multiplies; use its form only to match its answers.\nKey: I = La/R first, then the site's formula, then seconds to milliseconds."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "1.4"
+      ],
+      "prompt": "Interactive problem, End-to-End Delay: how do you solve it?",
+      "answer": "Linked from 1.4 (interactive problem: End-to-End Delay). A packet crosses three links, each with its own rate and length.\n- For **each link**: transmission delay `L/R` (`L` = packet length in bits, `R` = that link's rate in bps) and propagation delay `d/s` (`d` = that link's length in metres, `s` = signal speed, given as 3x10^8 m/s).\n- Delay of one link = transmission + propagation. This problem leaves out processing and queuing delay.\n- Total delay = the sum over all three links: by store-and-forward, each router waits for the whole packet before sending it on (see the card on store-and-forward).\n- Units: lengths are given in **km**: multiply by 1000. Rates in Mbps: times 10^6. The answer is in seconds.\n- Made-up example: one link, `L` = 6000 bits, `R` = 2 Mbps, `d` = 300 km. Transmission = 6000 / 2 000 000 = 0.003 s. Propagation = 300 000 / 3x10^8 = 0.001 s. Link delay = 0.004 s.\n- A long slow link usually dominates; tiny values like `4.5E-6` (scientific notation: 4.5 x 10^-6) barely change the total. Round as the problem says: two digits after the leading zeros.\nKey: per link L/R + d/s, then add the links."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "1.4"
+      ],
+      "prompt": "Interactive problem, End-to-End Throughput: how do you solve it?",
+      "answer": "Linked from 1.4 (interactive problem: End-to-End Throughput). Four server-client pairs; each path has a server link `Rs`, a middle link `R` shared by all four, and a client link `Rc`.\n1. Fair sharing: each pair gets `R/4` of the middle link.\n2. **Throughput** per pair `= min(Rs, R/4, Rc)`: the smallest of the three. That link is the **bottleneck**; answer with its name (`Rs`, `R` or `Rc`).\n3. **Utilization** of a link = rate it really carries / its capacity. Server link: throughput / `Rs`. Client link: throughput / `Rc`. Shared link: it carries 4 x throughput, so `4 x throughput / R`, the same as throughput / (`R/4`).\n- The bottleneck link always has utilization 1; the others are below 1.\n- Made-up example: `Rs` = 40, `R` = 100, `Rc` = 80 Mbps, five pairs. Fair share 100/5 = 20, so throughput = 20 Mbps, the shared link is the bottleneck. Utilization: server 20/40 = 0.5, client 20/80 = 0.25, shared 5 x 20 / 100 = 1.\n- Trap: \"servers sending at maximum rate\" does not mean the link carries `Rs`: each flow is held to the bottleneck rate.\nKey: throughput = min(Rs, R/N, Rc); utilization = carried rate / capacity."
+    }
+  ]
+}

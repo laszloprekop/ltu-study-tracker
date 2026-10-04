@@ -1,0 +1,215 @@
+{
+  "note": "AI-drafted hint Cards (Claude, 2026-10-04) for the textbook Knowledge Checks and interactive problems linked from Z0025E Module 3: how to approach each kind of question, not the answers. Uploaded unchecked; each needs a classmate's Check.",
+  "cards": [
+    {
+      "course": "Z0025E",
+      "sources": [
+        "3.4"
+      ],
+      "prompt": "Knowledge Check, Introduction and Transport-layer Services: how do you answer questions about where the transport layer works and what IP's best effort means?",
+      "answer": "Linked from 3.4 (Knowledge Check: Introduction and Transport-layer Services, questions 1, 2 and 5).\nThese questions test two exact words: **where** the layer runs and **between whom** it delivers.\n- Where: ask which devices run all five layers. Routers and switches stop at the network layer or below, so a transport protocol only runs in the **end systems** (hosts). An option that puts it in routers, or at each end of every link, describes a lower layer.\n- Between whom: IP delivers from host to host; the transport layer extends that to **process to process**. A statement that says \"host-to-host\" for the transport layer is a word trap: read it slowly.\n- **Best effort** (IP): IP tries, but promises nothing: no delivery guarantee, no order guarantee, no guarantee the bits are unchanged. If a statement lists these \"no guarantees\", compare it with this list word by word.\n- See the card on what the transport layer gives that the network layer does not.\nKey: the transport layer lives only in the hosts and connects processes, on top of an IP that promises nothing."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "3.4"
+      ],
+      "prompt": "Knowledge Check, Introduction and Transport-layer Services: how do you answer questions about which services TCP and UDP provide?",
+      "answer": "Linked from 3.4 (Knowledge Check: Introduction and Transport-layer Services, questions 3 and 4).\nBoth questions give the same list of eight possible services; you tick the ones TCP (or UDP) really gives. Go through the list one option at a time and sort each into a group:\n1. **Reliability and order**: does the protocol resend lost data and put it back in order?\n2. **Flow control** (protects the receiver's buffer) and **congestion control** (protects the network).\n3. **Data shape**: a **byte stream** (no borders between the chunks the sender wrote) or **messages** (each send call arrives as one unit). A protocol has one of these, never both.\n4. **Guarantees on time or bandwidth** (maximum delay, minimum throughput).\nTraps:\n- Group 4 is the classic distractor. The Internet's transport protocols give no promise on delay or throughput, because IP below them gives none.\n- For UDP, remember how little it adds to IP: port numbers and a checksum. Anything that needs state or feedback (ACKs, windows) is not UDP.\n- The two lists are almost opposite, but not in every row: check each option for each protocol, do not just invert your first answer.\nKey: sort each option into reliability, control, data shape or guarantee, then ask what that protocol keeps state for."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "3.4"
+      ],
+      "prompt": "Knowledge Check, Multiplexing and Demultiplexing: how do you answer questions about the definitions of multiplexing and demultiplexing?",
+      "answer": "Linked from 3.4 (Knowledge Check: Multiplexing and Demultiplexing, questions 1 and 2).\nBoth questions offer the same four descriptions; one fits each word. Check each description against three facts:\n- **Direction**: multiplexing happens at the **sender** (data goes down, from sockets to the network layer). Demultiplexing happens at the **receiver** (a segment comes up from the network layer and goes to a socket).\n- **One segment, one socket**: each segment carries data from one socket only. A description that joins data from several sockets into one segment is wrong.\n- **Ends at a socket**: demultiplexing ends by delivering the data to the right socket. A description that sends the data back down to the network layer describes a router's forwarding, not the transport layer.\nMemory aid: \"de-\" means taking apart, so demultiplexing is the receiving side that sorts arriving segments.\nKey: multiplexing wraps one socket's data in a header on the way down; demultiplexing reads the header and picks the socket on the way up."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "3.4"
+      ],
+      "prompt": "Knowledge Check, Multiplexing and Demultiplexing: how do you answer questions about true or false statements on UDP and TCP port numbers?",
+      "answer": "Linked from 3.4 (Knowledge Check: Multiplexing and Demultiplexing, questions 3 to 6).\nEach statement describes segments with the same port number and asks if they share one socket, or can come from one socket. Answer with what identifies a socket:\n- **UDP socket**: identified by its own (IP address, port) only. On arrival, only the destination port decides the socket, whoever the sender is.\n- **TCP socket**: on a server, one socket per connection, identified by the **4-tuple** (source IP, source port, destination IP, destination port). Same destination port does not mean same socket.\n- Sending direction: a source port is just the port number of the socket that sends. Ask: can one socket talk to several partners? (A UDP program names the destination on each send.) Can several TCP connection sockets on one server have the same port number? (Recall the lecture's web server example on port `80`.)\nTraps:\n- The words \"always\" and \"never\": one counter-example makes the statement false.\n- Mixing up the two protocols: read twice whether the question says UDP or TCP.\n- See the card on UDP versus TCP demultiplexing for the rule itself.\nKey: UDP sorts by destination port only, TCP by the whole 4-tuple, so a port number alone never proves two TCP segments share a socket."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "3.4"
+      ],
+      "prompt": "Knowledge Check, Connectionless Transport: UDP: how do you answer questions about UDP's message boundaries and header fields?",
+      "answer": "Linked from 3.4 (Knowledge Check: Connectionless Transport: UDP, questions 1 to 3).\n- **Message boundaries**: ask whether the protocol keeps each application send as one unit. UDP sends each chunk the application writes as one datagram and delivers it as one chunk. TCP is the opposite (a byte stream). The same true/false question appears for TCP in the TCP Knowledge Check.\n- **Header fields**: the UDP header has only four fields of 2 bytes each (8 bytes). For each option ask: is it in the UDP header, in the IP header, in the TCP header, or not a header field at all?\n  - IP addresses and the upper-layer protocol number belong to the **IP** header.\n  - A sequence number belongs to **TCP**; UDP numbers nothing.\n  - The data (payload) follows the header; it is not a header field.\n- **Length field**: think about what the receiver cannot know otherwise. The data part has variable size. Options that give a reason from TCP or from even byte counts do not explain UDP's need.\n- See the card on the UDP segment header.\nKey: UDP keeps message borders, and its header is just ports, length and checksum."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "3.4"
+      ],
+      "prompt": "Knowledge Check, Connectionless Transport: UDP: how do you answer questions about the Internet checksum?",
+      "answer": "Linked from 3.4 (Knowledge Check: Connectionless Transport: UDP, questions 4 to 9).\n- **What is covered**: the L07 slides say the sender treats the whole UDP segment (header and data) **and the IP addresses**, added through a **pseudo-header**, as 16-bit numbers. The checksum field itself cannot be part of its own sum. Read every option word by word; one is worded oddly.\n- **What a match proves**: different checksums prove an error. Equal checksums prove nothing for sure: some errors cancel out. Any statement that says \"equal means all bits are correct\" is too strong.\n- **What it is**: a checksum adds 16-bit words (with wraparound) and then flips every bit (one's complement). A statement that it is a plain sum of bytes leaves out the important steps.\n- **Computing**: questions 6 and 7 ask for the checksum of two 16-bit words. Use the method on the card for the Internet Checksum interactive problem. Check your result: your sum plus your checksum must give all 1s.\n- **Flipped bits**: one flipped bit changes the total by a power of two, so it cannot disappear. Two flips can cancel: one word gains a bit value at a position where the other word loses the same value. The L07 slide \"weak protection\" shows such a pair.\nKey: a checksum mismatch proves an error, a match proves nothing; compute by adding, wrapping the carry, then flipping."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "3.4"
+      ],
+      "prompt": "Knowledge Check, Connectionless Transport: UDP: how do you answer questions about the ports and IP addresses of a reply?",
+      "answer": "Linked from 3.4 (Knowledge Check: Connectionless Transport: UDP, question 10).\nThe question describes one UDP segment that arrives at a host and asks for the four values in the reply. Method:\n1. Write down the four values of the arriving segment: source IP, source port, destination IP, destination port.\n2. The reply goes back to whoever sent the original, from the socket that received it. So **swap**: the reply's source is the original destination, and the reply's destination is the original source. Swap the IP addresses together with the ports.\n3. The ports come from the UDP header, the IP addresses from the IP datagram around it.\nExample with other numbers: a segment from `10.1.1.1` port `5000` to `20.2.2.2` port `53` gets a reply from `20.2.2.2` port `53` to `10.1.1.1` port `5000`.\nTraps: the answer list contains values that appear nowhere in the story (well-known ports, private addresses, small numbers). If a value is not one of the four in the arriving segment, it cannot be in the reply.\nKey: a reply swaps source and destination, for addresses and ports alike."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "3.4"
+      ],
+      "prompt": "Interactive problem, Internet Checksum: how do you solve it?",
+      "answer": "Linked from 3.4 (Interactive problem: Internet Checksum).\nYou get two 16-bit words in binary and must give their sum and then the checksum, as 16 bits without spaces.\n1. **Add** the two words in binary, from the right, as in school: 1+1 = 0 carry 1, 1+1+1 = 1 carry 1.\n2. **Wraparound**: if there is a carry out of the leftmost bit (a 17th bit), remove it and add 1 to the rightmost bit of the 16-bit result. This can create a new carry; keep adding.\n3. The result of steps 1 and 2 is the **sum** (question 1).\n4. **Checksum**: flip every bit of the sum, 0 to 1 and 1 to 0 (the **one's complement**). This is question 2.\nTiny example with 4-bit words: `1100` + `1010` = `10110`. The carry 1 wraps around: `0110` + 1 = `0111`. Checksum: `1000`.\nCheck: sum + checksum must be all 1s (`0111` + `1000` = `1111`). That is also what the receiver tests.\n- The decimal values given next to the words are not needed. If you prefer decimal: add them, and if the result is 65536 or more, subtract 65535 (this is the wraparound). Then the checksum is 65535 minus the sum. Convert back to 16 binary digits, with leading zeros.\nTraps: forgetting the wraparound; flipping before adding; dropping leading zeros (the answer must have 16 digits).\nKey: add, wrap the 17th bit around to the right end, then flip every bit."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "3.4"
+      ],
+      "prompt": "Interactive problem, UDP Mux and Demux: how do you solve it?",
+      "answer": "Linked from 3.4 (Interactive problem: UDP Mux and Demux).\nThe figure shows two clients, one server, the Python code that creates each socket, and four packets A to D with arrows. For each packet you give the source and destination port.\n1. **Find each socket's port in the code.** A socket that calls `bind(('', N))` has port N: this is the server's socket. A client socket that does not bind gets a port chosen by its operating system; the figure shows that number next to the socket.\n2. **Find the direction of each packet** from its arrow: client to server, or server to client.\n3. **Source port** = the port of the socket that sends the packet. **Destination port** = the port of the socket that receives it.\n4. A reply simply swaps the two numbers of the request it answers.\nFacts the problem uses:\n- The server has **one** UDP socket for both clients (UDP demultiplexes on destination port only), so every packet to the server has the same destination port, and every packet from the server has that number as source port.\n- The two clients are different hosts, so their port numbers can be equal or different; only the arrows tell you which client a packet belongs to.\nKey: source is the sender's socket port, destination the receiver's; replies swap them."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "3.4"
+      ],
+      "prompt": "Interactive problem, TCP Mux and Demux: how do you solve it?",
+      "answer": "Linked from 3.4 (Interactive problem: TCP Mux and Demux).\nThe figure shows two TCP clients (one with one connection, one with two), a server with three connection sockets, the Python code, and packets A to D. For each packet you give the source and destination port.\n1. **Server port**: the server's **welcoming socket** calls `bind` with a port number and `listen`s. Each `accept()` creates a new **connection socket** for one client. That new socket keeps the **same port number** as the welcoming socket; only the 4-tuple makes it different.\n2. **Client ports**: each client socket `connect`s to the server's port and gets its own port, chosen by the operating system and shown in the figure. A client with two connections has two sockets, so two different client ports.\n3. **Direction** from the arrow. Client to server: source = that client socket's port, destination = the server port. Server to client: the reverse.\n4. To see which client socket a server socket belongs to, follow the lines in the figure (each connection socket is paired with one client socket).\nTrap: thinking each accepted connection gets a new server port. It does not; on the server side every packet uses the welcoming port. The client side is where the numbers differ.\n- See the card on UDP versus TCP demultiplexing.\nKey: all server sockets share the listening port; each client connection has its own port, and replies swap the two."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "3.2"
+      ],
+      "prompt": "Knowledge Check, Principles of Reliable Data Transfer: how do you answer questions about rdt mechanisms and FSM transition sequences?",
+      "answer": "Linked from 3.2 (Knowledge Check: Principles of Reliable Data Transfer, questions 1 to 5).\n- **Matching mechanisms to purposes** (question 1): for each purpose, ask which problem it solves. Detect flipped bits: the checksum. Tell the sender a packet arrived well or badly: ACK and NAK. Spot a copy: sequence numbers. Get the data there in the end: retransmission. See the card on which problem each mechanism solves.\n- **Transition sequences** (questions 2 to 5): you get the sender and receiver FSMs (finite state machines) with labelled transitions (S1, R1, ...). Method:\n1. Write down the start state of both sides.\n2. A transition can only happen in the state it leaves from, and only if its event happened: a receiver transition needs a packet that the sender sent before; a sender transition on an ACK or NAK needs a reply the receiver sent before.\n3. Read each transition's action: what does it send? That message causes the next transition on the other side, and corruption decides which one (the \"corrupt\" or the \"not corrupt\" arrow).\n4. Follow both machines step by step, updating each state, until both return to the start states the question names.\nTraps: two sender transitions in a row without a receiver transition between them (impossible when each needs a reply); a receiver transition for a packet that was never sent; in rdt 2.1, forgetting that a duplicate packet (wrong sequence number) is ACKed again but not delivered.\nKey: trace both state machines in turn; every transition needs a message that the other side has already sent."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "3.2"
+      ],
+      "prompt": "Knowledge Check, Principles of Reliable Data Transfer: how do you answer questions about channel utilization of stop-and-wait and pipelining?",
+      "answer": "Linked from 3.2 (Knowledge Check: Principles of Reliable Data Transfer, questions 7 to 9).\nAll three use one packet size L (bits), link rate R (bits per second) and round-trip time RTT.\n1. Convert first: `10K bits` means 10,000 bits, `1 Mbps` = 1,000,000 bits per second, `1 ms` = 0.001 s.\n2. **Transmission time** `L/R`: how long it takes to put one packet on the link.\n3. **Stop-and-wait**: `U = (L/R) / (RTT + L/R)`. When L/R is small next to RTT, `U` is about `(L/R) / RTT`.\n4. **Packets before the first ACK returns**: the sender can keep sending for about one RTT (plus its own L/R), so about `(RTT + L/R) / (L/R)` packets, roughly `RTT / (L/R)`.\n5. **Unlimited pipelining**: if the sender never has to stop, the link never idles, so utilization reaches its upper limit.\nExample with other numbers: L = 8,000 bits, R = 2 Mbps, RTT = 196 ms. L/R = 4 ms. U = 4 / (196 + 4) = 0.02. About 200 / 4 = 50 packets fit in before the first ACK.\nTraps:\n- The answer options are powers of ten. The exact formula and the shortcut differ a little; choose the closest option.\n- Mixing milliseconds and microseconds, or bits and bytes.\n- Utilization is a fraction of time: it can never be above 1.\n- See the card on why stop-and-wait is so slow.\nKey: compute L/R in the same unit as RTT, then compare the time spent sending with the time spent waiting."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "3.2"
+      ],
+      "prompt": "Knowledge Check, Principles of Reliable Data Transfer: how do you answer questions about pipelining, cumulative ACKs, Go-Back-N and Selective Repeat?",
+      "answer": "Linked from 3.2 (Knowledge Check: Principles of Reliable Data Transfer, questions 6 and 10 to 14).\n- **Cumulative ACK** (question 6): use the lecture's Go-Back-N definition: `ACK(n)` acknowledges every packet up to **and including** n. Careful: in TCP the ACK number is the **next** byte expected, so it is one past the data acknowledged. Know which protocol the question is about.\n- **Pipelining** (question 10): several packets are \"in flight\" (sent, not yet received or not yet ACKed). Test each statement: does pipelining change how many ACKs the receiver sends per packet? Does Go-Back-N resend only lost packets? (No: after a timeout it resends the lost one and everything after it in the window.)\n- **Go-Back-N receiver, discard or keep** (questions 11 and 12): weigh the real reasons (simplicity; the sender will resend that packet anyway; a kept packet is safe from a later error) against options that sound clever but are false in general (\"errors come in groups\", \"complex is always better\").\n- **Selective Repeat receiver** (questions 13 and 14): data must go up to the application **in order**. A correctly received packet waits in the buffer while a packet with a **lower** number is still missing. The receiver also re-ACKs packets below its window: ask what the sender would do if its ACK had been lost and nobody ever sent it again.\n- See the card on Go-Back-N versus Selective Repeat.\nKey: ask what each side knows; the sender only learns from ACKs, and a packet can only go up when everything before it has."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "3.2",
+        "3.3"
+      ],
+      "prompt": "Knowledge Check, Connection-oriented Transport: TCP: how do you answer questions about TCP's byte stream, segment fields and connection messages?",
+      "answer": "Linked from 3.2 (Knowledge Check: Connection-oriented Transport: TCP, questions 1, 2 and 8). Connection management is taught in Lecture 6 (3.3).\n- **Byte stream** (question 1): TCP does not keep the borders between the chunks the application writes. It may join several writes into one segment or split one write over several. Compare with the same question for UDP.\n- **Segment fields** (question 2): match each description with a header field. Watch the near-twins:\n  - **sequence number** (first byte of this segment's data) versus **ACK number** (next byte expected from the other side);\n  - the **ACK bit** (a flag saying \"the ACK number field is valid\") versus the ACK number field itself;\n  - the **receive window** (free buffer space, for flow control) versus the **header length** (the header can have options, so its size varies);\n  - the TCP checksum, like UDP's, also covers some IP header fields (the pseudo-header).\n- **Connection messages** (question 8): open with `SYN` (client asks), `SYNACK` (server agrees and ACKs the SYN); close with `FIN` (I am done sending), answered with an ACK; `RST` (reset) aborts after an error. The answer list writes the reply to a FIN as \"FINACK\"; the slides draw it as an ACK.\nKey: TCP sends a stream of bytes; most field questions are about telling sequence number, ACK number and ACK bit apart."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "3.2"
+      ],
+      "prompt": "Knowledge Check, Connection-oriented Transport: TCP: how do you answer questions about sequence and ACK numbers, RTT estimation and the timer?",
+      "answer": "Linked from 3.2 (Knowledge Check: Connection-oriented Transport: TCP, questions 3 to 6).\n- **ACK = sequence number + 1?** (question 3): TCP numbers **bytes**, not segments. ACK number = sequence number + number of data bytes. It is only \"+1\" when the segment carries one byte (a typed character).\n- **ACKs with a loss** (question 4): the receiver always ACKs the next byte it is missing. Method: list the segments in arrival order and after each one write the lowest byte not yet received.\n  - Before the gap: the ACK moves up by each segment's size.\n  - After the gap: every later segment gets the same ACK again (a **duplicate ACK**), even if the receiver buffers it.\n  - When the missing segment finally arrives: the ACK jumps past everything buffered behind it.\n  - Example with other numbers: segments of 50 bytes at 0, 50, 100, 150, with 50 lost, give ACKs 50, 50, 50, then 200 after the resend.\n- **EWMA** (question 5): `EstimatedRTT` is computed from the previous `EstimatedRTT`, which was computed from the one before. Unfold the formula once and see whether older samples are still in it (with smaller weight).\n- **Timer on an ACK** (question 6): TCP has one timer, for the oldest unACKed segment. On a new cumulative ACK: if unACKed data remains, restart the timer; if nothing is outstanding, stop it. Check which case the figure shows.\nKey: ACK is the next missing byte; a cumulative ACK can cover segments whose own ACKs were lost."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "3.2",
+        "3.3"
+      ],
+      "prompt": "Knowledge Check, Connection-oriented Transport: TCP: how do you answer questions about flow control and fast retransmit statements?",
+      "answer": "Linked from 3.2 (Knowledge Check: Connection-oriented Transport: TCP, questions 7 and 9). Flow control is taught in Lecture 6 (3.3).\n- **Flow control** (question 7): read the condition inside the statement. If the sender always keeps its unACKed data within the receive window `rwnd` the receiver advertised, ask: can the buffer still overflow? See the card on TCP flow control.\n- **Fast retransmit** (question 9): a duplicate ACK means \"a segment arrived, but there is still a gap before it\". Ask what can cause a gap besides loss:\n  - if the channel can **reorder** segments, a later segment can arrive before an earlier one that is only delayed, so duplicate ACKs do not prove a loss; three are just strong evidence;\n  - if the channel can neither reorder nor corrupt, any gap must come from a loss, so how many duplicate ACKs would be enough to be sure?\n- Both statements can be true at once: judge each on its own assumption.\n- See the card on how a TCP sender finds out a segment was lost.\nKey: for each statement, first fix its assumptions about the channel, then reason from them."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "3.2"
+      ],
+      "prompt": "Interactive problem, Reliable data transfer: rdt 3.0: how do you solve it?",
+      "answer": "Linked from 3.2 (Interactive problem: Reliable data transfer: rdt 3.0).\nYou get the rdt 3.0 sender and receiver FSMs with numbered transitions (S0, S1, ... and R0, R1, ...) and a sequence of transitions with one replaced by `*`. You name the missing one.\nFirst learn what each numbered transition does. The sender has four states: wait for call 0, wait for ACK0, wait for call 1, wait for ACK1. In \"wait for ACK\" it can: get the right ACK (stop the timer, move on), get a corrupt or wrong ACK (do nothing), or time out (resend, restart the timer). The receiver ACKs a good packet with the expected number and delivers it; a duplicate or corrupt packet gets the ACK of the last good packet again.\nMethod:\n1. Follow the sequence from the start and keep both current states in mind.\n2. Look at the transition just after the `*`. Which state must its machine be in, and which message must have arrived for it to happen?\n3. The `*` is the transition that brings that machine into that state or sends that message. It must leave from the state the transitions before it ended in.\n4. Check the whole sequence again with your answer filled in.\nClues: a timeout transition means no correct ACK came back in time (a lost packet, a lost ACK, or a premature timeout). An event with \"do nothing\" (Λ) still counts as a transition.\n- See the card on which problem each reliable data transfer mechanism solves.\nKey: work backwards from the transition after the gap: what state and what message does it need?"
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "3.2"
+      ],
+      "prompt": "Interactive problem, TCP sequence and ACK numbers, with segment loss: how do you solve it?",
+      "answer": "Linked from 3.2 (Interactive problem: TCP sequence and ACK numbers, with segment loss).\nYou get the first sequence number, the size of each segment in bytes, and a figure showing which segment is lost.\n1. **Sequence numbers**: the first segment has the given number. Each next one = previous sequence number + previous segment's data size in bytes.\n2. **ACK numbers**: for each segment that arrives, the receiver answers with the next byte it expects in order: the first byte it does not have yet.\n3. A lost segment gets no ACK: write `x`.\n4. After a gap, every later segment gets the same ACK (the start of the gap). That number never moves past the missing segment.\nExample with other numbers: start 50, 100-byte segments: sequence numbers 50, 150, 250. If the second is lost, ACKs are 150, `x`, 150.\nTraps:\n- Adding 1 instead of the segment size (TCP counts bytes).\n- ACKing the sequence number of the segment that just arrived. The ACK names the **next** byte expected.\n- If the first segment is the lost one, ask: what is the first byte the receiver still needs?\n- See the card on TCP sequence number versus acknowledgement number.\nKey: sequence numbers add the bytes sent; the ACK is always the first byte still missing."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "3.2"
+      ],
+      "prompt": "Interactive problem, TCP RTT and timeout: how do you solve it?",
+      "answer": "Linked from 3.2 (Interactive problem: TCP RTT and timeout).\nYou get a starting `EstimatedRTT` and `DevRTT`, three measured RTTs (**SampleRTT**), α and β. After each sample you compute three values.\nFormulas (all in milliseconds):\n- `DevRTT = (1-β)*DevRTT + β*|SampleRTT - EstimatedRTT|`: how much the RTT varies. The bars mean the absolute value (always positive).\n- `EstimatedRTT = (1-α)*EstimatedRTT + α*SampleRTT`: the smoothed RTT.\n- `TimeoutInterval = EstimatedRTT + 4*DevRTT`: the new values from this round.\nOrder: in this problem's solution, `DevRTT` uses the `EstimatedRTT` from **before** the new sample, so compute `DevRTT` first (or note the old value before updating). The timeout then uses both new values.\nRepeat for the next sample, starting from the values you just computed.\nExample with other numbers: EstimatedRTT 100, DevRTT 10, sample 140, α = 0.125, β = 0.25. DevRTT = 0.75*10 + 0.25*40 = 17.5. EstimatedRTT = 0.875*100 + 0.125*140 = 105. Timeout = 105 + 4*17.5 = 175 ms.\nTraps: swapping α and β; using the new EstimatedRTT in the DevRTT formula; rounding between steps (keep full precision, round only the answers you type in, to two decimals).\n- See the card on how a TCP sender finds out that a segment was lost.\nKey: update DevRTT with the old estimate, then the estimate, then timeout = estimate + 4 deviations."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "3.2"
+      ],
+      "prompt": "Interactive problem, TCP retransmissions: how do you solve it?",
+      "answer": "Linked from 3.2 (Interactive problem: TCP retransmissions).\nA sender sends a first window of segments, one per time unit; the figure shows which segments and which ACKs are lost. You give the sequence numbers sent, the ACKs sent, and what the sender sends when the ACKs come back.\n1. **First window**: sequence number of segment k = first sequence number + (k-1) × segment size in bytes.\n2. **Timing**: a segment sent at time t arrives at t + delay; its ACK (if any) leaves then and arrives at t + 2 × delay.\n3. **ACKs**: a lost segment gives `x`. For an arriving segment the ACK is the next in-order byte expected. The problem says out-of-order segments are thrown away, so after a gap the receiver repeats the same ACK.\n4. **Sender on each arriving ACK**:\n  - a **new** ACK (higher than any before) acknowledges data, so the window slides and the sender sends the **next new** segment, continuing the numbering after the last segment it sent;\n  - a **duplicate** ACK, or an ACK that was lost, frees nothing, so nothing new is sent: `x`.\n5. The problem says there are no timeouts, and too few duplicate ACKs arrive for a fast retransmit, so no segment is resent in the times asked.\nTrap: thinking the segment sent after an ACK is a retransmission. Here the window slides on new ACKs only, and the new segments continue the numbering. Also, a lost ACK does no harm if a later cumulative ACK covers the same bytes.\nKey: only a new cumulative ACK lets the sender send more; duplicates and lost ACKs let it send nothing."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "3.3"
+      ],
+      "prompt": "Knowledge Check, Principles of Congestion Control: how do you answer questions about flow control versus congestion control, and retransmission fractions?",
+      "answer": "Linked from 3.3 (Knowledge Check: Principles of Congestion Control, questions 1 and 2).\n- **Pictures** (question 1): ask who is overwhelmed. **One receiver** that cannot take in what one sender gives (a container overflowing, a listener who cannot keep up) needs **flow control**. **Many senders** that together overload a shared resource (a crowd, a traffic jam) need **congestion control**. See the card on flow control versus congestion control.\n- **Retransmission fraction** (question 2): uses the lecture's notation. `λ'in` is everything the sender transmits (original data plus resent copies). `λout` is the useful data delivered to the receiving application.\n  - If no unneeded copies are sent, each piece of data is delivered once, so `λout` equals the rate of original data.\n  - Everything else in `λ'in` is retransmissions: fraction = `(λ'in - λout) / λ'in`.\n  - Example with other numbers: if `λout = 0.6 × λ'in`, then 40% of what is sent is retransmissions.\n- The bottleneck value R/2 in the question sets the scene; it is not needed for the fraction.\nKey: flow control is one receiver, congestion control is many senders; resent share = (sent - delivered) / sent."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "3.3"
+      ],
+      "prompt": "Knowledge Check, Principles of Congestion Control: how do you answer questions about end-to-end, network-assisted and delay-based congestion control?",
+      "answer": "Linked from 3.3 (Knowledge Check: Principles of Congestion Control, questions 3 to 5).\nFor each event ask one question: **who tells the sender** about congestion?\n- **Network-assisted**: a router sends or writes an explicit signal: a message to the host, or bits marked in the datagram header (as in ECN) that the receiver passes back.\n- **End-to-end**: the network says nothing; the sender **infers** congestion from what it observes itself: a missing ACK (loss) or a growing RTT (delay).\n- **Delay-based** is one kind of end-to-end control: the sender measures RTTs and uses them as its congestion signal.\nTraps:\n- A router dropping a packet is not \"network-assisted\": the drop is not a message. The sender still has to notice the loss itself.\n- A router delaying a packet is the same: delay is something the sender measures.\n- The **receive window** is about the receiver's buffer: that is flow control, not congestion control of either kind.\n- See the card on how a TCP sender can learn that the network is congested.\nKey: explicit signal from a router is network-assisted; anything the sender has to infer from loss or delay is end-to-end."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "3.3"
+      ],
+      "prompt": "Knowledge Check, TCP Congestion Control: how do you answer questions about AIMD, slow start and senders that do not slow down?",
+      "answer": "Linked from 3.3 (Knowledge Check: TCP Congestion Control, questions 1 to 4).\n- **AIMD statements** (question 1): check each against the slide rules. Which signal does TCP use (loss, not RTT)? Who gives the signal (the sender infers it: end-to-end)? What happens to `cwnd` on each kind of loss? Words like \"always\" and \"whenever loss is detected\" are tests: is the reaction the same for a timeout and for a triple duplicate ACK? See the card on triple duplicate ACK versus timeout.\n- **How the rate is regulated** (question 2): TCP does not measure its rate and compare it. It limits the **unACKed bytes in flight** to `cwnd`; sending rate is about `cwnd / RTT`.\n- **Slow start** (question 3): the name is misleading. Compare growth per RTT: doubling (+1 MSS per ACK) against adding 1 MSS per RTT. Which grows faster?\n- **A sender that does not slow down** (question 4): ask what a router can really do. Routers in this model do not police flows or send \"slow down\" orders to TCP; a full buffer drops arriving packets from every flow alike. See the card on UDP's lack of congestion control (\"no Internet police\").\nKey: TCP backs off on loss by shrinking a window, grows exponentially in slow start, and the network itself enforces nothing."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "3.3"
+      ],
+      "prompt": "Knowledge Check, TCP Congestion Control: how do you answer questions about TCP CUBIC and delay-based congestion control?",
+      "answer": "Linked from 3.3 (Knowledge Check: TCP Congestion Control, questions 5 and 6).\n- **CUBIC** (question 5): picture the two curves after a loss, both starting from the same cut window, below `Wmax` (the window where the last loss happened). AIMD is a straight line. CUBIC rises fast at first, then flattens as it gets close to `Wmax`. Test each statement against this picture: does \"always faster\" hold near `Wmax`? Is a curve that rises fast early and then flattens above the straight line at every moment before `Wmax`? See the card on TCP CUBIC versus classic AIMD.\n- **Delay-based** (question 6): `cwnd / RTTmin` is the throughput the sender would get if there were no queue at all (RTTmin is the smallest RTT ever seen, the path without waiting).\n  - Measured throughput close to it: the path is not congested, so send more.\n  - Far below it: packets are waiting in queues, so send less.\n  - Above it: ask if that is even possible, given that `cwnd / RTTmin` is the best case.\nKey: CUBIC is fast far from Wmax and slow near it; in delay-based control, cwnd/RTTmin is the ceiling the measured throughput is compared with."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "3.3"
+      ],
+      "prompt": "Knowledge Check, Evolution of Transport Layer Functionality: how do you answer questions about QUIC's streams and its place in the application layer?",
+      "answer": "Linked from 3.3 (Knowledge Check: Evolution of Transport Layer Functionality, questions 1 and 2).\nBoth questions are \"select all that apply\". Check each option against the L06 slides on QUIC; reject options that claim more than the slides.\n- **Streams** (question 1): the slides say each stream has its **own** reliable data transfer and security, but all streams share **one** congestion control. Test every option against these two facts: what does a stream have of its own, and what does it share? A claim about throughput depends on the shared part; a claim about errors and waiting depends on the separate parts.\n- **Application layer** (question 2): look for real, structural advantages:\n  - one handshake sets up reliability, congestion control and security together (TCP plus TLS needs two in a row);\n  - the textbook also points out that a protocol inside the application can be updated as often as the app, without waiting for an operating system update (not on the slides).\n  - Be suspicious of options that promise \"better performance\" just because of the layer, or because the algorithms are \"different\": the QUIC specification says its loss detection and congestion control parallel TCP's.\n- See the card on QUIC.\nKey: QUIC's gains are one handshake, independent streams and easy updates, not more bandwidth or magic algorithms."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "3.3"
+      ],
+      "prompt": "Interactive problem, TCP congestion window evolution: how do you solve it?",
+      "answer": "Linked from 3.3 (Interactive problem: TCP congestion window evolution).\nYou get a plot of `cwnd` (in segments) at the start of each time unit (one unit = one RTT), plus the start values of `cwnd` and `ssthresh`. You name the times of each phase, of each loss and of each ssthresh change.\nRead the plot point by point and compare each point with the one before it and with the current `ssthresh`:\n- **Slow start**: cwnd is below ssthresh and **doubles** each time unit.\n- **Congestion avoidance**: cwnd has reached ssthresh (equal counts) and grows by **1** per time unit.\n- **Timeout**: the next point falls to **1**. The loss belongs to the time of the flight **before** the drop; slow start follows.\n- **Triple duplicate ACK**: the next point falls to about half, not to 1. The slides give `cwnd = ssthresh + 3` for TCP Reno (the plot may round this to half), and that time unit is **fast recovery**; after the next new ACK, cwnd = ssthresh and congestion avoidance continues.\n- **ssthresh**: set to half of cwnd just before each loss. Like the new cwnd, the new value shows from the time after the loss (the problem says so explicitly).\nTiny example with other numbers: ssthresh 4. Times 1 to 3: cwnd 1, 2, 4 (slow start at 1 and 2; at 3 cwnd equals ssthresh, so congestion avoidance). Later, a triple duplicate ACK in a flight with cwnd 10 sets ssthresh to 5 and the next point to 5 + 3 = 8 (fast recovery), then 5, 6, 7 (congestion avoidance).\nTrap: a time is in only one phase; check the first point after each drop carefully.\n- See the card on triple duplicate ACK versus timeout.\nKey: doubling is slow start, +1 is congestion avoidance, a fall to 1 follows a timeout, a fall to about half follows a triple duplicate ACK."
+    }
+  ]
+}

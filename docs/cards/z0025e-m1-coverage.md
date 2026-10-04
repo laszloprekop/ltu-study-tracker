@@ -70,4 +70,57 @@ in `data/cards/2026-10-04-z0025e-m1.json`. Cards are named by prompt.
   (1.2, L00 slides) is about course logistics, not concepts.
 - **Not readable:** several files linked from 1.2 and 1.3 returned 404 from Canvas (see the module
   index), and the Knowledge Checks and Problems are external links not downloaded. The graded Module
-  Quiz (1.5) was not used.
+  Quiz (1.5) was not used. (Since downloaded: see Textbook exercises below.)
+
+## Textbook exercises
+
+Hint cards drafted 2026-10-04 (Claude) in `data/cards/2026-10-04-z0025e-m1-exercises.json`, from the
+cached Knowledge Checks and interactive problems (Kurose and Ross, 8th edition site) that items 1.3
+and 1.4 link to. They say how to approach each kind of question, not the answers; worked examples
+use made-up numbers. "Earlier cards" are the concept cards the hints point to.
+
+| Exercise | Linked from | Hint cards | Earlier cards |
+|---|---|---|---|
+| Knowledge Check: What is the Internet? (3 questions) | 1.3 | ...the two views of the Internet and about what counts as a protocol? | Main components; Network protocol |
+| Knowledge Check: The Network Edge (2) | 1.3 | ...access network speeds and physical media? | Access network and physical media |
+| Knowledge Check: Protocol Layers and Their Service Models (4) | 1.3 | ...what each layer does and what its unit of data is called?; ...protocol headers and encapsulation? | Five layers; Encapsulation; Transport versus network layer |
+| Knowledge Check: The Network Core (7) | 1.4 | ...routing versus forwarding and packet versus circuit switching?; ...counting calls and choosing circuit or packet switching?; ...the network of networks and the traceroute exercise? | Forwarding and routing (4.2); Packet versus circuit switching; Why packet switching serves more users; Traceroute |
+| Knowledge Check: Performance (10) | 1.4 | ...delay components and computing transmission and propagation delay?; ...end-to-end throughput and link utilization? | Four kinds of delay; Two-link throughput; Store-and-forward |
+| Knowledge Check: Network Under Attack (1) | 1.4 | ...security defences? | Sniffing, spoofing and denial of service |
+| Interactive: Circuit Switching | 1.4 | Interactive problem, Circuit Switching: how do you solve it? | Packet versus circuit switching |
+| Interactive: One-hop Transmission Delay | 1.4 | Interactive problem, One-hop Transmission Delay: how do you solve it? | Store-and-forward |
+| Interactive: Queuing Delay | 1.4 | Interactive problem, Queuing Delay: how do you solve it? | Queuing delay and packet loss |
+| Interactive: End-to-End Delay | 1.4 | Interactive problem, End-to-End Delay: how do you solve it? | Four kinds of delay; Store-and-forward |
+| Interactive: End-to-End Throughput | 1.4 | Interactive problem, End-to-End Throughput: how do you solve it? | Two-link throughput |
+
+Knowledge Check prompts start "Knowledge Check, <title>: how do you answer questions about"; the
+table shows the rest.
+
+### Notes on the exercises
+
+- **Queuing Delay formula:** the interactive problem states the delay as `I(L/R)(1 - I)` and its
+  worked solutions multiply by `(1 - I)`. Queuing theory, and the slides' curve where the delay
+  grows without limit as `La/R` nears 1, need a division by `(1 - I)`. With the site's form the
+  delay falls back toward 0 at full load. The hint card tells students to use the site's form to
+  match its answers and says why it differs.
+- **Queuing Delay, buffer questions:** the worked solution for "packets in the buffer 1 second
+  later" subtracts `1000 / delay` from the arrivals, treating the queuing delay as the time to send
+  one packet. This is not a model the course teaches; the card describes it only as "the site
+  compares arrivals with departures in one second".
+- **Link utilization** (Performance Knowledge Check, questions 8 to 10, and End-to-End Throughput)
+  is not in the L02 slides or the Performance video. The hint cards define it (carried rate divided
+  by capacity).
+- **Propagation speed:** the exercises give 3x10^8 m/s (speed of light); the L02 slides give about
+  2x10^8 m/s for signals in media. The cards say to use the value the question gives.
+- **Access network speeds** (Network Edge Knowledge Check) are not on the L01 slides; they are in
+  the Network Edge video, which the hint card quotes.
+- **FDM and TDM** appear in the Network Core Knowledge Check (as a property of one switching
+  technique); they are in the L02 slides and video, but the note above left them out of the
+  concept cards. The hint card explains the two terms in one line.
+- **Circuit Switching, question 4:** the worked solution refers to "question 4" where it means
+  question 3, and compares with the clockwise-only limit. The conclusion also follows without the
+  clockwise rule (two circuits per call against the total circuits); the card gives that check.
+- **Traceroute question** (Network Core Knowledge Check): the expected router name depends on the
+  network and the date; the site itself warns that its answer may be out of date.
+- Exercise text was read from the git-ignored cache; the figures (link rates in the Performance
+  and Network Core checks, the header figure) were not cached, so the cards do not depend on them.

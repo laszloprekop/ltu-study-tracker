@@ -46,7 +46,12 @@ Since 2026-10-04 a module's Cards are drafted from what the module teaches, not 
    Source.
 4. `docs/cards/<course>-m<N>-coverage.md` records the audit: each objective and focus question, the
    Cards covering it, and corrections to earlier Cards. Only our own wording is committed.
-5. `node tools/cards/upload.mjs <file> --dry-run` checks the file; then upload.
+5. The textbook exercises the pages link (Knowledge Checks, interactive problems on
+   gaia.cs.umass.edu, cached by the same tool) get hint Cards: how to recognise and approach each
+   kind of question, the formula with every symbol explained, the traps; never the answers or a
+   solved copy of the exercise. Prompts start "Knowledge Check, <title>:" or "Interactive problem,
+   <title>:", and the coverage file lists them under Textbook exercises.
+6. `node tools/cards/upload.mjs <file> --dry-run` checks the file; then upload.
 
 The first 49 drafts (2026-10-03) predate this; the coverage files list what they missed.
 

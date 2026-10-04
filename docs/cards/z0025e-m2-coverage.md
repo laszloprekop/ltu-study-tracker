@@ -89,4 +89,61 @@ slide; a candidate for a later card).
 - The 2.6 end page lists an eighth objective (TCP and UDP sockets) that the 2.1 overview does not; both
   are in the table.
 - Five files linked from 2.6 could not be read (Canvas 404), and the Knowledge Checks and Problems
-  pages are not in the downloaded material, so they were not checked against the cards.
+  pages are not in the downloaded material, so they were not checked against the cards. (Since downloaded: see Textbook exercises below.)
+
+## Textbook exercises
+
+Added 2026-10-04. The Knowledge Checks and interactive problems on the textbook site
+(gaia.cs.umass.edu) that Canvas items 2.3 and 2.4 link to, read from the cached copies listed in
+`cache/course-material/Z0025E/m2/index.md`. The 19 hint Cards in
+`data/cards/2026-10-04-z0025e-m2-exercises.json` say how to approach each kind of question and
+point to the concept cards above; they do not give the answers.
+
+| Exercise | Linked from | Hint cards (by prompt) |
+|---|---|---|
+| Knowledge Check: Principles of Network Applications (4 questions) | 2.3 | ...client-server versus P2P?; ...the services TCP and UDP give an application? |
+| Knowledge Check: Email (5) | 2.3 | ...the RTTs before the email itself can be sent?; ...comparing HTTP with SMTP and matching mail protocols? |
+| Knowledge Check: DNS (9) | 2.3 | ...how long each DNS request takes?; ...DNS servers, records and caching? |
+| Knowledge Check: Socket Programming (5) | 2.3 | ...UDP and TCP socket properties?; ...counting sockets and what connect() does? |
+| Knowledge Check: Web and HTTP (15) | 2.4 | ...an HTTP request or reply shown in full?; ...statelessness and cookies?; ...GET, conditional GET, web caches and HTTP/2? |
+| Knowledge Check: Video Streaming and Content Distribution Networks (4) | 2.4 | ...DASH, manifests and CDNs? |
+| Interactive problem: HTTP GET (8 questions) | 2.4 | Interactive problem, HTTP GET: how do you solve it? |
+| Interactive problem: HTTP RESPONSE (7) | 2.4 | Interactive problem, HTTP RESPONSE: how do you solve it? |
+| Interactive problem: Browser Cache (1) | 2.4 | Interactive problem, Browser Cache: how do you solve it? |
+| Interactive problem: client-server and P2P file distribution delays (4) | 2.4 | Interactive problem, A comparison of client-server and P2P file distribution delays: how do you solve it? |
+| Interactive problem: DNS Basics (13) | 2.3 | Interactive problem, DNS Basics: how do you solve it? |
+| Interactive problem: DNS, Iterative vs Recursive Query (animation, no questions) | 2.3 | Interactive problem, DNS - Iterative vs Recursive Query: how do you solve it? |
+| Interactive problem: Electronic Mail and SMTP (8) | 2.3 | Interactive problem, Electronic Mail and SMTP: how do you solve it? |
+
+The Knowledge Check prompts all start "Knowledge Check, <check title>: how do you answer questions
+about".
+
+### Notes on the exercises
+
+- Taught only in the textbook, not in the course: the `Accept-Language` weights (`q=`), which the
+  L04 slides show in an example request without explaining; the ETag, which a slide shows in a
+  response without explaining and the HTTP RESPONSE problem asks about (even when its reply has no
+  ETag line); the SMTP handshake (`220`, `HELO`, `250`) behind the Email check's RTT question, which
+  is only in the textbook's Email video, and the check's figure is not in the cached page. DNS port
+  53 is named only in the textbook's socket video. The hint cards explain each of these briefly.
+- Web and HTTP check, language question: the options include languages that are not in the request
+  at all. The HTTP GET problem's solution treats an unlisted language as not accepted, so "least
+  preferred" must mean the lowest weight among the listed ones. The hint card says so.
+- Web and HTTP check: its example reply has `Content-type: image/html` (not a real media type) and a
+  `Last-Modified` time later than its `Date`. Neither affects the questions.
+- DNS Basics: the solution text says the company's server holds four record types (A, CNAME, NS,
+  MX), but in the example the NS record is on the TLD server and the accepted answer counts the
+  company's list (three types). The example's TLD NS record also names `www.enterprise.com` where the
+  L03 slides put the domain (`networkutopia.com`) in an NS record.
+- Electronic Mail and SMTP: the problem says both mail programs use HTTP, but its solution answers
+  SMTP for the step from Alice's mail program to her server and HTTP only for Bob reading. With
+  webmail, that first step would really be HTTP too. The hint card warns about this.
+- Browser Cache: the solution assumes an already open persistent connection (one RTT per request,
+  no TCP setup) and does not round the number of changed objects. Both fit the slides' conditional
+  GET; the hint card states the assumption.
+- HTTP/2 question in the Web and HTTP check: one option credits HTTP/2 with TLS security. The L04
+  slides say HTTP/2 over TCP has no security and HTTP/3 adds it, so the check and the slides agree.
+- Video streaming: the cards follow the slides (a CDN is servers, not peers; see the note above on
+  the L04 transcript).
+- Socket Programming check, connect() question: in the L03 slide code `socket()` creates the client
+  socket and `connect()` only connects it; the hint card points students to that code.
