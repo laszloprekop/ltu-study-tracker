@@ -15,15 +15,16 @@ ADR 0002 (graded answers stay in the Group) and ADR 0003 (privacy in the databas
 | Table | What | Who reads | Who writes |
 |---|---|---|---|
 | `card` | kind (concept, question, answer), prompt, answer, Sources (Course Plan ids), course, Group number for an Answer Card, owner, AI-drafted, status (draft, shared, flagged) | concept and question: every signed-in Student unless flagged; answer: its owner, or the members of its Group | owner, while not shared; an edit makes it a draft again |
-| `card_check` | one Check by a Student other than the owner | signed in | anyone but the owner; for an Answer Card only its Group |
-| `card_flag` | a Flag with an optional reason | the Maintainer | any signed-in Student |
+| `card_vote` (migration 012) | one Vote per Student: legit or fix, with an optional reason | everyone who can see the Card | anyone but the writer (an AI draft's uploader may); for an Answer Card only its Group |
+| `card_check`, `card_flag` | the first Check and Flag, carried into `card_vote` and no longer written | | |
 | `review` | the Student's FSRS state per Card | owner | owner |
 | `group_member` | a Student's Group per Course, as Canvas said | owner | only the app, after reading Canvas with the Student's own token (the `tracker_sync` role) |
 | `app_maintainer` | who settles Flags | nobody but the database | by hand |
 
-Rules in triggers, so no page can skip them: the first Check makes a draft shared; a Flag makes a
-shared Card flagged; editing a shared or flagged Card makes it a draft again and drops its Checks;
-the Maintainer settles a Flag (`settle_flag`).
+Rules in policies and triggers, so no page can skip them. Since migration 012 (2026-10-04) every
+Concept and Question Card is seen by every signed-in Student whatever its status, and Votes replace
+the Check and the Flag; editing a Card drops its Votes; the Maintainer settles a Card voted fix
+(`settle_flag`: keep, its fix Votes go, or remove).
 
 ## Drafting (step 2 of the plan's Q20: on the Maintainer's machine first)
 
@@ -59,8 +60,9 @@ The first 49 drafts (2026-10-03) predate this; the coverage files list what they
 
 Redesigned 2026-10-03: Cards are real cards in a grid, rectangles with the page's cut top-right
 corner. A click (or Enter) turns a card over on its vertical axis: the question on the front, the
-answer, its Sources and the ratings on the back. Filters: Due now, one per Card Set, All. To check
-and Flagged are grids too. Buttons, fields and tags added since release 2 lost their rounded
+answer, its Sources and the ratings on the back, then the Votes (Legit, Needs fix) and Hide. Filters:
+Due now, one per Card Set, All, and the trust scale: All, Not voted faulty (the default), Trusted
+only. The header's course filter applies. The Maintainer sees a "Voted needs fix" grid. Buttons, fields and tags added since release 2 lost their rounded
 corners and take the cut corner, like the page's own controls.
 
 Cards have a playing card's proportions (5 to 7, at least 300 by 420). An answer may use a few
@@ -83,5 +85,8 @@ AI drafts).
 - Drill: the due Cards, one at a time, answer revealed on demand, rated Again, Hard, Good or Easy.
   FSRS (`ts-fsrs`, request retention 0.9) schedules the next Review; with the Drill Goal "until
   the Key Event" a Review is never scheduled after its event, so the last ones crowd before it.
-- To check: drafts written by others (for Answer Cards: by the Group), with Check and Flag.
+- Practice: the shown Cards in a random order for the round (one set of filters); a rated Card zooms
+  out of the grid and the others slide into its place; Again puts it back at a random place after
+  the first; at the end "Round done" offers a new shuffle. The header shows a third bar: Cards not
+  due for review yet, of the Cards in practice.
 - Write: a form for a new Card, its kind and Sources picked from the Course Plan.

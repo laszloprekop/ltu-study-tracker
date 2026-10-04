@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 // Uploads drafted Cards (release 4) to the tracker database over SSH, as the Maintainer, marked
-// AI-drafted and unchecked: each is shared only after a classmate Checks it (CONTEXT.md, Check).
+// AI-drafted: every Student sees it at once and Votes on it (CONTEXT.md, Vote).
 //   node tools/cards/upload.mjs data/cards/<file>.json [--dry-run] [--update]
 // --update also rewrites the answer and sources of cards already there (same course and prompt),
-// but only AI drafts nobody has checked yet, so a classmate's Check is never invalidated.
+// but only AI drafts nobody has voted legit yet, so a classmate's Vote is never thrown away.
 // The file: { cards: [{ course, sources: ["4.2", ...] (Canvas item numbers or "d:<assignment id>"), prompt, answer, kind? }] }
 // kind is concept (default) or question. Answer Cards are never uploaded: ADR 0002.
 // A card whose prompt is already in the database for its course is skipped, so a file can be sent again.
@@ -32,7 +32,7 @@ for (const [n, c] of cards.entries()) {
 if (problems.length) { console.error("Upload stopped:\n  " + problems.join("\n  ")); process.exit(1); }
 const q = s => { let tag = "c"; while (s.includes("$" + tag + "$")) tag += "x"; return `$${tag}$${s}$${tag}$`; };
 const updates = update ? rows.map(r =>
-  `update public.card set answer = ${q(r.answer)}, sources = array[${r.sources.map(q).join(",")}] where course = ${q(r.course)} and prompt = ${q(r.prompt)} and ai_drafted and status = 'draft' and answer is distinct from ${q(r.answer)};`) : [];
+  `update public.card set answer = ${q(r.answer)}, sources = array[${r.sources.map(q).join(",")}] where course = ${q(r.course)} and prompt = ${q(r.prompt)} and ai_drafted and not exists (select 1 from public.card_vote v where v.card_id = card.id and v.vote = 'legit') and answer is distinct from ${q(r.answer)};`) : [];
 const sql = ["\\set ON_ERROR_STOP 1", "begin;"].concat(updates).concat(rows.map(r =>
   `insert into public.card (kind, prompt, answer, sources, course, owner, ai_drafted) select ${q(r.kind)}, ${q(r.prompt)}, ${q(r.answer)}, array[${r.sources.map(q).join(",")}], ${q(r.course)}, (select user_id from public.app_maintainer limit 1), true where not exists (select 1 from public.card where course = ${q(r.course)} and prompt = ${q(r.prompt)}) and exists (select 1 from public.app_maintainer);`
 )).concat(["commit;", "select count(*) || ' cards in the database' from public.card;"]).join("\n");

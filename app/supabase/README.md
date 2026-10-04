@@ -21,6 +21,7 @@ Then run `tests/rls.sql` the same way; it rolls back and prints `ok` or `FAIL` p
 | 20261003000009_settle_flag.sql | 2026-10-03 |
 | 20261003000010_card_edit_drops_checks.sql | 2026-10-03 |
 | 20261003000011_flag_drafts.sql | 2026-10-03 |
+| 20261004000012_card_votes.sql | 2026-10-04 |
 
 ## The sync role
 

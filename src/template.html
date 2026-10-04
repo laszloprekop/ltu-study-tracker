@@ -204,9 +204,22 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
 .fc-back .fc-body::before{background:var(--now)}
 .fc-meta{display:flex; flex-wrap:wrap; align-items:center; gap:6px; font-size:12px; color:var(--muted)}
 .fc-meta{flex-wrap:nowrap} .fc-meta .fc-ev{flex:1 1 auto; min-width:0; overflow:hidden; white-space:nowrap; text-overflow:ellipsis}
-.cardsview .fc-hide{flex:0 0 auto; margin-left:auto; display:inline-flex; padding:3px; border:0; background:transparent; color:var(--muted); cursor:pointer; clip-path:none}
-.cardsview .fc-hide:hover{color:var(--ink)}
 .fcard.hiddencard .fc-body{opacity:.55}
+/* votes and hide: one row under the ratings; the pressed vote is the viewer's own */
+.fc-act{display:flex; gap:4px; margin-top:2px}
+.cardsview .fc-act button{flex:1 1 0; min-width:0; display:inline-flex; align-items:center; justify-content:center; gap:4px; padding:4px 2px; font-size:11.5px; font-weight:600; color:var(--muted); background:transparent; border:1px solid var(--line)}
+.cardsview .fc-act button[aria-pressed="true"]{color:var(--on-now-container); background:var(--now-container); border-color:var(--now-container)}
+.cardsview .fc-act button[data-cardvote="fix"][aria-pressed="true"]{color:var(--on-alert-container); background:var(--alert-container); border-color:var(--alert-container)}
+.cardsview .fc-act button:disabled{opacity:.5; cursor:default}
+.cardsview .fc-act button b{font-weight:700}
+.tag.trust.ok{color:var(--on-c2-container); background:var(--c2-container)}
+.tag.trust.bad{color:var(--on-alert-container); background:var(--alert-container)}
+.fbar.trust{align-items:center; margin-top:-2px}
+.fbar.trust .small{margin-right:2px}
+/* a rated card zooms out, shrinking into the distance, and is gone */
+@keyframes pluck{to{transform:scale(.05); opacity:0}}
+.fcard.pluck{animation:pluck .36s cubic-bezier(.5,0,.75,0) forwards; pointer-events:none; z-index:5; position:relative}
+@media (prefers-reduced-motion:reduce){ .fcard.pluck{animation:none} }
 .fc-q{flex:1 1 auto; display:flex; align-items:center; font-family:Archivo,sans-serif; font-size:20px; font-weight:700; line-height:1.3; color:var(--ink)}
 .fc-a{flex:1 1 auto; font-size:13.5px; line-height:1.4; color:var(--ink)}
 .fc-a p{margin:0 0 6px} .fc-a ul,.fc-a ol{margin:0 0 6px; padding-left:18px} .fc-a li{margin:2px 0}
@@ -222,7 +235,7 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
 .fc-back .insight b{display:block; font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--on-now-container)}
 .fc-src{font-size:12px; line-height:1.3; color:var(--muted)}
 .fc-foot{display:flex; flex-wrap:wrap; align-items:center; gap:6px; font-size:11.5px; color:var(--muted)}
-.fc-due{margin-left:auto; font-weight:700} .fc-hint{flex-basis:100%; justify-content:flex-end}
+.fc-due{margin-left:auto; font-weight:700}
 .fc-rate{display:flex; gap:4px} .fc-rate button{flex:1 1 0; min-width:0; padding:6px 2px; font-size:12.5px}
 .fc-rate .again{color:var(--on-alert-container); background:var(--alert-container); border-color:var(--alert-container)}
 .fc-rate button,.ck-b button{display:inline-flex; align-items:center; justify-content:center; gap:4px}
@@ -358,6 +371,7 @@ h1{font-size:20px; letter-spacing:-.015em; margin-right:6px}
 .bar{width:90px; height:5px; background:var(--line); overflow:hidden}
 .bar span{display:block; height:100%; width:0; background:var(--ok); transition:width .25s ease}
 .bar.matbar span{background:var(--now)}
+.bar.cardbar span{background:var(--c5)}
 .seg{display:inline-flex; flex-wrap:wrap; overflow:hidden; background:var(--surface)}
 .seg button,.seg .lbl{display:inline-flex; align-items:center; gap:5px; font-size:12.5px; font-weight:600; color:var(--muted); background:transparent; border:0; padding:5px 10px; cursor:pointer}
 .seg .lbl{cursor:default; padding-inline:4px; border-left:0}
@@ -446,7 +460,7 @@ a.tag.feeds:hover{text-decoration:underline}
 .est{color:var(--muted); font-size:12px; white-space:nowrap}
 /* icons inside labels: small, in the label's own colour */
 .tag .ic,.lvl .ic,.flag .ic,.est .ic,.kind .ic,.fc-foot .ic,.fc-ev .ic,.cardsn .ic,.nref .ic{width:12px; height:12px}
-.kind span,.est,.cardsn,.fc-ev,.fc-due,.fc-hint,.flag{display:inline-flex; align-items:center; gap:3px}
+.kind span,.est,.cardsn,.fc-ev,.fc-due,.flag{display:inline-flex; align-items:center; gap:3px}
 .kind span + span{margin-left:8px}
 .mute{flex:0 0 auto; display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; border:0; background:none; color:var(--muted); opacity:.4; cursor:pointer; border-radius:50%; padding:0}
 .mute:hover,.muted .mute{opacity:1}
@@ -568,7 +582,6 @@ html,body{height:100%}
 body.mapview{overflow:hidden}
 body.mapview .wrap{height:100%; display:flex; flex-direction:column; padding-bottom:10px}
 body.mapview header.top{position:static; flex:0 0 auto}
-body.mapview .termline{flex:0 0 auto}
 body.mapview #termbody{flex:1 1 auto; min-height:0; display:flex; flex-direction:column}
 body.mapview #termbody section{flex:1 1 auto; min-height:0; margin-bottom:12px; display:flex}
 .map{position:relative; display:grid; grid-template-columns:clamp(230px, 18vw, 300px) minmax(0,1fr) clamp(340px, 26vw, 460px); gap:14px; flex:1 1 auto; min-height:0; width:100%}
@@ -910,14 +923,14 @@ body.colored table.all tr:not(.done) .tt{color:var(--cc)}
       </div>
       <div class="seg" role="group" aria-label="Show courses" id="filter"></div>
       <a class="jump" id="jump" href="#" hidden><svg class="ic"><use href="#i-arrow-line-down"/></svg>Today</a>
-      <div class="progress" title="Ticked so far. Green: deadlines and tasks. Blue: material. Muted items are left out.">
+      <div class="progress" title="Ticked so far. Deadlines and tasks, material, and cards not due for review yet. Muted and hidden items are left out.">
         <span class="bar"><span id="pbar"></span></span><span id="pcount"></span>
         <span class="bar matbar"><span id="mbar"></span></span><span id="mcount"></span>
+        <span class="bar cardbar" id="cardprog" hidden><span id="cbar"></span></span><span id="ccount" hidden></span>
       </div>
     </div>
   </header>
 
-  <div class="termline" id="termline"></div>
 
 
   <div id="termbody"></div>
@@ -929,7 +942,7 @@ body.colored table.all tr:not(.done) .tt{color:var(--cc)}
 
 /* ---------- Helpers ---------- */
 const P = DATA.plan, INV = DATA.inventory, COURSES = P.COURSES, TEACHERS = P.TEACHERS, TERMS = P.TERMS, PROGRESS = DATA.progress || null;
-const LS = { hours: "ltu-plan-hours", drillGoal: "ltu-plan-drill-goal", planned: "ltu-plan-planned", openedCounts: "ltu-plan-opened-counts", groups: "ltu-plan-groups", canvasCache: "ltu-plan-canvas-cache", movedFolded: "ltu-plan-moved-folded", exportedAt: "ltu-plan-exported-at", unlocked: "ltu-plan-unlocked", ticks: "ltu-plan-ticks", tickAt: "ltu-plan-tick-at", muted: "ltu-plan-muted", filter: "ltu-plan-filter", term: "ltu-plan-term", view: "ltu-plan-view", open: "ltu-plan-open", weeks: "ltu-plan-weeks", size: "ltu-plan-size", ping: "ltu-plan-ping", colored: "ltu-plan-colored", theme: "ltu-plan-theme", palette: "ltu-plan-palette", cardsHidden: "ltu-plan-cards-hidden-shown", mapOpen: "ltu-plan-map-open", mapPos: "ltu-plan-map-pos", mapAll: "ltu-plan-map-all", mapHops: "ltu-plan-map-hops", mapMode: "ltu-plan-map-mode", railSlim: "ltu-plan-map-rail", snaps: "ltu-plan-snaps", legacy: "lp2-shared-ticks" };
+const LS = { hours: "ltu-plan-hours", drillGoal: "ltu-plan-drill-goal", planned: "ltu-plan-planned", openedCounts: "ltu-plan-opened-counts", groups: "ltu-plan-groups", canvasCache: "ltu-plan-canvas-cache", movedFolded: "ltu-plan-moved-folded", exportedAt: "ltu-plan-exported-at", unlocked: "ltu-plan-unlocked", ticks: "ltu-plan-ticks", tickAt: "ltu-plan-tick-at", muted: "ltu-plan-muted", filter: "ltu-plan-filter", term: "ltu-plan-term", view: "ltu-plan-view", open: "ltu-plan-open", weeks: "ltu-plan-weeks", size: "ltu-plan-size", ping: "ltu-plan-ping", colored: "ltu-plan-colored", theme: "ltu-plan-theme", palette: "ltu-plan-palette", cardsHidden: "ltu-plan-cards-hidden-shown", cardTrust: "ltu-plan-card-trust", mapOpen: "ltu-plan-map-open", mapPos: "ltu-plan-map-pos", mapAll: "ltu-plan-map-all", mapHops: "ltu-plan-map-hops", mapMode: "ltu-plan-map-mode", railSlim: "ltu-plan-map-rail", snaps: "ltu-plan-snaps", legacy: "lp2-shared-ticks" };
 const state = { checked: {}, tickAt: {}, planned: {}, cards: null, cardsLoading: false, drill: null, drillGoal: "event", cal: null, calLinks: null, calErr: null, bookings: null, canvas: null, canvasErr: null, openedCounts: true, groups: {}, exportedAt: null, unlocked: false, muted: {}, filter: "all", term: null, view: "week", day: null, open: {}, weeks: {}, size: 100, ping: true, colored: true, theme: "system", palette: "ice", hours: { start: "09:00", end: "17:00" }, mapOpen: null, mapSel: null, mapSels: [], mapAll: false, mapHops: 5, mapMode: "select", railSlim: false };
 let store = null, saveTimer = null;
 
@@ -1361,19 +1374,66 @@ function loadCards(){
   state.cardsLoading = true;
   window.claude.use("cards").then(function(api){
     if (!api) { state.cards = { signedOut: true }; return; }
-    return Promise.all([api.list(), api.myChecks(), api.reviews(), api.maintainer(), api.groups()]).then(function(r){
+    return Promise.all([api.list(), api.votes(), api.reviews(), api.maintainer(), api.groups()]).then(function(r){
       var rev = {}; r[2].forEach(function(x){ rev[x.card_id] = x; });
-      var mine = {}; r[1].forEach(function(x){ mine[x.card_id] = true; });
-      state.cards = { api: api, me: api.me, list: r[0], checked: mine, reviews: rev, maintainer: !!r[3], groups: r[4], flags: [] };
-      if (r[3]) return api.flags().then(function(f){ state.cards.flags = f; });
+      state.cards = { api: api, me: api.me, list: r[0], votes: r[1], reviews: rev, maintainer: !!r[3], groups: r[4] };
+      indexVotes(state.cards);
     });
-  }).catch(function(){ state.cards = { error: true }; }).then(function(){ state.cardsLoading = false; if (state.view === "cards") renderTerm(); else refreshPrepare(); });
+  }).catch(function(){ state.cards = { error: true }; }).then(function(){ state.cardsLoading = false; if (state.view === "cards") renderTerm(); else refreshPrepare(); refreshCardProgress(); });
 }
 function fsrsApi(){ return window.FSRS ? window.FSRS.fsrs(window.FSRS.generatorParameters({ request_retention: 0.9, enable_fuzz: false })) : null; }
 function fsrsCard(rv){ if (!rv) return window.FSRS.createEmptyCard(new Date()); var c = Object.assign({}, rv.fsrs); c.due = new Date(c.due); if (c.last_review) c.last_review = new Date(c.last_review); return c; }
 function cardHidden(c){ return !!state.muted["card:" + c.id]; }
-// Hidden Cards leave the Sets, counts and Prepare lines unless "Hidden" is toggled on in the filters.
-function drillable(t){ var C = state.cards; return C.list.filter(function(c){ return (c.status === "shared" || c.owner === C.me) && (state.showHiddenCards || !cardHidden(c)); }); }
+// Votes (CONTEXT.md): one per Student per Card, "legit" or "fix", public. C.vt[id] counts them.
+function indexVotes(C){
+  C.vt = {};
+  (C.votes || []).forEach(function(v){ var x = C.vt[v.card_id] || (C.vt[v.card_id] = { legit: 0, fix: 0, mine: null, reasons: [] }); x[v.vote]++; if (v.user_id === C.me) { x.mine = v.vote; x.myReason = v.reason; } if (v.vote === "fix" && v.reason) x.reasons.push(v.reason); });
+}
+function votesOf(c){ return (state.cards.vt || {})[c.id] || { legit: 0, fix: 0, mine: null, reasons: [] }; }
+// Trust: "fix" once fix Votes reach the legit ones, "trusted" with more legit than fix, else "new".
+function trustOf(c){ var v = votesOf(c); return v.fix > 0 && v.fix >= v.legit ? "fix" : v.legit > 0 ? "trusted" : "new"; }
+function canVote(c){ return c.owner !== state.cards.me || c.ai_drafted; }
+// Every Card a Student can see, narrowed by the header's course filter, the trust scale (by default
+// Cards voted "fix" stay out) and Hidden.
+function drillable(t){
+  var tr = state.cardTrust || "nofix";
+  return state.cards.list.filter(function(c){
+    var k = trustOf(c);
+    return (state.filter === "all" || c.course === state.filter) && (state.showHiddenCards || !cardHidden(c)) && (tr === "all" || (tr === "trusted" ? k === "trusted" : k !== "fix"));
+  });
+}
+function shuffle(a){ for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), x = a[i]; a[i] = a[j]; a[j] = x; } return a; }
+// The practice queue: the shown Cards in a random order, kept for the round (same filters). A rated
+// Card leaves the round; Again puts it back at a random place after the first.
+// pool: the Cards still allowed (filters, trust, hidden); a queued Card outside it leaves the round.
+function cardQueue(key, list, pool){
+  var q = state.cq, ids = list.map(function(c){ return c.id; });
+  if (!q || q.key !== key) q = state.cq = { key: key, ids: shuffle(ids.slice()), done: {} };
+  else {
+    var inList = {}; ids.forEach(function(i){ inList[i] = 1; });
+    var inPool = {}; (pool || list).forEach(function(c){ inPool[c.id] = 1; });
+    var inQ = {}; q.ids.forEach(function(i){ inQ[i] = 1; });
+    shuffle(ids.filter(function(i){ return !inQ[i]; })).forEach(function(i){ q.ids.splice(Math.floor(Math.random() * (q.ids.length + 1)), 0, i); });
+    q.ids = q.ids.filter(function(i){ return inList[i] || (inPool[i] && !q.done[i]); });
+  }
+  var byId = {}; state.cards.list.forEach(function(c){ byId[c.id] = c; });
+  return q.ids.filter(function(i){ return !q.done[i] && byId[i]; }).map(function(i){ return byId[i]; });
+}
+function requeue(id, grade){
+  var q = state.cq; if (!q) return;
+  if (grade !== 1) { q.done[id] = true; return; }
+  q.ids = q.ids.filter(function(i){ return i !== id; });
+  var pending = q.ids.filter(function(i){ return !q.done[i]; }), k = pending.length ? 1 + Math.floor(Math.random() * pending.length) : 0;
+  if (k >= pending.length) q.ids.push(id); else q.ids.splice(q.ids.indexOf(pending[k]), 0, id);
+}
+// Card progress for the header: Cards whose next review is not due yet, of the Cards in practice.
+function refreshCardProgress(){
+  var bar = document.getElementById("cardprog"), cnt = document.getElementById("ccount"), C = state.cards;
+  var on = !!(C && C.list); bar.hidden = cnt.hidden = !on; if (!on) return;
+  var pool = drillable(term()), now = new Date(), known = pool.filter(function(c){ var rv = C.reviews[c.id]; return rv && new Date(rv.due) > now; }).length;
+  cnt.innerHTML = "<b>" + known + "/" + pool.length + "</b> cards";
+  document.getElementById("cbar").style.width = (pool.length ? known / pool.length * 100 : 0) + "%";
+}
 function isDue(c){ var rv = state.cards.reviews[c.id]; return !rv || new Date(rv.due) <= new Date(); }
 // Recall on the event day, from FSRS, as a share of 1.
 function recallOn(c, day){ var rv = state.cards.reviews[c.id], f = fsrsApi(); if (!rv || !f) return 0; try { return f.get_retrievability(fsrsCard(rv), new Date(day + "T09:00:00"), false); } catch (e) { return 0; } }
@@ -1386,43 +1446,48 @@ function rateCard(id, grade){
   C.reviews[id] = { card_id: id, fsrs: plain, due: plain.due };
   C.api.review(id, plain, plain.due).catch(function(){ state.cardErr = "That review could not be saved; it is kept until the page is reloaded."; });
   if (state.flipped) delete state.flipped[id];
-  renderTerm();
+  requeue(id, grade);
+  renderTerm(); refreshCardProgress();
 }
 function renderCardsView(t){
-  var head = '<div class="sechead"><h2>Cards</h2><span class="note">Study cards for each lab and exam. Click a card to turn it over; rate how well you knew it and spaced repetition brings it back just before you would forget it.</span></div>';
-  if (!window.TRACKER_CONFIG) return '<section class="appview">' + head + '<div class="card"><p>Cards need an account, so they live on the hosted tracker: ' + appLink() + '. There you drill cards made from the lectures and lab material, check classmates\' cards and write your own.</p></div></section>';
+  var head = '<div class="sechead"><h2>Cards</h2><span class="note">Study cards for each lab and exam. Click a card to turn it over; rate how well you knew it and spaced repetition brings it back just before you would forget it. Vote whether a card is legit or needs a fix: everyone sees the votes.</span></div>';
+  if (!window.TRACKER_CONFIG) return '<section class="appview">' + head + '<div class="card"><p>Cards need an account, so they live on the hosted tracker: ' + appLink() + '. There you drill cards made from the lectures and lab material, vote on them and write your own.</p></div></section>';
   var C = state.cards;
   if (!C) return '<section class="appview">' + head + '<div class="card"><p>Loading cards...</p></div></section>';
-  if (C.signedOut) return '<section class="appview">' + head + '<div class="card"><p>Sign in (top right) to drill, check and write cards. Cards are shared with classmates once someone other than their writer has checked them.</p></div></section>';
+  if (C.signedOut) return '<section class="appview">' + head + '<div class="card"><p>Sign in (top right) to drill, vote on and write cards. Every card is seen by every classmate; votes say which ones to trust.</p></div></section>';
   if (C.error) return '<section class="appview">' + head + '<div class="card"><p class="err">The cards could not be loaded just now.</p></div></section>';
-  var pool = drillable(t), due = pool.filter(isDue), today = todayIso(), f = state.cardFilter || "due", hiddenN = C.list.filter(cardHidden).length;
+  var pool = drillable(t), due = pool.filter(isDue), today = todayIso(), f = state.cardFilter || "due", hiddenN = C.list.filter(cardHidden).length, tr = state.cardTrust || "nofix";
   var sets = {}; pool.forEach(function(c){ cardEvents(t, c).forEach(function(e){ if (e.a.due < today) return; var k = e.code + ":" + e.a.id; (sets[k] = sets[k] || { k: k, e: e, cards: [] }).cards.push(c); }); });
   var setList = Object.keys(sets).map(function(k){ return sets[k]; }).sort(function(p, q){ return p.e.a.due.localeCompare(q.e.a.due); });
   var itemF = /^m:/.test(f) ? cardItem(f) : null;
-  var shown = f === "due" ? due : f === "all" ? pool : itemF ? pool.filter(function(c){ return (c.sources || []).indexOf(f) >= 0; }) : (sets[f] ? sets[f].cards : []);
+  var picked = f === "due" ? due : f === "all" ? pool : itemF ? pool.filter(function(c){ return (c.sources || []).indexOf(f) >= 0; }) : (sets[f] ? sets[f].cards : []);
+  var shown = cardQueue([f, tr, state.filter, state.showHiddenCards ? 1 : 0].join("|"), picked, pool), doneN = Object.keys(state.cq.done).length;
   var filters = '<button type="button" data-cardfilter="due"' + (f === "due" ? ' aria-pressed="true"' : '') + '>' + ic("clock", "sm") + 'Due now <b>' + due.length + '</b></button>' +
     setList.map(function(s){ var dn = s.cards.filter(isDue).length, known = s.cards.filter(function(c){ return recallOn(c, s.e.a.due) >= 0.9; }).length;
       return '<button type="button" data-cardfilter="' + esc(s.k) + '"' + (f === s.k ? ' aria-pressed="true"' : '') + ' style="' + colorVars(s.e.code) + '" title="' + esc(s.cards.length + " cards, " + dn + " due, " + known + " likely known on " + longDay(s.e.a.due)) + '"><span class="dot"></span>' + esc(shortTitle(s.e.a.title).split(",")[0]) + ' <small>' + esc(longDay(s.e.a.due)) + '</small> <b>' + dn + '/' + s.cards.length + '</b></button>'; }).join("") +
     '<button type="button" data-cardfilter="all"' + (f === "all" ? ' aria-pressed="true"' : '') + '>All <b>' + pool.length + '</b></button>' +
-    (hiddenN || state.showHiddenCards ? '<button type="button" data-cardshowhidden="1" aria-pressed="' + (state.showHiddenCards ? "true" : "false") + '" title="Show the cards you hid, faded, so you can bring them back">' + ic(state.showHiddenCards ? "eye" : "eye-slash", "sm") + 'Hidden <b>' + hiddenN + '</b></button>' : '') +
-    (itemF && itemF.item ? '<button type="button" data-cardfilter="' + esc(f) + '" aria-pressed="true" style="' + colorVars(itemF.code) + '"><span class="dot"></span>' + esc((itemF.item.number ? itemF.item.number + " " : "") + shortTitle(itemF.item.title)) + ' <b>' + shown.length + '</b></button>' : '');
+    (itemF && itemF.item ? '<button type="button" data-cardfilter="' + esc(f) + '" aria-pressed="true" style="' + colorVars(itemF.code) + '"><span class="dot"></span>' + esc((itemF.item.number ? itemF.item.number + " " : "") + shortTitle(itemF.item.title)) + ' <b>' + picked.length + '</b></button>' : '');
+  // the trust scale: everything, everything but Cards voted "fix" (the default), only trusted Cards
+  var scale = '<div class="fbar trust" role="group" aria-label="Which cards by their votes"><span class="small">Show</span>' +
+    [["all", "warning", "All", "Every card, also those voted needs fix"], ["nofix", "circle-half", "Not voted faulty", "Leave out cards voted needs fix (default)"], ["trusted", "shield-check", "Trusted only", "Only cards with more legit votes than needs-fix votes"]].map(function(x){
+      return '<button type="button" data-cardtrust="' + x[0] + '" aria-pressed="' + (tr === x[0]) + '" title="' + esc(x[3]) + '">' + ic(x[1], "sm") + x[2] + '</button>'; }).join("") +
+    (hiddenN || state.showHiddenCards ? '<button type="button" data-cardshowhidden="1" aria-pressed="' + (state.showHiddenCards ? "true" : "false") + '" title="Show the cards you hid, faded, so you can bring them back">' + ic(state.showHiddenCards ? "eye" : "eye-slash", "sm") + 'Hidden <b>' + hiddenN + '</b></button>' : '') + '</div>';
   var grid = shown.length ? '<div class="fgrid">' + shown.map(function(c){ return flipCard(t, c, "drill"); }).join("") + '</div>'
-    : '<p class="note">' + (f === "due" ? (pool.length ? "Nothing is due: every card is scheduled for later. Pick a set above to look at its cards anyway." : "No checked cards yet. Check some below, or write your own.") : "No cards here.") + '</p>';
-  var drafts = C.list.filter(function(c){ return c.status === "draft" && c.owner !== C.me && !C.checked[c.id] && (state.showHiddenCards || !cardHidden(c)); }).slice(0, 30);
-  var flagged = C.maintainer ? C.list.filter(function(c){ return c.status === "flagged"; }) : [];
+    : doneN ? '<p class="note">' + ic("check-circle", "sm") + ' Round done: ' + doneN + (doneN === 1 ? ' card' : ' cards') + ' practised. <button type="button" class="plain" data-cardround="1">Shuffle a new round</button></p>'
+    : '<p class="note">' + (f === "due" ? (pool.length ? "Nothing is due: every card is scheduled for later. Pick a set above to practise its cards anyway." : "No cards here yet. Write one below.") : "No cards here.") + '</p>';
+  var toFix = C.maintainer ? C.list.filter(function(c){ return trustOf(c) === "fix"; }) : [];
   var mineG = (C.groups || []).map(function(g){ return g.course + " Group " + g.group_number; }).join(", ");
   var courseOpts = Object.keys(COURSES).filter(function(k){ return COURSES[k].canvasId; }).map(function(k){ return '<option value="' + esc(k) + '">' + esc(label(k)) + '</option>'; }).join("");
   var write = '<div class="card cvcard"><h3>' + ic("plus") + 'Write a card</h3><p class="note">Concept: one idea a lab or exam tests, with the answer. Question: a graded question word for word, and where its answer is found, never the answer itself. Group answer: your group\'s own answer to a graded question, seen only by your group' + (mineG ? ' (' + esc(mineG) + ')' : ' (your group is known once you connect Canvas in Hosted app)') + '.</p>' +
     '<div class="row"><select id="cw-kind"><option value="concept">Concept card</option><option value="question">Question card</option><option value="answer"' + (mineG ? '' : ' disabled') + '>Group answer card</option></select><select id="cw-course">' + courseOpts + '</select><input type="text" id="cw-src" class="fld" placeholder="Sources, as in Canvas: 4.2, 9.7"></div>' +
     '<div class="row"><textarea id="cw-prompt" rows="2" placeholder="Front: the question"></textarea></div><div class="row"><textarea id="cw-answer" rows="5" placeholder="Back: the answer, or for a question card where the answer is found.&#10;- a list item&#10;`code` and **a term**&#10;Key: the one thing to remember"></textarea></div>' +
-    '<div class="row"><button type="button" data-cardwrite="1">Save as a draft</button><small>Shared once a classmate checks it.</small></div></div>';
+    '<div class="row"><button type="button" data-cardwrite="1">Save the card</button><small>Everyone sees it at once; classmates vote whether it is legit.</small></div></div>';
   return '<section class="appview cardsview">' + head + (state.cardErr ? '<p class="err">' + esc(state.cardErr) + '</p>' : '') +
-    '<div class="card"><h3>' + ic("barbell") + 'Drill<span class="sum">' + due.length + ' of ' + pool.length + ' due</span></h3>' +
-      '<div class="fbar">' + filters + '</div>' +
-      '<div class="row"><span class="small">Plan reviews</span><label><input type="radio" name="dgoal" value="event"' + (state.drillGoal === "event" ? ' checked' : '') + '> until the lab or exam</label><label><input type="radio" name="dgoal" value="mastered"' + (state.drillGoal === "mastered" ? ' checked' : '') + '> until mastered</label></div>' +
+    '<div class="card"><h3>' + ic("barbell") + 'Drill<span class="sum">' + due.length + ' of ' + pool.length + ' due' + (doneN ? ', ' + shown.length + ' left in this round' : '') + '</span></h3>' +
+      '<div class="fbar">' + filters + '</div>' + scale +
+      '<div class="row"><span class="small">Practice cards</span><label><input type="radio" name="dgoal" value="event"' + (state.drillGoal === "event" ? ' checked' : '') + '> until the lab or exam</label><label><input type="radio" name="dgoal" value="mastered"' + (state.drillGoal === "mastered" ? ' checked' : '') + '> until mastered</label></div>' +
       grid + '</div>' +
-    (drafts.length ? '<div class="card"><h3>' + ic("check-circle") + 'To check<span class="sum">turn a card over, read it against its sources; one check shares it with everyone</span></h3><div class="fgrid">' + drafts.map(function(c){ return flipCard(t, c, "check"); }).join("") + '</div></div>' : '') +
-    (flagged.length ? '<div class="card"><h3>' + ic("warning") + 'Flagged<span class="sum">Maintainer</span></h3><div class="fgrid">' + flagged.map(function(c){ return flipCard(t, c, "settle"); }).join("") + '</div></div>' : '') +
+    (toFix.length ? '<div class="card"><h3>' + ic("warning") + 'Voted needs fix<span class="sum">Maintainer: keep it (its fix votes go) or remove it</span></h3><div class="fgrid">' + toFix.map(function(c){ return flipCard(t, c, "settle"); }).join("") + '</div></div>' : '') +
     write + '</section>';
 }
 // One card, both sides. A click anywhere but on a control turns it over (CSS: .fcard.flipped).
@@ -1451,26 +1516,26 @@ function flipCard(t, c, mode){
   var C = state.cards, today = todayIso(), evs = cardEvents(t, c).filter(function(e){ return e.a.due >= today; }), rv = C.reviews[c.id], flipped = !!(state.flipped && state.flipped[c.id]);
   var ev = evs.find(function(e){ return e.code + ":" + e.a.id === state.cardFilter; }) || evs[0] || null, others = evs.filter(function(e){ return e !== ev; });
   var evName = function(e){ return shortTitle(e.a.title).split(",")[0] + ", " + longDay(e.a.due); };
-  var hid = cardHidden(c), hideBtn = '<button type="button" class="fc-hide" data-cardhide="' + esc(c.id) + '" title="' + (hid ? "Show this card again" : "Hide this card: not for me") + '" aria-label="' + (hid ? "Unhide card" : "Hide card") + '">' + ic(hid ? "eye" : "eye-slash", "sm") + '</button>';
+  var hid = cardHidden(c), v = votesOf(c), k = trustOf(c), may = canVote(c), mineNote = may ? "" : " (you wrote this card)";
+  var act = '<div class="fc-act">' +
+    '<button type="button" data-cardvote="legit" data-card="' + esc(c.id) + '" aria-pressed="' + (v.mine === "legit") + '"' + (may ? '' : ' disabled') + ' title="' + esc((v.mine === "legit" ? "Take back your legit vote" : "This card is legit: correct and useful") + mineNote) + '">' + ic("check-circle", "sm") + 'Legit <b>' + v.legit + '</b></button>' +
+    '<button type="button" data-cardvote="fix" data-card="' + esc(c.id) + '" aria-pressed="' + (v.mine === "fix") + '"' + (may ? '' : ' disabled') + ' title="' + esc((v.mine === "fix" ? "Take back your needs-fix vote" : "This card is faulty or needs a fix") + mineNote) + '">' + ic("warning", "sm") + 'Needs fix <b>' + v.fix + '</b></button>' +
+    '<button type="button" class="hide" data-cardhide="' + esc(c.id) + '" title="' + (hid ? "Show this card again" : "Hide this card: not for me") + '">' + ic(hid ? "eye" : "eye-slash", "sm") + (hid ? 'Unhide' : 'Hide') + '</button></div>' +
+    (state.flagging === c.id ? '<div class="ck-b"><input type="text" id="flag-why" maxlength="500" placeholder="What is wrong? (optional)"><button type="button" data-flagsend="' + esc(c.id) + '">Vote needs fix</button><button type="button" class="plain" data-flagcancel="1">Cancel</button></div>' : '');
+  var trustTag = k === "trusted" ? '<span class="tag trust ok" title="' + v.legit + ' legit, ' + v.fix + ' needs fix">' + ic("shield-check", "sm") + 'legit ' + v.legit + '</span>' : k === "fix" ? '<span class="tag trust bad" title="' + esc(v.fix + " needs fix" + (v.reasons.length ? ": " + v.reasons.join("; ") : "")) + '">' + ic("warning", "sm") + 'needs fix ' + v.fix + '</span>' : '';
   var meta = chip(c.course) + (ev ? '<span class="fc-ev"' + (others.length ? ' title="' + esc("Also prepares for: " + others.map(evName).join("; ")) + '"' : '') + '>' + ic("target", "sm") + esc(evName(ev)) + (others.length ? ' <b>+' + others.length + '</b>' : '') + '</span>' : '');
-  var tags = (c.ai_drafted ? '<span class="tag">' + ic("robot", "sm") + 'AI draft</span>' : '') + (c.kind === "question" ? '<span class="tag">' + ic("seal-question", "sm") + 'graded question</span>' : '') + (c.kind === "answer" ? '<span class="tag">' + ic("users-three", "sm") + 'group answer</span>' : '') + (c.status !== "shared" && mode === "drill" ? '<span class="tag">' + ic("circle-dashed", "sm") + 'not checked yet</span>' : '');
+  var tags = trustTag + (c.ai_drafted ? '<span class="tag">' + ic("robot", "sm") + 'AI draft</span>' : '') + (c.kind === "question" ? '<span class="tag">' + ic("seal-question", "sm") + 'graded question</span>' : '') + (c.kind === "answer" ? '<span class="tag">' + ic("users-three", "sm") + 'group answer</span>' : '');
   var dueTxt = mode === "drill" ? (rv ? (isDue(c) ? "due now" : "next " + longDay(iso(new Date(rv.due)))) : "new") : "";
-  var controls = mode === "drill" ? '<div class="fc-rate"><button type="button" data-rate="1" data-card="' + esc(c.id) + '" class="again">' + ic("arrow-counter-clockwise", "sm") + 'Again</button><button type="button" data-rate="2" data-card="' + esc(c.id) + '">' + ic("mountains", "sm") + 'Hard</button><button type="button" data-rate="3" data-card="' + esc(c.id) + '" class="good">' + ic("check", "sm") + 'Good</button><button type="button" data-rate="4" data-card="' + esc(c.id) + '">' + ic("feather", "sm") + 'Easy</button></div>' + flagUi(c.id, '')
-    : mode === "check" ? flagUi(c.id, '<button type="button" data-cardcheck="' + esc(c.id) + '">' + ic("check-circle", "sm") + 'Correct: share it</button>')
+  var controls = mode === "drill" ? '<div class="fc-rate"><button type="button" data-rate="1" data-card="' + esc(c.id) + '" class="again">' + ic("arrow-counter-clockwise", "sm") + 'Again</button><button type="button" data-rate="2" data-card="' + esc(c.id) + '">' + ic("mountains", "sm") + 'Hard</button><button type="button" data-rate="3" data-card="' + esc(c.id) + '" class="good">' + ic("check", "sm") + 'Good</button><button type="button" data-rate="4" data-card="' + esc(c.id) + '">' + ic("feather", "sm") + 'Easy</button></div>'
     : '<div class="ck-b"><button type="button" data-settle="keep" data-card="' + esc(c.id) + '">' + ic("check", "sm") + 'Keep it</button><button type="button" class="plain" data-settle="remove" data-card="' + esc(c.id) + '">' + ic("trash", "sm") + 'Remove it</button></div>';
-  var why = mode === "settle" ? C.flags.filter(function(x){ return x.card_id === c.id; }).map(function(x){ return x.reason; }).filter(Boolean).join("; ") : "";
+  var why = v.reasons.join("; ");
   return '<div class="fcard' + (flipped ? ' flipped' : '') + (hid ? ' hiddencard' : '') + '" data-flip="' + esc(c.id) + '" style="' + colorVars(c.course) + '" tabindex="0" role="button" aria-pressed="' + flipped + '" aria-label="Card: ' + esc(c.prompt.slice(0, 80)) + '. Press to turn over.">' +
     '<div class="fc-in">' +
-      '<div class="fc-face fc-front"><div class="fc-body"><div class="fc-meta">' + meta + hideBtn + '</div><div class="fc-q">' + esc(c.prompt) + '</div><div class="fc-foot">' + tags + '' + (dueTxt ? '<span class="fc-due">' + ic("clock", "sm") + esc(dueTxt) + '</span>' : '') + '<span class="fc-hint">' + ic("hand-tap", "sm") + 'turn over</span></div></div></div>' +
-      '<div class="fc-face fc-back"><div class="fc-body"><div class="fc-meta">' + meta + hideBtn + '</div><div class="fc-a">' + (c.kind === "question" ? '<small>Where the answer is:</small> ' : '') + (c.answer ? cardText(c.answer) : "(no answer written)") + '</div>' +
+      '<div class="fc-face fc-front"><div class="fc-body"><div class="fc-meta">' + meta + '</div><div class="fc-q">' + esc(c.prompt) + '</div><div class="fc-foot">' + tags + '' + (dueTxt ? '<span class="fc-due">' + ic("clock", "sm") + esc(dueTxt) + '</span>' : '') + '</div></div></div>' +
+      '<div class="fc-face fc-back"><div class="fc-body"><div class="fc-meta">' + meta + '</div><div class="fc-a">' + (c.kind === "question" ? '<small>Where the answer is:</small> ' : '') + (c.answer ? cardText(c.answer) : "(no answer written)") + '</div>' +
         (cardKey(c.answer) ? '<div class="insight"><b>Key</b> ' + cardInline(cardKey(c.answer)) + '</div>' : '') +
-        '<div class="fc-src">Check it in: ' + cardSourcesLinks(c) + '</div>' + (why ? '<div class="fc-src">Flagged: ' + esc(why) + '</div>' : '') + controls + '</div></div>' +
+        '<div class="fc-src">Check it in: ' + cardSourcesLinks(c) + '</div>' + (why ? '<div class="fc-src">' + ic("warning", "sm") + ' Needs fix: ' + esc(why) + '</div>' : '') + controls + act + '</div></div>' +
     '</div></div>';
-}
-// Flag a card: an inline reason, then Send. A flagged card is hidden until the Maintainer decides.
-function flagUi(id, before){
-  if (state.flagging === id) return '<div class="ck-b"><input type="text" id="flag-why" maxlength="500" placeholder="What is wrong? (optional)" style="flex:1 1 220px; font:inherit; font-size:13px; border:1px solid var(--muted); padding:5px 8px; background:var(--surface); color:var(--ink)"><button type="button" data-flagsend="' + esc(id) + '">Send flag</button><button type="button" class="plain" data-flagcancel="1">Cancel</button></div>';
-  return '<div class="ck-b">' + before + '<button type="button" class="plain" data-flagopen="' + esc(id) + '">' + ic("flag", "sm") + 'Something is wrong</button></div>';
 }
 function cardSources(code, text){
   var all = items(code), out = [], bad = [];
@@ -1649,14 +1714,9 @@ function renderFilter(t){
   el.innerHTML = '<button type="button" id="f-all" data-filter="all">All</button>' + t.courses.map(function(c){ return '<button type="button" id="f-' + c + '" data-filter="' + c + '" style="' + colorVars(c) + '">' + esc(label(c)) + '</button>'; }).join("");
   if (state.filter !== "all" && t.courses.indexOf(state.filter) < 0) state.filter = "all";
 }
-function renderTermLine(t){
-  document.getElementById("termline").innerHTML = t.courses.map(function(c){ return '<span class="course" data-course="' + c + '" style="' + colorVars(c) + '" title="' + esc(label(c)) + '">' + esc(COURSES[c].name) + '</span>'; }).join("") +
-    '<span>' + ic("calendar", "sm") + ' ' + esc(t.period) + '</span>';
-}
 function renderTerm(){
   var t = term();
   computePrepMust(t);
-  renderTermLine(t);
   // On the hosted app the Course Plan syncs hourly, so an old read means the sync has stopped.
   var read = new Date(INV.generatedAt), stale = !!window.TRACKER_CONFIG && Date.now() - read.getTime() > 3 * 3600 * 1000;
   var asof = document.getElementById("asof"); asof.classList.toggle("stale", stale);
@@ -2811,7 +2871,7 @@ var APP_INFO = {
     ["Your Canvas status beside your ticks", "Paste your own Canvas token and each task shows what Canvas has recorded (submitted, posted, marked done or opened) next to your tick, with a warning sign when you ticked a hand-in Canvas has no submission for."],
     ["Lab bookings and their deadlines", "Your group's slot read from the signup sheet, with a warning that grows as the session comes closer and the free slots run out."],
     ["Your own calendar", "Add a calendar link, such as your group's, and its events appear among the sessions, marked as yours, and count as busy time."],
-    ["Study cards", "The Cards view drills flashcards for every lab and exam, made from the lectures and lab material. Spaced repetition shows each card just before you would forget it and plans the reviews so you know it on the day of the lab or exam. Cards are checked by a classmate before they are shared, anyone can flag a wrong one, and your group's answers to graded questions stay within your group."],
+    ["Study cards", "The Cards view drills flashcards for every lab and exam, made from the lectures and lab material. Spaced repetition shows each card just before you would forget it and plans the reviews so you know it on the day of the lab or exam. Every card is open to every classmate, who votes whether it is legit or needs a fix; cards voted faulty are left out by default, and your group's answers to graded questions stay within your group."],
     ["Prep chains", "All deadlines opens with every lab session, workshop and exam and the work that leads to it: the booking, the report, the lectures and readings, each with the day the course teaches it, a warning when that is after the event needs it, and a suggested do-by date where the course gives none. The map opens on the next one and steps through them."],
     ["Where sources disagree", "When Canvas, a PDF and a sign-up sheet give different dates, the row says so and the page uses the earliest one that has not passed, so a stale date never makes you late."],
     ["A day in 15-minute slots", "Day shows both courses in one day plan: sessions, your calendar, your lab slot and deadlines, the free slots between them, and this week's unplaced work with a suggested slot. Place it with one press or drag it, and the plan follows you to your other devices."]
@@ -2971,7 +3031,7 @@ function renderInfoView(name){
   } else if (name === "terms") {
     cards.push(infoCard("file-text", "What you can expect", "- A free helper, made by a student, **as is**.\n- It may be wrong or out of date. **Canvas counts**: check a deadline there before you rely on it.\n- It may change or stop. Your ticks can always be taken along with **Export**."));
     cards.push(infoCard("users-three", "Using it fairly", "- One account for yourself.\n- No written answers to graded questions in shared cards: those stay in **your group** (Answer Cards).\n- No other people's personal details in cards or calendars.\n- Do not copy whole course material into cards; quote what a card needs.\nKey: cards or accounts that break these can be removed."));
-    cards.push(infoCard("flag-checkered", "Wrong card or missing data", "- **Something is wrong** on a card hides it until it is checked again.\n- Wrong dates in the plan: tell the person who shared this page with you."));
+    cards.push(infoCard("flag-checkered", "Wrong card or missing data", "- **Needs fix** on a card is a public vote, with an optional reason; cards voted faulty are left out of practice by default.\n- Wrong dates in the plan: tell the person who shared this page with you."));
     cards.push(infoCard("lock-key", "Your data", "How it is stored and how to delete it: see **Privacy**.", '<p><button type="button" class="plain" data-goview="privacy">' + ic("lock-key") + 'Privacy</button></p>'));
   }
   var v = INFO_VIEWS[name];
@@ -2986,9 +3046,13 @@ document.addEventListener("click", function(e){
     return;
   }
   var hb = e.target.closest && e.target.closest("button[data-cardhide]");
-  if (hb) { var hk = "card:" + hb.dataset.cardhide; if (state.muted[hk]) delete state.muted[hk]; else state.muted[hk] = true; save(); renderTerm(); return; }
+  if (hb) { var hk = "card:" + hb.dataset.cardhide; if (state.muted[hk]) delete state.muted[hk]; else state.muted[hk] = true; save(); renderTerm(); refreshCardProgress(); return; }
   var sh = e.target.closest && e.target.closest("button[data-cardshowhidden]");
-  if (sh) { state.showHiddenCards = !state.showHiddenCards; lsSet(LS.cardsHidden, state.showHiddenCards ? "1" : "0"); renderTerm(); return; }
+  if (sh) { state.showHiddenCards = !state.showHiddenCards; lsSet(LS.cardsHidden, state.showHiddenCards ? "1" : "0"); renderTerm(); refreshCardProgress(); return; }
+  var tb = e.target.closest && e.target.closest("button[data-cardtrust]");
+  if (tb) { state.cardTrust = tb.dataset.cardtrust; lsSet(LS.cardTrust, state.cardTrust); renderTerm(); refreshCardProgress(); refreshPrepare(); return; }
+  var rb2 = e.target.closest && e.target.closest("button[data-cardround]");
+  if (rb2) { state.cq = null; renderTerm(); return; }
   var fc = e.target.closest && e.target.closest(".fcard[data-flip]");
   if (fc && !e.target.closest("button, a, input, textarea, select, label")) {
     state.flipped = state.flipped || {}; state.flipped[fc.dataset.flip] = !state.flipped[fc.dataset.flip];
@@ -2997,19 +3061,34 @@ document.addEventListener("click", function(e){
   }
   var cf = e.target.closest && e.target.closest("button[data-cardfilter]");
   if (cf) { state.cardFilter = cf.dataset.cardfilter; state.flipped = {}; renderTerm(); return; }
-  var cb = e.target.closest && e.target.closest("button[data-rate], button[data-cardcheck], button[data-flagopen], button[data-flagsend], button[data-flagcancel], button[data-settle], button[data-cardwrite]");
+  var cb = e.target.closest && e.target.closest("button[data-rate], button[data-cardvote], button[data-flagsend], button[data-flagcancel], button[data-settle], button[data-cardwrite]");
   if (cb && state.cards && state.cards.api) {
     var C = state.cards, api = C.api, again = function(){ state.cards = null; loadCards(); };
-    if (cb.dataset.rate) rateCard(cb.dataset.card, Number(cb.dataset.rate));
-    else if (cb.dataset.cardcheck) { cb.disabled = true; api.check(cb.dataset.cardcheck).then(again).catch(function(){ state.cardErr = "That check could not be saved."; renderTerm(); }); }
-    else if (cb.dataset.flagopen) { state.flagging = cb.dataset.flagopen; renderTerm(); }
+    // a rated Card zooms out of the grid into the distance; the others slide into its place (FLIP: first, last, invert, play)
+    if (cb.dataset.rate) {
+      var fcEl = cb.closest(".fcard"), rid = cb.dataset.card, grade = Number(cb.dataset.rate), calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
+      var before = {}; document.querySelectorAll(".fgrid .fcard").forEach(function(x){ if (x !== fcEl) before[x.dataset.flip] = x.getBoundingClientRect(); });
+      if (fcEl && !calm) fcEl.classList.add("pluck");
+      setTimeout(function(){
+        rateCard(rid, grade);
+        if (calm) return;
+        document.querySelectorAll(".fgrid .fcard").forEach(function(x){ var r0 = before[x.dataset.flip]; if (!r0) return; var r1 = x.getBoundingClientRect(), dx = r0.left - r1.left, dy = r0.top - r1.top; if (dx || dy) x.animate([{ transform: "translate(" + dx + "px," + dy + "px)" }, { transform: "none" }], { duration: 320, easing: "cubic-bezier(.2,.7,.2,1)" }); });
+      }, calm ? 0 : 360);
+    }
+    // Votes: saved, then counted again locally, so the card does not wait for a reload
+    else if (cb.dataset.cardvote) {
+      var vid = cb.dataset.card, vote = cb.dataset.cardvote, cur = votesOf({ id: vid }).mine;
+      var local = function(v, why){ C.votes = C.votes.filter(function(x){ return !(x.card_id === vid && x.user_id === C.me); }); if (v) C.votes.push({ card_id: vid, user_id: C.me, vote: v, reason: why || "" }); indexVotes(C); state.flagging = null; renderTerm(); refreshCardProgress(); refreshPrepare(); };
+      var fail = function(){ state.cardErr = "That vote could not be saved."; renderTerm(); };
+      if (cur === vote) { cb.disabled = true; api.unvote(vid).then(function(){ local(null); }).catch(fail); }
+      else if (vote === "fix") { state.flagging = vid; renderTerm(); var inp = document.getElementById("flag-why"); if (inp) inp.focus(); }
+      else { cb.disabled = true; api.vote(vid, "legit").then(function(){ local("legit"); }).catch(fail); }
+    }
     else if (cb.dataset.flagcancel) { state.flagging = null; renderTerm(); }
     else if (cb.dataset.flagsend) {
-      var why = (document.getElementById("flag-why") || {}).value || "", fid = cb.dataset.flagsend; cb.disabled = true;
-      api.flag(fid, why.trim().slice(0, 500)).then(function(){
-        state.flagging = null;
-        again();
-      }).catch(function(){ state.cardErr = "That flag could not be sent."; renderTerm(); });
+      var why = ((document.getElementById("flag-why") || {}).value || "").trim().slice(0, 500), fid = cb.dataset.flagsend; cb.disabled = true;
+      api.vote(fid, "fix", why).then(function(){ C.votes = C.votes.filter(function(x){ return !(x.card_id === fid && x.user_id === C.me); }); C.votes.push({ card_id: fid, user_id: C.me, vote: "fix", reason: why }); indexVotes(C); state.flagging = null; renderTerm(); refreshCardProgress(); refreshPrepare(); })
+        .catch(function(){ state.cardErr = "That vote could not be saved."; renderTerm(); });
     }
     else if (cb.dataset.settle) api.settle(cb.dataset.card, cb.dataset.settle === "keep").then(again).catch(function(){ state.cardErr = "That could not be settled."; renderTerm(); });
     else if (cb.dataset.cardwrite) {
@@ -3112,7 +3191,7 @@ document.addEventListener("click", function(e){
   if (b.dataset.cardgo) { e.preventDefault(); state.cardFilter = b.dataset.cardgo; state.flipped = {}; state.view = "cards"; lsSet(LS.view, state.view); renderTerm(); window.scrollTo(0, 0); }
   else if (b.dataset.mute) { e.preventDefault(); var id = b.dataset.mute; if (state.muted[id]) delete state.muted[id]; else state.muted[id] = true; applyState(); save(); }
   else if (b.dataset.fold) { var w = b.closest(".week"); if (w.classList.toggle("collapsed")) state.weeks[b.dataset.fold] = false; else delete state.weeks[b.dataset.fold]; lsSet(LS.weeks, JSON.stringify(state.weeks)); }
-  else if (b.closest("#filter")) { state.filter = b.dataset.filter; lsSet(LS.filter, state.filter); if (state.view === "map") renderTerm(); else applyFilter(); }
+  else if (b.closest("#filter")) { state.filter = b.dataset.filter; lsSet(LS.filter, state.filter); if (state.view === "map" || state.view === "cards") renderTerm(); else applyFilter(); refreshCardProgress(); }
   else if (b.closest("#views")) { state.view = b.dataset.view; lsSet(LS.view, state.view); renderTerm(); }
   else if (b.closest("#terms")) { if (b.dataset.term !== state.term) { state.term = b.dataset.term; lsSet(LS.term, state.term); renderTerm(); } }
   else if (b.id === "day-prev") { state.day = addDays(state.day || todayIso(), -1); renderTerm(); }
@@ -3174,6 +3253,7 @@ state.colored = lsGet(LS.colored) !== "0";
 var th = lsGet(LS.theme); if (th === "light" || th === "dark" || th === "system") state.theme = th;
 var pal = lsGet(LS.palette); if (pal === "ice" || pal === "neon") state.palette = pal;
 state.showHiddenCards = lsGet(LS.cardsHidden) === "1";
+var ctr = lsGet(LS.cardTrust); state.cardTrust = ctr === "all" || ctr === "trusted" ? ctr : "nofix";
 var sh = lsJson(LS.hours); if (sh && toMin(sh.start) != null && toMin(sh.end) != null) state.hours = sh;
 state.filter = lsGet(LS.filter) || "all";
 var sv = lsGet(LS.view); if (sv === "day" || sv === "all" || sv === "week" || sv === "map" || sv === "cards" || sv === "about" || sv === "help" || sv === "privacy" || sv === "terms") state.view = sv; else if (sv === "app") state.view = "about";

@@ -71,8 +71,8 @@ profile menu (person icon). Every other setting lives in that menu: Sign in or o
 (target), course-coloured titles (beach ball, on by default), working hours, the Canvas token and
 Groups, Calendar Links, progress (Import, Go back to a day, Export) and deleting the account.
 Every link into Canvas ends with the external-link mark. Row 2: view, course filter, jump to
-Today, and one progress block (green bar deadlines and tasks, blue bar material). Below the sticky
-header: the full course names of the selected term and its period.
+Today, and one progress block (deadlines and tasks, material, and on the hosted app Cards not due
+for review yet). The course filter applies to every view, the Cards view included.
 
 ## Palettes
 

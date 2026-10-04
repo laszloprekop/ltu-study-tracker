@@ -97,12 +97,14 @@ do $$ begin
   exception when insufficient_privilege then raise notice 'ok anon cannot read links'; end;
 end $$;
 
--- Cards (release 4): A writes, B and C check and flag, M settles; A and C are in Group 8
+-- Cards (release 4, Votes since 2026-10-04): A writes, B and C vote, M settles; A and C are in Group 8
 reset role;
 insert into auth.users (id, aud, role, email) values
   ('00000000-0000-0000-0000-00000000000c', 'authenticated', 'authenticated', 'c@test.invalid'),
   ('00000000-0000-0000-0000-00000000000d', 'authenticated', 'authenticated', 'm@test.invalid');
 insert into public.app_maintainer values ('00000000-0000-0000-0000-00000000000d');
+-- an AI draft, uploaded as the Maintainer
+insert into public.card (id, kind, prompt, answer, sources, course, owner, ai_drafted) values ('10000000-0000-0000-0000-000000000003', 'concept', 'AI: what is a socket?', 'A door between process and transport', '{m:Z0025E:19918}', 'Z0025E', '00000000-0000-0000-0000-00000000000d', true);
 set local role tracker_sync;
 select public.record_groups('00000000-0000-0000-0000-00000000000a', '{"Z0025E": 8}');
 select public.record_groups('00000000-0000-0000-0000-00000000000c', '{"Z0025E": 8}');
@@ -120,39 +122,53 @@ do $$ begin
   exception when check_violation then raise notice 'ok only Answer Cards belong to a group'; end;
   begin insert into public.card (kind, prompt, sources, course) values ('concept', 'Bad source', '{whatever}', 'Z0025E'); raise notice 'FAIL a card without a Course Plan source';
   exception when check_violation then raise notice 'ok sources must be Course Plan ids'; end;
-  begin insert into public.card_check (card_id) values ('10000000-0000-0000-0000-000000000001'); raise notice 'FAIL the owner checked their own card';
-  exception when insufficient_privilege then raise notice 'ok no checking your own card'; end;
+  begin insert into public.card_vote (card_id, vote) values ('10000000-0000-0000-0000-000000000001', 'legit'); raise notice 'FAIL the writer voted on their own card';
+  exception when insufficient_privilege then raise notice 'ok no voting on your own card'; end;
   begin update public.card set status = 'shared' where id = '10000000-0000-0000-0000-000000000001'; raise notice 'FAIL a Student set the status';
   exception when insufficient_privilege then raise notice 'ok status only by the rules'; end;
 end $$;
--- B: sees the concept draft, not the group's answer; checks the concept, cannot check the answer
+-- B: sees the concepts (a draft too), not the group's answer; votes legit, cannot vote on the answer
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000b","role":"authenticated"}', true);
-select 'B sees cards: ' || string_agg(kind, ',' order by kind) from public.card;
-insert into public.card_check (card_id) values ('10000000-0000-0000-0000-000000000001');
+select 'B sees cards (expect concept,concept): ' || string_agg(kind, ',' order by kind) from public.card where id::text like '10000000-%';
+insert into public.card_vote (card_id, vote) values ('10000000-0000-0000-0000-000000000001', 'legit');
 do $$ begin
-  begin insert into public.card_check (card_id) values ('10000000-0000-0000-0000-000000000002'); raise notice 'FAIL B checked another group''s answer';
-  exception when insufficient_privilege then raise notice 'ok answers are checked inside the group'; end;
+  begin insert into public.card_vote (card_id, vote) values ('10000000-0000-0000-0000-000000000002', 'legit'); raise notice 'FAIL B voted on another group''s answer';
+  exception when insufficient_privilege then raise notice 'ok answers are voted inside the group'; end;
+  begin insert into public.card_vote (card_id, user_id, vote) values ('10000000-0000-0000-0000-000000000003', '00000000-0000-0000-0000-00000000000c', 'fix'); raise notice 'FAIL B voted as C';
+  exception when insufficient_privilege then raise notice 'ok a vote is cast as yourself'; end;
 end $$;
-select 'concept after B checks: ' || status from public.card where id = '10000000-0000-0000-0000-000000000001';
--- C (group 8): sees and checks the answer; a review is C's alone
+-- C (group 8): sees all three, votes on the answer; a review is C's alone
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000c","role":"authenticated"}', true);
-select 'C sees cards: ' || string_agg(kind, ',' order by kind) from public.card;
-insert into public.card_check (card_id) values ('10000000-0000-0000-0000-000000000002');
+select 'C sees cards (expect answer,concept,concept): ' || string_agg(kind, ',' order by kind) from public.card where id::text like '10000000-%';
+insert into public.card_vote (card_id, vote) values ('10000000-0000-0000-0000-000000000002', 'legit');
 insert into public.review (card_id, fsrs, due) values ('10000000-0000-0000-0000-000000000001', '{"state":1}', now());
--- B flags the shared concept: hidden from C, still seen by A (owner) and M (maintainer)
+-- B changes the vote to fix: the card stays visible to C, who sees B's vote and reason
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000b","role":"authenticated"}', true);
-select 'B sees reviews: ' || count(*) from public.review;
-insert into public.card_flag (card_id, reason) values ('10000000-0000-0000-0000-000000000001', 'wrong count');
+select 'B sees reviews (expect 0): ' || count(*) from public.review;
+update public.card_vote set vote = 'fix', reason = 'wrong count' where card_id = '10000000-0000-0000-0000-000000000001';
+do $$ begin
+  update public.card_vote set vote = 'legit' where user_id = '00000000-0000-0000-0000-00000000000c';
+  if found then raise notice 'FAIL B changed C''s vote'; else raise notice 'ok only your own vote changes'; end if;
+end $$;
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000c","role":"authenticated"}', true);
-select 'C sees the flagged concept: ' || count(*) from public.card where id = '10000000-0000-0000-0000-000000000001';
+select 'C sees the concept voted fix (expect 1): ' || count(*) from public.card where id = '10000000-0000-0000-0000-000000000001';
+select 'C sees votes (expect fix:wrong count,legit:): ' || string_agg(vote || ':' || reason, ',' order by vote) from public.card_vote;
+-- M votes on the AI draft it uploaded, and settles the concept: its fix votes go
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000d","role":"authenticated"}', true);
-select 'M sees flags: ' || count(*) from public.card_flag;
+insert into public.card_vote (card_id, vote) values ('10000000-0000-0000-0000-000000000003', 'legit');
+select 'M voted on its AI draft (expect 1): ' || count(*) from public.card_vote where card_id = '10000000-0000-0000-0000-000000000003';
 select public.settle_flag('10000000-0000-0000-0000-000000000001', true);
-select 'after M keeps it: ' || status from public.card where id = '10000000-0000-0000-0000-000000000001';
--- A edits the shared concept: back to draft, its checks gone
+select 'after M keeps it, fix votes (expect 0): ' || count(*) from public.card_vote where card_id = '10000000-0000-0000-0000-000000000001' and vote = 'fix';
+-- B votes again and takes it back; then A edits the concept: its votes are gone
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000b","role":"authenticated"}', true);
+insert into public.card_vote (card_id, vote) values ('10000000-0000-0000-0000-000000000001', 'legit') on conflict (card_id, user_id) do update set vote = 'legit';
+delete from public.card_vote where card_id = '10000000-0000-0000-0000-000000000003';
+insert into public.card_vote (card_id, vote) values ('10000000-0000-0000-0000-000000000003', 'fix');
+delete from public.card_vote where card_id = '10000000-0000-0000-0000-000000000003' and user_id = auth.uid();
+select 'B took its vote back (expect 0): ' || count(*) from public.card_vote where card_id = '10000000-0000-0000-0000-000000000003' and user_id = auth.uid();
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000a","role":"authenticated"}', true);
 update public.card set answer = '62 hosts (64 minus network and broadcast)' where id = '10000000-0000-0000-0000-000000000001';
-select 'after A edits: ' || status || ', checks ' || (select count(*) from public.card_check where card_id = '10000000-0000-0000-0000-000000000001') from public.card where id = '10000000-0000-0000-0000-000000000001';
+select 'after A edits, votes (expect 0): ' || (select count(*) from public.card_vote where card_id = '10000000-0000-0000-0000-000000000001');
 do $$ begin
   begin perform public.settle_flag('10000000-0000-0000-0000-000000000001', false); raise notice 'FAIL a Student settled a flag';
   exception when insufficient_privilege then raise notice 'ok only the Maintainer settles flags'; end;
@@ -164,6 +180,8 @@ select set_config('request.jwt.claims', '{"role":"anon"}', true);
 do $$ begin
   begin perform 1 from public.card; raise notice 'FAIL anon can read cards';
   exception when insufficient_privilege then raise notice 'ok anon cannot read cards'; end;
+  begin perform 1 from public.card_vote; raise notice 'FAIL anon can read votes';
+  exception when insufficient_privilege then raise notice 'ok anon cannot read votes'; end;
 end $$;
 
 -- Deleting one's own account removes it and its progress, and nobody else's

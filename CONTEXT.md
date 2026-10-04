@@ -137,20 +137,20 @@ _Avoid_: Conflict (a Conflict is between a Tick and Canvas), inconsistency
 
 **Card**:
 One prompt and its answer for spaced-repetition drill. Every Card is drafted by AI or a Student
-from Course material and checked by a person before anyone else sees it. It names at least one
+from Course material and voted on by the Students who use it. It names at least one
 **Source**: the Course Plan item it was made from. Which Key Events it serves follows from the
 Chains its Sources belong to, never set on the Card itself. Its answer side links to its Sources.
 _Avoid_: Flashcard, note
 
-**Check**:
-A Student other than the drafter confirming a Card is correct. One Check makes a Concept or
-Question Card shared; for an Answer Card the checker must be in the same Group.
-_Avoid_: Review (a review is a drill of a Card), approval
-
-**Flag**:
-Any Student marking a shared Card as wrong. One Flag hides it until it is fixed and Checked again;
-the Maintainer settles disputes.
-_Avoid_: Report, downvote
+**Vote**:
+A Student's public verdict on a Card: **legit** (correct and useful) or **fix** (faulty or needs a
+fix, with an optional reason). One per Student per Card, changeable; never on a Card one wrote,
+except an AI draft. Every Concept and Question Card is seen by everyone; its **Trust** follows from
+its Votes: *needs fix* once fix Votes reach the legit ones, *trusted* with more legit than fix,
+else *new*. Practice leaves out Cards needing a fix by default. The Maintainer settles a Card
+voted fix: keep it (its fix Votes go) or remove it. Votes replaced the earlier Check and Flag
+(2026-10-04).
+_Avoid_: Review (a review is a drill of a Card), Check, Flag, approval, downvote
 
 **Concept Card**:
 A Card for one idea a Key Event tests, with a checked answer. Shared with every Student.

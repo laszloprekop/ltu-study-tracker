@@ -88,20 +88,20 @@
             });
           },
         };
-        // Cards (release 4): every rule is in the database (who sees, who checks, status).
+        // Cards (release 4, Votes since migration 012): every rule is in the database (who sees, who votes).
         if (name === "cards") {
           var me = session.user.id, ok = function (r) { if (r.error) throw r.error; return r.data; };
           return {
             me: me,
             list: function () { return sb.from("card").select("id,kind,prompt,answer,sources,course,group_number,owner,ai_drafted,status,updated_at").limit(2000).then(ok); },
-            myChecks: function () { return sb.from("card_check").select("card_id").eq("user_id", me).then(ok); },
+            votes: function () { return sb.from("card_vote").select("card_id,user_id,vote,reason").limit(20000).then(ok); },
             reviews: function () { return sb.from("review").select("card_id,fsrs,due").then(ok); },
-            flags: function () { return sb.from("card_flag").select("card_id,reason,user_id").then(ok); },
             maintainer: function () { return sb.rpc("is_maintainer").then(ok); },
             groups: function () { return sb.from("group_member").select("course,group_number").then(ok); },
             add: function (c) { return sb.from("card").insert(c).then(ok); },
-            check: function (id) { return sb.from("card_check").insert({ card_id: id }).then(ok); },
-            flag: function (id, reason) { return sb.from("card_flag").insert({ card_id: id, reason: reason || "" }).then(ok); },
+            // One Vote per Card per Student: "legit" or "fix" (with a reason); casting again changes it.
+            vote: function (id, vote, reason) { return sb.from("card_vote").upsert({ card_id: id, user_id: me, vote: vote, reason: reason || "", at: new Date().toISOString() }).then(ok); },
+            unvote: function (id) { return sb.from("card_vote").delete().eq("card_id", id).eq("user_id", me).then(ok); },
             settle: function (id, keep) { return sb.rpc("settle_flag", { target: id, keep: keep }).then(ok); },
             review: function (id, fsrs, due) { return sb.from("review").upsert({ user_id: me, card_id: id, fsrs: fsrs, due: due, updated_at: new Date().toISOString() }).then(ok); },
           };
