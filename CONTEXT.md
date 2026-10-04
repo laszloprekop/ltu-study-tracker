@@ -181,6 +181,19 @@ A Student's choice of how long Reviews continue: until the Key Event (the defaul
 mastered, carrying on past smaller Key Events towards the midterms and final exams.
 _Avoid_: Mode, horizon
 
+### Links
+
+**Link**:
+The address of a view, a row or a Card on the page, such as `#/all/d:Z0025E:3043`. Share hands a
+Link out; it carries where to go and the term and course filter, never anything of the person
+sharing it.
+_Avoid_: Deep link, URL (a URL may point outside the page), share link
+
+**Pin**:
+A Link a Student keeps in their Personal Layer, shown in the Pinned view. Only page Links, never
+an outside address.
+_Avoid_: Bookmark, Favourite
+
 ### Progress
 
 **Tick**:

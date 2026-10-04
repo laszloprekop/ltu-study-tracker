@@ -9,6 +9,15 @@
   var cfg = window.TRACKER_CONFIG;
   if (!cfg || !window.supabase) return;
 
+  // Google sends the sign-in back to "/" without the page's #/ address, so a Link opened signed out
+  // is kept in this tab across the round trip and put back before the page reads it.
+  var RETURN_KEY = "ltu-return-route";
+  try {
+    var back = sessionStorage.getItem(RETURN_KEY);
+    if (back && new URL(location.href).searchParams.has("code") && !location.hash) history.replaceState(null, "", location.pathname + location.search + back);
+    sessionStorage.removeItem(RETURN_KEY);
+  } catch (e) {}
+
   var sb = window.supabase.createClient(cfg.supabaseUrl, cfg.anonKey, {
     auth: { flowType: "pkce", detectSessionInUrl: true, persistSession: true, autoRefreshToken: true },
   });
@@ -141,6 +150,7 @@
       btn.title = "Sign in with Google to keep your Ticks on every device. Without it they stay in this browser.";
       btn.addEventListener("click", function () {
         btn.disabled = true;
+        try { if (/^#\//.test(location.hash)) sessionStorage.setItem(RETURN_KEY, location.hash); } catch (e) {}
         sb.auth.signInWithOAuth({ provider: "google", options: { redirectTo: location.origin + "/" } });
       });
     }

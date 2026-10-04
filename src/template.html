@@ -449,6 +449,23 @@ a.tag.feeds:hover{text-decoration:underline}
 .mute{flex:0 0 auto; display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; border:0; background:none; color:var(--muted); opacity:.4; cursor:pointer; border-radius:50%; padding:0}
 .mute:hover,.muted .mute{opacity:1}
 .muted .mute{color:var(--alert)}
+.muted .mute.more{color:var(--muted)}
+.ann .mute.more{margin-left:auto; color:inherit}
+/* the row menu (Share, Hide) and the short note a Link or a share leaves */
+.rowmenu{position:absolute; z-index:40; display:flex; flex-direction:column; min-width:180px; padding:4px; background:var(--surface); color:var(--ink); border:1px solid var(--line); box-shadow:var(--shadow), 0 6px 20px rgba(0,0,0,.18)}
+.rowmenu[hidden]{display:none}
+.rowmenu button{display:flex; align-items:center; gap:8px; padding:8px 10px; border:0; background:none; color:inherit; font:inherit; font-size:13px; text-align:left; cursor:pointer}
+.rowmenu button:hover,.rowmenu button:focus-visible{background:var(--surface-2); outline:none}
+.toast{position:fixed; z-index:50; left:50%; bottom:max(16px, env(safe-area-inset-bottom)); transform:translateX(-50%); display:flex; align-items:center; gap:10px; max-width:calc(100vw - 32px); padding:10px 14px; background:var(--ink); color:var(--surface); font-size:13px; overflow-wrap:anywhere; box-shadow:0 6px 20px rgba(0,0,0,.25)}
+.toast[hidden]{display:none}
+.toast button{border:0; padding:4px 8px; background:var(--surface); color:var(--ink); font:inherit; font-weight:600; cursor:pointer}
+/* the row a Link points at, lit for a moment */
+.flash{animation:flash 2.4s ease-out}
+@keyframes flash{0%,30%{box-shadow:0 0 0 3px var(--now); background-color:var(--now-container)} 100%{box-shadow:0 0 0 3px transparent}}
+@media (prefers-reduced-motion:reduce){ .flash{animation:none; outline:3px solid var(--now)} }
+.cardsview .fc-act button.share{flex:0 0 auto; padding:4px 8px}
+.cardsview h3 .setshare{margin-left:8px; display:inline-flex; align-items:center; gap:4px; font-size:12px; padding:3px 8px}
+.fgrid.one{max-width:420px}
 
 .chip{font-weight:600; margin-right:7px; color:var(--on-cc-container); background:var(--cc-container)}
 .ph{display:inline-block; flex:0 0 auto; line-height:0; border-radius:50%; overflow:hidden; isolation:isolate; background:#fff; background:color-mix(in oklch, var(--cc) 32%, #fff)}
@@ -954,6 +971,9 @@ body.colored table.all tr:not(.done) .tt{color:var(--cc)}
   <footer class="foot" id="foot"></footer>
 </div>
 
+<div id="rowmenu" class="rowmenu" role="menu" hidden></div>
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
 <script>
 /*__DATA__*/
 
@@ -1297,8 +1317,8 @@ function row(r, opts){
   var inner = r.id ? '<label for="' + esc(r.id) + '">' + text + '</label>' : '<span class="block">' + text + '</span>';
   var cls = "row " + r.kind + " lvl-" + r.level + (r.id && endangeredRow(r) ? " endangered" : "");
   var times = r.kind === "session" && r.time ? ' data-start="' + esc(r.time) + '" data-end="' + esc(r.end || "") + '"' : '';
-  return '<div class="' + hostClass(r.id, cls) + '" style="' + colorVars(r.code) + '" data-course="' + r.code + '"' + (r.id ? ' data-id="' + esc(r.id) + '"' : '') + times + '>' +
-    when(r, opts) + (r.id ? box(r.id) : '') + '<span class="body">' + inner + prep + (r.kind === "deadline" && /^d:[^:]+:\d+$/.test(r.id || "") ? prepareLine(r.code, Number(r.id.split(":")[2])) : '') + links(r.links) + '</span>' + (r.id ? muteBtn(r.id) : '') + '</div>';
+  return '<div class="' + hostClass(r.id, cls) + '" style="' + colorVars(r.code) + '" data-course="' + r.code + '"' + (r.id ? ' data-id="' + esc(r.id) + '"' : '') + ' data-link="' + esc(r.id || r.key) + '"' + times + '>' +
+    when(r, opts) + (r.id ? box(r.id) : '') + '<span class="body">' + inner + prep + (r.kind === "deadline" && /^d:[^:]+:\d+$/.test(r.id || "") ? prepareLine(r.code, Number(r.id.split(":")[2])) : '') + links(r.links) + '</span>' + rowCtl(r.id, r.id || r.key, r.code, r.stitle || r.title) + '</div>';
 }
 function creq(code, i){
   if (!i.req) return '<span class="creq none" aria-hidden="true">' + ic("circle-dashed") + '</span>';
@@ -1312,10 +1332,10 @@ function matList(code, list, opts){
     var id = "m:" + code + ":" + i.id, level = itemLevel(code, i);
     var end = opts.week && level === "must" && endangeredItem(opts.week);
     var extra = (i.kind === "selfpaced" ? '<span title="A forum post is required">' + ic("chat-text", "sm") + 'post</span>' : '') + (i.minutes ? '<span title="Time it takes">' + ic("clock", "sm") + fmtMin(i.minutes) + '</span>' : '');
-    return '<li class="' + hostClass(id, "lvl-" + level + (end ? " endangered" : "")) + '" style="' + colorVars(code) + '" data-course="' + code + '" data-id="' + id + '">' + box(id) + creq(code, i) +
+    return '<li class="' + hostClass(id, "lvl-" + level + (end ? " endangered" : "")) + '" style="' + colorVars(code) + '" data-course="' + code + '" data-id="' + id + '" data-link="' + id + '">' + box(id) + creq(code, i) +
       '<label for="' + id + '">' + lvl(level) + ic(KIND_ICON[i.kind] || "book-open", "kic") + (i.number ? '<span class="num mono">' + esc(i.number) + '</span>' : '') +
       '<span class="tt" title="' + esc(KIND[i.kind] || i.kind) + '">' + esc(i.title) + '</span>' + (extra ? '<span class="kind">' + extra + '</span>' : '') + (i.assignmentId ? prepareLine(code, i.assignmentId) : '') + '</label>' +
-      '<a class="go" href="' + esc(i.url) + '" target="_blank" rel="noopener" title="Open in Canvas" aria-label="Open in Canvas">' + ic("arrow-square-out") + '</a>' + muteBtn(id) + '</li>';
+      '<a class="go" href="' + esc(i.url) + '" target="_blank" rel="noopener" title="Open in Canvas" aria-label="Open in Canvas">' + ic("arrow-square-out") + '</a>' + rowCtl(id, id, code, i.title) + '</li>';
   }).join("") + '</ul>';
 }
 function isOpen(key){ return state.open[key] !== false; }
@@ -1326,8 +1346,9 @@ function matBlock(b, titleText){
     (b.why ? '<span class="why">' + esc(b.why) + '</span>' : '') + matList(b.code, b.items, { week: b.week }) + '</details>';
 }
 function annBlock(a, code){
-  return '<div class="ann" data-course="' + code + '">' + ic("megaphone") + '<div><span class="k">From the teacher, ' + esc(longDay(a.posted)) + '</span>' + chip(code) +
-    '<a href="' + esc(a.url) + '" target="_blank" rel="noopener">' + esc(a.title) + ext(a.url) + '</a>' + (a.text ? ' <span class="why" style="display:inline">' + esc(a.text.slice(0, 220)) + (a.text.length > 220 ? "\u2026" : "") + '</span>' : '') + '</div></div>';
+  var link = "a:" + code + ":" + a.id;
+  return '<div class="ann" data-course="' + code + '" data-link="' + esc(link) + '">' + ic("megaphone") + '<div><span class="k">From the teacher, ' + esc(longDay(a.posted)) + '</span>' + chip(code) +
+    '<a href="' + esc(a.url) + '" target="_blank" rel="noopener">' + esc(a.title) + ext(a.url) + '</a>' + (a.text ? ' <span class="why" style="display:inline">' + esc(a.text.slice(0, 220)) + (a.text.length > 220 ? "\u2026" : "") + '</span>' : '') + '</div>' + rowCtl(null, link, code, a.title) + '</div>';
 }
 // Rows of one week, grouped under day headings, with the Today playhead in the current week.
 function groupedRows(wr, mon, today){
@@ -1342,6 +1363,113 @@ function groupedRows(wr, mon, today){
   return out;
 }
 function playhead(today){ return '<div class="playhead" id="today"><span class="phl">Today \u00B7 ' + esc(longDay(today)) + '</span></div>'; }
+
+/* ---------- Links: every view and every row has an address (docs/plan/links.md) ---------- */
+// #/<view>[/<target>...][/answer]?term=<id>&course=<code>. An address wins over the remembered view;
+// a bare one opens the last view. Share hands the address out, on the hosted app only (the artifact
+// runs the same router but shows no share controls). A Link never carries anyone's ticks.
+var ROUTE_VIEWS = ["week", "day", "all", "map", "cards", "about", "help", "privacy", "terms"];
+function hostedApp(){ return !!window.TRACKER_CONFIG; }
+function seg(x){ return String(x).replace(/[^\w:.\-]/g, encodeURIComponent); }
+function routeOf(view, parts, opts){
+  opts = opts || {};
+  var q = [], tm = opts.term || state.term, c = opts.course !== undefined ? opts.course : state.filter;
+  if (tm) q.push("term=" + seg(tm));
+  if (c && c !== "all") q.push("course=" + seg(c));
+  return "#/" + view + (parts || []).filter(Boolean).map(function(x){ return "/" + seg(x); }).join("") + (opts.answer ? "/answer" : "") + (q.length ? "?" + q.join("&") : "");
+}
+function parseRoute(hash){
+  var m = /^#\/([a-z]+)((?:\/[^?\/]*)*)(?:\?(.*))?$/.exec(hash || "");
+  if (!m || ROUTE_VIEWS.indexOf(m[1]) < 0) return null;
+  var dec = function(x){ try { return decodeURIComponent(x); } catch (e) { return x; } };
+  var r = { view: m[1], parts: m[2].split("/").filter(Boolean).map(dec), answer: false, term: null, course: null };
+  if (r.parts[r.parts.length - 1] === "answer") { r.answer = true; r.parts.pop(); }
+  (m[3] || "").split("&").forEach(function(kv){ var i = kv.indexOf("="); if (i < 0) return; var k = kv.slice(0, i), v = dec(kv.slice(i + 1)); if (k === "term" || k === "course") r[k] = v; });
+  return r;
+}
+// The address of what is on screen now.
+function currentRoute(){
+  var v = state.view, p = [];
+  if (v === "cards") p = state.cardOne ? [state.cardOne] : state.cardFilter && state.cardFilter !== "due" ? ["set", state.cardFilter] : [];
+  else if (v === "day") p = [state.day || todayIso()];
+  else if (v === "map") p = [state.mapSel];
+  if (state.routeTarget && (v === "week" || v === "all" || v === "day")) p.push(state.routeTarget);
+  return routeOf(v, p, { answer: v === "cards" && state.cardOne && state.flipped && state.flipped[state.cardOne] });
+}
+// push: a step Back returns to (a view, a term, one card); otherwise the address is only kept current.
+function syncRoute(push){
+  var to = currentRoute();
+  if (to === location.hash) return;
+  try { history[push ? "pushState" : "replaceState"](null, "", location.pathname + location.search + to); } catch (e) {}
+}
+function navigate(){ state.routeTarget = null; state.cardOne = null; state.routePush = true; }
+function applyRoute(r){
+  if (r.term && TERMS.some(function(t){ return t.id === r.term; })) state.term = r.term;
+  state.filter = r.course && COURSES[r.course] ? r.course : "all";
+  state.view = r.view; state.routeTarget = null; state.cardOne = null;
+  var p = r.parts;
+  if (r.view === "cards") {
+    if (p[0] === "set" && p[1]) { state.cardFilter = p.slice(1).join("/"); state.flipped = {}; }
+    else if (p[0]) { state.cardOne = p[0]; state.flipped = {}; state.flipped[p[0]] = r.answer; }
+  }
+  else if (r.view === "day") { if (/^\d{4}-\d\d-\d\d$/.test(p[0] || "")) state.day = p[0]; state.routeTarget = p[1] || null; }
+  else if (r.view === "week" || r.view === "all") state.routeTarget = p[0] || null;
+  else if (r.view === "map") state.routeMap = p[0] || null;
+  state.routeFocus = !!state.routeTarget;
+}
+function cssq(x){ return window.CSS && CSS.escape ? CSS.escape(x) : String(x).replace(/["\\]/g, "\\$&"); }
+// After a render: bring the linked row into view. The link wins over folds, filters and hiding,
+// but nothing it opens is saved.
+function focusTarget(){
+  var id = state.routeTarget; if (!id) return;
+  var el = /^\d{4}-\d\d-\d\d$/.test(id) ? document.querySelector('#termbody .week[data-week="' + cssq(monday(id)) + '"]') : document.querySelector('#termbody [data-link="' + cssq(id) + '"]');
+  var moved = false;
+  if (!el && /^s:/.test(id)) {   // a session that moved: the same course's session in the same week
+    var sp = id.split(":"), mon = monday(sp[2] || "");
+    el = Array.prototype.find.call(document.querySelectorAll('#termbody [data-link^="s:' + cssq(sp[1]) + ':"]'), function(x){ return monday(x.dataset.link.split(":")[2]) === mon; }) || null;
+    moved = !!el;
+  }
+  if (!el) { toast("This item has moved or no longer exists."); return; }
+  for (var a = el; a && a.id !== "termbody"; a = a.parentElement) {
+    if (a.hidden) a.hidden = false;
+    if (a.classList.contains("collapsed")) a.classList.remove("collapsed");
+    if (a.tagName === "DETAILS" && !a.open) { a.dataset.routeOpened = "1"; a.open = true; }
+  }
+  el.scrollIntoView({ block: "center" });
+  el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash");
+  if (moved) toast("That session has moved. This is the course's session in the same week.");
+  else if (el.classList.contains("muted")) toast("You hid this.", el.dataset.id ? '<button type="button" data-mute="' + esc(el.dataset.id) + '" data-toastclose="1">Unhide</button>' : "");
+}
+function toast(msg, extra){
+  var el = document.getElementById("toast"); if (!el) return;
+  el.innerHTML = '<span>' + esc(msg) + '</span>' + (extra || "");
+  el.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(function(){ el.hidden = true; }, 6000);
+}
+// The control at the end of a row. On the hosted app: a menu (Share, Hide); elsewhere the plain Hide button.
+function rowCtl(muteId, link, code, title){
+  if (!hostedApp()) return muteId ? muteBtn(muteId) : "";
+  return '<button type="button" class="mute more" data-more="' + esc(link) + '"' + (muteId ? ' data-mid="' + esc(muteId) + '"' : '') + ' data-share="' + esc(code + ": " + title) + '" title="Share' + (muteId ? ' or hide' : '') + '" aria-label="More: share' + (muteId ? ', hide' : '') + '" aria-haspopup="menu">' + ic("dots-three") + '</button>';
+}
+function openRowMenu(b){
+  var m = document.getElementById("rowmenu"), mid = b.dataset.mid;
+  m.innerHTML = '<button type="button" role="menuitem" data-sharelink="' + esc(b.dataset.more) + '" data-share="' + esc(b.dataset.share) + '">' + ic("share-network", "sm") + 'Share</button>' +
+    (mid ? '<button type="button" role="menuitem" data-mute="' + esc(mid) + '">' + ic(state.muted[mid] ? "eye" : "prohibit", "sm") + (state.muted[mid] ? 'Unhide' : 'Hide: not for me') + '</button>' : '');
+  var r = b.getBoundingClientRect();
+  m.hidden = false;
+  m.style.top = (r.bottom + window.scrollY + 4) + "px";
+  m.style.left = Math.max(8, Math.min(r.right - m.offsetWidth, document.documentElement.clientWidth - m.offsetWidth - 8) + window.scrollX) + "px";
+  m.firstChild.focus();
+}
+function closeRowMenu(){ var m = document.getElementById("rowmenu"); if (m && !m.hidden) m.hidden = true; }
+// A row's address opens in the view it was shared from.
+function rowRoute(link){ return state.view === "day" ? routeOf("day", [state.day || todayIso(), link]) : routeOf(state.view === "all" ? "all" : "week", [link]); }
+// Share: the phone's own share menu where there is one, otherwise copy the address.
+function shareLink(route, text){
+  var url = location.origin + location.pathname + route;
+  if (navigator.share && matchMedia("(pointer: coarse)").matches) { navigator.share({ title: text, text: text, url: url }).catch(function(){}); return; }
+  (navigator.clipboard && navigator.clipboard.writeText ? navigator.clipboard.writeText(url) : Promise.reject())
+    .then(function(){ toast("Link copied"); }, function(){ toast("Copy this link: " + url); });
+}
 
 /* ---------- Views ---------- */
 function renderWeekView(t){
@@ -1366,10 +1494,16 @@ function renderWeekView(t){
       (isNow ? '<div class="flag nowflag">' + ic("flag", "sm") + 'this week</div>' : '') + (flag ? '<div class="flag">' + ic("flag", "sm") + esc(flag) + '</div>' : '') + '</div>' + body + '</div>';
   }).join("");
   var jump = document.getElementById("jump"), idx = weeks.indexOf(curMon);
-  jump.hidden = idx < 0; if (idx >= 0) jump.href = "#today";
+  jump.hidden = idx < 0;
   return '<section><div class="sechead"><h2>Week by week</h2><span class="note">MUST items carry a red stripe. Sessions have no box, they are attended. The caret by a week number folds it.</span></div><div class="weeks">' + html + '</div></section>';
 }
 /* ---------- Cards (release 4) ---------- */
+// The name a shared Card Set (or one Source's cards) goes by: course code and title.
+function setName(f, sets, itemF){
+  if (sets[f]) return sets[f].e.code + ": " + shortTitle(sets[f].e.a.title).split(",")[0] + " cards";
+  if (itemF && itemF.item) return itemF.code + ": cards from " + (itemF.item.number ? itemF.item.number + " " : "") + itemF.item.title;
+  return "";
+}
 // Cards live in the database with their rules (app/supabase/migrations/..._cards.sql); this view
 // drills, checks and writes them. Reviews are planned by FSRS at 90% recall; with the Drill Goal
 // "until the Key Event" no Review is set after the next event a Card prepares for.
@@ -1471,8 +1605,14 @@ function renderCardsView(t){
   if (!window.TRACKER_CONFIG) return '<section class="appview">' + head + '<div class="card"><p>Cards need an account, so they live on the hosted tracker: ' + appLink() + '. There you drill cards made from the lectures and lab material, vote on them and write your own.</p></div></section>';
   var C = state.cards;
   if (!C) return '<section class="appview">' + head + '<div class="card"><p>Loading cards...</p></div></section>';
-  if (C.signedOut) return '<section class="appview">' + head + '<div class="card"><p>Sign in (top right) to drill, vote on and write cards. Every card is seen by every classmate; votes say which ones to trust.</p></div></section>';
+  if (C.signedOut) return '<section class="appview">' + head + '<div class="card"><p>' + (state.cardOne ? 'Sign in (top right) to see the card this link points to. Cards are for signed-in classmates; after signing in you land on it.' : 'Sign in (top right) to drill, vote on and write cards. Every card is seen by every classmate; votes say which ones to trust.') + '</p></div></section>';
   if (C.error) return '<section class="appview">' + head + '<div class="card"><p class="err">The cards could not be loaded just now.</p></div></section>';
+  // One card from a Link, on its own, on the side it was shared from.
+  if (state.cardOne) {
+    var one = C.list.find(function(c){ return c.id === state.cardOne; });
+    return '<section class="appview cardsview">' + head + (state.cardErr ? '<p class="err">' + esc(state.cardErr) + '</p>' : '') + '<div class="card"><h3>' + ic("barbell") + 'One card<span class="sum"><button type="button" class="plain" data-cardall="1">' + ic("arrow-left", "sm") + 'All cards</button></span></h3>' +
+      (one ? '<div class="fgrid one">' + flipCard(t, one, "drill") + '</div>' : '<p class="note">This card no longer exists, or it is a group answer card that only its group sees.</p>') + '</div></section>';
+  }
   var pool = drillable(t), due = pool.filter(isDue), today = todayIso(), f = state.cardFilter || "due", hiddenN = C.list.filter(cardHidden).length, tr = state.cardTrust || "nofix";
   var sets = {}; pool.forEach(function(c){ cardEvents(t, c).forEach(function(e){ if (e.a.due < today) return; var k = e.code + ":" + e.a.id; (sets[k] = sets[k] || { k: k, e: e, cards: [] }).cards.push(c); }); });
   var setList = Object.keys(sets).map(function(k){ return sets[k]; }).sort(function(p, q){ return p.e.a.due.localeCompare(q.e.a.due); });
@@ -1500,7 +1640,7 @@ function renderCardsView(t){
     '<div class="row"><textarea id="cw-prompt" rows="2" placeholder="Front: the question"></textarea></div><div class="row"><textarea id="cw-answer" rows="5" placeholder="Back: the answer, or for a question card where the answer is found.&#10;- a list item&#10;`code` and **a term**&#10;Key: the one thing to remember"></textarea></div>' +
     '<div class="row"><button type="button" data-cardwrite="1">Save the card</button><small>Everyone sees it at once; classmates vote whether it is legit.</small></div></div>';
   return '<section class="appview cardsview">' + head + (state.cardErr ? '<p class="err">' + esc(state.cardErr) + '</p>' : '') +
-    '<div class="card"><h3>' + ic("barbell") + 'Drill<span class="sum">' + due.length + ' of ' + pool.length + ' due' + (doneN ? ', ' + shown.length + ' left in this round' : '') + '</span></h3>' +
+    '<div class="card"><h3>' + ic("barbell") + 'Drill<span class="sum">' + due.length + ' of ' + pool.length + ' due' + (doneN ? ', ' + shown.length + ' left in this round' : '') + '</span>' + (setName(f, sets, itemF) ? '<button type="button" class="plain setshare" data-setshare="' + esc(setName(f, sets, itemF)) + '" title="Share a link to these cards">' + ic("share-network", "sm") + 'Share this set</button>' : '') + '</h3>' +
       '<div class="fbar">' + filters + '</div>' + scale +
       '<div class="row"><span class="small">Practice cards</span><label><input type="radio" name="dgoal" value="event"' + (state.drillGoal === "event" ? ' checked' : '') + '> until the lab or exam</label><label><input type="radio" name="dgoal" value="mastered"' + (state.drillGoal === "mastered" ? ' checked' : '') + '> until mastered</label></div>' +
       grid + '</div>' +
@@ -1537,7 +1677,8 @@ function flipCard(t, c, mode){
   var act = '<div class="fc-act">' +
     '<button type="button" data-cardvote="legit" data-card="' + esc(c.id) + '" aria-pressed="' + (v.mine === "legit") + '"' + (may ? '' : ' disabled') + ' title="' + esc((v.mine === "legit" ? "Take back your legit vote" : "This card is legit: correct and useful") + mineNote) + '">' + ic("check-circle", "sm") + 'Legit <b>' + v.legit + '</b></button>' +
     '<button type="button" data-cardvote="fix" data-card="' + esc(c.id) + '" aria-pressed="' + (v.mine === "fix") + '"' + (may ? '' : ' disabled') + ' title="' + esc((v.mine === "fix" ? "Take back your needs-fix vote" : "This card is faulty or needs a fix") + mineNote) + '">' + ic("warning", "sm") + 'Needs fix <b>' + v.fix + '</b></button>' +
-    '<button type="button" class="hide" data-cardhide="' + esc(c.id) + '" title="' + (hid ? "Show this card again" : "Hide this card: not for me") + '">' + ic(hid ? "eye" : "eye-slash", "sm") + (hid ? 'Unhide' : 'Hide') + '</button></div>' +
+    '<button type="button" class="hide" data-cardhide="' + esc(c.id) + '" title="' + (hid ? "Show this card again" : "Hide this card: not for me") + '">' + ic(hid ? "eye" : "eye-slash", "sm") + (hid ? 'Unhide' : 'Hide') + '</button>' +
+    (c.kind !== "answer" ? '<button type="button" data-cardshare="' + esc(c.id) + '" class="share" title="Share a link to this card, on the side you see now" aria-label="Share">' + ic("share-network", "sm") + '</button>' : '') + '</div>' +
     (state.flagging === c.id ? '<div class="ck-b"><input type="text" id="flag-why" maxlength="500" placeholder="What is wrong? (optional)"><button type="button" data-flagsend="' + esc(c.id) + '">Vote needs fix</button><button type="button" class="plain" data-flagcancel="1">Cancel</button></div>' : '');
   var trustTag = k === "trusted" ? '<span class="tag trust ok" title="' + v.legit + ' legit, ' + v.fix + ' needs fix">' + ic("shield-check", "sm") + 'legit ' + v.legit + '</span>' : k === "fix" ? '<span class="tag trust bad" title="' + esc(v.fix + " needs fix" + (v.reasons.length ? ": " + v.reasons.join("; ") : "")) + '">' + ic("warning", "sm") + 'needs fix ' + v.fix + '</span>' : '';
   var meta = chip(c.course) + (ev ? '<span class="fc-ev"' + (others.length ? ' title="' + esc("Also prepares for: " + others.map(evName).join("; ")) + '"' : '') + '>' + ic("target", "sm") + esc(evName(ev)) + (others.length ? ' <b>+' + others.length + '</b>' : '') + '</span>' : '');
@@ -1638,7 +1779,7 @@ function renderDayView(t){
   var anns = t.courses.reduce(function(a, c){ return a.concat(announcements(c).filter(function(x){ return x.posted >= mon && x.posted < next; }).map(function(x){ return Object.assign({ code: c }, x); })); }, []);
   function card(icon, title, sum, inner, cls){ return '<div class="card' + (cls ? " " + cls : "") + '"><h3>' + ic(icon) + title + (sum ? '<span class="sum">' + esc(sum) + '</span>' : '') + '</h3>' + (inner || '<div class="none">Nothing.</div>') + '</div>'; }
   function rowsOf(list, opts){ return list.length ? '<div class="rows">' + list.map(function(r){ return row(r, opts); }).join("") + '</div>' : ''; }
-  var dueRows = due.map(function(r){ var days = Math.round((day(r.date) - day(d)) / 864e5); return Object.assign({}, r, { title: r.title + (days === 0 ? " (today)" : days === 1 ? " (tomorrow)" : " (in " + days + " days)") }); });
+  var dueRows = due.map(function(r){ var days = Math.round((day(r.date) - day(d)) / 864e5); return Object.assign({}, r, { stitle: r.title, title: r.title + (days === 0 ? " (today)" : days === 1 ? " (tomorrow)" : " (in " + days + " days)") }); });
   var mat = blocks.map(function(b){ return matBlock(b, "This week"); }).join("");
   return '<section>' +
     '<div class="dayctl"><input type="date" id="daypick" value="' + d + '"><button type="button" id="day-prev">' + ic("arrow-left") + 'Day</button><button type="button" id="day-today">Today</button><button type="button" id="day-next">Day' + ic("arrow-right") + '</button><span class="note">' + esc(fullDay(d)) + ', week ' + isoWeek(d) + '</span></div>' +
@@ -1684,7 +1825,7 @@ function renderAllView(t){
   var rows = deadlineRows(t).sort(function(a, b){ return a.date.localeCompare(b.date) || a.time.localeCompare(b.time); });
   var today = todayIso();
   var tr = rows.map(function(r){
-    return '<tr class="' + hostClass(r.id, (r.date < today ? 'past' : '') + (endangeredRow(r) ? ' endangered' : '')) + '" style="' + colorVars(r.code) + '" data-course="' + r.code + '" data-id="' + esc(r.id) + '"><td class="b">' + box(r.id) + muteBtn(r.id) + '</td>' +
+    return '<tr class="' + hostClass(r.id, (r.date < today ? 'past' : '') + (endangeredRow(r) ? ' endangered' : '')) + '" style="' + colorVars(r.code) + '" data-course="' + r.code + '" data-id="' + esc(r.id) + '" data-link="' + esc(r.id) + '"><td class="b">' + box(r.id) + rowCtl(r.id, r.id, r.code, r.title) + '</td>' +
       '<td class="d mono">' + esc(r.date) + '<br><small>' + esc(r.time) + '</small></td><td>' + chip(r.code) + '</td>' +
       '<td class="n"><label for="' + esc(r.id) + '">' + rowIcon(r) + '<span class="tt">' + esc(r.title.replace(/ due \d\d:\d\d$/, "").replace(/ close \d\d:\d\d$/, " close")) + '</span></label>' + (r.why ? '<div class="why" style="color:var(--muted);font-size:12.5px">' + esc(r.why) + '</div>' : '') + '</td>' +
       '<td>' + esc(r.pts) + (r.est ? '<br><small class="est">' + fmtMin(r.est) + '</small>' : '') + '</td><td>' + links(r.links) + '</td></tr>';
@@ -1733,6 +1874,7 @@ function renderFilter(t){
 }
 function renderTerm(){
   var t = term();
+  state.inRender = true; closeRowMenu();
   computePrepMust(t);
   // On the hosted app the Course Plan syncs hourly, so an old read means the sync has stopped.
   var read = new Date(INV.generatedAt), stale = !!window.TRACKER_CONFIG && Date.now() - read.getTime() > 3 * 3600 * 1000;
@@ -1750,9 +1892,13 @@ function renderTerm(){
   if (state.view !== "week") document.getElementById("jump").hidden = true;
   document.getElementById("termbody").innerHTML = body;
   if (state.view === "map") bindMap(t);
+  if (state.view === "map" && state.routeMap) { var rk = state.routeMap; state.routeMap = null; gotoKey(t, rk); }
   renderProfile();
   if (!state.cards && !state.cardsLoading) loadCards();
   applyFilter();
+  state.inRender = false;
+  syncRoute(state.routePush); state.routePush = false;
+  if (state.routeFocus) { state.routeFocus = false; focusTarget(); }
 }
 
 /* ---------- Map view: rail of coming events, clock graph of Canvas entities, details ---------- */
@@ -2464,6 +2610,7 @@ function refreshMap(t, center, structural){
   }
   applySel(t);
   if (center) setTimeout(function(){ centerMapOn(center); }, structural ? 350 : 0);
+  if (!state.inRender) syncRoute(false);
 }
 function bindSvg(){
   var svg = document.getElementById("gsvg"); if (!svg) return;
@@ -3074,10 +3221,17 @@ document.addEventListener("click", function(e){
   if (fc && !e.target.closest("button, a, input, textarea, select, label")) {
     state.flipped = state.flipped || {}; state.flipped[fc.dataset.flip] = !state.flipped[fc.dataset.flip];
     fc.classList.toggle("flipped", !!state.flipped[fc.dataset.flip]); fc.setAttribute("aria-pressed", String(!!state.flipped[fc.dataset.flip]));
+    if (state.cardOne === fc.dataset.flip) syncRoute(false);
     return;
   }
   var cf = e.target.closest && e.target.closest("button[data-cardfilter]");
-  if (cf) { state.cardFilter = cf.dataset.cardfilter; state.flipped = {}; renderTerm(); return; }
+  if (cf) { state.cardFilter = cf.dataset.cardfilter; state.cardOne = null; state.flipped = {}; renderTerm(); return; }
+  var csh = e.target.closest && e.target.closest("button[data-cardshare]");
+  if (csh) { var sc = (state.cards.list || []).find(function(c){ return c.id === csh.dataset.cardshare; }); if (sc) shareLink(routeOf("cards", [sc.id], { answer: !!(state.flipped && state.flipped[sc.id]), course: "all" }), sc.course + ": " + trunc(sc.prompt, 90)); return; }
+  var ssh = e.target.closest && e.target.closest("button[data-setshare]");
+  if (ssh) { shareLink(routeOf("cards", ["set", state.cardFilter], { course: "all" }), ssh.dataset.setshare); return; }
+  var cal = e.target.closest && e.target.closest("button[data-cardall]");
+  if (cal) { navigate(); renderTerm(); return; }
   var cb = e.target.closest && e.target.closest("button[data-rate], button[data-cardvote], button[data-flagsend], button[data-flagcancel], button[data-settle], button[data-cardwrite]");
   if (cb && state.cards && state.cards.api) {
     var C = state.cards, api = C.api, again = function(){ state.cards = null; loadCards(); };
@@ -3151,7 +3305,7 @@ document.addEventListener("click", function(e){
     return;
   }
   var g = e.target.closest && e.target.closest("[data-goview]");
-  if (g) { e.preventDefault(); var ppm = document.getElementById("profile-pop"); if (ppm) ppm.open = false; state.view = g.dataset.goview; lsSet(LS.view, state.view); renderTerm(); window.scrollTo(0, 0); return; }
+  if (g) { e.preventDefault(); var ppm = document.getElementById("profile-pop"); if (ppm) ppm.open = false; navigate(); state.view = g.dataset.goview; lsSet(LS.view, state.view); renderTerm(); window.scrollTo(0, 0); return; }
   var b = e.target.closest && e.target.closest("button[data-moved]"); if (!b) return;
   if (b.dataset.moved === "fold") { lsSet(LS.movedFolded, lsGet(LS.movedFolded) === "1" ? "0" : "1"); renderMoved(); return; }
   state.unlocked = b.dataset.moved === "unlock"; lsSet(LS.unlocked, state.unlocked ? "1" : "0"); renderMoved();
@@ -3173,6 +3327,12 @@ document.getElementById("profile-pop").addEventListener("toggle", function(){ if
 // Close the profile menu on a click outside it, or on Escape.
 document.addEventListener("click", function(e){ var pp = document.getElementById("profile-pop"); if (pp && pp.open && !pp.contains(e.target)) pp.open = false; });
 document.addEventListener("keydown", function(e){ if (e.key === "Escape") { var pp = document.getElementById("profile-pop"); if (pp && pp.open) { pp.open = false; pp.querySelector("summary").focus(); } } });
+document.addEventListener("click", function(e){ var rm = document.getElementById("rowmenu"); if (rm && !rm.hidden && !rm.contains(e.target) && !(e.target.closest && e.target.closest("[data-more]"))) closeRowMenu(); });
+document.addEventListener("keydown", function(e){ if (e.key === "Escape") { var rm = document.getElementById("rowmenu"); if (rm && !rm.hidden) { var opener = document.querySelector('[data-more="' + cssq(rm.dataset.for || "") + '"]'); closeRowMenu(); if (opener) opener.focus(); } } });
+window.addEventListener("scroll", closeRowMenu, { passive: true });
+document.getElementById("jump").addEventListener("click", function(e){ e.preventDefault(); var td = document.getElementById("today"); if (td) td.scrollIntoView({ behavior: "smooth", block: "start" }); });
+// Back, Forward and an address typed by hand: open what the address names.
+window.addEventListener("hashchange", function(){ var r = parseRoute(location.hash); if (!r) return; applyRoute(r); renderTerm(); if (!state.routeTarget) window.scrollTo(0, 0); });
 document.addEventListener("click", function(e){
   var b = e.target.closest && e.target.closest("button"); if (!b) return;
   if (b.id === "prog-export") {
@@ -3189,7 +3349,7 @@ document.addEventListener("input", function(e){ var b = e.target; if (b && b.id 
 document.addEventListener("change", function(e){
   var b = e.target;
   if (!b) return;
-  if (b.id === "daypick") { state.day = b.value || todayIso(); renderTerm(); return; }
+  if (b.id === "daypick") { state.day = b.value || todayIso(); state.routeTarget = null; renderTerm(); return; }
   if (b.name === "dgoal") { state.drillGoal = b.value === "mastered" ? "mastered" : "event"; lsSet(LS.drillGoal, state.drillGoal); return; }
   if (b.id === "cv-opened") { state.openedCounts = b.checked; lsSet(LS.openedCounts, b.checked ? "1" : "0"); applyState(); renderTerm(); return; }
   if (b.dataset && b.dataset.group) { var gv = parseInt(b.value, 10); if (gv > 0 && gv < 100) state.groups[b.dataset.group] = gv; else delete state.groups[b.dataset.group]; lsSet(LS.groups, JSON.stringify(state.groups)); renderTerm(); refreshBookings(); return; }
@@ -3205,15 +3365,17 @@ document.addEventListener("change", function(e){
 });
 document.addEventListener("click", function(e){
   var b = e.target.closest("button"); if (!b) return;
-  if (b.dataset.cardgo) { e.preventDefault(); state.cardFilter = b.dataset.cardgo; state.flipped = {}; state.view = "cards"; lsSet(LS.view, state.view); renderTerm(); window.scrollTo(0, 0); }
-  else if (b.dataset.mute) { e.preventDefault(); var id = b.dataset.mute; if (state.muted[id]) delete state.muted[id]; else state.muted[id] = true; applyState(); save(); }
+  if (b.dataset.cardgo) { e.preventDefault(); navigate(); state.cardFilter = b.dataset.cardgo; state.flipped = {}; state.view = "cards"; lsSet(LS.view, state.view); renderTerm(); window.scrollTo(0, 0); }
+  else if (b.dataset.mute) { e.preventDefault(); var id = b.dataset.mute; if (state.muted[id]) delete state.muted[id]; else state.muted[id] = true; closeRowMenu(); if (b.dataset.toastclose) document.getElementById("toast").hidden = true; applyState(); save(); }
+  else if (b.dataset.more) { e.preventDefault(); var rm = document.getElementById("rowmenu"); if (!rm.hidden && rm.dataset.for === b.dataset.more) closeRowMenu(); else { openRowMenu(b); rm.dataset.for = b.dataset.more; } }
+  else if (b.dataset.sharelink) { e.preventDefault(); closeRowMenu(); shareLink(rowRoute(b.dataset.sharelink), b.dataset.share); }
   else if (b.dataset.fold) { var w = b.closest(".week"); if (w.classList.toggle("collapsed")) state.weeks[b.dataset.fold] = false; else delete state.weeks[b.dataset.fold]; lsSet(LS.weeks, JSON.stringify(state.weeks)); }
-  else if (b.closest("#filter")) { state.filter = b.dataset.filter; lsSet(LS.filter, state.filter); if (state.view === "map" || state.view === "cards") renderTerm(); else applyFilter(); refreshCardProgress(); }
-  else if (b.closest("#views")) { state.view = b.dataset.view; lsSet(LS.view, state.view); renderTerm(); }
-  else if (b.closest("#terms")) { if (b.dataset.term !== state.term) { state.term = b.dataset.term; lsSet(LS.term, state.term); renderTerm(); } }
-  else if (b.id === "day-prev") { state.day = addDays(state.day || todayIso(), -1); renderTerm(); }
-  else if (b.id === "day-next") { state.day = addDays(state.day || todayIso(), 1); renderTerm(); }
-  else if (b.id === "day-today") { state.day = todayIso(); renderTerm(); }
+  else if (b.closest("#filter")) { state.filter = b.dataset.filter; lsSet(LS.filter, state.filter); if (state.view === "map" || state.view === "cards") renderTerm(); else { applyFilter(); syncRoute(false); } refreshCardProgress(); }
+  else if (b.closest("#views")) { navigate(); state.view = b.dataset.view; lsSet(LS.view, state.view); renderTerm(); }
+  else if (b.closest("#terms")) { if (b.dataset.term !== state.term) { navigate(); state.term = b.dataset.term; lsSet(LS.term, state.term); renderTerm(); } }
+  else if (b.id === "day-prev") { state.day = addDays(state.day || todayIso(), -1); state.routeTarget = null; renderTerm(); }
+  else if (b.id === "day-next") { state.day = addDays(state.day || todayIso(), 1); state.routeTarget = null; renderTerm(); }
+  else if (b.id === "day-today") { state.day = todayIso(); state.routeTarget = null; renderTerm(); }
   else if (b.id === "size-down" || b.id === "size-up") { state.size = Math.min(150, Math.max(70, state.size + (b.id === "size-up" ? 10 : -10))); lsSet(LS.size, String(state.size)); applyDisplay(); }
   else if (b.id === "ping-toggle") { state.ping = !state.ping; lsSet(LS.ping, state.ping ? "1" : "0"); applyDisplay(); }
   else if (b.dataset.themeSet) { state.theme = b.dataset.themeSet; lsSet(LS.theme, state.theme); applyTheme(); }
@@ -3241,6 +3403,7 @@ document.addEventListener("drop", function(e){
 // Remember each foldable block's state. "toggle" does not bubble, so listen in the capture phase.
 document.addEventListener("toggle", function(e){
   var d = e.target; if (!d || !d.dataset || !d.dataset.key) return;
+  if (d.dataset.routeOpened) { delete d.dataset.routeOpened; return; }
   state.open[d.dataset.key] = d.open; lsSet(LS.open, JSON.stringify(state.open));
 }, true);
 
@@ -3281,6 +3444,7 @@ state.railSlim = lsGet(LS.railSlim) === "1";
 if (lsGet(LS.mapMode) === "fold") state.mapMode = "fold";   // what a click on a module does: select it, or open/close it
 var savedTerm = lsGet(LS.term);
 state.term = TERMS.some(function(t){ return t.id === savedTerm; }) ? savedTerm : defaultTerm();
+var bootRoute = parseRoute(location.hash); if (bootRoute) applyRoute(bootRoute);
 applyDisplay();
 renderFoot();
 renderTerm();

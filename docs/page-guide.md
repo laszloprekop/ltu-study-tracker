@@ -121,10 +121,22 @@ the shape's own fill, with transitions off (a background tab pauses them).
 - **Pulse:** an unfinished deadline or task pulses when it is overdue or due within the coming
   seven days (today plus six); unfinished MUST material pulses in the current week and earlier ones.
   Nothing further ahead pulses. The header button turns it off; the choice is remembered.
-- **Mute:** the circle-slash button on any item marks it "not for me". It stays visible, stops
-  pulsing and leaves the counts. Muting is per viewer and stored with the ticks.
+- **Mute:** the circle-slash button on any item marks it "not for me" (on the hosted app it is
+  Hide in the row's ⋯ menu). It stays visible, stops pulsing and leaves the counts. Muting is per
+  viewer and stored with the ticks.
 - **Folding:** week cards fold from the chevron by the week number, material blocks fold from
   their heading. Both are remembered per viewer.
+
+## Links and sharing
+
+- The address bar always names what is on screen: `#/week`, `#/all/d:Z0025E:3043`,
+  `#/cards/set/Z0025E:3043`, `#/cards/<id>/answer` and so on (the full list in
+  `docs/plan/links.md`). Opening an address goes there; Back and Forward step between views.
+- Opening a Link to a row unfolds its week, scrolls to it and lights it for a moment, without
+  saving the fold. A row the viewer muted says so, with Unhide. A row that is gone says so.
+- Hosted app only: each row's ⋯ menu has Share; Cards have Share on each card (not on group
+  answer cards) and "Share this set". Share opens the phone's share menu, or copies the address.
+- A Link carries the view, term and course filter, never anyone's ticks or card ratings.
 
 ## Prepare lines
 
