@@ -75,6 +75,14 @@ select public.save_progress('{"planned":{"p1":{"date":"2026-10-05","start":"13:0
 select public.save_progress('{"planned":{"p1":{"gone":true,"at":"2026-10-03T11:00:00Z"},"p2":{"date":"2026-10-06","start":"09:00","mins":15,"at":"2026-10-03T09:00:00Z"}}}');
 select 'planned after merge: p1 gone ' || coalesce(doc->'planned'->'p1'->>'gone','false') || ', p2 still ' || (doc->'planned'->'p2'->>'date') from public.progress where user_id = '00000000-0000-0000-0000-00000000000a';
 
+-- Pins merge per Pin by the later change, an unpin included; a save without pins keeps them
+reset role; set local role authenticated;
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000a","role":"authenticated"}', true);
+select public.save_progress('{"pins":{"q1":{"route":"#/all/d:Z0025E:3043","title":"Z0025E: Lab 3","order":1,"at":"2026-10-04T10:00:00Z"},"q2":{"route":"#/cards","title":"Cards","order":2,"at":"2026-10-04T10:00:00Z"}}}');
+select public.save_progress('{"pins":{"q1":{"gone":true,"at":"2026-10-04T11:00:00Z"},"q2":{"route":"#/map","order":2,"at":"2026-10-04T09:00:00Z"}}}');
+select public.save_progress('{"checked":{}}');
+select 'pins after merge: q1 gone ' || coalesce(doc->'pins'->'q1'->>'gone','false') || ', q2 still ' || (doc->'pins'->'q2'->>'route') from public.progress where user_id = '00000000-0000-0000-0000-00000000000a';
+
 -- Calendar Links: owner only, at most five, https only
 reset role; set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000a","role":"authenticated"}', true);

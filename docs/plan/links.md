@@ -1,6 +1,6 @@
 # Links, sharing and Pins
 
-Agreed 2026-10-04. Stage 1 (Links and Share) built the same day; stage 2 (Pins) is next.
+Agreed 2026-10-04. Stage 1 (Links and Share) and stage 2 (Pins) built the same day.
 
 ## The idea
 
@@ -53,16 +53,20 @@ Query: `?term=<id>&course=<code>`. Row ids are the tick ids (`d:`, `t:`, `m:`), 
 - Cards: Share on each Concept and Question Card, "Share this set" in the Drill heading, a
   one-card view with "All cards".
 
-Not verified yet: a real signed-in session on the hosted app (tested on a static copy with stub
-cards), the phone share menu, and the sign-in round trip keeping a Link.
+Checked live signed in: a Card Link opens on its side, Share is on every card. Not verified yet:
+the phone share menu and the sign-in round trip keeping a Link.
 
-## Stage 2: Pins
+## Stage 2: Pins, built
+
+Built as planned below. Pins live in the progress document beside the Ticks (`pins`), so no new
+table: migration `20261004000013_pins.sql` makes `save_progress` merge them per Pin by the later
+change, tested in `tests/rls.sql`. Not verified yet with a real signed-in session.
 
 - A **Pin** is a Link a Student keeps in their Personal Layer: the address plus the title at
   pinning time, shown only when the target is gone ("Lab 3 (no longer exists)"). The live title
   is used otherwise.
-- Stored per Student like Ticks: a new migration with RLS tests on the hosted app, localStorage
-  when signed out. Never a shared path.
+- Stored per Student like Ticks, in the progress document (owner-only by RLS), and in
+  localStorage. Never a shared path.
 - Pin joins Share in the ⋯ menu; "Pin this view" pins the current address with its filters.
 - A **Pinned** view, for signed-in Students only: rows that can be renamed, reordered and removed.
 - Pins hold page addresses only, never outside links; a Canvas file is pinned through its material

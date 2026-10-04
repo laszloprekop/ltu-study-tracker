@@ -91,7 +91,10 @@ cloudberry and twilight, rust for alerts, heather for Now, sky blue for announce
 shadows. Its fills are dim and the text on them carries the colour, like a status badge. **Neon** (`data-palette="neon"` on the root) is the earlier fluorescent set with its cyan
 glow in dark mode. Text colours reach WCAG AA (4.5:1) on every background in both; `node
 tools/palette.mjs --check` prints the main pairs. Mix colours in OKLCH (`color-mix(in oklch, ...)`).
-The shadows of flip cards and popups (`--card-lift`, `--pop-lift`) belong to the palette too.
+The lift belongs to the palette too, in three levels: `--box-lift` (boxes), `--card-lift` (flip
+cards) and `--pop-lift` (popups and the row menu). Light mode gets a shadow, dark mode a glow (cyan
+in Neon, pale ice in Ice), because a shadow vanishes on a dark page. Which element takes which level
+is set in one place, the "Lift" rules in `src/template.html`; a new floating element is added there.
 
 Colour roles follow Material Design 3. Each accent role X (`c1` to `c5`, `alert`, `now`) has
 `--X` (text and strokes on the surfaces), `--on-X` (text on a solid `--X`), `--X-container` (the fill
@@ -137,6 +140,11 @@ the shape's own fill, with transitions off (a background tab pauses them).
 - Hosted app only: each row's ⋯ menu has Share; Cards have Share on each card (not on group
   answer cards) and "Share this set". Share opens the phone's share menu, or copies the address.
 - A Link carries the view, term and course filter, never anyone's ticks or card ratings.
+- **Pins** (hosted app, signed in): Pin in a row's ⋯ menu, the pin button on a card, and the pin
+  button after Cards ("Pin this view": what is on screen, filters included). The **Pinned** view
+  lists them with the target's current title; Rename, move up or down, Remove. A Pin whose target
+  is gone keeps its old title, marked "no longer exists". Pins travel in the progress document
+  (`pins`, merged per Pin by the later change, migration 013) and in localStorage.
 
 ## Prepare lines
 

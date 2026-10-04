@@ -20,6 +20,7 @@
   --now:#856175; --on-now:#ffffff; --now-container:#f3dbe7; --on-now-container:#7a5067; --now-soft:#efe4ea;
   --ok:#4e745f; --ann-container:#d1e7f5; --on-ann-container:#3b637b;
   --shadow:0 1px 3px rgba(30,40,45,.10);
+  --box-lift:drop-shadow(0 1px 3px rgba(30,40,45,.10));
   --card-lift:drop-shadow(0 8px 12px rgba(30,40,45,.10)) drop-shadow(0 1px 2px rgba(30,40,45,.08));
   --pop-lift:drop-shadow(0 10px 24px rgba(30,40,45,.18)) drop-shadow(0 2px 4px rgba(30,40,45,.12));
 }
@@ -37,8 +38,9 @@
     --now:#b891a6; --on-now:#111417; --now-container:#3b2732; --on-now-container:#bd8fa8; --now-soft:#372d32;
     --ok:#81a993; --ann-container:#1c313d; --on-ann-container:#7ba5bf;
     --shadow:0 1px 3px rgba(0,0,0,.45);
-    --card-lift:drop-shadow(0 0 1px rgba(205,225,239,.16)) drop-shadow(0 6px 14px rgba(0,0,0,.45));
-    --pop-lift:drop-shadow(0 0 1px rgba(205,225,239,.30)) drop-shadow(0 10px 28px rgba(0,0,0,.60));
+    --box-lift:drop-shadow(0 0 1px rgba(205,225,239,.16)) drop-shadow(0 0 8px rgba(205,225,239,.06));
+    --card-lift:drop-shadow(0 0 1px rgba(205,225,239,.22)) drop-shadow(0 0 10px rgba(205,225,239,.10)) drop-shadow(0 6px 14px rgba(205,225,239,.06));
+    --pop-lift:drop-shadow(0 0 1px rgba(205,225,239,.40)) drop-shadow(0 0 14px rgba(205,225,239,.16)) drop-shadow(0 8px 24px rgba(205,225,239,.10));
   }
 }
 :root[data-theme="dark"]{
@@ -54,8 +56,9 @@
   --now:#b891a6; --on-now:#111417; --now-container:#3b2732; --on-now-container:#bd8fa8; --now-soft:#372d32;
   --ok:#81a993; --ann-container:#1c313d; --on-ann-container:#7ba5bf;
   --shadow:0 1px 3px rgba(0,0,0,.45);
-  --card-lift:drop-shadow(0 0 1px rgba(205,225,239,.16)) drop-shadow(0 6px 14px rgba(0,0,0,.45));
-  --pop-lift:drop-shadow(0 0 1px rgba(205,225,239,.30)) drop-shadow(0 10px 28px rgba(0,0,0,.60));
+  --box-lift:drop-shadow(0 0 1px rgba(205,225,239,.16)) drop-shadow(0 0 8px rgba(205,225,239,.06));
+  --card-lift:drop-shadow(0 0 1px rgba(205,225,239,.22)) drop-shadow(0 0 10px rgba(205,225,239,.10)) drop-shadow(0 6px 14px rgba(205,225,239,.06));
+  --pop-lift:drop-shadow(0 0 1px rgba(205,225,239,.40)) drop-shadow(0 0 14px rgba(205,225,239,.16)) drop-shadow(0 8px 24px rgba(205,225,239,.10));
 }
 /* Neon */
 :root[data-palette="neon"]{
@@ -70,6 +73,7 @@
   --now:#007381; --on-now:#ffffff; --now-container:#00e4fd; --on-now-container:#061335; --now-soft:#aaf3ff;
   --ok:#007913; --ann-container:#00e4fd; --on-ann-container:#061335;
   --shadow:0 1px 2px rgba(0,0,32,.08);
+  --box-lift:drop-shadow(0 1px 2px rgba(0,0,32,.08)) drop-shadow(0 4px 10px rgba(10,20,50,.05));
   --card-lift:drop-shadow(0 8px 12px rgba(10,20,50,.13)) drop-shadow(0 1px 2px rgba(10,20,50,.10));
   --pop-lift:drop-shadow(0 10px 24px rgba(10,20,50,.22)) drop-shadow(0 2px 4px rgba(10,20,50,.14));
 }
@@ -87,6 +91,7 @@
     --now:#00e4fd; --on-now:#010204; --now-container:#00e4fd; --on-now-container:#010204; --now-soft:#00464f;
     --ok:#00fc33; --ann-container:#00e4fd; --on-ann-container:#010204;
     --shadow:0 1px 2px rgba(0,0,0,.4);
+    --box-lift:drop-shadow(0 0 1px rgba(0,228,253,.22)) drop-shadow(0 0 8px rgba(0,228,253,.07));
     --card-lift:drop-shadow(0 0 10px rgba(0,228,253,.16)) drop-shadow(0 6px 14px rgba(0,228,253,.10));
     --pop-lift:drop-shadow(0 0 14px rgba(0,228,253,.24)) drop-shadow(0 8px 24px rgba(0,228,253,.14)) drop-shadow(0 0 1px rgba(0,228,253,.6));
   }
@@ -104,6 +109,7 @@
   --now:#00e4fd; --on-now:#010204; --now-container:#00e4fd; --on-now-container:#010204; --now-soft:#00464f;
   --ok:#00fc33; --ann-container:#00e4fd; --on-ann-container:#010204;
   --shadow:0 1px 2px rgba(0,0,0,.4);
+  --box-lift:drop-shadow(0 0 1px rgba(0,228,253,.22)) drop-shadow(0 0 8px rgba(0,228,253,.07));
   --card-lift:drop-shadow(0 0 10px rgba(0,228,253,.16)) drop-shadow(0 6px 14px rgba(0,228,253,.10));
   --pop-lift:drop-shadow(0 0 14px rgba(0,228,253,.24)) drop-shadow(0 8px 24px rgba(0,228,253,.14)) drop-shadow(0 0 1px rgba(0,228,253,.6));
 }
@@ -190,7 +196,7 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
 .fcard.flipped .fc-in{transform:rotateY(180deg)}
 /* the face carries the shadow, its body the cut corner, so the shadow follows the bevelled shape */
 /* --card-lift comes with the palette (tools/palette.mjs) */
-.fc-face{grid-area:1 / 1; display:flex; backface-visibility:hidden; -webkit-backface-visibility:hidden; filter:var(--card-lift)}
+.fc-face{grid-area:1 / 1; display:flex; backface-visibility:hidden; -webkit-backface-visibility:hidden}
 .fc-back{transform:rotateY(180deg)}
 .fc-body{flex:1 1 auto; min-width:0; overflow-wrap:anywhere; display:flex; flex-direction:column; gap:7px; padding:12px 14px 14px;
   --bev:16px; --bw-t:5px; --stripe:var(--cc, var(--now)); --frame:linear-gradient(var(--stripe) 5px, var(--line) 5px); --fill:var(--surface)}
@@ -242,7 +248,10 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
 .settings{margin-left:auto}
 .pop.profile summary{gap:6px}
 .pop.profile summary #pp-who{max-width:16ch; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
-.pop.profile .panel{width:min(760px, calc(100vw - 32px)); max-height:min(82vh, 900px); overflow:auto; padding:14px; font-size:13px; line-height:1.5; color:var(--ink)}
+/* the grid scrolls, not the panel: the panel's frame and fill are pseudo-elements its own height, so a
+   scrolling panel would carry its content past them onto the page */
+.pop.profile .panel{width:min(760px, calc(100vw - 32px)); padding:0; font-size:13px; line-height:1.5; color:var(--ink)}
+.pop.profile .panel > .pp-grid{max-height:min(82vh, 900px); overflow:auto; overscroll-behavior:contain; padding:14px}
 .pp-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:12px; grid-auto-flow:dense}
 .pp-grid.inner{margin:0}
 .pp-span{grid-column:1 / -1}
@@ -394,7 +403,12 @@ section{margin-bottom:30px}
 .sechead{display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; margin-bottom:12px}
 .sechead h2{font-size:17px; letter-spacing:-.01em}
 .sechead .note{color:var(--muted); font-size:13px}
-.card{box-shadow:var(--shadow)}
+/* Lift: the one place that says which element floats how high. The levels (--box-lift, --card-lift,
+   --pop-lift) come from tools/palette.mjs per palette and theme: a shadow in light mode, a glow in
+   dark mode. A filter, not a box-shadow, so it follows the cut corner of the shape layers. */
+.card{filter:var(--box-lift)}
+.fc-face{filter:var(--card-lift)}
+.pop .panel,.rowmenu{filter:var(--pop-lift)}
 .empty{padding:22px 18px; color:var(--muted)}
 .empty h3{color:var(--ink); font-size:15px; margin-bottom:6px}
 .empty p{margin:0; max-width:62ch}
@@ -452,7 +466,7 @@ a.tag.feeds:hover{text-decoration:underline}
 .muted .mute.more{color:var(--muted)}
 .ann .mute.more{margin-left:auto; color:inherit}
 /* the row menu (Share, Hide) and the short note a Link or a share leaves */
-.rowmenu{position:absolute; z-index:40; display:flex; flex-direction:column; min-width:180px; padding:4px; background:var(--surface); color:var(--ink); border:1px solid var(--line); box-shadow:var(--shadow), 0 6px 20px rgba(0,0,0,.18)}
+.rowmenu{position:absolute; z-index:40; display:flex; flex-direction:column; min-width:180px; padding:4px; background:var(--surface); color:var(--ink); border:1px solid var(--line)}
 .rowmenu[hidden]{display:none}
 .rowmenu button{display:flex; align-items:center; gap:8px; padding:8px 10px; border:0; background:none; color:inherit; font:inherit; font-size:13px; text-align:left; cursor:pointer}
 .rowmenu button:hover,.rowmenu button:focus-visible{background:var(--surface-2); outline:none}
@@ -466,6 +480,23 @@ a.tag.feeds:hover{text-decoration:underline}
 .cardsview .fc-act button.share{flex:0 0 auto; padding:4px 8px}
 .cardsview h3 .setshare{margin-left:8px; display:inline-flex; align-items:center; gap:4px; font-size:12px; padding:3px 8px}
 .fgrid.one{max-width:420px}
+.cardsview .fc-act button.share[aria-pressed="true"]{color:var(--on-now-container); --fill:var(--now-container); --frame:var(--now-container)}
+.seg button.pinview{padding-inline:8px}
+.seg button.pinview[aria-pressed="true"] .ic{fill:var(--now)}
+.pins{list-style:none; margin:0; padding:0}
+.pinrow{display:flex; align-items:center; gap:8px; padding:8px 0; border-top:1px solid var(--line)}
+.pinrow:first-child{border-top:0}
+.pinrow .kic{color:var(--muted); flex:0 0 auto}
+.pinmain{flex:1 1 auto; min-width:0; display:flex; flex-direction:column}
+.pinmain .tt{font-weight:600; color:var(--ink); overflow-wrap:anywhere}
+.pinmain a.tt{text-decoration:none} .pinmain a.tt:hover{text-decoration:underline}
+.pinmain .where{color:var(--muted); font-size:12px}
+.pinrow.gone .tt{color:var(--muted)}
+.pinname{font:inherit; font-weight:600; padding:4px 6px; border:1px solid var(--muted); background:var(--surface); color:var(--ink)}
+.pinctl{display:flex; gap:2px; flex:0 0 auto}
+.pinctl button{display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; padding:0; border:0; background:none; color:var(--muted); cursor:pointer}
+.pinctl button:hover{color:var(--ink); background:var(--surface-2)}
+.pinctl button:disabled{opacity:.3; cursor:default}
 
 .chip{font-weight:600; margin-right:7px; color:var(--on-cc-container); background:var(--cc-container)}
 .ph{display:inline-block; flex:0 0 auto; line-height:0; border-radius:50%; overflow:hidden; isolation:isolate; background:#fff; background:color-mix(in oklch, var(--cc) 32%, #fff)}
@@ -816,14 +847,14 @@ svg.focus .ge.tl.hl{opacity:.5; stroke-width:1.4}
    drop-shadow filter follows the shape. Cards and popups have no visible frame (--bw:0).
    position:relative comes in :where(), with no weight, so a box placed absolutely (a popup panel,
    the slim rail) keeps its own position. */
-:where(.card,.pop .panel,.fc-body,.cardsview button,.pop.about .prog button,.cvcard button,.dp-items li,.disagreements .copyrep,.acct-delete button,.tgl,.infonav button,.infoview .plain,.moved button,.bkstrip,.bkstage,.chain .pdate.doby){position:relative}
-.card,.pop .panel,.fc-body,.cardsview button,.pop.about .prog button,.cvcard button,.dp-items li,.disagreements .copyrep,.acct-delete button,.tgl,.infonav button,.infoview .plain,.moved button,.bkstrip,.bkstage,.chain .pdate.doby{isolation:isolate; background:none; border-style:solid; border-color:transparent;
+:where(.card,.pop .panel,.fc-body,.cardsview button,.pop .prog button,.cvcard button,.dp-items li,.disagreements .copyrep,.acct-delete button,.tgl,.infonav button,.infoview .plain,.moved button,.bkstrip,.bkstage,.chain .pdate.doby){position:relative}
+.card,.pop .panel,.fc-body,.cardsview button,.pop .prog button,.cvcard button,.dp-items li,.disagreements .copyrep,.acct-delete button,.tgl,.infonav button,.infoview .plain,.moved button,.bkstrip,.bkstage,.chain .pdate.doby{isolation:isolate; background:none; border-style:solid; border-color:transparent;
   border-width:var(--bw-t, var(--bw, 1px)) var(--bw, 1px) var(--bw, 1px) var(--bw-l, var(--bw, 1px))}
-.card::before,.pop .panel::before,.fc-body::before,.cardsview button::before,.pop.about .prog button::before,.cvcard button::before,.dp-items li::before,.disagreements .copyrep::before,.acct-delete button::before,.tgl::before,.infonav button::before,.infoview .plain::before,.moved button::before,.bkstrip::before,.bkstage::before,.chain .pdate.doby::before,.card::after,.pop .panel::after,.fc-body::after,.cardsview button::after,.pop.about .prog button::after,.cvcard button::after,.dp-items li::after,.disagreements .copyrep::after,.acct-delete button::after,.tgl::after,.infonav button::after,.infoview .plain::after,.moved button::after,.bkstrip::after,.bkstage::after,.chain .pdate.doby::after{content:""; position:absolute; z-index:-1; pointer-events:none;
+.card::before,.pop .panel::before,.fc-body::before,.cardsview button::before,.pop .prog button::before,.cvcard button::before,.dp-items li::before,.disagreements .copyrep::before,.acct-delete button::before,.tgl::before,.infonav button::before,.infoview .plain::before,.moved button::before,.bkstrip::before,.bkstage::before,.chain .pdate.doby::before,.card::after,.pop .panel::after,.fc-body::after,.cardsview button::after,.pop .prog button::after,.cvcard button::after,.dp-items li::after,.disagreements .copyrep::after,.acct-delete button::after,.tgl::after,.infonav button::after,.infoview .plain::after,.moved button::after,.bkstrip::after,.bkstage::after,.chain .pdate.doby::after{content:""; position:absolute; z-index:-1; pointer-events:none;
   --bev:inherit; --bw:inherit; --bw-t:inherit; --bw-l:inherit; --frame:inherit; --fill:inherit}
-.card::before,.pop .panel::before,.fc-body::before,.cardsview button::before,.pop.about .prog button::before,.cvcard button::before,.dp-items li::before,.disagreements .copyrep::before,.acct-delete button::before,.tgl::before,.infonav button::before,.infoview .plain::before,.moved button::before,.bkstrip::before,.bkstage::before,.chain .pdate.doby::before{inset:calc(-1 * var(--bw-t, var(--bw, 1px))) calc(-1 * var(--bw, 1px)) calc(-1 * var(--bw, 1px)) calc(-1 * var(--bw-l, var(--bw, 1px)));
+.card::before,.pop .panel::before,.fc-body::before,.cardsview button::before,.pop .prog button::before,.cvcard button::before,.dp-items li::before,.disagreements .copyrep::before,.acct-delete button::before,.tgl::before,.infonav button::before,.infoview .plain::before,.moved button::before,.bkstrip::before,.bkstage::before,.chain .pdate.doby::before{inset:calc(-1 * var(--bw-t, var(--bw, 1px))) calc(-1 * var(--bw, 1px)) calc(-1 * var(--bw, 1px)) calc(-1 * var(--bw-l, var(--bw, 1px)));
   background:var(--frame, var(--line)); clip-path:var(--cut)}
-.card::after,.pop .panel::after,.fc-body::after,.cardsview button::after,.pop.about .prog button::after,.cvcard button::after,.dp-items li::after,.disagreements .copyrep::after,.acct-delete button::after,.tgl::after,.infonav button::after,.infoview .plain::after,.moved button::after,.bkstrip::after,.bkstage::after,.chain .pdate.doby::after{inset:0; background:var(--fill, var(--surface));
+.card::after,.pop .panel::after,.fc-body::after,.cardsview button::after,.pop .prog button::after,.cvcard button::after,.dp-items li::after,.disagreements .copyrep::after,.acct-delete button::after,.tgl::after,.infonav button::after,.infoview .plain::after,.moved button::after,.bkstrip::after,.bkstage::after,.chain .pdate.doby::after{inset:0; background:var(--fill, var(--surface));
   --bev-in:max(0px, calc(var(--bev, 6px) + var(--bw, 1px) * 1.4142 - var(--bw, 1px) - var(--bw-t, var(--bw, 1px))));
   clip-path:polygon(0 0, calc(100% - var(--bev-in)) 0, 100% var(--bev-in), 100% 100%, 0 100%)}
 .card,.pop .panel{--bw:0px; --bev:12px}
@@ -868,17 +899,22 @@ body.colored table.all tr:not(.done) .tt{color:var(--cc)}
 .teacher:hover .tn{text-decoration:underline}
 .rhythm li{margin:6px 0}
 .pop.about .src{margin:14px 0 0; font-size:11.5px; color:var(--muted)}
-.pop.about .prog{margin:10px 0 0}
-.pop.about .prog label{display:block; font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); margin:0 0 3px}
-.pop.about .prog .row{display:flex; gap:6px; align-items:stretch}
-.pop.about .prog textarea,.pop.about .prog select{flex:1 1 auto; min-width:0; font:inherit; font-size:12.5px; color:var(--ink); padding:6px 8px}
-.pop.about .prog textarea{resize:vertical; min-height:44px; font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11.5px}
-.pop.about .prog textarea::placeholder{color:var(--muted); font-family:"Public Sans",Arial,sans-serif}
-.pop.about .prog textarea:focus,.pop.about .prog select:focus,.pop.about .prog button:focus-visible{outline:2px solid var(--now); outline-offset:1px; --frame-c:var(--now)}
-.pop.about .prog button{flex:0 0 auto; font:inherit; font-size:12.5px; font-weight:700; color:var(--on-now-container); --fill:var(--now-container); --frame:var(--now-container); padding:6px 14px; cursor:pointer}
-.pop.about .prog button:hover{filter:brightness(1.1)}
-.pop.about .prog button.wide{flex:1 1 auto}
-.pop.about .prog button:disabled{opacity:.4; cursor:default}
+.pop .prog{margin:10px 0 0}
+/* Your progress: Import, Go back to a day and Export side by side when there is room */
+#pp-progress{display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:0 14px; align-content:start}
+#pp-progress > h3,#pp-progress > p{grid-column:1 / -1}
+#pp-progress .prog{display:flex; flex-direction:column}
+#pp-progress .prog .row{flex:1 1 auto}
+.pop .prog label{display:block; font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); margin:0 0 3px}
+.pop .prog .row{display:flex; gap:6px; align-items:stretch}
+.pop .prog textarea,.pop .prog select{flex:1 1 auto; min-width:0; font:inherit; font-size:12.5px; color:var(--ink); padding:6px 8px}
+.pop .prog textarea{resize:vertical; min-height:44px; font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11.5px}
+.pop .prog textarea::placeholder{color:var(--muted); font-family:"Public Sans",Arial,sans-serif}
+.pop .prog textarea:focus,.pop .prog select:focus,.pop .prog button:focus-visible{outline:2px solid var(--now); outline-offset:1px; --frame-c:var(--now)}
+.pop .prog button{flex:0 0 auto; font:inherit; font-size:12.5px; font-weight:700; color:var(--on-now-container); --fill:var(--now-container); --frame:var(--now-container); padding:6px 14px; cursor:pointer}
+.pop .prog button:hover{filter:brightness(1.1)}
+.pop .prog button.wide{flex:1 1 auto}
+.pop .prog button:disabled{opacity:.4; cursor:default}
 @media (max-width:680px){
   .week{grid-template-columns:1fr}
   .week .rail{ --bev:12px; clip-path:var(--cut); display:flex; flex-wrap:wrap; gap:4px 12px; align-items:baseline; padding:12px 16px}
@@ -954,6 +990,8 @@ body.colored table.all tr:not(.done) .tt{color:var(--cc)}
         <button type="button" id="v-all" data-view="all"><svg class="ic"><use href="#i-list-checks"/></svg>All deadlines</button>
         <button type="button" id="v-map" data-view="map"><svg class="ic"><use href="#i-tree-structure"/></svg>Map</button>
         <button type="button" id="v-cards" data-view="cards" title="Study cards with spaced repetition, aimed at each lab and exam"><svg class="ic"><use href="#i-barbell"/></svg>Cards</button>
+        <button type="button" id="v-pinned" data-view="pinned" title="Your own pinned views, rows and cards" hidden><svg class="ic"><use href="#i-push-pin"/></svg>Pinned</button>
+        <button type="button" id="pin-view" class="pinview" title="Pin this view" aria-label="Pin this view" aria-pressed="false" hidden><svg class="ic"><use href="#i-push-pin"/></svg></button>
       </div>
       <div class="seg" role="group" aria-label="Show courses" id="filter"></div>
       <a class="jump" id="jump" href="#" hidden><svg class="ic"><use href="#i-arrow-line-down"/></svg>Today</a>
@@ -979,7 +1017,7 @@ body.colored table.all tr:not(.done) .tt{color:var(--cc)}
 
 /* ---------- Helpers ---------- */
 const P = DATA.plan, INV = DATA.inventory, COURSES = P.COURSES, TEACHERS = P.TEACHERS, TERMS = P.TERMS, PROGRESS = DATA.progress || null;
-const LS = { hours: "ltu-plan-hours", drillGoal: "ltu-plan-drill-goal", planned: "ltu-plan-planned", openedCounts: "ltu-plan-opened-counts", groups: "ltu-plan-groups", canvasCache: "ltu-plan-canvas-cache", movedFolded: "ltu-plan-moved-folded", exportedAt: "ltu-plan-exported-at", unlocked: "ltu-plan-unlocked", ticks: "ltu-plan-ticks", tickAt: "ltu-plan-tick-at", muted: "ltu-plan-muted", filter: "ltu-plan-filter", term: "ltu-plan-term", view: "ltu-plan-view", open: "ltu-plan-open", weeks: "ltu-plan-weeks", size: "ltu-plan-size", ping: "ltu-plan-ping", colored: "ltu-plan-colored", theme: "ltu-plan-theme", palette: "ltu-plan-palette", cardsHidden: "ltu-plan-cards-hidden-shown", cardTrust: "ltu-plan-card-trust", mapOpen: "ltu-plan-map-open", mapPos: "ltu-plan-map-pos", mapAll: "ltu-plan-map-all", mapHops: "ltu-plan-map-hops", mapMode: "ltu-plan-map-mode", railSlim: "ltu-plan-map-rail", snaps: "ltu-plan-snaps", legacy: "lp2-shared-ticks" };
+const LS = { hours: "ltu-plan-hours", drillGoal: "ltu-plan-drill-goal", planned: "ltu-plan-planned", openedCounts: "ltu-plan-opened-counts", groups: "ltu-plan-groups", canvasCache: "ltu-plan-canvas-cache", movedFolded: "ltu-plan-moved-folded", exportedAt: "ltu-plan-exported-at", unlocked: "ltu-plan-unlocked", ticks: "ltu-plan-ticks", tickAt: "ltu-plan-tick-at", muted: "ltu-plan-muted", filter: "ltu-plan-filter", term: "ltu-plan-term", view: "ltu-plan-view", open: "ltu-plan-open", weeks: "ltu-plan-weeks", size: "ltu-plan-size", ping: "ltu-plan-ping", colored: "ltu-plan-colored", theme: "ltu-plan-theme", palette: "ltu-plan-palette", cardsHidden: "ltu-plan-cards-hidden-shown", cardTrust: "ltu-plan-card-trust", mapOpen: "ltu-plan-map-open", mapPos: "ltu-plan-map-pos", mapAll: "ltu-plan-map-all", mapHops: "ltu-plan-map-hops", mapMode: "ltu-plan-map-mode", railSlim: "ltu-plan-map-rail", snaps: "ltu-plan-snaps", pins: "ltu-plan-pins", legacy: "lp2-shared-ticks" };
 const state = { checked: {}, tickAt: {}, planned: {}, cards: null, cardsLoading: false, drill: null, drillGoal: "event", cal: null, calLinks: null, calErr: null, bookings: null, canvas: null, canvasErr: null, openedCounts: true, groups: {}, exportedAt: null, unlocked: false, muted: {}, filter: "all", term: null, view: "week", day: null, open: {}, weeks: {}, size: 100, ping: true, colored: true, theme: "system", palette: "ice", hours: { start: "09:00", end: "17:00" }, mapOpen: null, mapSel: null, mapSels: [], mapAll: false, mapHops: 5, mapMode: "select", railSlim: false };
 let store = null, saveTimer = null;
 
@@ -1368,7 +1406,7 @@ function playhead(today){ return '<div class="playhead" id="today"><span class="
 // #/<view>[/<target>...][/answer]?term=<id>&course=<code>. An address wins over the remembered view;
 // a bare one opens the last view. Share hands the address out, on the hosted app only (the artifact
 // runs the same router but shows no share controls). A Link never carries anyone's ticks.
-var ROUTE_VIEWS = ["week", "day", "all", "map", "cards", "about", "help", "privacy", "terms"];
+var ROUTE_VIEWS = ["week", "day", "all", "map", "cards", "pinned", "about", "help", "privacy", "terms"];
 function hostedApp(){ return !!window.TRACKER_CONFIG; }
 function seg(x){ return String(x).replace(/[^\w:.\-]/g, encodeURIComponent); }
 function routeOf(view, parts, opts){
@@ -1399,6 +1437,7 @@ function currentRoute(){
 // push: a step Back returns to (a view, a term, one card); otherwise the address is only kept current.
 function syncRoute(push){
   var to = currentRoute();
+  applyPinUi();
   if (to === location.hash) return;
   try { history[push ? "pushState" : "replaceState"](null, "", location.pathname + location.search + to); } catch (e) {}
 }
@@ -1453,6 +1492,7 @@ function rowCtl(muteId, link, code, title){
 function openRowMenu(b){
   var m = document.getElementById("rowmenu"), mid = b.dataset.mid;
   m.innerHTML = '<button type="button" role="menuitem" data-sharelink="' + esc(b.dataset.more) + '" data-share="' + esc(b.dataset.share) + '">' + ic("share-network", "sm") + 'Share</button>' +
+    (pinsOn() ? '<button type="button" role="menuitem" data-pinlink="' + esc(b.dataset.more) + '" data-share="' + esc(b.dataset.share) + '">' + ic("push-pin", "sm") + (pinOf(noCourse(rowRoute(b.dataset.more))) ? 'Unpin' : 'Pin') + '</button>' : '') +
     (mid ? '<button type="button" role="menuitem" data-mute="' + esc(mid) + '">' + ic(state.muted[mid] ? "eye" : "prohibit", "sm") + (state.muted[mid] ? 'Unhide' : 'Hide: not for me') + '</button>' : '');
   var r = b.getBoundingClientRect();
   m.hidden = false;
@@ -1469,6 +1509,95 @@ function shareLink(route, text){
   if (navigator.share && matchMedia("(pointer: coarse)").matches) { navigator.share({ title: text, text: text, url: url }).catch(function(){}); return; }
   (navigator.clipboard && navigator.clipboard.writeText ? navigator.clipboard.writeText(url) : Promise.reject())
     .then(function(){ toast("Link copied"); }, function(){ toast("Copy this link: " + url); });
+}
+
+/* ---------- Pins: a Student's own Links, in the Pinned view (docs/plan/links.md) ---------- */
+// Kept in the progress document beside the Ticks, merged per Pin by the later change. Hosted app,
+// signed in. A Pin keeps its title from when it was pinned, shown only once its target is gone.
+var VIEW_NAME = { week: "Week by week", day: "Day", all: "All deadlines", map: "Map", cards: "Cards", pinned: "Pinned", about: "About", help: "Help", privacy: "Privacy", terms: "Terms" };
+var VIEW_ICON = { week: "calendar", day: "calendar-dot", all: "list-checks", map: "tree-structure", cards: "barbell" };
+function pinsOn(){ return hostedApp() && !!state.signedIn; }
+function livePins(){
+  return Object.keys(state.pins || {}).filter(function(k){ var p = state.pins[k]; return p && !p.gone && p.route; }).map(function(k){ return Object.assign({ id: k }, state.pins[k]); })
+    .sort(function(a, b){ return (a.order || 0) - (b.order || 0) || String(a.at).localeCompare(String(b.at)); });
+}
+function pinOf(route){ return livePins().find(function(p){ return p.route === route; }) || null; }
+// A row's Pin leaves out the course filter, so the same row is one Pin whatever was filtered.
+function noCourse(route){ return route.replace(/([?&])course=[^&]*&?/, "$1").replace(/[?&]$/, ""); }
+function togglePin(route, title){
+  var p = pinOf(route), now = new Date().toISOString();
+  if (p) { state.pins[p.id] = { gone: true, at: now }; toast("Unpinned"); }
+  else {
+    var id = "p" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), max = livePins().reduce(function(m, x){ return Math.max(m, x.order || 0); }, 0);
+    state.pins[id] = { route: route, title: title, order: max + 1, at: now }; toast("Pinned. It is under Pinned.");
+  }
+  save(); applyPinUi(); if (state.view === "pinned") renderTerm();
+}
+function movePin(id, dir){
+  var list = livePins(), i = list.findIndex(function(p){ return p.id === id; }), j = i + dir, now = new Date().toISOString();
+  if (i < 0 || j < 0 || j >= list.length) return;
+  var x = list[i]; list[i] = list[j]; list[j] = x;
+  list.forEach(function(p, n){ if (p.order !== n + 1) { state.pins[p.id] = Object.assign({}, state.pins[p.id], { order: n + 1, at: now }); } });
+  save(); renderTerm();
+}
+function renamePin(id, name){
+  var p = state.pins[id]; if (!p || p.gone) return;
+  var q = Object.assign({}, p, { at: new Date().toISOString() }); name = String(name || "").trim().slice(0, 120);
+  if (name && name !== (pinInfo(p).title || p.title)) q.label = name; else delete q.label;
+  state.pins[id] = q; save();
+}
+// What a row id names now, from the plan and Canvas data of any term; null once it is gone.
+function rowTitle(id){
+  var p = String(id).split(":"), code = p[1];
+  if (p[0] === "a") { var a = announcements(code).find(function(x){ return String(x.id) === p[2]; }); return a ? { title: a.title, code: code } : null; }
+  if (p[0] === "m") { var it = items(code).find(function(i){ return String(i.id) === p[2]; }); return it ? { title: (it.number ? it.number + " " : "") + it.title, code: code } : null; }
+  var cache = rowTitle.rows || (rowTitle.rows = TERMS.reduce(function(a, t){ return a.concat(timeline(t)); }, []));
+  var r = cache.find(function(x){ return (x.id || x.key) === id; });
+  return r ? { title: r.title, code: r.code } : null;
+}
+// The title, the place and the course of a Pin's target as the page has it now.
+function pinInfo(p){
+  var r = parseRoute(p.route);
+  if (!r) return { title: p.title, where: "", gone: true };
+  var tm = TERMS.find(function(t){ return t.id === r.term; }), out = { view: r.view, title: "", where: VIEW_NAME[r.view] || r.view, code: r.course || null, gone: false };
+  var row = r.view === "day" ? r.parts[1] : r.view === "week" || r.view === "all" || r.view === "map" ? r.parts[0] : null;
+  if (r.view === "day" && r.parts[0]) out.where += ", " + longDay(r.parts[0]);
+  if (r.view === "cards" && r.parts[0] === "set") {
+    var key = r.parts.slice(1).join("/"), sp = key.split(":");
+    if (sp[0] === "m") { var src = rowTitle(key); out.title = src ? "Cards from " + src.title : ""; out.code = sp[1]; out.gone = !src; }
+    else { var as = assignments(sp[0]).find(function(a){ return String(a.id) === sp[1]; }); out.title = as ? shortTitle(as.title).split(",")[0] + " cards" : ""; out.code = sp[0]; out.gone = !as; }
+  } else if (r.view === "cards" && r.parts[0]) {
+    var L = state.cards && state.cards.list, c = L ? L.find(function(x){ return x.id === r.parts[0]; }) : null;
+    out.title = c ? trunc(c.prompt, 110) : ""; out.code = c ? c.course : null; out.gone = !!L && !c; out.where = "Card";
+  } else if (row && /^\d{4}-\d\d-\d\d$/.test(row)) { out.title = "Week " + isoWeek(row) + ", " + weekDates(monday(row)); }
+  else if (row) { var x = rowTitle(row); out.title = x ? x.title : ""; out.code = x ? x.code : out.code; out.gone = !x; }
+  else { out.title = (VIEW_NAME[r.view] || r.view) + (r.course ? ", " + label(r.course) : ""); out.where = ""; }
+  if (tm && TERMS.length > 1 && r.view !== "cards") out.where += (out.where ? " \u00B7 " : "") + tm.label;
+  return out;
+}
+function renderPinnedView(){
+  var head = '<div class="sechead"><h2>Pinned</h2><span class="note">Your own shortcuts to views, rows and cards. Only you see them.</span></div>';
+  if (!pinsOn()) return '<section class="appview">' + head + '<div class="card"><p>' + (hostedApp() ? 'Sign in (top right) to pin views, rows and cards.' : 'Pins are on the hosted tracker: ' + appLink() + '.') + '</p></div></section>';
+  rowTitle.rows = null;
+  var list = livePins();
+  if (!list.length) return '<section class="appview">' + head + '<div class="card"><p>Nothing pinned yet. Pin a row from its ' + ic("dots-three", "sm") + ' menu, a card from its ' + ic("push-pin", "sm") + ' button, or what is on screen with the ' + ic("push-pin", "sm") + ' button after Cards.</p></div></section>';
+  var rows = list.map(function(p, i){
+    var inf = pinInfo(p), name = p.label || inf.title || p.title, ctl = function(attr, icon, title, off){ return '<button type="button" ' + attr + '="' + esc(p.id) + '" title="' + title + '" aria-label="' + title + '"' + (off ? ' disabled' : '') + '>' + ic(icon, "sm") + '</button>'; };
+    var main = state.pinEdit === p.id ? '<input type="text" class="pinname" data-pinname="' + esc(p.id) + '" value="' + esc(name) + '" maxlength="120" aria-label="Pin name">'
+      : inf.gone ? '<span class="tt">' + esc(p.label || p.title) + ' <small>(no longer exists)</small></span>'
+      : '<a class="tt" href="' + esc(p.route) + '">' + esc(name) + '</a>';
+    return '<li class="pinrow' + (inf.gone ? ' gone' : '') + '"' + (inf.code ? ' style="' + colorVars(inf.code) + '"' : '') + '>' + (inf.code ? chip(inf.code) : '') + ic(VIEW_ICON[inf.view] || "push-pin", "kic") +
+      '<span class="pinmain">' + main + '<small class="where">' + esc(inf.where) + '</small></span>' +
+      '<span class="pinctl">' + ctl("data-pinup", "arrow-up", "Move up", i === 0) + ctl("data-pindown", "arrow-down", "Move down", i === list.length - 1) + ctl("data-pinrename", "pencil-simple", "Rename") + ctl("data-pinremove", "trash", "Remove") + '</span></li>';
+  }).join("");
+  return '<section class="appview">' + head + '<div class="card"><ul class="pins">' + rows + '</ul></div></section>';
+}
+function applyPinUi(){
+  var on = pinsOn(), v = document.getElementById("v-pinned"), b = document.getElementById("pin-view");
+  if (v) v.hidden = !on;
+  if (!b) return;
+  var can = on && state.view !== "pinned" && !INFO_VIEWS[state.view], pinned = can && !!pinOf(currentRoute());
+  b.hidden = !can; b.setAttribute("aria-pressed", String(pinned)); b.title = pinned ? "Unpin this view" : "Pin this view"; b.setAttribute("aria-label", b.title);
 }
 
 /* ---------- Views ---------- */
@@ -1678,7 +1807,8 @@ function flipCard(t, c, mode){
     '<button type="button" data-cardvote="legit" data-card="' + esc(c.id) + '" aria-pressed="' + (v.mine === "legit") + '"' + (may ? '' : ' disabled') + ' title="' + esc((v.mine === "legit" ? "Take back your legit vote" : "This card is legit: correct and useful") + mineNote) + '">' + ic("check-circle", "sm") + 'Legit <b>' + v.legit + '</b></button>' +
     '<button type="button" data-cardvote="fix" data-card="' + esc(c.id) + '" aria-pressed="' + (v.mine === "fix") + '"' + (may ? '' : ' disabled') + ' title="' + esc((v.mine === "fix" ? "Take back your needs-fix vote" : "This card is faulty or needs a fix") + mineNote) + '">' + ic("warning", "sm") + 'Needs fix <b>' + v.fix + '</b></button>' +
     '<button type="button" class="hide" data-cardhide="' + esc(c.id) + '" title="' + (hid ? "Show this card again" : "Hide this card: not for me") + '">' + ic(hid ? "eye" : "eye-slash", "sm") + (hid ? 'Unhide' : 'Hide') + '</button>' +
-    (c.kind !== "answer" ? '<button type="button" data-cardshare="' + esc(c.id) + '" class="share" title="Share a link to this card, on the side you see now" aria-label="Share">' + ic("share-network", "sm") + '</button>' : '') + '</div>' +
+    (c.kind !== "answer" ? '<button type="button" data-cardshare="' + esc(c.id) + '" class="share" title="Share a link to this card, on the side you see now" aria-label="Share">' + ic("share-network", "sm") + '</button>' : '') +
+    (pinsOn() ? '<button type="button" data-cardpin="' + esc(c.id) + '" class="share" aria-pressed="' + !!pinOf(routeOf("cards", [c.id], { course: "all" })) + '" title="Pin this card" aria-label="Pin">' + ic("push-pin", "sm") + '</button>' : '') + '</div>' +
     (state.flagging === c.id ? '<div class="ck-b"><input type="text" id="flag-why" maxlength="500" placeholder="What is wrong? (optional)"><button type="button" data-flagsend="' + esc(c.id) + '">Vote needs fix</button><button type="button" class="plain" data-flagcancel="1">Cancel</button></div>' : '');
   var trustTag = k === "trusted" ? '<span class="tag trust ok" title="' + v.legit + ' legit, ' + v.fix + ' needs fix">' + ic("shield-check", "sm") + 'legit ' + v.legit + '</span>' : k === "fix" ? '<span class="tag trust bad" title="' + esc(v.fix + " needs fix" + (v.reasons.length ? ": " + v.reasons.join("; ") : "")) + '">' + ic("warning", "sm") + 'needs fix ' + v.fix + '</span>' : '';
   var meta = chip(c.course) + (ev ? '<span class="fc-ev"' + (others.length ? ' title="' + esc("Also prepares for: " + others.map(evName).join("; ")) + '"' : '') + '>' + ic("target", "sm") + esc(evName(ev)) + (others.length ? ' <b>+' + others.length + '</b>' : '') + '</span>' : '');
@@ -1706,6 +1836,10 @@ function cardSources(code, text){
 // slot, deadlines), the Free Slots inside working hours, and the Planned Blocks the Student put
 // there (CONTEXT.md). Planned Blocks merge between devices per block by the later change.
 var SLOT = 15;
+// Pins merge like Planned Blocks: per Pin the later change wins, an unpin included (kept as gone).
+function mergePins(inc){
+  Object.keys(inc || {}).forEach(function(k){ var x = inc[k], mine = state.pins[k]; if (x && typeof x === "object" && x.at && (!mine || x.at > mine.at)) state.pins[k] = x; });
+}
 function mergePlanned(inc){
   Object.keys(inc || {}).forEach(function(k){ var x = inc[k], mine = state.planned[k]; if (x && typeof x === "object" && x.at && (!mine || x.at > mine.at)) state.planned[k] = x; });
 }
@@ -1880,14 +2014,15 @@ function renderTerm(){
   var read = new Date(INV.generatedAt), stale = !!window.TRACKER_CONFIG && Date.now() - read.getTime() > 3 * 3600 * 1000;
   var asof = document.getElementById("asof"); asof.classList.toggle("stale", stale);
   asof.textContent = "Deadlines and module items read from Canvas on " + longDay(iso(read)) + " " + read.getFullYear() + " at " + String(read.getHours()).padStart(2, "0") + ":" + String(read.getMinutes()).padStart(2, "0") + "." + (stale ? " That is over three hours ago, so the hourly update may have stopped." : "") + (t.extra ? " " + t.extra : "") + (PROGRESS ? " This is a private build: the Canvas marks are your own account's." : "");
-  renderTabs(); renderFilter(t);
-  document.querySelectorAll("#views button").forEach(function(b){ b.setAttribute("aria-pressed", String(b.dataset.view === state.view)); });
+  renderTabs(); renderFilter(t); applyPinUi();
+  document.querySelectorAll("#views button[data-view]").forEach(function(b){ b.setAttribute("aria-pressed", String(b.dataset.view === state.view)); });
   document.body.classList.toggle("mapview", state.view === "map");
   var body;
-  if (t.upcoming && !t.courses.length) { body = '<section><div class="card empty"><h3>' + esc(t.label + ", " + t.period) + '</h3><p>' + esc(t.upcoming) + '</p></div></section>'; document.getElementById("jump").hidden = true; }
+  if (t.upcoming && !t.courses.length && state.view !== "pinned") { body = '<section><div class="card empty"><h3>' + esc(t.label + ", " + t.period) + '</h3><p>' + esc(t.upcoming) + '</p></div></section>'; document.getElementById("jump").hidden = true; }
   else if (state.view === "map") body = renderMapView(t);
   else if (INFO_VIEWS[state.view]) body = renderInfoView(state.view);
   else if (state.view === "cards") body = renderCardsView(t);
+  else if (state.view === "pinned") body = renderPinnedView(t);
   else body = (state.view === "day" ? renderDayView(t) : state.view === "all" ? renderAllView(t) : renderWeekView(t)) + '<div class="bento below">' + renderQuick(t) + renderCourses(t) + renderRhythm(t) + '</div>';
   if (state.view !== "week") document.getElementById("jump").hidden = true;
   document.getElementById("termbody").innerHTML = body;
@@ -2839,13 +2974,14 @@ function save(){
   lsSet(LS.ticks, JSON.stringify(state.checked));
   lsSet(LS.tickAt, JSON.stringify(state.tickAt));
   lsSet(LS.planned, JSON.stringify(state.planned));
+  lsSet(LS.pins, JSON.stringify(state.pins));
   lsSet(LS.muted, JSON.stringify(state.muted));
   if (state.exportedAt) lsSet(LS.exportedAt, state.exportedAt);
   snapshot();
   renderMoved();
   if (!store) return;
   clearTimeout(saveTimer);
-  saveTimer = setTimeout(function(){ store.set({ checked: state.checked, tickAt: state.tickAt, planned: state.planned, exportedAt: state.exportedAt, muted: state.muted, snaps: state.snaps, updated: new Date().toISOString() }).catch(function(){ store = null; }); }, 400);
+  saveTimer = setTimeout(function(){ store.set({ checked: state.checked, tickAt: state.tickAt, planned: state.planned, pins: state.pins, exportedAt: state.exportedAt, muted: state.muted, snaps: state.snaps, updated: new Date().toISOString() }).catch(function(){ store = null; }); }, 400);
 }
 /* ---------- Snapshots, export and import ---------- */
 // Every save also stores the day's state under its date, so a day's snapshot is how it ended; the
@@ -3349,6 +3485,7 @@ document.addEventListener("input", function(e){ var b = e.target; if (b && b.id 
 document.addEventListener("change", function(e){
   var b = e.target;
   if (!b) return;
+  if (b.dataset && b.dataset.pinname) { renamePin(b.dataset.pinname, b.value); state.pinEdit = null; renderTerm(); return; }
   if (b.id === "daypick") { state.day = b.value || todayIso(); state.routeTarget = null; renderTerm(); return; }
   if (b.name === "dgoal") { state.drillGoal = b.value === "mastered" ? "mastered" : "event"; lsSet(LS.drillGoal, state.drillGoal); return; }
   if (b.id === "cv-opened") { state.openedCounts = b.checked; lsSet(LS.openedCounts, b.checked ? "1" : "0"); applyState(); renderTerm(); return; }
@@ -3369,6 +3506,12 @@ document.addEventListener("click", function(e){
   else if (b.dataset.mute) { e.preventDefault(); var id = b.dataset.mute; if (state.muted[id]) delete state.muted[id]; else state.muted[id] = true; closeRowMenu(); if (b.dataset.toastclose) document.getElementById("toast").hidden = true; applyState(); save(); }
   else if (b.dataset.more) { e.preventDefault(); var rm = document.getElementById("rowmenu"); if (!rm.hidden && rm.dataset.for === b.dataset.more) closeRowMenu(); else { openRowMenu(b); rm.dataset.for = b.dataset.more; } }
   else if (b.dataset.sharelink) { e.preventDefault(); closeRowMenu(); shareLink(rowRoute(b.dataset.sharelink), b.dataset.share); }
+  else if (b.dataset.pinlink) { e.preventDefault(); closeRowMenu(); togglePin(noCourse(rowRoute(b.dataset.pinlink)), b.dataset.share); }
+  else if (b.id === "pin-view") { e.preventDefault(); var cr = currentRoute(), ci = pinInfo({ route: cr }); togglePin(cr, ci.title + (ci.where && ci.where !== ci.title ? " (" + ci.where + ")" : "")); }
+  else if (b.dataset.cardpin) { e.preventDefault(); var pc = (state.cards.list || []).find(function(c){ return c.id === b.dataset.cardpin; }); if (pc) { togglePin(routeOf("cards", [pc.id], { course: "all" }), pc.course + ": " + trunc(pc.prompt, 90)); b.setAttribute("aria-pressed", String(!!pinOf(routeOf("cards", [pc.id], { course: "all" })))); } }
+  else if (b.dataset.pinup || b.dataset.pindown) { movePin(b.dataset.pinup || b.dataset.pindown, b.dataset.pinup ? -1 : 1); }
+  else if (b.dataset.pinremove) { var pr = state.pins[b.dataset.pinremove]; if (pr) togglePin(pr.route, pr.title); }
+  else if (b.dataset.pinrename) { state.pinEdit = b.dataset.pinrename; renderTerm(); var pin = document.querySelector('[data-pinname="' + cssq(state.pinEdit) + '"]'); if (pin) { pin.focus(); pin.select(); } }
   else if (b.dataset.fold) { var w = b.closest(".week"); if (w.classList.toggle("collapsed")) state.weeks[b.dataset.fold] = false; else delete state.weeks[b.dataset.fold]; lsSet(LS.weeks, JSON.stringify(state.weeks)); }
   else if (b.closest("#filter")) { state.filter = b.dataset.filter; lsSet(LS.filter, state.filter); if (state.view === "map" || state.view === "cards") renderTerm(); else { applyFilter(); syncRoute(false); } refreshCardProgress(); }
   else if (b.closest("#views")) { navigate(); state.view = b.dataset.view; lsSet(LS.view, state.view); renderTerm(); }
@@ -3384,6 +3527,9 @@ document.addEventListener("click", function(e){
 });
 // Cards: Enter or Space on a focused card turns it over.
 document.addEventListener("keydown", function(e){
+  var pn = e.target && e.target.dataset && e.target.dataset.pinname;
+  if (pn && e.key === "Enter") { e.preventDefault(); e.target.blur(); return; }
+  if (pn && e.key === "Escape") { state.pinEdit = null; renderTerm(); return; }
   var fc = e.target && e.target.classList && e.target.classList.contains("fcard") ? e.target : null;
   if (fc && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); fc.click(); }
 });
@@ -3417,6 +3563,7 @@ function defaultTerm(){
 state.checked = migrate(lsJson(LS.ticks) || lsJson(LS.legacy) || {});
 state.tickAt = migrateAt(lsJson(LS.tickAt) || {});
 state.planned = lsJson(LS.planned) || {};
+state.pins = lsJson(LS.pins) || {};
 state.drillGoal = lsGet(LS.drillGoal) === "mastered" ? "mastered" : "event";
 state.exportedAt = lsGet(LS.exportedAt) || null;
 state.openedCounts = lsGet(LS.openedCounts) !== "0";
@@ -3436,7 +3583,7 @@ state.showHiddenCards = lsGet(LS.cardsHidden) === "1";
 var ctr = lsGet(LS.cardTrust); state.cardTrust = ctr === "all" || ctr === "trusted" ? ctr : "nofix";
 var sh = lsJson(LS.hours); if (sh && toMin(sh.start) != null && toMin(sh.end) != null) state.hours = sh;
 state.filter = lsGet(LS.filter) || "all";
-var sv = lsGet(LS.view); if (sv === "day" || sv === "all" || sv === "week" || sv === "map" || sv === "cards" || sv === "about" || sv === "help" || sv === "privacy" || sv === "terms") state.view = sv; else if (sv === "app") state.view = "about";
+var sv = lsGet(LS.view); if (sv === "day" || sv === "all" || sv === "week" || sv === "map" || sv === "cards" || sv === "pinned" || sv === "about" || sv === "help" || sv === "privacy" || sv === "terms") state.view = sv; else if (sv === "app") state.view = "about";
 state.mapOpen = lsJson(LS.mapOpen);
 state.mapAll = lsGet(LS.mapAll) !== "0";   // on unless the viewer switched it off
 var hp = Number(lsGet(LS.mapHops)); if (hp >= 1 && hp <= 5) state.mapHops = hp;   // 5 means no limit
@@ -3450,7 +3597,7 @@ renderFoot();
 renderTerm();
 renderMoved();
 // The hosted app: show the last Canvas read at once, then read again (and when the tab comes back after a while).
-if (window.TRACKER_CONFIG && window.claude && window.claude.use) window.claude.use("user").then(function(u){ state.signedIn = !!u; renderProfile(); });
+if (window.TRACKER_CONFIG && window.claude && window.claude.use) window.claude.use("user").then(function(u){ state.signedIn = !!u; renderProfile(); applyPinUi(); if (state.view === "pinned" || state.view === "cards") renderTerm(); });
 if (window.TRACKER_CONFIG && window.claude && window.claude.use) refreshCalendar();
 if (window.TRACKER_CONFIG && window.claude && window.claude.use) window.claude.use("canvas").then(function(cv){
   if (!cv || !cv.has()) { state.canvas = null; refreshBookings(); return; }
@@ -3474,11 +3621,12 @@ if (window.TRACKER_CONFIG && window.claude && window.claude.use) window.claude.u
     if (snap && snap.data) {
       mergeTicks(snap.data.checked, snap.data.tickAt);
       mergePlanned(snap.data.planned);
+      mergePins(snap.data.pins);
       if (snap.data.exportedAt && (!state.exportedAt || snap.data.exportedAt > state.exportedAt)) state.exportedAt = snap.data.exportedAt;
       Object.keys(snap.data.muted || {}).forEach(function(k){ state.muted[k] = true; });
       mergeSnaps(snap.data.snaps);
-      lsSet(LS.ticks, JSON.stringify(state.checked)); lsSet(LS.tickAt, JSON.stringify(state.tickAt)); lsSet(LS.muted, JSON.stringify(state.muted));
-      applyState();
+      lsSet(LS.ticks, JSON.stringify(state.checked)); lsSet(LS.tickAt, JSON.stringify(state.tickAt)); lsSet(LS.muted, JSON.stringify(state.muted)); lsSet(LS.pins, JSON.stringify(state.pins));
+      applyState(); if (state.view === "pinned") renderTerm();
     }
     store = ref;
     save();   // ticks made here before signing in reach the account now, merged by the rule above

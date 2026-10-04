@@ -120,7 +120,9 @@ function neon(dark) {
   // the teacher's announcement box: a fully saturated cyan block with dark text on it, like the reference
   v["ann-container"] = vivid([0.80, 0.88], H.cyan); v["on-ann-container"] = onTint;
   v.shadow = dark ? "0 1px 2px rgba(0,0,0,.4)" : "0 1px 2px rgba(0,0,32,.08)";
-  // flip cards and popups: a navy shadow in light mode; in dark mode a shadow disappears, so a cyan glow
+  // The lift, three levels (boxes, flip cards, popups): a navy shadow in light mode; in dark mode a
+  // shadow disappears, so a cyan glow. Which element takes which level: "Lift" in src/template.html.
+  v["box-lift"] = dark ? "drop-shadow(0 0 1px rgba(0,228,253,.22)) drop-shadow(0 0 8px rgba(0,228,253,.07))" : "drop-shadow(0 1px 2px rgba(0,0,32,.08)) drop-shadow(0 4px 10px rgba(10,20,50,.05))";
   v["card-lift"] = dark ? "drop-shadow(0 0 10px rgba(0,228,253,.16)) drop-shadow(0 6px 14px rgba(0,228,253,.10))" : "drop-shadow(0 8px 12px rgba(10,20,50,.13)) drop-shadow(0 1px 2px rgba(10,20,50,.10))";
   v["pop-lift"] = dark ? "drop-shadow(0 0 14px rgba(0,228,253,.24)) drop-shadow(0 8px 24px rgba(0,228,253,.14)) drop-shadow(0 0 1px rgba(0,228,253,.6))" : "drop-shadow(0 10px 24px rgba(10,20,50,.22)) drop-shadow(0 2px 4px rgba(10,20,50,.14))";
   return v;
@@ -154,9 +156,11 @@ function ice(dark) {
   v.ok = text(I.pine, 0.055);
   v["ann-container"] = container(I.sky); v["on-ann-container"] = onContainer(I.sky, 0.06, v["ann-container"]);
   v.shadow = dark ? "0 1px 3px rgba(0,0,0,.45)" : "0 1px 3px rgba(30,40,45,.10)";
-  // no glow: a soft shadow, and in dark mode a faint frost edge so the cut shape still reads
-  v["card-lift"] = dark ? "drop-shadow(0 0 1px rgba(205,225,239,.16)) drop-shadow(0 6px 14px rgba(0,0,0,.45))" : "drop-shadow(0 8px 12px rgba(30,40,45,.10)) drop-shadow(0 1px 2px rgba(30,40,45,.08))";
-  v["pop-lift"] = dark ? "drop-shadow(0 0 1px rgba(205,225,239,.30)) drop-shadow(0 10px 28px rgba(0,0,0,.60))" : "drop-shadow(0 10px 24px rgba(30,40,45,.18)) drop-shadow(0 2px 4px rgba(30,40,45,.12))";
+  // The lift, three levels: a soft shadow in light mode; in dark mode a black shadow vanishes on the
+  // near-black page, so a faint ice glow instead (as Neon glows cyan), with a frost edge for the cut.
+  v["box-lift"] = dark ? "drop-shadow(0 0 1px rgba(205,225,239,.16)) drop-shadow(0 0 8px rgba(205,225,239,.06))" : "drop-shadow(0 1px 3px rgba(30,40,45,.10))";
+  v["card-lift"] = dark ? "drop-shadow(0 0 1px rgba(205,225,239,.22)) drop-shadow(0 0 10px rgba(205,225,239,.10)) drop-shadow(0 6px 14px rgba(205,225,239,.06))" : "drop-shadow(0 8px 12px rgba(30,40,45,.10)) drop-shadow(0 1px 2px rgba(30,40,45,.08))";
+  v["pop-lift"] = dark ? "drop-shadow(0 0 1px rgba(205,225,239,.40)) drop-shadow(0 0 14px rgba(205,225,239,.16)) drop-shadow(0 8px 24px rgba(205,225,239,.10))" : "drop-shadow(0 10px 24px rgba(30,40,45,.18)) drop-shadow(0 2px 4px rgba(30,40,45,.12))";
   return v;
 }
 
@@ -168,6 +172,7 @@ function block(v, indent) {
     ...["c1", "c2", "c3", "c4", "c5", "alert", "now"].map(k => line([[k, v[k]], ["on-" + k, v["on-" + k]], [k + "-container", v[k + "-container"]], ["on-" + k + "-container", v["on-" + k + "-container"]], [k + "-soft", v[k + "-soft"]]])),
     line([["ok", v.ok], ["ann-container", v["ann-container"]], ["on-ann-container", v["on-ann-container"]]]),
     line([["shadow", v.shadow]]),
+    line([["box-lift", v["box-lift"]]]),
     line([["card-lift", v["card-lift"]]]),
     line([["pop-lift", v["pop-lift"]]])
   ].join("\n");
