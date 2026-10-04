@@ -20,8 +20,8 @@
     for (let n = el; n; n = n.parentElement) {
       const cs = getComputedStyle(n);
       let bg = parse(cs.backgroundColor);
-      // a card paints its surface on a pseudo-element
-      if ((!bg || bg.a === 0) && n.matches && n.matches(".card,.pop .panel")) bg = parse(getComputedStyle(n, "::before").backgroundColor);
+      // a framed box (the shape system in src/template.html) paints its fill on ::after, its frame on ::before
+      if ((!bg || bg.a === 0) && getComputedStyle(n, "::after").content !== "none" && getComputedStyle(n, "::after").position === "absolute") { const f = parse(getComputedStyle(n, "::after").backgroundColor); if (f && f.a > 0) bg = f; }
       if (bg && bg.a > 0) { layers.push(bg); if (bg.a >= 1) break; }
     }
     let out = pageBg;

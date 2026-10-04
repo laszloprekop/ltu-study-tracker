@@ -131,8 +131,8 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
 .moved .mv-head .ic.big{width:40px; height:40px; flex:0 0 40px; color:#000}
 .moved .mv-title{flex:1 1 auto; font-size:19px; font-weight:700; line-height:1.25; letter-spacing:.005em}
 .moved a{color:#000; font-weight:700; text-decoration:underline; text-underline-offset:2px}
-.moved button{font:inherit; font-size:14px; font-weight:700; padding:4px 12px; border:2px solid #000; background:transparent; color:#000; cursor:pointer}
-.moved button:hover{background:#000; color:var(--rad)}
+.moved button{font:inherit; font-size:14px; font-weight:700; padding:4px 12px; --bw:2px; --frame:#000; --fill:transparent; color:#000; cursor:pointer}
+.moved button:hover{--fill:#000; color:var(--rad)}
 .moved .mv-fold{flex:0 0 auto; padding:4px 8px}
 .moved .mv-fold .ic{transition:transform .2s}
 .moved .mv-body{padding:0 14px 14px 66px; font-size:15.5px; line-height:1.45; display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:6px 28px}
@@ -170,19 +170,14 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
 .chain .pdate{color:var(--muted); font-size:12px} .chain .pdate.doby{border:1px dashed var(--muted); padding:0 5px}
 .tag.late{display:inline-flex; align-items:center; gap:3px; background:var(--alert-container); color:var(--on-alert-container)} 
 .grid2{display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:14px}
-.disagreements h3{display:flex; align-items:center; gap:8px} .disagreements .copyrep{margin-left:auto; font:inherit; font-size:12px; font-weight:700; padding:4px 10px; border:1px solid var(--muted); background:transparent; color:var(--ink); cursor:pointer}
+.disagreements h3{display:flex; align-items:center; gap:8px} .disagreements .copyrep{margin-left:auto; font:inherit; font-size:12px; font-weight:700; padding:4px 10px; --frame:var(--muted); --fill:transparent; color:var(--ink); cursor:pointer}
 .disagreements ul{margin:6px 0 0; padding-left:18px; font-size:13.5px} .disagreements li{margin:4px 0}
-/* Square, with the cut top-right corner the page uses everywhere (release 4 redesign) */
-.cardsview button,.cardsview select,.cardsview textarea,.cardsview .fld,.cvcard button,.cvcard input[type=password],.cvcard input[type=number],.cvcard input[type=url],.cvcard input[type=text],
-.acct-delete button,.pop.about .prog button,.pop.about .prog textarea,.pop.about .prog select,.dp-items li button,.dp-items li,.dp-block,.moved button,.disagreements .copyrep,.bkstage,.chain .pdate.doby,.tag.yours,.tag.disagree,.tag.late,.bkstrip,.chain,.cvmark.both{
-  clip-path:polygon(0 0, calc(100% - var(--bev, 6px)) 0, 100% var(--bev, 6px), 100% 100%, 0 100%)}
-.cardsview textarea,.pop.about .prog textarea,.chain,.bkstrip,.dp-items li{--bev:9px}
-.cardsview .fld{flex:1 1 200px; font:inherit; font-size:13px; border:1px solid var(--muted); padding:6px 8px; background:var(--surface); color:var(--ink)}
+.cardsview .fld{flex:1 1 200px; font:inherit; font-size:13px; padding:6px 8px; color:var(--ink)}
 .cardsview textarea{flex:1 1 100%}
 /* Flip cards: a click turns the card over on its vertical axis. */
 .fbar{display:flex; flex-wrap:wrap; gap:6px; margin:4px 0 8px}
-.cardsview .fbar button{display:inline-flex; align-items:center; gap:6px; font-weight:600; color:var(--ink); background:var(--surface-2); border:1px solid var(--line)}
-.cardsview .fbar button[aria-pressed="true"]{color:var(--on-now-container); background:var(--now-container); border-color:var(--now-container)}
+.cardsview .fbar button{display:inline-flex; align-items:center; gap:6px; font-weight:600; color:var(--ink); --fill:var(--surface-2); --frame:var(--line)}
+.cardsview .fbar button[aria-pressed="true"]{color:var(--on-now-container); --fill:var(--now-container); --frame:var(--now)}
 .fbar button .dot{width:8px; height:8px; background:var(--cc, var(--muted)); clip-path:polygon(0 0, 60% 0, 100% 40%, 100% 100%, 0 100%)}
 .fbar button small{font-weight:400; opacity:.8}
 .fgrid{display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:18px; margin-top:10px}
@@ -196,20 +191,18 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
 /* --card-lift comes with the palette (tools/palette.mjs) */
 .fc-face{grid-area:1 / 1; display:flex; backface-visibility:hidden; -webkit-backface-visibility:hidden; filter:var(--card-lift)}
 .fc-back{transform:rotateY(180deg)}
-.fc-body{position:relative; flex:1 1 auto; min-width:0; overflow-wrap:anywhere; display:flex; flex-direction:column; gap:7px; padding:16px 14px 14px; background:var(--surface); border:1px solid var(--line); --bev:16px; --bdc:var(--line);
-  clip-path:polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%)}
-.fc-back .fc-body{background:var(--surface-2)}
-/* the course stripe: its own layer, ending where the cut begins, so the frame stays 1 px all round */
-.fc-body::before{content:""; position:absolute; left:-1px; top:-1px; width:calc(100% - 15px); height:5px; background:var(--cc, var(--now))}
-.fc-back .fc-body::before{background:var(--now)}
+.fc-body{flex:1 1 auto; min-width:0; overflow-wrap:anywhere; display:flex; flex-direction:column; gap:7px; padding:12px 14px 14px;
+  --bev:16px; --bw-t:5px; --stripe:var(--cc, var(--now)); --frame:linear-gradient(var(--stripe) 5px, var(--line) 5px); --fill:var(--surface)}
+/* the course stripe is the frame's top side, 5 px, following the cut */
+.fc-back .fc-body{--stripe:var(--now); --fill:var(--surface-2)}
 .fc-meta{display:flex; flex-wrap:wrap; align-items:center; gap:6px; font-size:12px; color:var(--muted)}
 .fc-meta{flex-wrap:nowrap} .fc-meta .fc-ev{flex:1 1 auto; min-width:0; overflow:hidden; white-space:nowrap; text-overflow:ellipsis}
 .fcard.hiddencard .fc-body{opacity:.55}
 /* votes and hide: one row under the ratings; the pressed vote is the viewer's own */
 .fc-act{display:flex; gap:4px; margin-top:2px}
-.cardsview .fc-act button{flex:1 1 0; min-width:0; display:inline-flex; align-items:center; justify-content:center; gap:4px; padding:4px 2px; font-size:11.5px; font-weight:600; color:var(--muted); background:transparent; border:1px solid var(--line)}
-.cardsview .fc-act button[aria-pressed="true"]{color:var(--on-now-container); background:var(--now-container); border-color:var(--now-container)}
-.cardsview .fc-act button[data-cardvote="fix"][aria-pressed="true"]{color:var(--on-alert-container); background:var(--alert-container); border-color:var(--alert-container)}
+.cardsview .fc-act button{flex:1 1 0; min-width:0; display:inline-flex; align-items:center; justify-content:center; gap:4px; padding:4px 2px; font-size:11.5px; font-weight:600; color:var(--muted); --fill:transparent; --frame:var(--line)}
+.cardsview .fc-act button[aria-pressed="true"]{color:var(--on-now-container); --fill:var(--now-container); --frame:var(--now-container)}
+.cardsview .fc-act button[data-cardvote="fix"][aria-pressed="true"]{color:var(--on-alert-container); --fill:var(--alert-container); --frame:var(--alert-container)}
 .cardsview .fc-act button:disabled{opacity:.5; cursor:default}
 .cardsview .fc-act button b{font-weight:700}
 .tag.trust.ok{color:var(--on-c2-container); background:var(--c2-container)}
@@ -231,7 +224,7 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
 /* inside the insight box text keeps the container pair; code chips keep the surface pair */
 .fc-back .insight .term{color:inherit; text-decoration:underline; text-underline-offset:2px}
 .fc-back .insight code{color:var(--ink)}
-.fc-back .insight{flex:0 0 auto; margin:0; padding:6px 8px; font-size:13px; line-height:1.35; background:var(--now-container); color:var(--on-now-container); border-left:4px solid var(--now); clip-path:polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%)}
+.fc-back .insight{flex:0 0 auto; margin:0; padding:6px 8px; font-size:13px; line-height:1.35; background:var(--now-container); color:var(--on-now-container); border-left:4px solid var(--now); --bev:8px; clip-path:var(--cut)}
 .fc-back .insight b{display:block; font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--on-now-container)}
 .fc-src{font-size:12px; line-height:1.3; color:var(--muted)}
 .fc-foot{display:flex; flex-wrap:wrap; align-items:center; gap:6px; font-size:11.5px; color:var(--muted)}
@@ -242,9 +235,9 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
 /* four ratings share a narrow card: icon over the word, never a broken word */
 .fc-rate button{flex-direction:column; gap:1px; white-space:nowrap; font-size:12px; line-height:1.2}
 .fc-back .ck-b{display:flex; flex-wrap:wrap; gap:6px; margin:0}
-.fc-back .ck-b button.plain{border:0; background:transparent; padding:0; font-size:11.5px; font-weight:600; color:var(--muted); text-decoration:underline; clip-path:none}
+.fc-back .ck-b button.plain{--bw:0px; --fill:transparent; padding:0; font-size:11.5px; font-weight:600; color:var(--muted); text-decoration:underline}
 @media (prefers-reduced-motion:reduce){ .fc-in{transition:none} }
-.hbtn{display:inline-flex; align-items:center; padding:5px 8px; border:0; background:var(--surface); color:var(--muted); cursor:pointer; clip-path:polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 0 100%)}
+.hbtn{display:inline-flex; align-items:center; padding:5px 8px; border:0; background:var(--surface); color:var(--muted); cursor:pointer; clip-path:var(--cut)}
 .settings{margin-left:auto}
 .pop.profile summary{gap:6px}
 .pop.profile summary #pp-who{max-width:16ch; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
@@ -252,13 +245,13 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
 .pp-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:12px; grid-auto-flow:dense}
 .pp-grid.inner{margin:0}
 .pp-span{grid-column:1 / -1}
-.pp-card{position:relative; padding:12px 14px; background:var(--surface-2); clip-path:polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%)}
+.pp-card{position:relative; padding:12px 14px; background:var(--surface-2); clip-path:var(--cut)}
 .pp-card h3{display:flex; align-items:center; gap:6px; font-size:14px; margin:0 0 8px; color:var(--ink)}
 .pp-card .note,.pp-card p{color:var(--muted)}
 .pp-row{display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:6px 0}
-.pp-row input[type=time]{font:inherit; font-size:13px; border:1px solid var(--muted); padding:4px 6px; background:var(--surface); color:var(--ink)}
-.tgl{display:inline-flex; align-items:center; gap:6px; font:inherit; font-size:13px; font-weight:600; padding:5px 10px; border:1px solid var(--line); background:var(--surface); color:var(--muted); cursor:pointer}
-.tgl[aria-pressed="true"]{color:var(--on-now-container); background:var(--now-container); border-color:var(--now-container)}
+.pp-row input[type=time]{font:inherit; font-size:13px; padding:4px 6px; color:var(--ink)}
+.tgl{display:inline-flex; align-items:center; gap:6px; font:inherit; font-size:13px; font-weight:600; padding:5px 10px; --frame:var(--line); --fill:var(--surface); color:var(--muted); cursor:pointer}
+.tgl[aria-pressed="true"]{color:var(--on-now-container); --fill:var(--now-container); --frame:var(--now)}
 #acct-slot .seg{background:transparent} #acct-slot button{font:inherit; font-size:13px; font-weight:700; padding:6px 14px; border:1px solid var(--now-container); background:var(--now-container); color:var(--on-now-container); cursor:pointer}
 .foot{margin-top:40px; padding:18px 0 0; border-top:1px solid var(--line); font-size:13px; color:var(--muted); display:grid; gap:6px}
 .foot nav{display:flex; flex-wrap:wrap; gap:6px 18px}
@@ -266,8 +259,8 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
 .foot nav a:hover{text-decoration:underline}
 .foot p{margin:0} .foot .disclaimer{display:flex; align-items:center; gap:6px; color:var(--ink)}
 .infonav{display:flex; flex-wrap:wrap; gap:6px; margin:0 0 14px}
-.infonav button,.infoview .plain{display:inline-flex; align-items:center; gap:6px; font:inherit; font-size:13px; font-weight:600; padding:6px 12px; border:1px solid var(--line); background:var(--surface); color:var(--ink); cursor:pointer}
-.infonav button[aria-pressed="true"]{color:var(--on-now-container); background:var(--now-container); border-color:var(--now-container)}
+.infonav button,.infoview .plain{display:inline-flex; align-items:center; gap:6px; font:inherit; font-size:13px; font-weight:600; padding:6px 12px; --frame:var(--line); --fill:var(--surface); color:var(--ink); cursor:pointer}
+.infonav button[aria-pressed="true"]{color:var(--on-now-container); --fill:var(--now-container); --frame:var(--now)}
 .infoview h2{display:flex; align-items:center; gap:8px}
 .bento{display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:14px; grid-auto-flow:dense; align-items:start}
 @media (min-width:760px){ .bento > .span2{grid-column:span 2} }
@@ -277,28 +270,15 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
 .infocard p{margin:0 0 8px; line-height:1.5} .infocard ul,.infocard ol{margin:0 0 8px; padding-left:20px; line-height:1.5} .infocard li{margin:3px 0}
 .infocard code{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:.92em; padding:0 4px; background:var(--surface-2); box-shadow:inset 0 0 0 1px var(--line)}
 .infocard .term{color:var(--c3)}
-.infocard .insight{margin:8px 0 0; padding:7px 10px; background:var(--now-container); color:var(--on-now-container); border-left:4px solid var(--now); clip-path:polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%)}
+.infocard .insight{margin:8px 0 0; padding:7px 10px; background:var(--now-container); color:var(--on-now-container); border-left:4px solid var(--now); --bev:8px; clip-path:var(--cut)}
 .infocard .insight b{display:block; font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--on-now-container)}
 .infocard .here{display:inline-block; margin-left:6px; padding:1px 7px; font-size:11px; font-weight:700; text-transform:uppercase; background:var(--now-container); color:var(--on-now-container)}
 .cvlegend{display:flex; flex-wrap:wrap; gap:6px 14px; font-size:13px; margin:8px 0 0} .cvlegend > span{display:inline-flex; align-items:center; gap:6px}
-/* A framed element with the cut corner: the frame stops at the cut, so draw the cut's own edge. */
-.cardsview .fbar button,.cardsview button.plain,.cvcard button.plain,.cardsview select,.cardsview textarea,.cardsview .fld,.cvcard input[type=password],.cvcard input[type=number],.cvcard input[type=url],.cvcard input[type=text],
-.pop.about .prog textarea,.prog textarea,.prog select,.bkstage.open,.dp-items li,.disagreements .copyrep,.acct-delete button,.tgl,.infonav button,.infoview .plain,.pp-row input[type=time],.fc-body,.moved button,.bkstrip{
-  /* Measured from the outer edge, like the clip-path, and drawn on the inner side of the cut only,
-     as thick as the frame: the cut's diagonal is the 50% line of this corner square. */
-  background-image:linear-gradient(to bottom left, transparent 50%, var(--bdc, var(--muted)) 50%, var(--bdc, var(--muted)) calc(50% + var(--bw, 1px)), transparent calc(50% + var(--bw, 1px))) !important;
-  background-size:var(--bev, 6px) var(--bev, 6px) !important; background-position:100% 0 !important; background-repeat:no-repeat !important;
-  background-origin:border-box !important; background-clip:border-box !important}
-.cardsview .fbar button,.dp-items li,.bkstage.open,.tgl,.infonav button,.infoview .plain{--bdc:var(--line)}
-.acct-delete button{--bdc:var(--alert)} .moved button{--bdc:#000; --bw:2px}
-.infonav button[aria-pressed="true"],.cardsview .fbar button[aria-pressed="true"],.tgl[aria-pressed="true"]{--bdc:var(--now)}
-.tgl,.infonav button,.infoview .plain,.pp-row input[type=time],.acct-delete button,.prog textarea,.prog select,.bkstrip{clip-path:polygon(0 0, calc(100% - var(--bev, 6px)) 0, 100% var(--bev, 6px), 100% 100%, 0 100%)}
-.prog textarea,.bkstrip{--bev:9px}
 .cardsview .csets,.cardsview .cklist{list-style:none; margin:8px 0 0; padding:0; display:flex; flex-direction:column; gap:6px}
 .cardsview .csets li{display:flex; flex-wrap:wrap; align-items:center; gap:4px 8px; padding:6px 8px; border-left:4px solid var(--cc, var(--muted)); background:var(--surface-2)}
 .cardsview .cs-n{flex:1 1 auto; color:var(--muted); font-size:12.5px}
-.cardsview button{font:inherit; font-size:13px; font-weight:700; color:var(--on-now-container); background:var(--now-container); border:1px solid var(--now-container); padding:5px 12px; cursor:pointer}
-.cardsview button.plain{color:var(--ink); background:transparent; border-color:var(--muted)}
+.cardsview button{font:inherit; font-size:13px; font-weight:700; color:var(--on-now-container); --fill:var(--now-container); --frame:var(--now-container); padding:5px 12px; cursor:pointer}
+.cardsview button.plain{color:var(--ink); --fill:transparent; --frame:var(--muted)}
 .cardsview button:disabled{opacity:.4; cursor:default}
 .cardsview .cklist li{padding:8px 10px; border:1px solid var(--line); background:var(--surface)}
 .cardsview .ck-p{font-weight:700; margin:4px 0 2px} .cardsview .ck-a{white-space:pre-wrap} .cardsview .ck-s{color:var(--muted); font-size:12.5px; margin-top:4px}
@@ -328,34 +308,34 @@ body.dragging .dp-free{background:color-mix(in oklch, var(--now-soft) 55%, trans
 .dp-due span{position:absolute; right:4px; top:-9px; padding:0 4px; font-size:11px; font-weight:700; background:var(--surface); color:var(--cc, var(--alert))}
 .dp-side h4{margin:0 0 2px; font-size:12px; letter-spacing:.06em; text-transform:uppercase}
 .dp-items{list-style:none; margin:6px 0 0; padding:0; display:flex; flex-direction:column; gap:4px; max-height:520px; overflow:auto}
-.dp-items li{display:flex; flex-wrap:wrap; align-items:center; gap:4px 6px; padding:5px 6px; border:1px solid var(--line); border-left:4px solid var(--cc, var(--muted)); background:var(--surface); font-size:12.5px; cursor:grab}
+.dp-items li{display:flex; flex-wrap:wrap; align-items:center; gap:4px 6px; padding:5px 6px; --bev:9px; --bw-l:4px; --frame:linear-gradient(to right, var(--cc, var(--muted)) 4px, var(--line) 4px); --fill:var(--surface); font-size:12.5px; cursor:grab}
 .dp-items li .tt{flex:1 1 140px}
 .dp-items li button{font:inherit; font-size:11.5px; font-weight:700; color:var(--on-now-container); background:var(--now-container); border:0; padding:2px 8px; cursor:pointer}
 .dp-items .nofit{color:var(--muted)}
 .row.cal{background:repeating-linear-gradient(135deg, transparent 0 8px, var(--surface-2) 8px 9px)}
 .tag.yours{background:var(--ink); color:var(--surface)}
 .bkstage{display:inline-block; margin-left:8px; padding:1px 8px; font-size:11.5px; font-weight:700; vertical-align:1px; white-space:nowrap}
-.bkstage.claimed{background:var(--c2-container); color:var(--on-c2-container)} .bkstage.open{background:var(--surface-2); color:var(--muted); border:1px solid var(--line)}
-.bkstage.due{background:var(--c4-container); color:var(--on-c4-container)} .bkstage.urgent{background:var(--alert); color:#fff} .bkstage.nogroup{background:var(--surface-2); color:var(--muted)}
-.bkstrip{display:flex; flex-wrap:wrap; align-items:center; gap:6px 4px; margin:0 0 12px; padding:8px 12px; background:var(--surface); border:1px solid var(--line); border-left:4px solid var(--alert); font-size:13px}
+.bkstage.claimed{--fill:var(--c2-container); color:var(--on-c2-container)} .bkstage.open{--bw:1px; --fill:var(--surface-2); --frame:var(--line); color:var(--muted)}
+.bkstage.due{--fill:var(--c4-container); color:var(--on-c4-container)} .bkstage.urgent{--fill:var(--alert); color:#fff} .bkstage.nogroup{--fill:var(--surface-2); color:var(--muted)}
+.bkstrip{display:flex; flex-wrap:wrap; align-items:center; gap:6px 4px; margin:0 0 12px; padding:8px 12px; --bev:9px; --bw-l:4px; --frame:linear-gradient(to right, var(--alert) 4px, var(--line) 4px); --fill:var(--surface); font-size:13px}
 .bkstrip > b{margin:0 6px 0 4px} .bkstrip a{margin-left:auto; font-weight:600}
 .cvmark{display:inline-flex; align-items:center; justify-content:center; min-width:18px; height:18px; margin:0 2px 0 -2px; font-size:11px; font-weight:800; letter-spacing:-.08em; line-height:1; vertical-align:middle;}
 .cvmark.cv{color:var(--c2)} .cvmark.both{color:var(--on-c2-container); background:var(--c2-container); padding:0 2px}
 .cvmark.half{color:var(--c3); font-size:13px} .cvmark.un{color:var(--muted); font-weight:600}
 .cvmark.conf{color:var(--alert)} 
 .cvmark.no{width:9px; min-width:9px; height:9px; border:1.5px solid var(--line); border-radius:50%}
-.cvcard input[type=number],.cvcard input[type=url],.cvcard input.secret{font:inherit; font-size:13px; color:var(--ink); background:var(--surface); border:1px solid var(--muted); padding:6px 8px}
+.cvcard input[type=number],.cvcard input[type=url],.cvcard input.secret{font:inherit; font-size:13px; color:var(--ink); padding:6px 8px}
 .cvcard input.secret{width:min(420px, 100%); -webkit-text-security:disc}
 .cvcard input[type=number]{width:70px}
 .cvcard .row{display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:8px 0}
-.cvcard button{font:inherit; font-size:13px; font-weight:700; color:var(--on-now-container); background:var(--now-container); border:1px solid var(--now-container); padding:6px 14px; cursor:pointer}
-.cvcard button.plain{color:var(--ink); background:transparent; border-color:var(--muted)}
+.cvcard button{font:inherit; font-size:13px; font-weight:700; color:var(--on-now-container); --fill:var(--now-container); --frame:var(--now-container); padding:6px 14px; cursor:pointer}
+.cvcard button.plain{color:var(--ink); --fill:transparent; --frame:var(--muted)}
 .cvcard .err{color:var(--alert); font-weight:600}
 .cvlegend{display:flex; flex-wrap:wrap; gap:6px 16px; font-size:13px; margin:8px 0 0}
 .cvlegend > span{display:inline-flex; align-items:center; gap:6px}
 .acct-delete{margin:12px 0 0}
-.acct-delete button{font:inherit; font-size:13px; font-weight:700; padding:6px 14px; border:1px solid var(--alert); background:transparent; color:var(--alert); cursor:pointer}
-.acct-delete button.armed{background:var(--alert); color:#fff}
+.acct-delete button{font:inherit; font-size:13px; font-weight:700; padding:6px 14px; --frame:var(--alert); --fill:transparent; color:var(--alert); cursor:pointer}
+.acct-delete button.armed{--fill:var(--alert); color:#fff}
 .acct-delete .msg{font-size:13px; color:var(--muted)}
 .appview .here{display:inline-block; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; padding:1px 7px; background:var(--now-container); color:var(--on-now-container); margin-left:6px; vertical-align:2px}
 .locked input[type=checkbox]{cursor:not-allowed}
@@ -413,7 +393,7 @@ section{margin-bottom:30px}
 .sechead{display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; margin-bottom:12px}
 .sechead h2{font-size:17px; letter-spacing:-.01em}
 .sechead .note{color:var(--muted); font-size:13px}
-.card{background:var(--surface); box-shadow:var(--shadow)}
+.card{box-shadow:var(--shadow)}
 .empty{padding:22px 18px; color:var(--muted)}
 .empty h3{color:var(--ink); font-size:15px; margin-bottom:6px}
 .empty p{margin:0; max-width:62ch}
@@ -448,7 +428,7 @@ body:not(.noping) .endangered:not(.done):not(.muted) .box .ring{display:block}
 @keyframes pingring{0%{transform:scale(.55); opacity:.95} 100%{transform:scale(2.1); opacity:0}}
 @media (prefers-reduced-motion:reduce){ .bar span{transition:none} .box .ring{animation:none; inset:-3px; opacity:.8} }
 /* Labels: chip (course), lvl (MUST/NICE) and tag share one size, so they sit level in a row. */
-.tag,.lvl,.chip{display:inline-flex; align-items:center; gap:3px; font-size:10.5px; line-height:1.5; letter-spacing:.05em; text-transform:uppercase; padding:1px 6px; vertical-align:1px; white-space:nowrap}
+.tag,.lvl,.chip{display:inline-flex; align-items:baseline; gap:3px; font-size:10.5px; line-height:1.5; letter-spacing:.05em; text-transform:uppercase; padding:1px 6px; vertical-align:1px; white-space:nowrap}
 .tag{font-weight:600; color:var(--muted); background:var(--bg); margin-left:6px}
 .tag.expected{color:var(--on-now-container); background:var(--now-container)}
 .tag.pts{color:var(--ink)}
@@ -460,7 +440,10 @@ a.tag.feeds:hover{text-decoration:underline}
 .est{color:var(--muted); font-size:12px; white-space:nowrap}
 /* icons inside labels: small, in the label's own colour */
 .tag .ic,.lvl .ic,.flag .ic,.est .ic,.kind .ic,.fc-foot .ic,.fc-ev .ic,.cardsn .ic,.nref .ic{width:12px; height:12px}
-.kind span,.est,.cardsn,.fc-ev,.fc-due,.flag{display:inline-flex; align-items:center; gap:3px}
+.kind span,.est,.cardsn,.fc-ev,.fc-due,.flag{display:inline-flex; align-items:baseline; gap:3px}
+/* an inline-flex label takes its baseline from its first item; with align-items:baseline that is its
+   text, not the leading icon (an svg's baseline is its bottom edge), and the icon is centred on its own */
+.tag > .ic,.lvl > .ic,.chip > .ic,.flag > .ic,.kind span > .ic,.est > .ic,.cardsn > .ic,.fc-ev > .ic,.fc-due > .ic{align-self:center}
 .kind span + span{margin-left:8px}
 .mute{flex:0 0 auto; display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; border:0; background:none; color:var(--muted); opacity:.4; cursor:pointer; border-radius:50%; padding:0}
 .mute:hover,.muted .mute{opacity:1}
@@ -493,7 +476,7 @@ a.tag.feeds:hover{text-decoration:underline}
 .weeks{--rail:132px; display:flex; flex-direction:column; gap:14px}
 .week{display:grid; grid-template-columns:var(--rail) minmax(0,1fr); gap:0; scroll-margin-top:130px}
 /* the current week: a 2px ring in the accent colour, drawn behind the surface with the same cut corner */
-.week.now::after{content:""; position:absolute; inset:-2px; z-index:-2; background:var(--now); clip-path:polygon(0 0, calc(100% - 13px) 0, 100% 13px, 100% 100%, 0 100%)}
+.week.now{--bw:2px; --frame:var(--now)}
 .week .rail{padding:14px 12px 14px 16px; background:var(--surface-2)}
 .week .rail .wk{font-size:17px; font-family:Archivo,sans-serif; font-weight:700; letter-spacing:-.01em; display:flex; align-items:center; gap:4px}
 .week .rail .dates{font-size:11.5px; color:var(--muted); margin-top:2px}
@@ -593,7 +576,8 @@ body.mapview #termbody section{flex:1 1 auto; min-height:0; margin-bottom:12px; 
 .rail-toggle{margin-left:auto; display:inline-flex; align-items:center; color:var(--muted); background:none; border:0; padding:0 2px; cursor:pointer; line-height:1}
 .rail-toggle:hover{color:var(--ink)}
 .rail-toggle .ic{width:16px; height:16px; transition:transform .15s}
-.rail-card.slim{position:absolute; left:0; top:0; bottom:0; width:var(--rail-w, 36px); z-index:3; align-items:center; padding:6px 0 6px; background:color-mix(in oklch, var(--surface) 86%, transparent); backdrop-filter:blur(4px)}
+.rail-card.slim{position:absolute; left:0; top:0; bottom:0; width:var(--rail-w, 36px); z-index:3; align-items:center; padding:6px 0 6px; --fill:color-mix(in oklch, var(--surface) 86%, transparent); backdrop-filter:blur(4px)}
+.rail-card.slim::after{clip-path:none}
 .rail-card.slim .rail-toggle{margin:0; padding:4px 0}
 /* The folded rail as a timeline: rows of squares, one square per unit of time an event covers; overlaps sit in the next lane */
 .rail-strip{flex:1 1 auto; min-height:0; width:100%; position:relative; margin:4px 0; overflow:hidden; --sq:8px; --cbev:max(3px, calc(var(--sq) * .3))}
@@ -601,7 +585,7 @@ body.mapview #termbody section{flex:1 1 auto; min-height:0; margin-bottom:12px; 
 .rail-strip .ev{position:absolute; background:none; border:0; padding:0; margin:0; cursor:pointer; display:block; transition:top .35s ease, left .35s ease, width .35s ease, height .35s ease, opacity .3s ease}
 .rail-strip .ev i{position:absolute; left:0; width:var(--sq); height:var(--sq); background:var(--cc); transition:top .35s ease, width .35s ease, height .35s ease}
 /* the first cell of an event is its start at every level, and carries the page's cut corner */
-.rail-strip .ev i:first-child{clip-path:polygon(0 0, calc(100% - var(--cbev)) 0, 100% var(--cbev), 100% 100%, 0 100%)}
+.rail-strip .ev i:first-child{--bev:var(--cbev); clip-path:var(--cut)}
 .rail-strip .gapc{overflow:hidden}
 .rail-strip .gapc.hid{opacity:0; pointer-events:none}
 .rail-strip .gapc,.rail-strip .nowline{transition:opacity .3s ease, top .35s ease, height .35s ease}
@@ -755,7 +739,7 @@ svg.focus .ge.tl.hl{opacity:.5; stroke-width:1.4}
 .legend-g .lg{width:16px; height:16px; margin-right:2px}
 .legend-g .lg .c{fill:var(--now); stroke:none}
 .legend-g .lg .c.d{opacity:.7}
-.legend-g .lp{display:inline-flex; align-items:center; justify-content:center; width:22px; height:14px; background:var(--now-container); color:var(--on-now-container); margin-right:2px; clip-path:polygon(0 0, calc(100% - 4px) 0, 100% 4px, 100% 100%, 0 100%)}
+.legend-g .lp{display:inline-flex; align-items:center; justify-content:center; width:22px; height:14px; background:var(--now-container); color:var(--on-now-container); margin-right:2px; --bev:4px; clip-path:var(--cut)}
 .legend-g .lp .ic{fill:var(--on-now-container)}
 .legend-g .lp.r{background:var(--alert)}
 .legend-g .lp.t{background:var(--muted)}
@@ -786,20 +770,52 @@ svg.focus .ge.tl.hl{opacity:.5; stroke-width:1.4}
 .detail.preview{outline:2px solid var(--now-soft); outline-offset:-2px}
 .detail .why{color:var(--muted); font-size:12.5px; margin:4px 0}
 .detail .lnk{background:none; border:0; padding:0; font:inherit; color:inherit; cursor:pointer; text-decoration:underline}
-/* ---------- Shape: no hairlines; every rounded box gets a cut top-right corner instead ---------- */
-/* Cards and popups carry the shape on a pseudo-element, so the Today playhead can still peek out of the week card and a popup keeps its shadow. */
-.card,.pop .panel{isolation:isolate; background:none; border:0; box-shadow:none}
-.card{position:relative}
-.card::before,.pop .panel::before{content:""; position:absolute; inset:0; z-index:-1; background:var(--surface); clip-path:polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%)}
-/* Popups float above everything, the shadow following the cut shape; --pop-lift comes with the palette. */
-.pop .panel,.rail-tip{filter:var(--pop-lift)}
-.rail-card.slim{background:none}
-.rail-card.slim::before{background:color-mix(in oklch, var(--surface) 86%, transparent); clip-path:none}
-/* Everything else is cut directly, in proportion: --bev is the size of the cut. */
-.legend-g,.ann,.seg,.pop summary,.gtools button,.gtools .reach,.detail .multi button,.dayctl input[type=date],.dayctl button,.hours input[type=time],.rail-tip,.tag,.lvl,.chip,.flag,.links a,.quick a,.rail-list .ev,.playhead .phl{clip-path:polygon(0 0, calc(100% - var(--bev, 6px)) 0, 100% var(--bev, 6px), 100% 100%, 0 100%)}
-.legend-g{--bev:10px}
+/* ---------- Shape: the cut top-right corner, the page's one shape ---------- */
+/* --bev is the size of the cut. --cut is the polygon, declared on every element so that each one
+   resolves its own --bev: clip-path:var(--cut) anywhere gives that element's cut.
+   The shape variables do not inherit: a card's --bev or --bw must not reach the buttons inside it.
+   Unset, they fall back to their defaults (6px cut, 1px frame, --line frame, --surface fill). */
+@property --bev{syntax:'*'; inherits:false}
+@property --bw{syntax:'*'; inherits:false}
+@property --bw-t{syntax:'*'; inherits:false}
+@property --bw-l{syntax:'*'; inherits:false}
+@property --frame{syntax:'*'; inherits:false}
+@property --fill{syntax:'*'; inherits:false}
+@property --frame-c{syntax:'*'; inherits:false}
+*,::before,::after{--cut:polygon(0 0, calc(100% - var(--bev, 6px)) 0, 100% var(--bev, 6px), 100% 100%, 0 100%)}
+/* 1. Cut: the element itself is clipped and paints its own background. */
+.legend-g,.ann,.seg,.pop summary,.gtools button,.gtools .reach,.detail .multi button,.dayctl input[type=date],.dayctl button,.hours input[type=time],.rail-tip,.tag,.lvl,.chip,.flag,.links a,.quick a,.rail-list .ev,.playhead .phl,.dp-block,.chain,.cvmark.both,.dp-items li button,.cardsview select,.cardsview textarea,.cardsview .fld,.cvcard input[type=password],.cvcard input[type=number],.cvcard input[type=url],.cvcard input[type=text],.cvcard input.secret,.prog textarea,.prog select,.pp-row input[type=time]{clip-path:var(--cut)}
+.legend-g,.pp-card{--bev:10px}
 .ann{--bev:8px}
 .tag,.lvl,.chip,.flag,.links a{--bev:4px}
+.chain,.cardsview textarea,.prog textarea{--bev:9px}
+/* 2. Framed box, two layers like two nested boxes: ::before is the frame, the whole shape painted
+   with --frame; ::after is the fill, painted with --fill, inset by the border widths and cut a
+   little less (bev + bw x sqrt 2 - right - top), so the frame keeps its width along the diagonal.
+   --frame and --fill may be gradients: a theme can give borders and backgrounds a gradient.
+   --bw is the border width; --bw-t and --bw-l widen the top or the left side (an accent stripe).
+   The element itself is not clipped, so content may overflow (the Today playhead) and a
+   drop-shadow filter follows the shape. Cards and popups have no visible frame (--bw:0).
+   position:relative comes in :where(), with no weight, so a box placed absolutely (a popup panel,
+   the slim rail) keeps its own position. */
+:where(.card,.pop .panel,.fc-body,.cardsview button,.pop.about .prog button,.cvcard button,.dp-items li,.disagreements .copyrep,.acct-delete button,.tgl,.infonav button,.infoview .plain,.moved button,.bkstrip,.bkstage,.chain .pdate.doby){position:relative}
+.card,.pop .panel,.fc-body,.cardsview button,.pop.about .prog button,.cvcard button,.dp-items li,.disagreements .copyrep,.acct-delete button,.tgl,.infonav button,.infoview .plain,.moved button,.bkstrip,.bkstage,.chain .pdate.doby{isolation:isolate; background:none; border-style:solid; border-color:transparent;
+  border-width:var(--bw-t, var(--bw, 1px)) var(--bw, 1px) var(--bw, 1px) var(--bw-l, var(--bw, 1px))}
+.card::before,.pop .panel::before,.fc-body::before,.cardsview button::before,.pop.about .prog button::before,.cvcard button::before,.dp-items li::before,.disagreements .copyrep::before,.acct-delete button::before,.tgl::before,.infonav button::before,.infoview .plain::before,.moved button::before,.bkstrip::before,.bkstage::before,.chain .pdate.doby::before,.card::after,.pop .panel::after,.fc-body::after,.cardsview button::after,.pop.about .prog button::after,.cvcard button::after,.dp-items li::after,.disagreements .copyrep::after,.acct-delete button::after,.tgl::after,.infonav button::after,.infoview .plain::after,.moved button::after,.bkstrip::after,.bkstage::after,.chain .pdate.doby::after{content:""; position:absolute; z-index:-1; pointer-events:none;
+  --bev:inherit; --bw:inherit; --bw-t:inherit; --bw-l:inherit; --frame:inherit; --fill:inherit}
+.card::before,.pop .panel::before,.fc-body::before,.cardsview button::before,.pop.about .prog button::before,.cvcard button::before,.dp-items li::before,.disagreements .copyrep::before,.acct-delete button::before,.tgl::before,.infonav button::before,.infoview .plain::before,.moved button::before,.bkstrip::before,.bkstage::before,.chain .pdate.doby::before{inset:calc(-1 * var(--bw-t, var(--bw, 1px))) calc(-1 * var(--bw, 1px)) calc(-1 * var(--bw, 1px)) calc(-1 * var(--bw-l, var(--bw, 1px)));
+  background:var(--frame, var(--line)); clip-path:var(--cut)}
+.card::after,.pop .panel::after,.fc-body::after,.cardsview button::after,.pop.about .prog button::after,.cvcard button::after,.dp-items li::after,.disagreements .copyrep::after,.acct-delete button::after,.tgl::after,.infonav button::after,.infoview .plain::after,.moved button::after,.bkstrip::after,.bkstage::after,.chain .pdate.doby::after{inset:0; background:var(--fill, var(--surface));
+  --bev-in:max(0px, calc(var(--bev, 6px) + var(--bw, 1px) * 1.4142 - var(--bw, 1px) - var(--bw-t, var(--bw, 1px))));
+  clip-path:polygon(0 0, calc(100% - var(--bev-in)) 0, 100% var(--bev-in), 100% 100%, 0 100%)}
+.card,.pop .panel{--bw:0px; --bev:12px}
+.bkstage{--bw:0px}
+.chain .pdate.doby{--frame:var(--muted); --fill:transparent; --bev:4px}
+/* 3. Framed control: an input, select or textarea cannot hold ::before or ::after, so it is cut
+   directly and framed by its own border in the solid --frame-c; the cut's diagonal is a thin stripe
+   in the same colour. Its fill is --fill (a colour). */
+.cardsview select,.cardsview textarea,.cardsview .fld,.cvcard input[type=password],.cvcard input[type=number],.cvcard input[type=url],.cvcard input[type=text],.cvcard input.secret,.prog textarea,.prog select,.pp-row input[type=time]{border:var(--bw, 1px) solid var(--frame-c, var(--muted));
+  background:linear-gradient(to bottom left, transparent 50%, var(--frame-c, var(--muted)) 50%, var(--frame-c, var(--muted)) calc(50% + var(--bw, 1px)), transparent calc(50% + var(--bw, 1px))) 100% 0 / var(--bev, 6px) var(--bev, 6px) no-repeat border-box, var(--fill, var(--surface))}
 
 @media (max-width:900px){ body.mapview{overflow:auto} body.mapview .wrap{height:auto} .map,.map.rail-slim{grid-template-columns:1fr; height:auto} .map .rail-list{max-height:220px} .gwrap{height:50vh} .detail{max-height:60vh}
   .rail-card.slim{position:static; width:auto; height:240px} }
@@ -837,17 +853,17 @@ body.colored table.all tr:not(.done) .tt{color:var(--cc)}
 .pop.about .prog{margin:10px 0 0}
 .pop.about .prog label{display:block; font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); margin:0 0 3px}
 .pop.about .prog .row{display:flex; gap:6px; align-items:stretch}
-.pop.about .prog textarea,.pop.about .prog select{flex:1 1 auto; min-width:0; font:inherit; font-size:12.5px; color:var(--ink); background:var(--surface); border:1px solid var(--muted); padding:6px 8px}
+.pop.about .prog textarea,.pop.about .prog select{flex:1 1 auto; min-width:0; font:inherit; font-size:12.5px; color:var(--ink); padding:6px 8px}
 .pop.about .prog textarea{resize:vertical; min-height:44px; font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11.5px}
 .pop.about .prog textarea::placeholder{color:var(--muted); font-family:"Public Sans",Arial,sans-serif}
-.pop.about .prog textarea:focus,.pop.about .prog select:focus,.pop.about .prog button:focus-visible{outline:2px solid var(--now); outline-offset:1px; border-color:var(--now)}
-.pop.about .prog button{flex:0 0 auto; font:inherit; font-size:12.5px; font-weight:700; color:var(--on-now-container); background:var(--now-container); border:1px solid var(--now-container); padding:6px 14px; cursor:pointer}
+.pop.about .prog textarea:focus,.pop.about .prog select:focus,.pop.about .prog button:focus-visible{outline:2px solid var(--now); outline-offset:1px; --frame-c:var(--now)}
+.pop.about .prog button{flex:0 0 auto; font:inherit; font-size:12.5px; font-weight:700; color:var(--on-now-container); --fill:var(--now-container); --frame:var(--now-container); padding:6px 14px; cursor:pointer}
 .pop.about .prog button:hover{filter:brightness(1.1)}
 .pop.about .prog button.wide{flex:1 1 auto}
 .pop.about .prog button:disabled{opacity:.4; cursor:default}
 @media (max-width:680px){
   .week{grid-template-columns:1fr}
-  .week .rail{ clip-path:polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%); display:flex; flex-wrap:wrap; gap:4px 12px; align-items:baseline; padding:12px 16px}
+  .week .rail{ --bev:12px; clip-path:var(--cut); display:flex; flex-wrap:wrap; gap:4px 12px; align-items:baseline; padding:12px 16px}
   .week .rail .dates,.week .rail .load,.flag{margin-top:0}
   .playhead{margin-left:-26px}
   .row .when{flex-basis:64px}

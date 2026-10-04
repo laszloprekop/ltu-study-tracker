@@ -14,8 +14,16 @@ Back to the [README](../README.md).
   card marks (lists, `code`, **terms**, a Key line) and laid out as bento grids.
 - Icons are Phosphor only, all 16 px except the banner's large alert; the build stops on an icon
   name that is not in `assets/icons` (`tools/fetch-icons.sh` fetches them).
-- Elements with the cut top-right corner keep their frame along the cut: a 1 px diagonal drawn on
-  the inside of the cut, measured from the outer edge like the clip.
+- One shape, the cut top-right corner, in one place (the Shape block in the template): `--bev`
+  sizes the cut and `clip-path:var(--cut)` applies it. Three roles: **cut** (the element clipped,
+  tags and chips), **framed box** (two layers like two nested boxes: `::before` the frame painted
+  with `--frame`, `::after` the fill painted with `--fill`, cut a little less so the frame keeps
+  its width along the diagonal; `--bw` the width, `--bw-t` and `--bw-l` an accent side, as on the
+  study cards and the Day items) and **framed control** (inputs, which cannot hold pseudo-elements:
+  a solid `--frame-c` border). `--frame` and `--fill` may be gradients, ready for themes. The shape
+  variables do not inherit (`@property`), so a card's settings never reach the buttons inside it.
+- Labels with an icon (tags, MUST and NICE, chips) take their baseline from their text, not the
+  icon, so they sit on the line of the text around them.
 - The favicon is a glacier teal square with the cut corner: `tools/make-favicon.py` writes SVG, ICO and a
   180 px PNG to `assets/favicon/`; the app serves them from its head, the page carries the SVG inline.
 
