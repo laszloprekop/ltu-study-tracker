@@ -1,0 +1,95 @@
+{
+  "note": "AI-drafted Concept Cards (Claude, 2026-10-04) for Z0025E Module 1, drafted from the overview's Learning Objectives and Study Guide, the lecture pages, slides, transcripts and lecture video captions. Uploaded unchecked; each needs a classmate's Check.",
+  "cards": [
+    {
+      "course": "Z0025E",
+      "sources": ["1.3", "1.1"],
+      "prompt": "What are the main components that make internet communication possible?",
+      "answer": "- **Hosts**, also called **end systems**: computers, phones, servers and other devices at the edge that run network applications.\n- **Communication links**: copper, fibre, radio or satellite. Each sends bits at a **transmission rate** (bits per second).\n- **Packet switches**: **routers** and link-layer **switches**. They pass **packets** (chunks of data) on toward the destination.\n- **Networks**: hosts, links and switches run by one organisation, e.g. an **ISP** (Internet Service Provider). The internet connects many of them: a network of networks.\n- **Protocols**: agreed rules that all of these follow.\nKey: hosts, links, packet switches and networks, all following protocols."
+    },
+    {
+      "course": "Z0025E",
+      "sources": ["1.3", "1.1"],
+      "prompt": "What is a network protocol, and what does it define?",
+      "answer": "A **protocol** is a set of rules that devices agree on, so they can understand each other. It defines:\n- the **format** of the messages,\n- the **order** in which messages are sent and received,\n- the **actions** taken when a message is sent or received (or another event happens).\nHumans do the same: one person asks \"do you have the time?\", the other looks at a watch and answers.\nAll communication on the internet follows protocols, e.g. `HTTP`, `TCP`, `IP`, Wi-Fi. Internet standards come from the **IETF** (Internet Engineering Task Force) as documents called **RFCs** (Requests for Comments).\nKey: a protocol fixes message format, message order and the actions taken."
+    },
+    {
+      "course": "Z0025E",
+      "sources": ["1.3", "1.4", "1.1"],
+      "prompt": "Network edge versus network core: what is the difference?",
+      "answer": "- **Network edge**: where users and applications are. It holds the **hosts** (end systems) and the **access networks** that connect each host to its first router.\n- Hosts are called hosts because they host (run) applications, as a **client** (asks for a service) or a **server** (gives one). Servers are often in data centres.\n- **Network core**: the mesh of interconnected **routers** and links that carries packets between access networks, from one edge to another.\n- Hosts create and use the data; the core only moves it.\nKey: edge = hosts and their access links; core = routers that move packets between them."
+    },
+    {
+      "course": "Z0025E",
+      "sources": ["1.3"],
+      "prompt": "What is an access network, and which physical media can its links use?",
+      "answer": "An **access network** connects a host (or a home network) to its first router, the **first-hop router**, on the way into the internet.\n- Kinds: home (cable, DSL, fibre), institutional (Ethernet and Wi-Fi in a company or university), mobile (4G or 5G cellular).\n- Each kind has its own **transmission rate** `R` (bits per second): wired Ethernet can reach gigabits per second, a cellular link maybe a few megabits per second.\n- The link is a **physical medium**. **Guided** media keep the signal inside a solid material: copper twisted pair, coaxial cable, optical fibre. **Unguided** media let the signal spread freely: radio, satellite.\nKey: the access network is the host's first link, and its kind decides the rate R."
+    },
+    {
+      "course": "Z0025E",
+      "sources": ["1.3", "1.4", "1.1"],
+      "prompt": "At a high level, how does data get from one end system to another?",
+      "answer": "1. The sending host cuts the application's message into **packets**. Each packet gets a **header**: extra information, such as the destination address, defined by protocols.\n2. The host sends each packet into its access network at the link's transmission rate `R`.\n3. In the network core, each router receives the whole packet, looks up the destination address in its **forwarding table** and sends the packet out on the right link: **forwarding**. Routing algorithms fill these tables by working out the paths: **routing**.\n4. Hop by hop, the packets reach the destination host, which passes the data up to the receiving application.\nKey: packets with headers, passed router by router toward the destination address."
+    },
+    {
+      "course": "Z0025E",
+      "sources": ["1.4"],
+      "prompt": "What does store-and-forward mean, and what delay does it add?",
+      "answer": "- **Store-and-forward**: a router must receive the **entire** packet before it can start sending it on the next link.\n- Pushing all the bits of a packet onto a link takes the **transmission delay** `L/R`: `L` is the packet size in bits, `R` the link rate in bits per second.\n- Example from the slides: `L` = 10 kbit, `R` = 100 Mbit/s, so one hop takes `10 000 / 100 000 000` s = 0.1 ms.\n- On a path with several links, the packet pays this delay again at every hop.\nKey: a whole packet must arrive before it can leave, costing L/R on each link."
+    },
+    {
+      "course": "Z0025E",
+      "sources": ["1.4", "1.1"],
+      "prompt": "Why can packet switching serve more users than circuit switching on the same link?",
+      "answer": "Example from the lecture: a 1 Gbit/s link; each user needs 100 Mbit/s while active, but is active only 10% of the time.\n- **Circuit switching** reserves 100 Mbit/s for each user, even while the user is silent. Only 10 users fit; user 11 is blocked.\n- **Packet switching** reserves nothing. With 35 users, it is rare that more than 10 are active at the same moment, so all 35 can share the link. Only in those rare moments do packets wait in a queue, or get lost.\n- This works because data is **bursty**: short bursts with pauses between. The gain is called **statistical multiplexing**. Packet switching also needs no call setup.\n- The price: when too many send at once there is **congestion** (delay and loss), so protocols are needed for reliable transfer and congestion control.\nKey: packet switching uses the idle time of others; circuits waste it."
+    },
+    {
+      "course": "Z0025E",
+      "sources": ["1.4", "1.1"],
+      "prompt": "How do queuing delay and packet loss happen in a router?",
+      "answer": "- Each output link of a router has a **buffer**: memory where packets wait their turn.\n- When bits arrive faster than the output link can send them, a **queue** grows. The waiting time is the **queuing delay**; it depends on how congested (busy) the link is.\n- The buffer is finite. A packet that arrives when it is full is **dropped**: **packet loss**. It may be sent again by the previous router, by the sending host, or not at all.\n- **Traffic intensity** `La/R` says how busy the link is (`a` = packets arriving per second, `L` = bits per packet, `R` = link rate). Near 0: almost no waiting. Near 1: the delay grows very fast. Above 1: more arrives than can be sent, the queue keeps growing and the average delay becomes infinite.\nKey: more traffic than one link can carry fills its buffer: first delay, then loss."
+    },
+    {
+      "course": "Z0025E",
+      "sources": ["1.4"],
+      "prompt": "How does traceroute measure the delay to each router on a path?",
+      "answer": "- For each router `i` on the path, traceroute sends **three** probe packets with the TTL (time-to-live) field set to `i`, so they reach router `i`, which answers the sender.\n- The sender measures the **round-trip time** (**RTT**): from sending a probe until its reply comes back.\n- Each output line is one hop: the router's name or address and three RTTs.\n- `* * *` means no reply: the probe was lost or the router does not answer.\n- A big jump in RTT often means a long link (e.g. across an ocean: high propagation delay). A later hop can show a smaller RTT than an earlier one, because queuing delay changes from moment to moment.\n- Command: `traceroute` on macOS and Linux, `tracert` on Windows.\nKey: traceroute lists each hop with three round-trip times."
+    },
+    {
+      "course": "Z0025E",
+      "sources": ["1.4", "1.1"],
+      "prompt": "What factors can affect the performance that a network application experiences?",
+      "answer": "Three measures, all affected by many users sharing the same links and routers:\n- **Delay**: how long data takes from sender to receiver. At each router it is processing + queuing + transmission + propagation delay. High delay makes calls, games and web pages feel slow.\n- **Loss**: packets dropped when a router's buffer is full. They must be sent again, or the data is missing (e.g. a glitch in a video call).\n- **Throughput**: how many bits per second really arrive. It is limited by the slowest link on the path, the **bottleneck link**. Low throughput makes downloads and streaming slow.\n- **Congestion** (too much traffic at once) first raises the queuing delay, then causes loss.\nKey: delay, loss and throughput, all shaped by shared and congested links."
+    },
+    {
+      "course": "Z0025E",
+      "sources": ["1.4", "1.1"],
+      "prompt": "Why does communicating over a network introduce security challenges?",
+      "answer": "- The internet was first designed for \"a group of mutually trusting users attached to a transparent network\". Security was not a main design goal, so protocol designers are still catching up.\n- Packets cross links and routers you do not control, often on shared media (Wi-Fi, shared Ethernet) where other devices can read them.\n- Anyone connected can send packets with any content, even a false sender address.\n- Servers and links have limited capacity, so an attacker can flood them.\n- So security must be considered in **every layer**: how attackers can attack, how to defend, and how to design architectures that resist attacks.\nKey: the internet assumed trust, but packets now travel through shared, untrusted networks."
+    },
+    {
+      "course": "Z0025E",
+      "sources": ["1.4"],
+      "prompt": "Packet sniffing, IP spoofing and denial of service: what does each attack do, and what defends against it?",
+      "answer": "- **Packet sniffing**: on shared media (Wi-Fi, shared Ethernet) a network interface reads every packet passing by, passwords included. Wireshark is a free packet sniffer. Defence: **encryption**, so the content cannot be read.\n- **IP spoofing**: sending packets with a false source address, so they seem to come from someone else. Defence: **authentication**, proving who you are (e.g. a password, the SIM card in a phone).\n- **Denial of service (DoS)**: flooding a server or link with bogus traffic so real users cannot use it, often from many hacked hosts at once (a **botnet**, giving a distributed attack, **DDoS**). Defence: **firewalls**, devices in access and core networks that filter packets and detect and react to attacks.\n- Also: **digital signatures** detect tampering; **access control** decides who may do what.\nKey: encryption against sniffing, authentication against spoofing, firewalls against DoS."
+    },
+    {
+      "course": "Z0025E",
+      "sources": ["1.3", "1.1"],
+      "prompt": "Why is network communication organised into layers?",
+      "answer": "Networks are very complex: hosts, routers, many kinds of links, applications, protocols, hardware and software. Layering splits this into manageable parts.\n- Each layer offers a **service** to the layer above, using the service of the layer below, and hides its own details (**abstraction**).\n- **Explicit structure**: a clear reference model for naming the pieces and discussing how they relate.\n- **Modularity**: a layer can change how it does its job without affecting the others, as long as its service interface stays the same. This makes maintenance and updates easier.\n- Analogy from the lecture: air travel. Changing how the gate works does not change ticketing or baggage.\n- Layering alone does not make delivery reliable; that is a service some layers (e.g. `TCP`) choose to offer.\nKey: each layer serves the one above, so a change stays inside one layer."
+    },
+    {
+      "course": "Z0025E",
+      "sources": ["1.3"],
+      "prompt": "Transport layer versus network layer: what does each one deliver?",
+      "answer": "- **Network layer** (`IP`): moves **datagrams** from one **host** (device) to another host, across many routers. The internet's network layer gives **best-effort** service: it tries, but makes no promises, so packets can be lost.\n- **Transport layer** (`TCP`, `UDP`): moves **segments** from one **process** (a running program) to another process, using the network layer below. Its header says which process gets the data.\n- So `TCP` can build **reliable** delivery on top of a network layer that can lose packets.\nKey: the network layer is host to host, the transport layer is process to process."
+    },
+    {
+      "course": "Z0025E",
+      "sources": ["1.3"],
+      "prompt": "Which protocol layers do hosts, routers and link-layer switches implement, and why?",
+      "answer": "- **Hosts** implement all five layers: application, transport, network, link, physical. The applications run there.\n- **Routers** implement network, link and physical. They read the network-layer header (the `IP` destination address) to forward datagrams.\n- **Link-layer switches** implement only link and physical. They forward frames using the link-layer header.\n- Devices inside the network only forward datagrams and frames, so they do not need the transport segment or the application message.\n- At each device the data goes up the stack to that device's top layer, is handled there, and goes back down to be sent on.\nKey: switches stop at the link layer, routers at the network layer; only hosts have all five."
+    }
+  ]
+}

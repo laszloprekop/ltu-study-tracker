@@ -28,9 +28,27 @@ the Maintainer settles a Flag (`settle_flag`).
 ## Drafting (step 2 of the plan's Q20: on the Maintainer's machine first)
 
 `tools/cards/upload.mjs <file.json>` sends drafted Cards to the database over SSH as the
-Maintainer, marked AI-drafted and unchecked. The drafts are written with Claude in the repo, from
-the lab guides, lab questions and course pages; every Card names its Sources. Students can also
-write Cards by hand in the app.
+Maintainer, marked AI-drafted and unchecked. The drafts are written with Claude in the repo; every
+Card names its Sources. Students can also write Cards by hand in the app.
+
+Since 2026-10-04 a module's Cards are drafted from what the module teaches, not from its page titles:
+
+1. `node tools/cards/material.mjs <course> <module>...` downloads the module as text into
+   `cache/course-material/` (git-ignored: LTU's material, and the repo is public): every page and
+   discussion with its Check Your Understanding questions, the slide PDFs as text, the lecture
+   transcripts, the captions of embedded YouTube lectures, and `objectives.md`, the overview's
+   Learning Objectives and Study Guide.
+2. The overview sets the scope: at least one Card per Learning Objective and per Study Guide focus
+   question, and one per comparison the "Before you take the Module N Quiz" note asks for. Then the
+   concepts the slides and lectures spend most time on.
+3. Answers follow the slides and transcripts; where they disagree, the slides (the teacher's) win
+   and the disagreement is noted. A Card answering a focus question also names the overview as a
+   Source.
+4. `docs/cards/<course>-m<N>-coverage.md` records the audit: each objective and focus question, the
+   Cards covering it, and corrections to earlier Cards. Only our own wording is committed.
+5. `node tools/cards/upload.mjs <file> --dry-run` checks the file; then upload.
+
+The first 49 drafts (2026-10-03) predate this; the coverage files list what they missed.
 
 ## The Cards view
 

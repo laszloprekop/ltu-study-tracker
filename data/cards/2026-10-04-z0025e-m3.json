@@ -1,0 +1,158 @@
+{
+  "note": "AI-drafted Concept Cards (Claude, 2026-10-04) for Z0025E Module 3, drafted from the overview's Learning Objectives and Study Guide, the lecture pages, slides, transcripts and lecture video captions. Uploaded unchecked; each needs a classmate's Check.",
+  "cards": [
+    {
+      "course": "Z0025E",
+      "sources": [
+        "3.4",
+        "3.1"
+      ],
+      "prompt": "What does the transport layer give application processes that the network layer does not?",
+      "answer": "The **network layer** (IP) carries data between **hosts** (computers). The **transport layer** carries it between **processes** (running programs) on those hosts: **logical communication**, as if the two programs were directly connected.\n- Sender: cuts the application message into **segments**, adds a header, passes them to IP.\n- Receiver: checks the header, rebuilds the message, hands it up to the right **socket** (a program's door to the network).\n- **TCP** adds reliable, in-order delivery, flow control, congestion control and connection setup. **UDP** adds little to IP's best effort.\n- Neither gives a guarantee on delay or on bandwidth.\n- Lecture analogy: houses are hosts, kids are processes, letters are messages, the postal service is IP, and Ann and Bill, who hand each letter to the right sibling in their house, are the transport layer.\nKey: IP delivers to the computer, the transport layer delivers to the program."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "3.4",
+        "3.1"
+      ],
+      "prompt": "UDP versus TCP demultiplexing: how does the receiving host choose the socket?",
+      "answer": "**Demultiplexing** means handing each arriving segment to the right **socket**. The host reads the port numbers in the segment and the IP addresses in the datagram around it.\n- **UDP**: only the **destination port**. Segments from different senders to the same port all go to the same socket.\n- **TCP**: the **4-tuple** (source IP, source port, destination IP, destination port). A web server on port `80` has one socket per client, so three clients all sending to port `80` reach three different sockets.\n- **Multiplexing** is the reverse, at the sender: collecting data from many sockets and adding the headers that later make demultiplexing possible.\nKey: UDP sorts by destination port only, TCP by the whole 4-tuple."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "3.4",
+        "3.1"
+      ],
+      "prompt": "What is in a UDP segment header, and what does the UDP checksum protect against?",
+      "answer": "Only four fields, so the header is small (8 bytes):\n- **source port** and **destination port**: for multiplexing and demultiplexing.\n- **length**: of the whole segment in bytes, header included, because the data part can vary.\n- **checksum**: to detect flipped bits.\nThe **Internet checksum**: the sender adds up the segment (and the IP addresses, through a **pseudo-header**) as 16-bit numbers. A carry out of the top bit is added back in (**wraparound**), then every bit of the sum is flipped (**one's complement**). The receiver computes it again and compares.\n- Different: an error is detected.\n- Equal: no error detected, but some errors still slip through (two bit flips can cancel out).\nKey: the checksum only detects errors, and not all of them."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "3.4",
+        "3.3",
+        "3.1"
+      ],
+      "prompt": "Why can UDP's lack of congestion control be an advantage, and what does it cost?",
+      "answer": "**Congestion control** makes a sender slow down when the network is overloaded. UDP has none.\nAdvantage:\n- A UDP sender sends at the rate it wants and keeps working when the network is congested.\n- This suits apps that are rate sensitive but can lose a little (streaming audio and video) and services that must work when the network is in trouble (DNS, SNMP for network management).\n- Together with no handshake (no RTT of delay), no connection state and a small header, this is why UDP exists.\nCost:\n- Fairness: TCP flows halve their rate on loss, a UDP flow does not, so it can take bandwidth from them. No \"Internet police\" stops this.\n- An app that needs reliability or congestion control must build them itself in the application layer, as HTTP/3 does over UDP.\nKey: UDP never slows down for the network; that helps the app and can hurt everyone else."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "3.2",
+        "3.1"
+      ],
+      "prompt": "Which problem does each reliable data transfer mechanism solve?",
+      "answer": "The lecture builds rdt (reliable data transfer) step by step; each step answers a new problem of the channel:\n1. Bits can flip: a **checksum** detects the error.\n2. The sender cannot see what happened: the receiver sends feedback, an **ACK** (received OK) or a **NAK** (received with errors), and the sender resends on a NAK (rdt2.0).\n3. The ACK or NAK can be corrupted too, so the sender resends and the receiver may get a copy: a **sequence number** lets it spot and drop duplicates (rdt2.1). For stop-and-wait, 0 and 1 are enough.\n4. A NAK can be replaced by an ACK for the last good packet; a duplicate ACK means \"resend\" (rdt2.2, as TCP does).\n5. Packets and ACKs can be lost: a **timer**. No ACK before the timeout means resend (rdt3.0).\n6. Waiting for every ACK wastes the link: **pipelining**, several packets in flight (Go-Back-N, Selective Repeat).\nKey: for each mechanism, know what would go wrong without it."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "3.2",
+        "3.1"
+      ],
+      "prompt": "Why is stop-and-wait so slow, and how does pipelining help?",
+      "answer": "**Utilization** U is the fraction of time the sender is actually sending. Stop-and-wait sends one packet, then waits a full round trip (**RTT**) for its ACK.\n- `U = (L/R) / (RTT + L/R)`, with L the packet size in bits and R the link rate in bits per second, so L/R is the time to put the packet on the link.\n- Lecture example: 1 Gbps link, 15 ms one-way delay (RTT 30 ms), 8000-bit packet. L/R = 8 microseconds, so U = 0.008 / 30.008 = 0.00027 (0.027%).\n- **Pipelining**: send N packets before the first ACK returns: `U = N * (L/R) / (RTT + L/R)`. Three packets give three times the utilization.\n- The price: a larger range of sequence numbers, and buffers at the sender and/or receiver.\nKey: stop-and-wait leaves the link idle for almost a whole RTT per packet."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "3.2",
+        "3.1"
+      ],
+      "prompt": "TCP sequence number versus acknowledgement number: what does each one count?",
+      "answer": "TCP counts **bytes**, not segments.\n- **Sequence number**: the byte-stream number of the first data byte in this segment.\n- **Acknowledgement number**: the number of the next byte expected from the other side. It is **cumulative**: it confirms every byte before it.\n- Slide example: a 500,000-byte file, **MSS** (maximum segment size, the most data in one segment) 1,000 bytes. Segments start at 0, 1,000, 2,000. If segment 1 arrives, segment 2 is lost and segment 3 arrives, the ACK sent for segment 3 is still 1,000.\n- Each direction has its own numbers: A sends Seq=42 with one byte; B answers Seq=79, ACK=43; A answers Seq=43, ACK=80.\nKey: Seq is the first byte I send, ACK is the next byte I expect."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "3.2"
+      ],
+      "prompt": "How does a TCP sender find out that a segment was lost?",
+      "answer": "Two ways:\n- **Timeout**: TCP runs one timer, for the oldest unacknowledged segment. When it expires, TCP resends that segment and restarts the timer.\n- The timeout must be longer than the **RTT**, but the RTT varies. Too short: needless resends. Too long: slow reaction to loss.\n- So TCP measures **SampleRTT** (from sending to the ACK, never for resent segments) and averages it: `EstimatedRTT = (1-a)*EstimatedRTT + a*SampleRTT`, typically a = 0.125. **DevRTT** averages how far samples stray from it. `TimeoutInterval = EstimatedRTT + 4*DevRTT`.\n- **Fast retransmit**: 3 extra ACKs for the same data (a **triple duplicate ACK**) mean later segments arrived after a gap. TCP resends the missing segment at once, without waiting for the timer.\nKey: the timer catches every loss; three duplicate ACKs catch most losses sooner."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "3.2",
+        "3.3",
+        "3.1"
+      ],
+      "prompt": "How does TCP give two processes reliable, in-order delivery over an unreliable network?",
+      "answer": "It applies the reliable data transfer mechanisms to a stream of bytes:\n- **Connection**: a handshake first sets up state at both ends (starting sequence numbers, buffers).\n- **Checksum** in every segment to detect errors.\n- **Sequence numbers** count bytes, so the receiver can put data back in order and drop duplicates.\n- **Cumulative ACKs** name the next byte expected. There are no NAKs; duplicate ACKs do that job.\n- **Retransmission** after a timeout, or sooner after three duplicate ACKs.\n- **Pipelining**: many segments in flight, limited by flow control and congestion control.\n- The application reads an in-order **byte stream** (no message boundaries), in both directions at once (**full duplex**).\nKey: TCP is checksum, ACK, sequence number, timer and pipelining, applied to a byte stream."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "3.3",
+        "3.1"
+      ],
+      "prompt": "How does TCP flow control stop a sender from overflowing the receiver?",
+      "answer": "Arriving data waits in the receiver's socket buffer until the application reads it. If data arrives faster than the application reads, the buffer would overflow.\n- The receiver writes its free buffer space into the **receive window** field (`rwnd`) of every segment it sends back.\n- The sender keeps its unacknowledged (\"in-flight\") data within the last `rwnd` it received.\n- So the receive buffer cannot overflow.\n- The buffer size is set through socket options (typical default 4096 bytes); many operating systems adjust it automatically.\nKey: the receiver says how much room it has, and the sender never sends more than that."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "3.3",
+        "3.1"
+      ],
+      "prompt": "Why does TCP open a connection with three messages and not two?",
+      "answer": "Before data flows, both sides must agree to connect and agree on parameters such as their starting sequence numbers; each then keeps connection state.\nA 2-way handshake (request, accept) breaks on a real network, where messages are delayed, lost and resent and neither side can see the other:\n- an old, resent request can arrive after the client is gone: the server opens a **half-open** connection with nobody on the other end;\n- an old request followed by old resent data can make the server accept the same data twice.\nIn the 3-way handshake (`SYN`, `SYNACK`, `ACK`) the SYNACK shows the client that the server is live, and the final ACK shows the server that the client is live, each acknowledging the other's new starting number.\nClosing: each side sends a segment with the **FIN** bit set, and the other answers with an ACK.\nKey: the third message proves to the server that the client really is there now."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "3.3",
+        "3.1"
+      ],
+      "prompt": "Why does network congestion happen, and what does it cost?",
+      "answer": "**Congestion**: too many senders sending too much, too fast for some link to handle. Packets queue in router buffers; when a buffer is full, arriving packets are dropped.\nCosts, from the lecture's scenarios:\n- **Delay**: as the arrival rate approaches the link capacity, queueing delay grows very large.\n- **Retransmissions**: lost packets are sent again, so the link carries old and new copies and useful throughput stays below capacity.\n- **Unneeded duplicates**: a premature timeout sends copies that were not needed, so throughput drops further.\n- **Wasted upstream work**: a packet dropped at the second router used the first router's buffer and link for nothing. Under heavy load throughput can fall toward zero (**congestion collapse**).\n- Notation: `λin` is the original data rate, `λ'in` includes resent data (so `λ'in >= λin`), `λout` is the throughput delivered to the receiver.\nKey: throughput can never exceed capacity, and pushing harder past it lowers useful throughput."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "3.3",
+        "3.1"
+      ],
+      "prompt": "How can a TCP sender learn that the network is congested?",
+      "answer": "Three approaches in the lecture:\n- **Loss-based** (classic TCP): congestion is inferred from loss, a timeout or a triple duplicate ACK. This is **end-to-end** control: the network gives no explicit help.\n- **Delay-based**: the sender compares its measured throughput (bytes sent in the last RTT, divided by that RTT) with the uncongested throughput `cwnd / RTTmin`. Close to it: grow `cwnd` linearly. Far below: shrink it linearly. The aim is to keep the path \"just full, but no fuller\", without loss or long queues (e.g. BBR at Google).\n- **Network-assisted**: routers give explicit feedback. In **ECN** (Explicit Congestion Notification) a congested router marks two bits in the IP header, the receiver sets the **ECE** bit in its TCP ACK, and the sender reduces its window as it would for a loss.\nKey: loss and delay are signs the sender infers; ECN is a signal the network sends."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "3.3",
+        "3.1"
+      ],
+      "prompt": "Triple duplicate ACK versus timeout: how does TCP change cwnd and ssthresh?",
+      "answer": "**cwnd** (congestion window): how much unacknowledged data the sender may have in flight. **ssthresh** (slow start threshold): where slow start ends.\n- Start: cwnd = 1 MSS. **Slow start** doubles cwnd every RTT (+1 MSS per ACK) until it reaches ssthresh; then **congestion avoidance** adds 1 MSS per RTT.\n- On a loss, ssthresh = cwnd / 2 (half the window just before the loss).\n- **Timeout** (nothing is getting through): cwnd = 1 MSS and slow start begins again. TCP Tahoe does this for every loss.\n- **Triple duplicate ACK** (later segments still arrive): TCP Reno uses **fast recovery**, cwnd = ssthresh + 3 MSS (one for each duplicate ACK), and carries on from about half, not from 1.\nKey: a timeout drops cwnd to 1 MSS, a triple duplicate ACK only to about half."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "3.3"
+      ],
+      "prompt": "TCP CUBIC versus classic AIMD: how do they differ?",
+      "answer": "Both cut the window on loss; they differ in how they grow it again.\n- **AIMD** (additive increase, multiplicative decrease): +1 MSS per RTT, a straight line.\n- **CUBIC** remembers **Wmax**, the window where loss last happened, since the bottleneck has probably not changed much. It grows fast while far below Wmax and slowly and carefully close to it. The growth is a cube function of the time to a chosen point K, when the window reaches Wmax again.\n- So it spends more time near the usable rate and gets higher throughput.\n- CUBIC is the default TCP in Linux and the most common on popular web servers.\nKey: CUBIC hurries back toward the last known limit, then creeps up on it."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "3.3",
+        "3.2",
+        "3.1"
+      ],
+      "prompt": "What determines the throughput a TCP connection can achieve?",
+      "answer": "- **Window and RTT**: TCP sends about one window per round trip, so rate is about `cwnd / RTT` bytes per second. With the same window, a doubled RTT halves the rate.\n- **Two windows**: in-flight data must stay within the congestion window `cwnd` (for the network) and the receive window `rwnd` (for the receiver), so the smaller one rules.\n- **Bottleneck link**: the busiest link on the path caps the rate. Sending faster only fills its queue and raises the RTT.\n- **Sharing**: K connections through a bottleneck of rate R should each get about R/K. AIMD moves toward this when RTTs are equal; an app with many parallel connections gets more (with 9 connections on the link, a new app with 1 gets R/10, with 11 about R/2).\n- **Losses**: each one cuts cwnd (to half or to 1 MSS), giving the saw-tooth.\n- **Protocol**: stop-and-wait uses only `(L/R) / (RTT + L/R)` of the link; pipelining fixes that.\nKey: throughput is roughly window divided by RTT, capped by the bottleneck and its fair share."
+    },
+    {
+      "course": "Z0025E",
+      "sources": [
+        "3.3"
+      ],
+      "prompt": "What is QUIC, and what does it improve over HTTP on TCP and TLS?",
+      "answer": "**QUIC** (Quick UDP Internet Connections) is an application-layer protocol that runs over UDP, under HTTP/3. It rebuilds TCP-like reliability and congestion control itself.\n- **Faster setup**: HTTP over TCP needs the TCP handshake (1 RTT) and then the **TLS** handshake (Transport Layer Security, for encryption, another RTT). QUIC sets up reliability, congestion control and security in one handshake: 1 RTT instead of 2.\n- **Streams**: many streams (e.g. one per web object) share one QUIC connection. Each has its own reliable transfer and security; all share one congestion control.\n- **No head-of-line (HOL) blocking**: over one TCP connection, an error in one object makes the objects behind it wait. In QUIC the other streams carry on.\nKey: QUIC moves transport functions up into the application layer, on top of UDP."
+    }
+  ]
+}
