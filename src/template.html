@@ -1892,10 +1892,10 @@ function renderDayPlan(t, d){
   open.forEach(function(w){ for (var m2 = w[0]; m2 + SLOT <= w[1]; m2 += SLOT) grid += '<div class="dp-free" data-slot="' + fmtT(m2) + '" style="top:' + top(m2) + 'px; height:' + H + 'px" title="Free ' + fmtT(m2) + '"></div>'; });
   fixed.forEach(function(f){
     if (f.kind === "due") grid += '<div class="dp-due" style="top:' + top(Math.min(f.s, last)) + 'px' + (f.code ? '; ' + colorVars(f.code) : '') + '"><span>' + esc(fmtT(f.s) + " due: " + f.title) + '</span></div>';
-    else grid += '<div class="dp-block' + (f.cal ? ' cal' : '') + '" style="top:' + top(f.s) + 'px; height:' + Math.max(H, top(f.e) - top(f.s)) + 'px' + (f.code ? '; ' + colorVars(f.code) : '') + '"><b>' + esc(fmtT(f.s) + "\u2013" + fmtT(f.e)) + '</b> ' + esc(f.title) + (f.cal ? ' <span class="tag yours">' + ic("calendar", "sm") + 'yours</span>' : '') + '</div>';
+    else grid += '<div class="dp-block' + (f.cal ? ' cal' : '') + '" style="top:' + (top(f.s) + 1) + 'px; height:' + (Math.max(H, top(f.e) - top(f.s)) - 2) + 'px' + (f.code ? '; ' + colorVars(f.code) : '') + '"><b>' + esc(fmtT(f.s) + "\u2013" + fmtT(f.e)) + '</b> ' + esc(f.title) + (f.cal ? ' <span class="tag yours">' + ic("calendar", "sm") + 'yours</span>' : '') + '</div>';
   });
   planned.forEach(function(b){ var s = toMin(b.start), done = b.ref && isDone(b.ref);
-    grid += '<div class="dp-block planned' + (done ? ' done' : '') + '" draggable="true" data-pid="' + esc(b.pid) + '" data-mins="' + b.mins + '" title="Drag to move it; drop it on the list to unplace it" style="top:' + top(s) + 'px; height:' + Math.max(H, b.mins / SLOT * H) + 'px' + (b.code ? '; ' + colorVars(b.code) : '') + '"><b>' + esc(fmtT(s) + "\u2013" + fmtT(s + b.mins)) + '</b> ' + esc(b.title) + '<button type="button" class="dp-x" data-unplan="' + esc(b.pid) + '" title="Remove from the plan" aria-label="Remove from the plan">' + ic("x") + '</button></div>'; });
+    grid += '<div class="dp-block planned' + (done ? ' done' : '') + '" draggable="true" data-pid="' + esc(b.pid) + '" data-mins="' + b.mins + '" title="Drag to move it; drop it on the list to unplace it" style="top:' + (top(s) + 1) + 'px; height:' + (Math.max(H, b.mins / SLOT * H) - 2) + 'px' + (b.code ? '; ' + colorVars(b.code) : '') + '"><b>' + esc(fmtT(s) + "\u2013" + fmtT(s + b.mins)) + '</b> ' + esc(b.title) + '<button type="button" class="dp-x" data-unplan="' + esc(b.pid) + '" title="Remove from the plan" aria-label="Remove from the plan">' + ic("x") + '</button></div>'; });
   var list = items.length ? items.slice(0, 24).map(function(it){
     var h = hintFor(it, wins);
     return '<li draggable="true" data-ref="' + esc(it.ref) + '" data-mins="' + it.mins + '" style="' + colorVars(it.code) + '">' + chip(it.code) + '<span class="tt">' + esc(it.title) + '</span> <small>' + it.mins + ' min</small>' +
@@ -3561,14 +3561,18 @@ function dpPreview(start){
 document.addEventListener("dragstart", function(e){
   var li = e.target.closest && e.target.closest(".dp-items li[data-ref]"), blk = e.target.closest && e.target.closest(".dp-block.planned[data-pid]");
   if (!li && !blk) return;
+  dpEnd();
   var mins = Number((li || blk).dataset.mins) || 30, offset = 0;
   if (blk) { var r = blk.getBoundingClientRect(); offset = Math.max(0, Math.min(mins - SLOT, Math.floor((e.clientY - r.top) / 15) * SLOT)); }
   dpDrag = { ref: li ? li.dataset.ref : null, pid: blk ? blk.dataset.pid : null, mins: mins, offset: offset };
   e.dataTransfer.setData("text/plain", dpDrag.ref || dpDrag.pid); e.dataTransfer.effectAllowed = "move";
   // after this frame, so the drag image is taken before the block turns see-through
-  setTimeout(function(){ document.body.classList.add("dragging"); if (blk) blk.classList.add("moving"); }, 0);
+  setTimeout(function(){ if (!dpDrag) return; document.body.classList.add("dragging"); if (blk) blk.classList.add("moving"); }, 0);
 });
-document.addEventListener("dragend", function(){ document.body.classList.remove("dragging"); document.querySelectorAll(".dp-block.moving").forEach(function(x){ x.classList.remove("moving"); }); dpPreview(null); dpDrag = null; });
+// Ends a drag. Called from drop as well: a drop redraws the plan, which removes the dragged element,
+// and the browser then fires dragend on that detached element, which never reaches the document.
+function dpEnd(){ document.body.classList.remove("dragging"); document.querySelectorAll(".dp-block.moving").forEach(function(x){ x.classList.remove("moving"); }); dpPreview(null); dpDrag = null; }
+document.addEventListener("dragend", dpEnd);
 document.addEventListener("dragover", function(e){
   if (!dpDrag) return;
   var c = e.target.closest && e.target.closest(".dp-free");
@@ -3578,6 +3582,7 @@ document.addEventListener("dragover", function(e){
 document.addEventListener("drop", function(e){
   if (!dpDrag) return;
   var drag = dpDrag, d = state.day || todayIso(), c = e.target.closest && e.target.closest(".dp-free");
+  dpEnd();
   if (!c && drag.pid && e.target.closest && e.target.closest(".dp-side")) { e.preventDefault(); state.planned[drag.pid] = { gone: true, at: new Date().toISOString() }; save(); renderTerm(); return; }
   if (!c) return;
   e.preventDefault();
