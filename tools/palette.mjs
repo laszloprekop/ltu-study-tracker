@@ -8,6 +8,15 @@
 // Every colour is built in OKLCH (perceptual lightness L 0..1, chroma C, hue H in degrees), the
 // lightness fixed per role so text stays legible. Mix colours in OKLCH too (color-mix(in oklch, ...)).
 //
+// Roles follow Material Design 3: each accent role X (c1 to c5, alert, now) is four tokens.
+//   --X              the accent itself: text, strokes and bars on the surfaces
+//   --on-X           text on a solid --X fill
+//   --X-container    a quieter fill for chips, tags and selected controls
+//   --on-X-container text on --X-container
+// plus --X-soft, a faint wash behind ordinary text (a highlighted row). Announcements are a container
+// pair only (--ann-container, --on-ann-container); --ok is an accent only. The neutrals keep their
+// short names: --bg, --surface, --surface-2, --ink (on-surface), --muted (on-surface-variant), --line.
+//
 // Ice (the default): calm, low chroma, a frosted Nordic mood. Chroma is capped per role and the
 // lightness is the calmest one that still reaches WCAG AA (4.5:1) on every background.
 // Neon (data-palette="neon"): chroma pushed to the edge of what sRGB can show, so the tints are
@@ -102,13 +111,14 @@ function neon(dark) {
   }
   // text accents must read on every surface they appear on; "on-now" text must read on "now"
   const floors = dark ? [v.bg, v.surface, v["surface-2"]] : [v.surface, v.bg, v["surface-2"]];
-  v["on-tint"] = dark ? v.bg : v.ink;
-  neonCourses.forEach((h, i) => { v["c" + (i + 1)] = vivid(text, h, floors); v["c" + (i + 1) + "-soft"] = vivid(soft, h); v["c" + (i + 1) + "-tint"] = vivid(tint, h, [v["on-tint"]]); });
-  v.alert = vivid(text, H.coral, floors); v["alert-soft"] = vivid(soft, H.coral); v["alert-tint"] = vivid(tint, H.coral, [v["on-tint"]]);
-  v.ok = vivid(text, H.green, floors); v.now = vivid(text, H.cyan, floors); v["now-soft"] = vivid(soft, H.cyan); v["now-tint"] = vivid(tint, H.cyan, [v["on-tint"]]);
-  v["on-now"] = dark ? v.bg : "#ffffff";
+  // Neon containers are the fluorescent tints with dark text on them; the solid accent takes white (light) or black (dark)
+  const onTint = dark ? v.bg : v.ink, onSolid = dark ? v.bg : "#ffffff";
+  const role = (k, h) => { v[k] = vivid(text, h, floors); v["on-" + k] = onSolid; v[k + "-container"] = vivid(tint, h, [onTint]); v["on-" + k + "-container"] = onTint; v[k + "-soft"] = vivid(soft, h); };
+  neonCourses.forEach((h, i) => role("c" + (i + 1), h));
+  role("alert", H.coral); role("now", H.cyan);
+  v.ok = vivid(text, H.green, floors);
   // the teacher's announcement box: a fully saturated cyan block with dark text on it, like the reference
-  v.ann = vivid([0.80, 0.88], H.cyan); v["on-ann"] = dark ? v.bg : v.ink;
+  v["ann-container"] = vivid([0.80, 0.88], H.cyan); v["on-ann-container"] = onTint;
   v.shadow = dark ? "0 1px 2px rgba(0,0,0,.4)" : "0 1px 2px rgba(0,0,32,.08)";
   // flip cards and popups: a navy shadow in light mode; in dark mode a shadow disappears, so a cyan glow
   v["card-lift"] = dark ? "drop-shadow(0 0 10px rgba(0,228,253,.16)) drop-shadow(0 6px 14px rgba(0,228,253,.10))" : "drop-shadow(0 8px 12px rgba(10,20,50,.13)) drop-shadow(0 1px 2px rgba(10,20,50,.10))";
@@ -134,13 +144,15 @@ function ice(dark) {
   const floors = [v.bg, v.surface, v["surface-2"]];
   const text = (h, c) => calm(dark ? [0.70, 0.90] : [0.35, 0.60], h, c, floors, dark);
   const soft = h => oklch(dark ? 0.31 : 0.93, h, dark ? 0.016 : 0.014);
-  const tint = h => oklch(dark ? 0.78 : 0.82, h, dark ? 0.042 : 0.04);
-  v["on-tint"] = dark ? v.bg : v.ink;
-  iceCourses.forEach((h, i) => { v["c" + (i + 1)] = text(h, 0.055); v["c" + (i + 1) + "-soft"] = soft(h); v["c" + (i + 1) + "-tint"] = tint(h); });
-  v.alert = text(I.rust, 0.07); v["alert-soft"] = soft(I.rust); v["alert-tint"] = tint(I.rust);
-  v.ok = text(I.pine, 0.055); v.now = text(I.heather, 0.055); v["now-soft"] = soft(I.heather); v["now-tint"] = tint(I.heather);
-  v["on-now"] = dark ? v.bg : "#ffffff";
-  v.ann = oklch(dark ? 0.80 : 0.90, I.sky, dark ? 0.035 : 0.028); v["on-ann"] = v["on-tint"];
+  // Containers are dim and the text on them carries the colour (a Coolify-style badge): dark tinted fill
+  // with light coloured text in dark mode, pale tinted fill with deep coloured text in light mode.
+  const container = h => oklch(dark ? 0.30 : 0.915, h, dark ? 0.035 : 0.03);
+  const onContainer = (h, c, fill) => calm(dark ? [0.70, 0.95] : [0.25, 0.55], h, c, [fill], dark, 5);
+  const role = (k, h, c) => { v[k] = text(h, c); v["on-" + k] = dark ? v.bg : "#ffffff"; v[k + "-container"] = container(h); v["on-" + k + "-container"] = onContainer(h, c + 0.01, v[k + "-container"]); v[k + "-soft"] = soft(h); };
+  iceCourses.forEach((h, i) => role("c" + (i + 1), h, 0.055));
+  role("alert", I.rust, 0.07); role("now", I.heather, 0.055);
+  v.ok = text(I.pine, 0.055);
+  v["ann-container"] = container(I.sky); v["on-ann-container"] = onContainer(I.sky, 0.06, v["ann-container"]);
   v.shadow = dark ? "0 1px 3px rgba(0,0,0,.45)" : "0 1px 3px rgba(30,40,45,.10)";
   // no glow: a soft shadow, and in dark mode a faint frost edge so the cut shape still reads
   v["card-lift"] = dark ? "drop-shadow(0 0 1px rgba(205,225,239,.16)) drop-shadow(0 6px 14px rgba(0,0,0,.45))" : "drop-shadow(0 8px 12px rgba(30,40,45,.10)) drop-shadow(0 1px 2px rgba(30,40,45,.08))";
@@ -153,10 +165,8 @@ function block(v, indent) {
   return [
     line([["bg", v.bg], ["surface", v.surface], ["surface-2", v["surface-2"]]]),
     line([["ink", v.ink], ["muted", v.muted], ["line", v.line]]),
-    ...[1, 2, 3, 4, 5].map(i => line([["c" + i, v["c" + i]], ["c" + i + "-soft", v["c" + i + "-soft"]], ["c" + i + "-tint", v["c" + i + "-tint"]]])),
-    line([["alert", v.alert], ["alert-soft", v["alert-soft"]], ["alert-tint", v["alert-tint"]]]),
-    line([["ok", v.ok], ["now", v.now], ["now-soft", v["now-soft"]], ["now-tint", v["now-tint"]], ["on-now", v["on-now"]]]),
-    line([["ann", v.ann], ["on-ann", v["on-ann"]], ["on-tint", v["on-tint"]]]),
+    ...["c1", "c2", "c3", "c4", "c5", "alert", "now"].map(k => line([[k, v[k]], ["on-" + k, v["on-" + k]], [k + "-container", v[k + "-container"]], ["on-" + k + "-container", v["on-" + k + "-container"]], [k + "-soft", v[k + "-soft"]]])),
+    line([["ok", v.ok], ["ann-container", v["ann-container"]], ["on-ann-container", v["on-ann-container"]]]),
     line([["shadow", v.shadow]]),
     line([["card-lift", v["card-lift"]]]),
     line([["pop-lift", v["pop-lift"]]])
@@ -178,7 +188,8 @@ const out = css("Ice", "", ice(false), ice(true)) + "\n" + css("Neon", '[data-pa
 if (process.argv.includes("--check")) {
   for (const [n, v] of [["ice light", ice(false)], ["ice dark", ice(true)], ["neon light", neon(false)], ["neon dark", neon(true)]]) {
     const r = (a, b) => contrast(v[a], v[b]).toFixed(1);
-    console.log(n.padEnd(11), "ink", r("ink", "bg"), "muted", r("muted", "surface"), "c1-5", [1, 2, 3, 4, 5].map(i => r("c" + i, "surface")).join(" "), "alert", r("alert", "surface"), "on-now", r("on-now", "now"), "on-ann", r("on-ann", "ann"));
+    const pair = k => r("on-" + k + "-container", k + "-container");
+    console.log(n.padEnd(11), "ink", r("ink", "bg"), "muted", r("muted", "surface"), "accents", ["c1", "c2", "c3", "c4", "c5", "alert"].map(k => r(k, "surface")).join(" "), "| on-container", ["c1", "c2", "c3", "c4", "c5", "alert", "now", "ann"].map(pair).join(" "), "| on-now", r("on-now", "now"));
   }
 } else if (!process.argv.includes("--write")) {
   console.log(out);

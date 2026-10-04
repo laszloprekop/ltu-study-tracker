@@ -80,10 +80,18 @@ header: the full course names of the selected term and its period.
 `palette:start` and `palette:end` markers in the template), each palette in light and dark, all in
 OKLCH. **Ice** is the default: low chroma, a frosted Nordic mood, courses glacier, moss, heather,
 cloudberry and twilight, rust for alerts, heather for Now, sky blue for announcements, soft
-shadows. **Neon** (`data-palette="neon"` on the root) is the earlier fluorescent set with its cyan
+shadows. Its fills are dim and the text on them carries the colour, like a status badge. **Neon** (`data-palette="neon"` on the root) is the earlier fluorescent set with its cyan
 glow in dark mode. Text colours reach WCAG AA (4.5:1) on every background in both; `node
 tools/palette.mjs --check` prints the main pairs. Mix colours in OKLCH (`color-mix(in oklch, ...)`).
 The shadows of flip cards and popups (`--card-lift`, `--pop-lift`) belong to the palette too.
+
+Colour roles follow Material Design 3. Each accent role X (`c1` to `c5`, `alert`, `now`) has
+`--X` (text and strokes on the surfaces), `--on-X` (text on a solid `--X`), `--X-container` (the fill
+for chips, tags, selected controls and map nodes) and `--on-X-container` (text on that fill), plus
+`--X-soft`, a faint wash behind ordinary text. Announcements are `--ann-container` and
+`--on-ann-container`. A course's role reaches an element as `--cc`, `--on-cc`, `--cc-container`,
+`--on-cc-container` and `--cc-soft` (`colorVars`). Pick the pair, never mix a fill with another
+role's text: that is what keeps both palettes legible.
 
 ## Icons
 
@@ -101,16 +109,18 @@ template as `ic("name")`. Icons take the text colour they sit in, so they keep i
 - **Folding:** week cards fold from the chevron by the week number, material blocks fold from
   their heading. Both are remembered per viewer.
 
-## Needs lines
+## Prepare lines
 
 In the week view an assessment (a module quiz in a material block, a lab report or other single
-deadline row) carries a **Needs** line: the items it tests, from `needsOf` (the items before it in
-its module or section, plus `NEEDS_LP2`), the same list as the map's Needs section. Each number is
-a button that jumps to the item: its material row, else the session that teaches it (session rows
-carry `data-teaches`), opening a folded week or block and flashing the target; an item the page
-does not show opens in Canvas. Ticked items are struck through, the line counts what is ticked and
-the minutes left, and it fades when everything is ready. Grouped deadlines (the quizzes all due on
-one day) have no line; their quizzes carry it in the material blocks.
+deadline row) carries a **Prepare** line: the items it tests, from `needsOf` (the items before it in
+its module or section, plus `NEEDS_LP2`), the same list as the map's Needs section. Every link
+leads to something to study: an item with Cards made from it opens the Cards view filtered to those
+Cards (its number carries the count), any other item opens in Canvas. When the assessment has a
+Card Set, a Cards chip in front opens it. Cards exist on the hosted app only, so on the claude.ai
+page every link goes to Canvas; the hosted app loads the Cards when the page opens. Ticked items are
+struck through, the line counts what is ticked and the minutes left, and it fades when everything
+is ready. Grouped deadlines (the quizzes all due on one day) have no line; their quizzes carry it in
+the material blocks.
 
 ## Free time for group work
 
