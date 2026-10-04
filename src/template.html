@@ -203,9 +203,16 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
 .fc-body::before{content:""; position:absolute; left:-1px; top:-1px; width:calc(100% - 15px); height:5px; background:var(--cc, var(--now))}
 .fc-back .fc-body::before{background:var(--now)}
 .fc-meta{display:flex; flex-wrap:wrap; align-items:center; gap:6px; font-size:12px; color:var(--muted)}
+.fc-meta{flex-wrap:nowrap} .fc-meta .fc-ev{flex:1 1 auto; min-width:0; overflow:hidden; white-space:nowrap; text-overflow:ellipsis}
+.cardsview .fc-hide{flex:0 0 auto; margin-left:auto; display:inline-flex; padding:3px; border:0; background:transparent; color:var(--muted); cursor:pointer; clip-path:none}
+.cardsview .fc-hide:hover{color:var(--ink)}
+.fcard.hiddencard .fc-body{opacity:.55}
 .fc-q{flex:1 1 auto; display:flex; align-items:center; font-family:Archivo,sans-serif; font-size:20px; font-weight:700; line-height:1.3; color:var(--ink)}
 .fc-a{flex:1 1 auto; font-size:13.5px; line-height:1.4; color:var(--ink)}
 .fc-a p{margin:0 0 6px} .fc-a ul,.fc-a ol{margin:0 0 6px; padding-left:18px} .fc-a li{margin:2px 0}
+/* the answer's opening line reads as its title; a hint card's "Linked from" line sits small above it */
+.fc-a .lead{margin:12px 0 10px; font-family:Archivo,"Helvetica Neue",Arial,sans-serif; font-size:16.5px; font-weight:600; line-height:1.3; text-wrap:balance}
+.fc-a .from{margin:10px 0 0; font-size:11.5px; color:var(--muted)} .fc-a .from + .lead{margin-top:4px}
 .fc-a code,.fc-back .insight code{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:.92em; padding:0 4px; background:var(--surface); box-shadow:inset 0 0 0 1px var(--line)}
 .fc-a .term,.fc-back .insight .term{color:var(--c3); font-weight:700}
 /* inside the insight box text keeps the container pair; code chips keep the surface pair */
@@ -922,7 +929,7 @@ body.colored table.all tr:not(.done) .tt{color:var(--cc)}
 
 /* ---------- Helpers ---------- */
 const P = DATA.plan, INV = DATA.inventory, COURSES = P.COURSES, TEACHERS = P.TEACHERS, TERMS = P.TERMS, PROGRESS = DATA.progress || null;
-const LS = { hours: "ltu-plan-hours", drillGoal: "ltu-plan-drill-goal", planned: "ltu-plan-planned", openedCounts: "ltu-plan-opened-counts", groups: "ltu-plan-groups", canvasCache: "ltu-plan-canvas-cache", movedFolded: "ltu-plan-moved-folded", exportedAt: "ltu-plan-exported-at", unlocked: "ltu-plan-unlocked", ticks: "ltu-plan-ticks", tickAt: "ltu-plan-tick-at", muted: "ltu-plan-muted", filter: "ltu-plan-filter", term: "ltu-plan-term", view: "ltu-plan-view", open: "ltu-plan-open", weeks: "ltu-plan-weeks", size: "ltu-plan-size", ping: "ltu-plan-ping", colored: "ltu-plan-colored", theme: "ltu-plan-theme", palette: "ltu-plan-palette", mapOpen: "ltu-plan-map-open", mapPos: "ltu-plan-map-pos", mapAll: "ltu-plan-map-all", mapHops: "ltu-plan-map-hops", mapMode: "ltu-plan-map-mode", railSlim: "ltu-plan-map-rail", snaps: "ltu-plan-snaps", legacy: "lp2-shared-ticks" };
+const LS = { hours: "ltu-plan-hours", drillGoal: "ltu-plan-drill-goal", planned: "ltu-plan-planned", openedCounts: "ltu-plan-opened-counts", groups: "ltu-plan-groups", canvasCache: "ltu-plan-canvas-cache", movedFolded: "ltu-plan-moved-folded", exportedAt: "ltu-plan-exported-at", unlocked: "ltu-plan-unlocked", ticks: "ltu-plan-ticks", tickAt: "ltu-plan-tick-at", muted: "ltu-plan-muted", filter: "ltu-plan-filter", term: "ltu-plan-term", view: "ltu-plan-view", open: "ltu-plan-open", weeks: "ltu-plan-weeks", size: "ltu-plan-size", ping: "ltu-plan-ping", colored: "ltu-plan-colored", theme: "ltu-plan-theme", palette: "ltu-plan-palette", cardsHidden: "ltu-plan-cards-hidden-shown", mapOpen: "ltu-plan-map-open", mapPos: "ltu-plan-map-pos", mapAll: "ltu-plan-map-all", mapHops: "ltu-plan-map-hops", mapMode: "ltu-plan-map-mode", railSlim: "ltu-plan-map-rail", snaps: "ltu-plan-snaps", legacy: "lp2-shared-ticks" };
 const state = { checked: {}, tickAt: {}, planned: {}, cards: null, cardsLoading: false, drill: null, drillGoal: "event", cal: null, calLinks: null, calErr: null, bookings: null, canvas: null, canvasErr: null, openedCounts: true, groups: {}, exportedAt: null, unlocked: false, muted: {}, filter: "all", term: null, view: "week", day: null, open: {}, weeks: {}, size: 100, ping: true, colored: true, theme: "system", palette: "ice", hours: { start: "09:00", end: "17:00" }, mapOpen: null, mapSel: null, mapSels: [], mapAll: false, mapHops: 5, mapMode: "select", railSlim: false };
 let store = null, saveTimer = null;
 
@@ -1364,7 +1371,9 @@ function loadCards(){
 }
 function fsrsApi(){ return window.FSRS ? window.FSRS.fsrs(window.FSRS.generatorParameters({ request_retention: 0.9, enable_fuzz: false })) : null; }
 function fsrsCard(rv){ if (!rv) return window.FSRS.createEmptyCard(new Date()); var c = Object.assign({}, rv.fsrs); c.due = new Date(c.due); if (c.last_review) c.last_review = new Date(c.last_review); return c; }
-function drillable(t){ var C = state.cards; return C.list.filter(function(c){ return c.status === "shared" || c.owner === C.me; }); }
+function cardHidden(c){ return !!state.muted["card:" + c.id]; }
+// Hidden Cards leave the Sets, counts and Prepare lines unless "Hidden" is toggled on in the filters.
+function drillable(t){ var C = state.cards; return C.list.filter(function(c){ return (c.status === "shared" || c.owner === C.me) && (state.showHiddenCards || !cardHidden(c)); }); }
 function isDue(c){ var rv = state.cards.reviews[c.id]; return !rv || new Date(rv.due) <= new Date(); }
 // Recall on the event day, from FSRS, as a share of 1.
 function recallOn(c, day){ var rv = state.cards.reviews[c.id], f = fsrsApi(); if (!rv || !f) return 0; try { return f.get_retrievability(fsrsCard(rv), new Date(day + "T09:00:00"), false); } catch (e) { return 0; } }
@@ -1386,7 +1395,7 @@ function renderCardsView(t){
   if (!C) return '<section class="appview">' + head + '<div class="card"><p>Loading cards...</p></div></section>';
   if (C.signedOut) return '<section class="appview">' + head + '<div class="card"><p>Sign in (top right) to drill, check and write cards. Cards are shared with classmates once someone other than their writer has checked them.</p></div></section>';
   if (C.error) return '<section class="appview">' + head + '<div class="card"><p class="err">The cards could not be loaded just now.</p></div></section>';
-  var pool = drillable(t), due = pool.filter(isDue), today = todayIso(), f = state.cardFilter || "due";
+  var pool = drillable(t), due = pool.filter(isDue), today = todayIso(), f = state.cardFilter || "due", hiddenN = C.list.filter(cardHidden).length;
   var sets = {}; pool.forEach(function(c){ cardEvents(t, c).forEach(function(e){ if (e.a.due < today) return; var k = e.code + ":" + e.a.id; (sets[k] = sets[k] || { k: k, e: e, cards: [] }).cards.push(c); }); });
   var setList = Object.keys(sets).map(function(k){ return sets[k]; }).sort(function(p, q){ return p.e.a.due.localeCompare(q.e.a.due); });
   var itemF = /^m:/.test(f) ? cardItem(f) : null;
@@ -1395,10 +1404,11 @@ function renderCardsView(t){
     setList.map(function(s){ var dn = s.cards.filter(isDue).length, known = s.cards.filter(function(c){ return recallOn(c, s.e.a.due) >= 0.9; }).length;
       return '<button type="button" data-cardfilter="' + esc(s.k) + '"' + (f === s.k ? ' aria-pressed="true"' : '') + ' style="' + colorVars(s.e.code) + '" title="' + esc(s.cards.length + " cards, " + dn + " due, " + known + " likely known on " + longDay(s.e.a.due)) + '"><span class="dot"></span>' + esc(shortTitle(s.e.a.title).split(",")[0]) + ' <small>' + esc(longDay(s.e.a.due)) + '</small> <b>' + dn + '/' + s.cards.length + '</b></button>'; }).join("") +
     '<button type="button" data-cardfilter="all"' + (f === "all" ? ' aria-pressed="true"' : '') + '>All <b>' + pool.length + '</b></button>' +
+    (hiddenN || state.showHiddenCards ? '<button type="button" data-cardshowhidden="1" aria-pressed="' + (state.showHiddenCards ? "true" : "false") + '" title="Show the cards you hid, faded, so you can bring them back">' + ic(state.showHiddenCards ? "eye" : "eye-slash", "sm") + 'Hidden <b>' + hiddenN + '</b></button>' : '') +
     (itemF && itemF.item ? '<button type="button" data-cardfilter="' + esc(f) + '" aria-pressed="true" style="' + colorVars(itemF.code) + '"><span class="dot"></span>' + esc((itemF.item.number ? itemF.item.number + " " : "") + shortTitle(itemF.item.title)) + ' <b>' + shown.length + '</b></button>' : '');
   var grid = shown.length ? '<div class="fgrid">' + shown.map(function(c){ return flipCard(t, c, "drill"); }).join("") + '</div>'
     : '<p class="note">' + (f === "due" ? (pool.length ? "Nothing is due: every card is scheduled for later. Pick a set above to look at its cards anyway." : "No checked cards yet. Check some below, or write your own.") : "No cards here.") + '</p>';
-  var drafts = C.list.filter(function(c){ return c.status === "draft" && c.owner !== C.me && !C.checked[c.id]; }).slice(0, 30);
+  var drafts = C.list.filter(function(c){ return c.status === "draft" && c.owner !== C.me && !C.checked[c.id] && (state.showHiddenCards || !cardHidden(c)); }).slice(0, 30);
   var flagged = C.maintainer ? C.list.filter(function(c){ return c.status === "flagged"; }) : [];
   var mineG = (C.groups || []).map(function(g){ return g.course + " Group " + g.group_number; }).join(", ");
   var courseOpts = Object.keys(COURSES).filter(function(k){ return COURSES[k].canvasId; }).map(function(k){ return '<option value="' + esc(k) + '">' + esc(label(k)) + '</option>'; }).join("");
@@ -1429,7 +1439,7 @@ function cardText(text){
     var m;
     if ((m = /^\s*[-*]\s+(.*)$/.exec(l))) { if (list !== "ul") { close(); out += "<ul>"; list = "ul"; } out += "<li>" + inline(m[1]) + "</li>"; }
     else if ((m = /^\s*\d+[.)]\s+(.*)$/.exec(l))) { if (list !== "ol") { close(); out += "<ol>"; list = "ol"; } out += "<li>" + inline(m[1]) + "</li>"; }
-    else if (l.trim()) { close(); out += "<p>" + inline(l) + "</p>"; }
+    else if (l.trim()) { close(); var first = !out || /^<p class="from">[^]*<\/p>$/.test(out); out += /^\s*Linked from /.test(l) && !out ? '<p class="from">' + inline(l) + "</p>" : first ? '<p class="lead">' + inline(l) + "</p>" : "<p>" + inline(l) + "</p>"; }
     else close();
   });
   close();
@@ -1441,6 +1451,7 @@ function flipCard(t, c, mode){
   var C = state.cards, today = todayIso(), evs = cardEvents(t, c).filter(function(e){ return e.a.due >= today; }), rv = C.reviews[c.id], flipped = !!(state.flipped && state.flipped[c.id]);
   var ev = evs.find(function(e){ return e.code + ":" + e.a.id === state.cardFilter; }) || evs[0] || null, others = evs.filter(function(e){ return e !== ev; });
   var evName = function(e){ return shortTitle(e.a.title).split(",")[0] + ", " + longDay(e.a.due); };
+  var hid = cardHidden(c), hideBtn = '<button type="button" class="fc-hide" data-cardhide="' + esc(c.id) + '" title="' + (hid ? "Show this card again" : "Hide this card: not for me") + '" aria-label="' + (hid ? "Unhide card" : "Hide card") + '">' + ic(hid ? "eye" : "eye-slash", "sm") + '</button>';
   var meta = chip(c.course) + (ev ? '<span class="fc-ev"' + (others.length ? ' title="' + esc("Also prepares for: " + others.map(evName).join("; ")) + '"' : '') + '>' + ic("target", "sm") + esc(evName(ev)) + (others.length ? ' <b>+' + others.length + '</b>' : '') + '</span>' : '');
   var tags = (c.ai_drafted ? '<span class="tag">' + ic("robot", "sm") + 'AI draft</span>' : '') + (c.kind === "question" ? '<span class="tag">' + ic("seal-question", "sm") + 'graded question</span>' : '') + (c.kind === "answer" ? '<span class="tag">' + ic("users-three", "sm") + 'group answer</span>' : '') + (c.status !== "shared" && mode === "drill" ? '<span class="tag">' + ic("circle-dashed", "sm") + 'not checked yet</span>' : '');
   var dueTxt = mode === "drill" ? (rv ? (isDue(c) ? "due now" : "next " + longDay(iso(new Date(rv.due)))) : "new") : "";
@@ -1448,10 +1459,10 @@ function flipCard(t, c, mode){
     : mode === "check" ? flagUi(c.id, '<button type="button" data-cardcheck="' + esc(c.id) + '">' + ic("check-circle", "sm") + 'Correct: share it</button>')
     : '<div class="ck-b"><button type="button" data-settle="keep" data-card="' + esc(c.id) + '">' + ic("check", "sm") + 'Keep it</button><button type="button" class="plain" data-settle="remove" data-card="' + esc(c.id) + '">' + ic("trash", "sm") + 'Remove it</button></div>';
   var why = mode === "settle" ? C.flags.filter(function(x){ return x.card_id === c.id; }).map(function(x){ return x.reason; }).filter(Boolean).join("; ") : "";
-  return '<div class="fcard' + (flipped ? ' flipped' : '') + '" data-flip="' + esc(c.id) + '" style="' + colorVars(c.course) + '" tabindex="0" role="button" aria-pressed="' + flipped + '" aria-label="Card: ' + esc(c.prompt.slice(0, 80)) + '. Press to turn over.">' +
+  return '<div class="fcard' + (flipped ? ' flipped' : '') + (hid ? ' hiddencard' : '') + '" data-flip="' + esc(c.id) + '" style="' + colorVars(c.course) + '" tabindex="0" role="button" aria-pressed="' + flipped + '" aria-label="Card: ' + esc(c.prompt.slice(0, 80)) + '. Press to turn over.">' +
     '<div class="fc-in">' +
-      '<div class="fc-face fc-front"><div class="fc-body"><div class="fc-meta">' + meta + '</div><div class="fc-q">' + esc(c.prompt) + '</div><div class="fc-foot">' + tags + '' + (dueTxt ? '<span class="fc-due">' + ic("clock", "sm") + esc(dueTxt) + '</span>' : '') + '<span class="fc-hint">' + ic("hand-tap", "sm") + 'turn over</span></div></div></div>' +
-      '<div class="fc-face fc-back"><div class="fc-body"><div class="fc-meta">' + meta + '</div><div class="fc-a">' + (c.kind === "question" ? '<small>Where the answer is:</small> ' : '') + (c.answer ? cardText(c.answer) : "(no answer written)") + '</div>' +
+      '<div class="fc-face fc-front"><div class="fc-body"><div class="fc-meta">' + meta + hideBtn + '</div><div class="fc-q">' + esc(c.prompt) + '</div><div class="fc-foot">' + tags + '' + (dueTxt ? '<span class="fc-due">' + ic("clock", "sm") + esc(dueTxt) + '</span>' : '') + '<span class="fc-hint">' + ic("hand-tap", "sm") + 'turn over</span></div></div></div>' +
+      '<div class="fc-face fc-back"><div class="fc-body"><div class="fc-meta">' + meta + hideBtn + '</div><div class="fc-a">' + (c.kind === "question" ? '<small>Where the answer is:</small> ' : '') + (c.answer ? cardText(c.answer) : "(no answer written)") + '</div>' +
         (cardKey(c.answer) ? '<div class="insight"><b>Key</b> ' + cardInline(cardKey(c.answer)) + '</div>' : '') +
         '<div class="fc-src">Check it in: ' + cardSourcesLinks(c) + '</div>' + (why ? '<div class="fc-src">Flagged: ' + esc(why) + '</div>' : '') + controls + '</div></div>' +
     '</div></div>';
@@ -2974,6 +2985,10 @@ document.addEventListener("click", function(e){
     setTimeout(function(){ rb.textContent = "Copy as a report"; }, 2000);
     return;
   }
+  var hb = e.target.closest && e.target.closest("button[data-cardhide]");
+  if (hb) { var hk = "card:" + hb.dataset.cardhide; if (state.muted[hk]) delete state.muted[hk]; else state.muted[hk] = true; save(); renderTerm(); return; }
+  var sh = e.target.closest && e.target.closest("button[data-cardshowhidden]");
+  if (sh) { state.showHiddenCards = !state.showHiddenCards; lsSet(LS.cardsHidden, state.showHiddenCards ? "1" : "0"); renderTerm(); return; }
   var fc = e.target.closest && e.target.closest(".fcard[data-flip]");
   if (fc && !e.target.closest("button, a, input, textarea, select, label")) {
     state.flipped = state.flipped || {}; state.flipped[fc.dataset.flip] = !state.flipped[fc.dataset.flip];
@@ -3158,6 +3173,7 @@ state.ping = lsGet(LS.ping) !== "0";
 state.colored = lsGet(LS.colored) !== "0";
 var th = lsGet(LS.theme); if (th === "light" || th === "dark" || th === "system") state.theme = th;
 var pal = lsGet(LS.palette); if (pal === "ice" || pal === "neon") state.palette = pal;
+state.showHiddenCards = lsGet(LS.cardsHidden) === "1";
 var sh = lsJson(LS.hours); if (sh && toMin(sh.start) != null && toMin(sh.end) != null) state.hours = sh;
 state.filter = lsGet(LS.filter) || "all";
 var sv = lsGet(LS.view); if (sv === "day" || sv === "all" || sv === "week" || sv === "map" || sv === "cards" || sv === "about" || sv === "help" || sv === "privacy" || sv === "terms") state.view = sv; else if (sv === "app") state.view = "about";

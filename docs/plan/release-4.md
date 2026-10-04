@@ -66,7 +66,13 @@ corners and take the cut corner, like the page's own controls.
 Cards have a playing card's proportions (5 to 7, at least 300 by 420). An answer may use a few
 marks, applied after escaping so no HTML gets through: `- ` and `1. ` lines for lists, backticks
 for `code`, `**term**`, and one `Key:` line, which is pinned below the scrolling answer so the
-one thing to remember always shows. The first 20 drafts were rewritten this way, in plain words
+one thing to remember always shows. The answer's opening line is set as its title (larger, in Archivo);
+a hint Card's "Linked from ..." line sits small above it.
+
+Hiding: the eye-slash in a Card's header hides it for that viewer (kept in the muted list under
+`card:<id>`, saved and synced with the ticks). Hidden Cards leave the Sets, the counts and the
+Prepare lines; the **Hidden** toggle in the filters shows them again, faded, each with an eye to
+bring it back. The toggle is remembered per browser. The first 20 drafts were rewritten this way, in plain words
 with every term explained (`node tools/cards/upload.mjs <file> --update` changes only unchecked
 AI drafts).
 
