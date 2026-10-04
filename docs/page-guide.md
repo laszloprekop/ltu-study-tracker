@@ -101,6 +101,17 @@ template as `ic("name")`. Icons take the text colour they sit in, so they keep i
 - **Folding:** week cards fold from the chevron by the week number, material blocks fold from
   their heading. Both are remembered per viewer.
 
+## Needs lines
+
+In the week view an assessment (a module quiz in a material block, a lab report or other single
+deadline row) carries a **Needs** line: the items it tests, from `needsOf` (the items before it in
+its module or section, plus `NEEDS_LP2`), the same list as the map's Needs section. Each number is
+a button that jumps to the item: its material row, else the session that teaches it (session rows
+carry `data-teaches`), opening a folded week or block and flashing the target; an item the page
+does not show opens in Canvas. Ticked items are struck through, the line counts what is ticked and
+the minutes left, and it fades when everything is ready. Grouped deadlines (the quizzes all due on
+one day) have no line; their quizzes carry it in the material blocks.
+
 ## Free time for group work
 
 Group activities have no fixed slot, so the page shows where they can go instead. Each day heading

@@ -510,6 +510,17 @@ a.tag.feeds:hover{text-decoration:underline}
 .mat li.done .tt{text-decoration:line-through; color:var(--muted)}
 .mat li .num{color:var(--muted); font-size:12px; margin-right:6px}
 .mat li .kind{color:var(--muted); font-size:12px; margin-left:6px}
+/* the Needs line under an assessment: what it tests, each number a jump to that item */
+.needs{display:flex; flex-wrap:wrap; align-items:center; gap:3px 5px; margin-top:3px; font-size:12px; color:var(--muted)}
+.needs .nlab{font-weight:600; margin-right:1px}
+.needs .nref{font:500 11.5px "IBM Plex Mono",ui-monospace,monospace; color:var(--cc, var(--ink)); background:var(--surface-2); border:1px solid var(--line); padding:0 5px; line-height:18px; cursor:pointer}
+.needs .nref:hover{border-color:var(--cc, var(--muted))}
+.needs .nref.ok{color:var(--muted); text-decoration:line-through; opacity:.7}
+.needs .nsum{margin-left:3px}
+.needs.ready{opacity:.6}
+.mat li.done .needs,.row.done .needs{opacity:.6}
+@keyframes flash{from{background:var(--now-soft)} to{background:transparent}}
+.flash{animation:flash 1.6s ease-out}
 .mat li a.go{display:inline-flex; color:var(--muted); padding:2px}
 .mat li a.go:hover{color:var(--ink)}
 .creq{flex:0 0 auto; display:inline-flex; margin-top:2px; color:var(--muted); cursor:help}
@@ -1016,6 +1027,36 @@ function needsOf(t, code, aid){
 }
 // The assessments an item is needed for.
 function neededFor(t, code, item){ return assignments(code).filter(function(a){ return needsOf(t, code, a.id).indexOf(item) >= 0; }); }
+// The Needs line under an assessment in the week view: what it tests, each a jump to that item, and how much is ticked.
+// applyState refreshes it when a tick changes.
+function needsLine(code, aid){
+  if (!needsOf(term(), code, aid).length) return "";
+  return '<span class="needs" data-needs="' + esc(code + ":" + aid) + '">' + needsInner(code, aid) + '</span>';
+}
+function needsInner(code, aid){
+  var need = needsOf(term(), code, aid), left = need.filter(function(x){ return !isDone("m:" + code + ":" + x.id); }), mins = matMinutes(left);
+  return '<span class="nlab">Needs</span>' + need.map(function(x){
+    return '<button type="button" class="nref' + (isDone("m:" + code + ":" + x.id) ? ' ok' : '') + '" data-jump="' + esc("m:" + code + ":" + x.id) + '" data-url="' + esc(x.url || "") + '" title="' + esc((x.number ? x.number + " " : "") + x.title) + '">' + esc(x.number || shortTitle(x.title)) + '</button>';
+  }).join("") + '<span class="nsum">' + (need.length - left.length) + ' of ' + need.length + ' ticked' + (mins ? ', ' + fmtMin(mins) + ' left' : '') + '</span>';
+}
+function refreshNeeds(){
+  document.querySelectorAll(".needs[data-needs]").forEach(function(el){
+    var k = el.dataset.needs.split(":"), code = k[0], aid = Number(k[1]);
+    el.innerHTML = needsInner(code, aid);
+    el.classList.toggle("ready", needsOf(term(), code, aid).every(function(x){ return isDone("m:" + code + ":" + x.id); }));
+  });
+}
+// Scroll to an item on the page (its material row, else the session that teaches it), opening its folded
+// week or block, or open it in Canvas when the page does not show it.
+function jumpTo(id, url){
+  var shown = function(sel){ return Array.prototype.find.call(document.querySelectorAll(sel), function(x){ return !x.closest("[hidden]"); }); };
+  var el = shown('[data-id="' + id + '"]') || shown('[data-teaches~="' + id + '"]');
+  if (!el) { if (url) window.open(url, "_blank", "noopener"); return; }
+  var w = el.closest(".week.collapsed"); if (w) w.classList.remove("collapsed");
+  for (var d = el.closest("details"); d; d = d.parentElement && d.parentElement.closest("details")) d.open = true;
+  el.scrollIntoView({ block: "center" });
+  el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash");
+}
 
 /* ---------- Building the term's timeline ---------- */
 function deadlineRows(t){
@@ -1050,7 +1091,7 @@ function sessionRows(t){
     (s.also || []).forEach(function(r){ var x = itemByNumber(s.course, r); if (x) links.push([x.number + " " + x.title.slice(0, 28), x.url]); });
     (s.links || []).forEach(function(l){ links.push(l); });
     var prep = (s.prep || []).reduce(function(a, r){ return a.concat(expand(s.course, r)); }, []);
-    return { kind: "session", level: sessionLevel(s), code: s.course, date: s.date, time: s.start, end: s.end, title: s.title, disagree: disagreementOf("s:" + s.course + ":" + s.date + ":" + (s.start || "")), why: s.why || "", status: s.status || "", links: links, prep: prep, skind: s.kind, ref: s.ref || null, key: "s:" + s.course + ":" + s.date + ":" + (s.start || "") };
+    return { kind: "session", level: sessionLevel(s), code: s.course, date: s.date, time: s.start, end: s.end, title: s.title, disagree: disagreementOf("s:" + s.course + ":" + s.date + ":" + (s.start || "")), why: s.why || "", status: s.status || "", links: links, prep: prep, skind: s.kind, ref: s.ref || null, also: s.also || [], key: "s:" + s.course + ":" + s.date + ":" + (s.start || "") };
   });
 }
 function taskRows(t){
@@ -1209,8 +1250,11 @@ function row(r, opts){
   var inner = r.id ? '<label for="' + esc(r.id) + '">' + text + '</label>' : '<span class="block">' + text + '</span>';
   var cls = "row " + r.kind + " lvl-" + r.level + (r.id && endangeredRow(r) ? " endangered" : "");
   var times = r.kind === "session" && r.time ? ' data-start="' + esc(r.time) + '" data-end="' + esc(r.end || "") + '"' : '';
+  // the items a session teaches (its page and its "also" refs), so a Needs jump can land on the session
+  var taught = r.kind === "session" ? [r.ref].concat(r.also || []).map(function(n){ var x = n ? itemByNumber(r.code, n) : null; return x ? "m:" + r.code + ":" + x.id : ""; }).filter(Boolean) : [];
+  if (taught.length) times += ' data-teaches="' + esc(taught.join(" ")) + '"';
   return '<div class="' + hostClass(r.id, cls) + '" style="' + colorVars(r.code) + '" data-course="' + r.code + '"' + (r.id ? ' data-id="' + esc(r.id) + '"' : '') + times + '>' +
-    when(r, opts) + (r.id ? box(r.id) : '') + '<span class="body">' + inner + prep + links(r.links) + '</span>' + (r.id ? muteBtn(r.id) : '') + '</div>';
+    when(r, opts) + (r.id ? box(r.id) : '') + '<span class="body">' + inner + prep + (r.kind === "deadline" && /^d:[^:]+:\d+$/.test(r.id || "") ? needsLine(r.code, Number(r.id.split(":")[2])) : '') + links(r.links) + '</span>' + (r.id ? muteBtn(r.id) : '') + '</div>';
 }
 function creq(code, i){
   if (!i.req) return '<span class="creq none" aria-hidden="true">' + ic("circle-dashed") + '</span>';
@@ -1226,7 +1270,7 @@ function matList(code, list, opts){
     var extra = [i.kind === "selfpaced" ? "post required" : "", i.minutes ? fmtMin(i.minutes) : ""].filter(Boolean).join(", ");
     return '<li class="' + hostClass(id, "lvl-" + level + (end ? " endangered" : "")) + '" style="' + colorVars(code) + '" data-course="' + code + '" data-id="' + id + '">' + box(id) + creq(code, i) +
       '<label for="' + id + '">' + lvl(level) + ic(KIND_ICON[i.kind] || "book-open", "kic") + (i.number ? '<span class="num mono">' + esc(i.number) + '</span>' : '') +
-      '<span class="tt" title="' + esc(KIND[i.kind] || i.kind) + '">' + esc(i.title) + '</span>' + (extra ? '<span class="kind">' + esc(extra) + '</span>' : '') + '</label>' +
+      '<span class="tt" title="' + esc(KIND[i.kind] || i.kind) + '">' + esc(i.title) + '</span>' + (extra ? '<span class="kind">' + esc(extra) + '</span>' : '') + (i.assignmentId ? needsLine(code, i.assignmentId) : '') + '</label>' +
       '<a class="go" href="' + esc(i.url) + '" target="_blank" rel="noopener" title="Open in Canvas" aria-label="Open in Canvas">' + ic("arrow-square-out") + '</a>' + muteBtn(id) + '</li>';
   }).join("") + '</ul>';
 }
@@ -2496,6 +2540,7 @@ function applyState(){
   });
   applyCanvasMarks();
   applyBookings();
+  refreshNeeds();
   // what is left per week, shown when a week is folded
   document.querySelectorAll(".week").forEach(function(w){
     var left = 0, total = 0;
@@ -3036,7 +3081,8 @@ document.addEventListener("change", function(e){
 });
 document.addEventListener("click", function(e){
   var b = e.target.closest("button"); if (!b) return;
-  if (b.dataset.mute) { e.preventDefault(); var id = b.dataset.mute; if (state.muted[id]) delete state.muted[id]; else state.muted[id] = true; applyState(); save(); }
+  if (b.dataset.jump) { e.preventDefault(); jumpTo(b.dataset.jump, b.dataset.url); }
+  else if (b.dataset.mute) { e.preventDefault(); var id = b.dataset.mute; if (state.muted[id]) delete state.muted[id]; else state.muted[id] = true; applyState(); save(); }
   else if (b.dataset.fold) { var w = b.closest(".week"); if (w.classList.toggle("collapsed")) state.weeks[b.dataset.fold] = false; else delete state.weeks[b.dataset.fold]; lsSet(LS.weeks, JSON.stringify(state.weeks)); }
   else if (b.closest("#filter")) { state.filter = b.dataset.filter; lsSet(LS.filter, state.filter); if (state.view === "map") renderTerm(); else applyFilter(); }
   else if (b.closest("#views")) { state.view = b.dataset.view; lsSet(LS.view, state.view); renderTerm(); }
