@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 // Downloads what a module teaches, as text, for drafting Cards: every page, discussion and assignment
 // in the module (headings, lists and the Check Your Understanding questions kept), the slide PDFs and
-// lecture transcripts they link, the captions of embedded YouTube lectures, and per module the overview's
-// Learning Objectives and Study Guide.
+// lecture transcripts they link, the captions of embedded YouTube lectures, the textbook's Knowledge Checks
+// and interactive problems the pages link (gaia.cs.umass.edu), and per module the overview's Learning
+// Objectives and Study Guide.
 //   node tools/cards/material.mjs <course code> <module number>...      e.g. Z0025E 1 2 3
 // Output: cache/course-material/<code>/m<N>/ (git-ignored: this is LTU's course material and the
 // repo is public; only Cards written in our own words, naming their Sources, are committed).
@@ -41,7 +42,7 @@ for (const n of mods) {
   const items = await getAll(`${C}/modules/${mod.id}/items`);
   const byId = new Map(mod.items.map(i => [i.id, i]));
   const index = [`# ${code} ${mod.name}`, "", `Read ${new Date().toISOString().slice(0, 10)} from Canvas by tools/cards/material.mjs.`, ""];
-  const fileIds = new Map(), videos = new Map();
+  const fileIds = new Map(), videos = new Map(), exercises = new Map();
   for (const it of items) {
     const inv = byId.get(it.id); if (!inv || !inv.number) continue;
     let body = "", title = it.title;
@@ -52,7 +53,11 @@ for (const n of mods) {
       else continue;
     } catch (e) { index.push(`- ${inv.number} ${title}: could not read (${e.message})`); continue; }
     const t = text(body), name = `${inv.number}-${slug(title)}.md`;
-    writeFileSync(dir + name, `# ${inv.number} ${title}\n\n${inv.url}\n\n${t}\n`);
+    // external links (Knowledge Checks, interactive problems, videos) keep their address
+    const links = [...String(body).matchAll(/<a\s[^>]*href="(https?:\/\/[^"]+)"[^>]*>([\s\S]*?)<\/a>/gi)].map(m => [m[1].replace(/&amp;/g, "&"), text(m[2]).replace(/\s+/g, " ")]).filter(([u]) => !/instructure\.com|canvas\.ltu\.se/.test(u));
+    for (const [u, x] of links) if (/gaia\.cs\.umass\.edu\/kurose_ross\/(knowledgechecks|interactive)\//.test(u) && !exercises.has(u)) exercises.set(u, { from: inv.number, title: x });
+    const linkList = links.length ? "\n## Links\n\n" + [...new Map(links.map(l => [l[0], l])).values()].map(([u, x]) => `- ${x || "(no text)"}: ${u}`).join("\n") + "\n" : "";
+    writeFileSync(dir + name, `# ${inv.number} ${title}\n\n${inv.url}\n\n${t}\n${linkList}`);
     for (const m of String(body).matchAll(/\/files\/(\d+)/g)) if (!fileIds.has(m[1])) fileIds.set(m[1], inv.number);
     for (const m of String(body).matchAll(/(?:title="([^"]*)"[^>]*?)?(?:youtu\.be\/|youtube(?:-nocookie)?\.com\/(?:watch\?v=|embed\/))([\w-]{11})/g)) if (!videos.has(m[2])) videos.set(m[2], { from: inv.number, title: m[1] || "" });
     index.push(`- ${inv.number} ${title} (${it.type}, ${t.split(/\s+/).length} words): ${name}`);
@@ -72,6 +77,17 @@ for (const n of mods) {
     if (type.includes("pdf")) execFileSync("pdftotext", ["-layout", out, base + ".txt"]);
     index.push(`- ${id} ${f.display_name} (from ${from}, ${type.includes("pdf") ? "slides" : "transcript"}): files/${base.split("/").pop()}.txt`);
   }
+  // the textbook's exercises: Knowledge Checks (multiple choice per section) and interactive problems with solutions
+  index.push("", "## Knowledge Checks and interactive problems", "");
+  for (const [u, v] of exercises) {
+    const q = /[?&]c=(\d+)&s=(\d+)/.exec(u), out = `${dir}files/` + (q ? `kc-${q[1]}-${q[2]}.txt` : `ia-${slug(u.split("/").pop().replace(/\.php.*$/, ""))}.txt`);
+    if (!existsSync(out)) {
+      const res = await fetch(u).catch(() => null);
+      if (!res || !res.ok) { index.push(`- ${v.title} (from ${v.from}): not readable, ${u}`); continue; }
+      writeFileSync(out, text((await res.text()).replace(/^[\s\S]*?<body[^>]*>/i, "")));
+    }
+    index.push(`- ${v.title} (from ${v.from}, ${q ? "Knowledge Check" : "interactive problem"}): files/${out.split("/").pop()}, ${u}`);
+  }
   index.push("", "## YouTube captions", "");
   const script = fileURLToPath(new URL("./yt-transcript.py", import.meta.url));
   for (const [id, v] of videos) {
@@ -83,5 +99,5 @@ for (const n of mods) {
     index.push(`- ${id} ${v.title} (from ${v.from}, captions): files/yt-${id}.txt`);
   }
   writeFileSync(dir + "index.md", index.join("\n") + "\n");
-  console.log(`${code} module ${n}: ${items.length} items, ${fileIds.size} linked files, ${videos.size} YouTube videos -> ${dir}`);
+  console.log(`${code} module ${n}: ${items.length} items, ${fileIds.size} linked files, ${videos.size} YouTube videos, ${exercises.size} textbook exercises -> ${dir}`);
 }
