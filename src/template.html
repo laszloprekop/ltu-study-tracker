@@ -272,7 +272,10 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
 .fcard.hiddencard .fc-body{opacity:.55}
 /* votes and hide: one row under the ratings; the pressed vote is the viewer's own */
 .fc-act{display:flex; gap:4px; margin-top:2px}
-.cardsview .fc-act button{flex:1 1 0; min-width:0; display:inline-flex; align-items:center; justify-content:center; gap:4px; padding:4px 2px; font-size:11.5px; font-weight:600; color:var(--muted); --fill:transparent; --frame:var(--line)}
+.cardsview .fc-act button{flex:1 1 auto; min-width:0; display:inline-flex; align-items:center; justify-content:center; gap:3px; padding:4px 5px; font-size:11.5px; font-weight:600; white-space:nowrap; color:var(--muted); --fill:var(--surface-2); --frame:var(--line)}
+/* the actions are secondary to the ratings above: an outline on the card's own colour (the back face's
+   --surface-2), never a solid fill, and one line; on a narrow card Hide keeps only its icon */
+@container (max-width:300px){ .cardsview .fc-act .hide .lbl{display:none} }
 .cardsview .fc-act button[aria-pressed="true"]{color:var(--on-now-container); --fill:var(--now-container); --frame:var(--now-container)}
 .cardsview .fc-act button[data-cardvote="fix"][aria-pressed="true"]{color:var(--on-alert-container); --fill:var(--alert-container); --frame:var(--alert-container)}
 .cardsview .fc-act button:disabled{opacity:.5; cursor:default}
@@ -551,7 +554,7 @@ a.tag.feeds:hover{text-decoration:underline}
 .flash{animation:flash 2.4s ease-out}
 @keyframes flash{0%,30%{box-shadow:0 0 0 3px var(--now); background-color:var(--now-container)} 100%{box-shadow:0 0 0 3px transparent}}
 @media (prefers-reduced-motion:reduce){ .flash{animation:none; outline:3px solid var(--now)} }
-.cardsview .fc-act button.share{flex:0 0 auto; padding:4px 8px}
+.cardsview .fc-act button.share{flex:0 0 auto; padding:4px 7px}
 .cardsview h3 .setshare{margin-left:8px; display:inline-flex; align-items:center; gap:4px; font-size:12px; padding:3px 8px}
 .fgrid.one{max-width:420px}
 .cardsview .fc-act button.share[aria-pressed="true"]{color:var(--on-now-container); --fill:var(--now-container); --frame:var(--now-container)}
@@ -1890,7 +1893,7 @@ function flipCard(t, c, mode){
   var act = '<div class="fc-act">' +
     '<button type="button" data-cardvote="legit" data-card="' + esc(c.id) + '" aria-pressed="' + (v.mine === "legit") + '"' + (may ? '' : ' disabled') + ' title="' + esc((v.mine === "legit" ? "Take back your legit vote" : "This card is legit: correct and useful") + mineNote) + '">' + ic("check-circle", "sm") + 'Legit <b>' + v.legit + '</b></button>' +
     '<button type="button" data-cardvote="fix" data-card="' + esc(c.id) + '" aria-pressed="' + (v.mine === "fix") + '"' + (may ? '' : ' disabled') + ' title="' + esc((v.mine === "fix" ? "Take back your needs-fix vote" : "This card is faulty or needs a fix") + mineNote) + '">' + ic("warning", "sm") + 'Needs fix <b>' + v.fix + '</b></button>' +
-    '<button type="button" class="hide" data-cardhide="' + esc(c.id) + '" title="' + (hid ? "Show this card again" : "Hide this card: not for me") + '">' + ic(hid ? "eye" : "eye-slash", "sm") + (hid ? 'Unhide' : 'Hide') + '</button>' +
+    '<button type="button" class="hide" data-cardhide="' + esc(c.id) + '" title="' + (hid ? "Show this card again" : "Hide this card: not for me") + '">' + ic(hid ? "eye" : "eye-slash", "sm") + '<span class="lbl">' + (hid ? 'Unhide' : 'Hide') + '</span></button>' +
     (c.kind !== "answer" ? '<button type="button" data-cardshare="' + esc(c.id) + '" class="share" title="Share a link to this card, on the side you see now" aria-label="Share">' + ic("share-network", "sm") + '</button>' : '') +
     (pinsOn() ? '<button type="button" data-cardpin="' + esc(c.id) + '" class="share" aria-pressed="' + !!pinOf(routeOf("cards", [c.id], { course: "all" })) + '" title="Pin this card" aria-label="Pin">' + ic("push-pin", "sm") + '</button>' : '') + '</div>' +
     (state.flagging === c.id ? '<div class="ck-b"><input type="text" id="flag-why" maxlength="500" placeholder="What is wrong? (optional)"><button type="button" data-flagsend="' + esc(c.id) + '">Vote needs fix</button><button type="button" class="plain" data-flagcancel="1">Cancel</button></div>' : '');
