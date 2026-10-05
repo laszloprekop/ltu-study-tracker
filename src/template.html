@@ -357,8 +357,8 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
 .cardsview .cs-n{flex:1 1 auto; color:var(--muted); font-size:12.5px}
 .cardsview button{font:inherit; font-size:13px; font-weight:700; color:var(--on-now-container); --fill:var(--now-container); --frame:var(--now-container); padding:5px 12px; cursor:pointer}
 .cardsview button.plain{color:var(--ink); --fill:transparent; --frame:var(--muted); --edge:initial}
-/* the edged frame (Navy) only on the main actions here, not on every rating and vote button */
-.cardsview button[data-settle="keep"]{--edge:var(--edge-blue); --edge-b:var(--edge-blue-b)}
+/* the edged frame (Navy) on the main actions and the four ratings, not on the compact actions below them */
+.cardsview button[data-settle="keep"],.cardsview .fc-rate button{--edge:var(--edge-blue); --edge-b:var(--edge-blue-b)}
 .cardsview button:disabled{opacity:.4; cursor:default}
 .cardsview .cklist li{padding:8px 10px; border:1px solid var(--line); background:var(--surface)}
 .cardsview .ck-p{font-weight:700; margin:4px 0 2px} .cardsview .ck-a{white-space:pre-wrap} .cardsview .ck-s{color:var(--muted); font-size:12.5px; margin-top:4px}
