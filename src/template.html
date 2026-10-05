@@ -387,7 +387,7 @@ body.dragging .dp-block,body.dragging .dp-due,body.dragging .dp-line{pointer-eve
 .dp-block.planned.moving{opacity:.35}
 .dp-free.nofit{background:var(--alert-soft)}
 .dp-block{position:absolute; left:6px; right:4px; overflow:hidden; padding:1px 6px; font-size:12px; line-height:1.25; background:var(--surface-2); border-left:4px solid var(--cc, var(--muted)); box-sizing:border-box}
-.dp-block.cal{background:repeating-linear-gradient(135deg, var(--surface-2) 0 8px, var(--surface) 8px 9px)}
+.dp-block.cal{background:repeating-linear-gradient(135deg, var(--surface-2) 0 8px, var(--surface) 8px 11px)}
 .dp-block.planned{background:color-mix(in oklch, var(--now-soft) 70%, var(--surface)); border-left-color:var(--now); padding-right:22px}
 .dp-block.planned.done{opacity:.5; text-decoration:line-through}
 .dp-x{position:absolute; top:0; right:2px; border:0; background:transparent; color:var(--muted); font-size:15px; line-height:1; cursor:pointer}
@@ -399,7 +399,7 @@ body.dragging .dp-block,body.dragging .dp-due,body.dragging .dp-line{pointer-eve
 .dp-items li .tt{flex:1 1 140px}
 .dp-items li button{font:inherit; font-size:11.5px; font-weight:700; color:var(--on-now-container); background:var(--now-container); border:0; padding:2px 8px; cursor:pointer}
 .dp-items .nofit{color:var(--muted)}
-.row.cal{background:repeating-linear-gradient(135deg, transparent 0 8px, var(--surface-2) 8px 9px)}
+.row.cal{background:repeating-linear-gradient(135deg, transparent 0 8px, var(--surface-2) 8px 11px)}
 .tag.yours{background:var(--ink); color:var(--surface)}
 .bkstage{display:inline-block; margin-left:8px; padding:1px 8px; font-size:11.5px; font-weight:700; vertical-align:1px; white-space:nowrap}
 .bkstage.claimed{--fill:var(--c2-container); color:var(--on-c2-container)} .bkstage.open{--bw:1px; --fill:var(--surface-2); --frame:var(--line); color:var(--muted)}
@@ -3054,6 +3054,22 @@ function applyTheme(){
   // Ice is the default palette; any other is a data-palette stamp the palette CSS keys on
   if (state.palette === "ice") root.removeAttribute("data-palette"); else root.setAttribute("data-palette", state.palette);
   document.querySelectorAll("#palette button").forEach(function(b){ b.setAttribute("aria-pressed", String(b.dataset.paletteSet === state.palette)); });
+  applyFavicon();
+}
+// The favicon follows the palette. Ice and Neon keep the page's own icon (the glacier square); Navy is a
+// navy square edged in gold, the edge gradient run as on the page (base, shine, base, shadow, base):
+// on the diagonal, so the top and left edges run it alike, and so do the bottom and right.
+var NAVY_ICON = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><defs>' +
+  '<linearGradient id="e" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#bfa05c"/><stop offset=".18" stop-color="#dfc986"/><stop offset=".38" stop-color="#bfa05c"/><stop offset=".68" stop-color="#795e32"/><stop offset="1" stop-color="#bfa05c"/></linearGradient>' +
+  '<linearGradient id="n" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#162e4e"/><stop offset="1" stop-color="#0c1a32"/></linearGradient></defs>' +
+  '<path d="M2 2h20l8 8v20H2z" fill="url(#e)"/><path d="M5 5h15.76L27 11.24V27H5z" fill="url(#n)"/></svg>');
+function applyFavicon(){
+  document.querySelectorAll('link[rel~="icon"]').forEach(function(l){
+    if (l.dataset.own == null) { l.dataset.own = l.getAttribute("href"); l.dataset.ownType = l.getAttribute("type") || ""; }
+    var navy = state.palette === "navy";
+    l.setAttribute("href", navy ? NAVY_ICON : l.dataset.own);
+    if (navy) l.setAttribute("type", "image/svg+xml"); else if (l.dataset.ownType) l.setAttribute("type", l.dataset.ownType); else l.removeAttribute("type");
+  });
 }
 function applyDisplay(){
   applyTheme();

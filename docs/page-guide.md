@@ -109,7 +109,9 @@ week's card, blue (`--edge-blue`) on selected filters, toggles and main buttons,
 in its course's colour (`--edge-c1` blue for Z7005E, `--edge-c2` gold for Z0025E, the top edge being
 the course stripe). A box opts in with `--edge` and `--edge-b` (its stops and base); the shape
 system's frame layer draws it. Only Navy defines the colours, so Ice and Neon keep their plain
-frames. Navy's announcements are blue. Which element takes which level
+frames. Navy's announcements are blue. The favicon follows the palette: Ice and Neon keep the glacier square
+(`tools/make-favicon.py`, also the hosted app's static files), Navy swaps in a navy square edged in
+gold (`applyFavicon`, an inline SVG). Which element takes which level
 is set in one place, the "Lift" rules in `src/template.html`; a new floating element is added there.
 
 Colour roles follow Material Design 3. Each accent role X (`c1` to `c5`, `alert`, `now`) has
