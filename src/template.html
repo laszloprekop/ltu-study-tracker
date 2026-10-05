@@ -352,8 +352,10 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
 .cardsview .csets,.cardsview .cklist{list-style:none; margin:8px 0 0; padding:0; display:flex; flex-direction:column; gap:6px}
 .cardsview .csets li{display:flex; flex-wrap:wrap; align-items:center; gap:4px 8px; padding:6px 8px; border-left:4px solid var(--cc, var(--muted)); background:var(--surface-2)}
 .cardsview .cs-n{flex:1 1 auto; color:var(--muted); font-size:12.5px}
-.cardsview button{font:inherit; font-size:13px; font-weight:700; color:var(--on-now-container); --fill:var(--now-container); --frame:var(--now-container); --edge:var(--edge-blue); --edge-b:var(--edge-blue-b); padding:5px 12px; cursor:pointer}
-.cardsview button.plain{color:var(--ink); --fill:transparent; --frame:var(--muted)}
+.cardsview button{font:inherit; font-size:13px; font-weight:700; color:var(--on-now-container); --fill:var(--now-container); --frame:var(--now-container); padding:5px 12px; cursor:pointer}
+.cardsview button.plain{color:var(--ink); --fill:transparent; --frame:var(--muted); --edge:initial}
+/* the edged frame (Navy) only on the main actions here, not on every rating and vote button */
+.cardsview button[data-settle="keep"]{--edge:var(--edge-blue); --edge-b:var(--edge-blue-b)}
 .cardsview button:disabled{opacity:.4; cursor:default}
 .cardsview .cklist li{padding:8px 10px; border:1px solid var(--line); background:var(--surface)}
 .cardsview .ck-p{font-weight:700; margin:4px 0 2px} .cardsview .ck-a{white-space:pre-wrap} .cardsview .ck-s{color:var(--muted); font-size:12.5px; margin-top:4px}
@@ -411,7 +413,7 @@ body.dragging .dp-block,body.dragging .dp-due,body.dragging .dp-line{pointer-eve
 .cvcard input[type=number]{width:70px}
 .cvcard .row{display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:8px 0}
 .cvcard button{font:inherit; font-size:13px; font-weight:700; color:var(--on-now-container); --fill:var(--now-container); --frame:var(--now-container); --edge:var(--edge-blue); --edge-b:var(--edge-blue-b); padding:6px 14px; cursor:pointer}
-.cvcard button.plain{color:var(--ink); --fill:transparent; --frame:var(--muted)}
+.cvcard button.plain{color:var(--ink); --fill:transparent; --frame:var(--muted); --edge:initial}
 .cvcard .err{color:var(--alert); font-weight:600}
 .cvlegend{display:flex; flex-wrap:wrap; gap:6px 16px; font-size:13px; margin:8px 0 0}
 .cvlegend > span{display:inline-flex; align-items:center; gap:6px}
