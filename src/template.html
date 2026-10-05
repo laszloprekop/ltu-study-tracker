@@ -387,7 +387,10 @@ body.dragging .dp-block,body.dragging .dp-due,body.dragging .dp-line{pointer-eve
 .dp-block.planned.moving{opacity:.35}
 .dp-free.nofit{background:var(--alert-soft)}
 .dp-block{position:absolute; left:6px; right:4px; overflow:hidden; padding:1px 6px; font-size:12px; line-height:1.25; background:var(--surface-2); border-left:4px solid var(--cc, var(--muted)); box-sizing:border-box}
-.dp-block.cal{background:repeating-linear-gradient(135deg, var(--surface-2) 0 8px, var(--surface) 8px 11px)}
+.dp-block.cal{background:repeating-linear-gradient(135deg, var(--surface-2) 0 8px, var(--surface) 8px 11px) padding-box; border-block:1px solid transparent}
+/* calendar entries keep apart: their slanted stripes cannot line up across two entries, so touching
+   ones would show a kink in the pattern (Day Planner: the transparent top and bottom border widen the
+   gap to 4px; Week by week: a 3px gap between neighbouring calendar rows) */
 .dp-block.planned{background:color-mix(in oklch, var(--now-soft) 70%, var(--surface)); border-left-color:var(--now); padding-right:22px}
 .dp-block.planned.done{opacity:.5; text-decoration:line-through}
 .dp-x{position:absolute; top:0; right:2px; border:0; background:transparent; color:var(--muted); font-size:15px; line-height:1; cursor:pointer}
@@ -400,6 +403,7 @@ body.dragging .dp-block,body.dragging .dp-due,body.dragging .dp-line{pointer-eve
 .dp-items li button{font:inherit; font-size:11.5px; font-weight:700; color:var(--on-now-container); background:var(--now-container); border:0; padding:2px 8px; cursor:pointer}
 .dp-items .nofit{color:var(--muted)}
 .row.cal{background:repeating-linear-gradient(135deg, transparent 0 8px, var(--surface-2) 8px 11px)}
+.row.cal + .row.cal{margin-top:3px}
 .tag.yours{background:var(--ink); color:var(--surface)}
 .bkstage{display:inline-block; margin-left:8px; padding:1px 8px; font-size:11.5px; font-weight:700; vertical-align:1px; white-space:nowrap}
 .bkstage.claimed{--fill:var(--c2-container); color:var(--on-c2-container)} .bkstage.open{--bw:1px; --fill:var(--surface-2); --frame:var(--line); color:var(--muted)}
