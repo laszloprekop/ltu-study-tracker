@@ -557,6 +557,11 @@ a.tag.feeds:hover{text-decoration:underline}
 .cardsview .fc-act button.share{flex:0 0 auto; padding:4px 7px}
 .cardsview h3 .setshare{margin-left:8px; display:inline-flex; align-items:center; gap:4px; font-size:12px; padding:3px 8px}
 .fgrid.one{max-width:420px}
+.progparts{width:100%; border-collapse:collapse; font-size:13.5px}
+.progparts th,.progparts td{text-align:left; vertical-align:top; padding:7px 10px; border-bottom:1px solid var(--line)}
+.progparts th{font-size:11.5px; letter-spacing:.05em; text-transform:uppercase; color:var(--muted)}
+.progparts small{color:var(--muted)}
+.progparts tr.now td{background:var(--now-soft)}
 .cardsview .fc-act button.share[aria-pressed="true"]{color:var(--on-now-container); --fill:var(--now-container); --frame:var(--now-container)}
 .seg button.pinview{padding-inline:8px}
 .seg button.pinview[aria-pressed="true"] .ic{fill:var(--now)}
@@ -1493,7 +1498,7 @@ function playhead(today){ return '<div class="playhead" id="today"><span class="
 // #/<view>[/<target>...][/answer]?term=<id>&course=<code>. An address wins over the remembered view;
 // a bare one opens the last view. Share hands the address out, on the hosted app only (the artifact
 // runs the same router but shows no share controls). A Link never carries anyone's ticks.
-var ROUTE_VIEWS = ["week", "day", "all", "map", "cards", "pinned", "about", "help", "privacy", "terms"];
+var ROUTE_VIEWS = ["week", "day", "all", "map", "cards", "pinned", "about", "programme", "help", "privacy", "terms"];
 function hostedApp(){ return !!window.TRACKER_CONFIG; }
 function seg(x){ return String(x).replace(/[^\w:.\-]/g, encodeURIComponent); }
 function routeOf(view, parts, opts){
@@ -1601,7 +1606,7 @@ function shareLink(route, text){
 /* ---------- Pins: a Student's own Links, in the Pinned view (docs/plan/links.md) ---------- */
 // Kept in the progress document beside the Ticks, merged per Pin by the later change. Hosted app,
 // signed in. A Pin keeps its title from when it was pinned, shown only once its target is gone.
-var VIEW_NAME = { week: "Week by week", day: "Day Planner", all: "All deadlines", map: "Map", cards: "Cards", pinned: "Pinned", about: "About", help: "Help", privacy: "Privacy", terms: "Terms" };
+var VIEW_NAME = { week: "Week by week", day: "Day Planner", all: "All deadlines", map: "Map", cards: "Cards", pinned: "Pinned", about: "About", programme: "The programme", help: "Help", privacy: "Privacy", terms: "Terms" };
 var VIEW_ICON = { week: "calendar", day: "calendar-dot", all: "list-checks", map: "tree-structure", cards: "barbell" };
 function pinsOn(){ return hostedApp() && !!state.signedIn; }
 function livePins(){
@@ -3374,7 +3379,7 @@ function canvasCard(){
 }
 // The info views (About, Help, Privacy, Terms): written plainly, in the card marks cardText reads
 // ("- " lists, `code`, **term**, "Key:"), arranged as a bento grid of small cards.
-var INFO_VIEWS = { about: ["About", "info"], help: ["Help", "lifebuoy"], privacy: ["Privacy", "lock-key"], terms: ["Terms", "file-text"] };
+var INFO_VIEWS = { about: ["About", "info"], programme: ["The programme", "graduation-cap"], help: ["Help", "lifebuoy"], privacy: ["Privacy", "lock-key"], terms: ["Terms", "file-text"] };
 function infoCard(icon, title, text, extra){ var k = cardKey(text); return '<div class="card infocard"><h3>' + ic(icon) + esc(title) + '</h3>' + cardText(text) + (extra || '') + (k ? '<div class="insight"><b>Key</b> ' + cardInline(k) + '</div>' : '') + '</div>'; }
 function infoNav(cur){ return '<nav class="infonav">' + Object.keys(INFO_VIEWS).map(function(k){ return '<button type="button" data-goview="' + k + '"' + (k === cur ? ' aria-pressed="true"' : '') + '>' + ic(INFO_VIEWS[k][1]) + esc(INFO_VIEWS[k][0]) + '</button>'; }).join("") + '</nav>'; }
 function renderFoot(){
@@ -3401,6 +3406,17 @@ function renderInfoView(name){
     if (!hosted) cards.push(infoCard("arrow-right", "It has moved", "The same tracker now runs as its own site: " + (P.MOVED_TO || "") + ".\nKey: the steps to bring your ticks along are in the orange banner at the top.") );
     cards.push('<div class="card infocard span2"><h3>' + ic("check-circle") + 'What it does today' + (hosted ? '<span class="here">here</span>' : '') + '</h3>' + infoList(APP_INFO.now, "ul") + '</div>');
     cards.push('<div class="card infocard"><h3>' + ic("flag-checkered") + 'Coming later</h3>' + infoList(APP_INFO.planned, "ul") + '</div>');
+  } else if (name === "programme") {
+    // The programme the courses belong to (PROGRAMME in data/plan.mjs); the part under way is marked.
+    var G = P.PROGRAMME, today = todayIso(), when = function(d){ var x = new Date(d + "T00:00:00"); return x.getDate() + " " + MON[x.getMonth()] + " " + x.getFullYear(); };
+    if (!G) cards.push(infoCard("graduation-cap", "The programme", "Not in this version of the plan yet."));
+    else {
+      var rows = G.parts.map(function(p){ var now = today >= p.start && today <= p.end;
+        return '<tr' + (now ? ' class="now"' : '') + '><td><b>' + esc(p.title) + '</b>' + (now ? ' <span class="tag here">now</span>' : '') + '<br><small>' + esc(p.en) + '</small></td><td>' + esc(p.who) + '</td><td class="mono">' + esc(when(p.start)) + ' to ' + esc(when(p.end)) + (p.note ? '<br><small>' + esc(p.note) + '</small>' : '') + '</td><td>' + esc(p.length) + '</td></tr>'; }).join("");
+      cards.push('<div class="card infocard span2"><h3>' + ic("graduation-cap") + esc(G.name) + '</h3><p>' + esc(G.kind) + ' by ' + esc(G.by) + '. <b>' + esc(when(G.start)) + ' to ' + esc(when(G.end)) + '</b>. ' + esc(G.note) + '</p>' +
+        '<div class="tablewrap"><table class="progparts"><thead><tr><th>Part</th><th>Run by</th><th>Dates</th><th>Length</th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
+        '<p class="note">From the programme\'s information sheet (2026). Names are Swedish, as the programme has them.</p></div>');
+    }
   } else if (name === "help") {
     cards.push(infoCard("calendar", "The views", "- **Week by week**: every session, deadline and task, week after week.\n- **Day Planner**: one day in 15-minute slots, with free time and work to place.\n- **All deadlines**: each lab, workshop and exam with what leads to it, then every deadline.\n- **Map**: how the course material connects.\n- **Cards**: study cards for the next lab or exam."));
     cards.push(infoCard("check-circle", "Ticks and marks", "- The **tick box** is yours alone. Tick what you have done.\n- The " + "mute button" + " hides an item that is not for you from the counts.\n- **MUST**: graded or required, or needed for something that is. Red stripe.\n- **NICE**: readings and videos that help.\n- The **pulse** rings what is overdue or due within seven days.\n- **expected**: a lecture date from the timetable, not yet confirmed by the teacher.", '<div class="cvlegend"><span>' + statusIcon("both") + ' confirmed</span><span>' + statusIcon("cv") + ' done in Canvas</span><span>' + statusIcon("half") + ' opened</span><span>' + statusIcon("conf") + ' conflict</span><span>' + statusIcon("un") + ' Canvas cannot record it</span></div>'));
@@ -3708,7 +3724,7 @@ state.showHiddenCards = lsGet(LS.cardsHidden) === "1";
 var ctr = lsGet(LS.cardTrust); state.cardTrust = ctr === "all" || ctr === "trusted" ? ctr : "nofix";
 var sh = lsJson(LS.hours); if (sh && toMin(sh.start) != null && toMin(sh.end) != null) state.hours = sh;
 state.filter = lsGet(LS.filter) || "all";
-var sv = lsGet(LS.view); if (sv === "day" || sv === "all" || sv === "week" || sv === "map" || sv === "cards" || sv === "pinned" || sv === "about" || sv === "help" || sv === "privacy" || sv === "terms") state.view = sv; else if (sv === "app") state.view = "about";
+var sv = lsGet(LS.view); if (sv === "day" || sv === "all" || sv === "week" || sv === "map" || sv === "cards" || sv === "pinned" || sv === "about" || sv === "programme" || sv === "help" || sv === "privacy" || sv === "terms") state.view = sv; else if (sv === "app") state.view = "about";
 state.mapOpen = lsJson(LS.mapOpen);
 state.mapAll = lsGet(LS.mapAll) !== "0";   // on unless the viewer switched it off
 var hp = Number(lsGet(LS.mapHops)); if (hp >= 1 && hp <= 5) state.mapHops = hp;   // 5 means no limit

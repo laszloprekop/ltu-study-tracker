@@ -9,8 +9,8 @@ Back to the [README](../README.md).
   opens the profile menu: the account (Sign in with Google, Sign out), display settings (pulse,
   course colours, working hours), the Student's Canvas token and Groups, Calendar Links, progress
   (Import, Go back to a day, Export) and deleting the account. Laid out as a bento grid.
-- Footer: About, Help, Privacy, Terms, the code, when Canvas was last read, and the disclaimer.
-- About, Help, Privacy and Terms are views of their own (`renderInfoView`), written plainly in the
+- Footer: About, The programme, Help, Privacy, Terms, the code, when Canvas was last read, and the disclaimer.
+- About, The programme, Help, Privacy and Terms are views of their own (`renderInfoView`), written plainly in the
   card marks (lists, `code`, **terms**, a Key line) and laid out as bento grids.
 - Icons are Phosphor only, all 16 px except the banner's large alert; the build stops on an icon
   name that is not in `assets/icons` (`tools/fetch-icons.sh` fetches them).
@@ -27,6 +27,8 @@ Back to the [README](../README.md).
 - The favicon is a glacier teal square with the cut corner: `tools/make-favicon.py` writes SVG, ICO and a
   180 px PNG to `assets/favicon/`; the app serves them from its head, the page carries the SVG inline.
 
+- The programme lists the programme the courses belong to, *Programmering mot fullstack*, and its
+  four parts with dates, from `PROGRAMME` in `data/plan.mjs`; the part under way is marked.
 ## Where progress lives
 
 Ticks and muted items are saved in the viewer's browser (`localStorage` under the artifact's own

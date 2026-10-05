@@ -268,6 +268,22 @@ export const DISAGREEMENTS = [
 // Where the tracker has moved (release 1, step 6). null keeps the claude.ai page as it is. Set it to
 // the app's https address once a real sign-in there has been tested: the artifact then shows a move
 // banner, and locks ticking after a Student exports, until they unlock it. The app ignores it.
+// The programme the courses belong to, from its information sheet ("Så här går det till fullstack
+// programmeringsutbildning 2026", Arbetsförmedlingen). Names stay Swedish as the programme has them.
+export const PROGRAMME = {
+  name: "Programmering mot fullstack",
+  kind: "Arbetsmarknadsutbildning, a commissioned course",
+  by: "Arbetsförmedlingen, Luleå tekniska universitet and Lexicon",
+  start: "2026-04-13", end: "2027-03-18",
+  parts: [
+    { title: "Test och kartläggning", en: "Testing and assessment", who: "Lexicon", start: "2026-04-13", end: "2026-04-24", length: "2 weeks" },
+    { title: "IT-påbyggnad mot fullstack", en: "IT top-up towards full stack", who: "Lexicon", start: "2026-04-27", end: "2026-09-16", length: "18 weeks", note: "Summer break 20 to 31 July 2026" },
+    { title: "Teoristudier", en: "Theory studies, the courses on this page", who: "Luleå tekniska universitet", start: "2026-09-17", end: "2027-02-17", length: "21 weeks" },
+    { title: "Arbetsplatsförlagt lärande (APL)", en: "Workplace learning", who: "A workplace, mostly in northern Sweden", start: "2027-02-18", end: "2027-03-18", length: "29 days or more" }
+  ],
+  note: "Full time, daytime, Monday to Friday. The theory parts are remote."
+};
+
 export const MOVED_TO = "https://ltu-studytracker.dentaku.se";
 
 // Tick box ids used by earlier versions of the page, so nobody loses progress.
