@@ -129,6 +129,8 @@
   --box-lift:drop-shadow(0 1px 2px oklch(24% 0.055 258 / .08)) drop-shadow(0 3px 8px oklch(24% 0.055 258 / .07));
   --card-lift:drop-shadow(0 8px 12px oklch(24% 0.055 258 / .10)) drop-shadow(0 1px 2px oklch(24% 0.055 258 / .08));
   --pop-lift:drop-shadow(0 10px 24px oklch(24% 0.055 258 / .16)) drop-shadow(0 2px 4px oklch(24% 0.055 258 / .10));
+  --frame-gold:linear-gradient(135deg, oklch(84% 0.09 92), oklch(70% 0.095 86) 55%, oklch(56% 0.075 80));
+  --frame-blue:linear-gradient(135deg, oklch(72% 0.06 246), oklch(46% 0.075 254) 55%, oklch(30% 0.065 258));
 }
 @media (prefers-color-scheme:dark){
   :root[data-palette="navy"]:not([data-theme="light"]){
@@ -147,6 +149,8 @@
     --box-lift:drop-shadow(0 1px 2px oklch(6% 0.025 262 / .55)) drop-shadow(0 3px 8px oklch(6% 0.025 262 / .35));
     --card-lift:drop-shadow(0 8px 14px oklch(6% 0.025 262 / .55)) drop-shadow(0 1px 3px oklch(6% 0.025 262 / .5));
     --pop-lift:drop-shadow(0 12px 28px oklch(6% 0.025 262 / .65)) drop-shadow(0 2px 6px oklch(6% 0.025 262 / .5));
+    --frame-gold:linear-gradient(135deg, oklch(88% 0.09 92), oklch(76% 0.095 86) 55%, oklch(60% 0.075 80));
+    --frame-blue:linear-gradient(135deg, oklch(84% 0.055 246), oklch(66% 0.07 250) 55%, oklch(48% 0.07 255));
   }
 }
 :root[data-palette="navy"][data-theme="dark"]{
@@ -165,6 +169,8 @@
   --box-lift:drop-shadow(0 1px 2px oklch(6% 0.025 262 / .55)) drop-shadow(0 3px 8px oklch(6% 0.025 262 / .35));
   --card-lift:drop-shadow(0 8px 14px oklch(6% 0.025 262 / .55)) drop-shadow(0 1px 3px oklch(6% 0.025 262 / .5));
   --pop-lift:drop-shadow(0 12px 28px oklch(6% 0.025 262 / .65)) drop-shadow(0 2px 6px oklch(6% 0.025 262 / .5));
+  --frame-gold:linear-gradient(135deg, oklch(88% 0.09 92), oklch(76% 0.095 86) 55%, oklch(60% 0.075 80));
+  --frame-blue:linear-gradient(135deg, oklch(84% 0.055 246), oklch(66% 0.07 250) 55%, oklch(48% 0.07 255));
 }
 /* palette:end */
 *{box-sizing:border-box; scrollbar-color:var(--line) transparent}
@@ -237,7 +243,7 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
 /* Flip cards: a click turns the card over on its vertical axis. */
 .fbar{display:flex; flex-wrap:wrap; gap:6px; margin:4px 0 8px}
 .cardsview .fbar button{display:inline-flex; align-items:center; gap:6px; font-weight:600; color:var(--ink); --fill:var(--surface-2); --frame:var(--line)}
-.cardsview .fbar button[aria-pressed="true"]{color:var(--on-now-container); --fill:var(--now-container); --frame:var(--now)}
+.cardsview .fbar button[aria-pressed="true"]{color:var(--on-now-container); --fill:var(--now-container); --frame:var(--frame-blue, var(--now))}
 .fbar button .dot{width:8px; height:8px; background:var(--cc, var(--muted)); clip-path:polygon(0 0, 60% 0, 100% 40%, 100% 100%, 0 100%)}
 .fbar button small{font-weight:400; opacity:.8}
 .fgrid{display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:18px; margin-top:10px}
@@ -252,7 +258,7 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
 .fc-face{grid-area:1 / 1; display:flex; backface-visibility:hidden; -webkit-backface-visibility:hidden}
 .fc-back{transform:rotateY(180deg)}
 .fc-body{flex:1 1 auto; min-width:0; overflow-wrap:anywhere; display:flex; flex-direction:column; gap:7px; padding:12px 14px 14px;
-  --bev:16px; --bw-t:5px; --stripe:var(--cc, var(--now)); --frame:linear-gradient(var(--stripe) 5px, var(--line) 5px); --fill:var(--surface)}
+  --bev:16px; --bw-t:5px; --stripe:var(--cc, var(--now)); --frame:linear-gradient(var(--stripe) 5px, transparent 5px), var(--frame-gold, var(--line)); --fill:var(--surface)}
 /* the course stripe is the frame's top side, 5 px, following the cut */
 .fc-back .fc-body{--stripe:var(--now); --fill:var(--surface-2)}
 .fc-meta{display:flex; flex-wrap:wrap; align-items:center; gap:6px; font-size:12px; color:var(--muted)}
@@ -314,7 +320,7 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
 .pp-row{display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:6px 0}
 .pp-row input[type=time]{font:inherit; font-size:13px; padding:4px 6px; color:var(--ink)}
 .tgl{display:inline-flex; align-items:center; gap:6px; font:inherit; font-size:13px; font-weight:600; padding:5px 10px; --frame:var(--line); --fill:var(--surface); color:var(--muted); cursor:pointer}
-.tgl[aria-pressed="true"]{color:var(--on-now-container); --fill:var(--now-container); --frame:var(--now)}
+.tgl[aria-pressed="true"]{color:var(--on-now-container); --fill:var(--now-container); --frame:var(--frame-blue, var(--now))}
 #acct-slot .seg{background:transparent} #acct-slot button{font:inherit; font-size:13px; font-weight:700; padding:6px 14px; border:1px solid var(--now-container); background:var(--now-container); color:var(--on-now-container); cursor:pointer}
 .foot{margin-top:40px; padding:18px 0 0; border-top:1px solid var(--line); font-size:13px; color:var(--muted); display:grid; gap:6px}
 .foot nav{display:flex; flex-wrap:wrap; gap:6px 18px}
@@ -323,7 +329,7 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
 .foot p{margin:0} .foot .disclaimer{display:flex; align-items:center; gap:6px; color:var(--ink)}
 .infonav{display:flex; flex-wrap:wrap; gap:6px; margin:0 0 14px}
 .infonav button,.infoview .plain{display:inline-flex; align-items:center; gap:6px; font:inherit; font-size:13px; font-weight:600; padding:6px 12px; --frame:var(--line); --fill:var(--surface); color:var(--ink); cursor:pointer}
-.infonav button[aria-pressed="true"]{color:var(--on-now-container); --fill:var(--now-container); --frame:var(--now)}
+.infonav button[aria-pressed="true"]{color:var(--on-now-container); --fill:var(--now-container); --frame:var(--frame-blue, var(--now))}
 .infoview h2{display:flex; align-items:center; gap:8px}
 .bento{display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:14px; grid-auto-flow:dense; align-items:start}
 @media (min-width:760px){ .bento > .span2{grid-column:span 2} }
@@ -340,7 +346,7 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
 .cardsview .csets,.cardsview .cklist{list-style:none; margin:8px 0 0; padding:0; display:flex; flex-direction:column; gap:6px}
 .cardsview .csets li{display:flex; flex-wrap:wrap; align-items:center; gap:4px 8px; padding:6px 8px; border-left:4px solid var(--cc, var(--muted)); background:var(--surface-2)}
 .cardsview .cs-n{flex:1 1 auto; color:var(--muted); font-size:12.5px}
-.cardsview button{font:inherit; font-size:13px; font-weight:700; color:var(--on-now-container); --fill:var(--now-container); --frame:var(--now-container); padding:5px 12px; cursor:pointer}
+.cardsview button{font:inherit; font-size:13px; font-weight:700; color:var(--on-now-container); --fill:var(--now-container); --frame:var(--frame-blue, var(--now-container)); padding:5px 12px; cursor:pointer}
 .cardsview button.plain{color:var(--ink); --fill:transparent; --frame:var(--muted)}
 .cardsview button:disabled{opacity:.4; cursor:default}
 .cardsview .cklist li{padding:8px 10px; border:1px solid var(--line); background:var(--surface)}
@@ -398,7 +404,7 @@ body.dragging .dp-block,body.dragging .dp-due,body.dragging .dp-line{pointer-eve
 .cvcard input.secret{width:min(420px, 100%); -webkit-text-security:disc}
 .cvcard input[type=number]{width:70px}
 .cvcard .row{display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:8px 0}
-.cvcard button{font:inherit; font-size:13px; font-weight:700; color:var(--on-now-container); --fill:var(--now-container); --frame:var(--now-container); padding:6px 14px; cursor:pointer}
+.cvcard button{font:inherit; font-size:13px; font-weight:700; color:var(--on-now-container); --fill:var(--now-container); --frame:var(--frame-blue, var(--now-container)); padding:6px 14px; cursor:pointer}
 .cvcard button.plain{color:var(--ink); --fill:transparent; --frame:var(--muted)}
 .cvcard .err{color:var(--alert); font-weight:600}
 .cvlegend{display:flex; flex-wrap:wrap; gap:6px 16px; font-size:13px; margin:8px 0 0}
@@ -585,7 +591,7 @@ a.tag.feeds:hover{text-decoration:underline}
 .weeks{--rail:132px; display:flex; flex-direction:column; gap:14px}
 .week{display:grid; grid-template-columns:var(--rail) minmax(0,1fr); gap:0; scroll-margin-top:130px}
 /* the current week: a 2px ring in the accent colour, drawn behind the surface with the same cut corner */
-.week.now{--bw:2px; --frame:var(--now)}
+.week.now{--bw:2px; --frame:var(--frame-gold, var(--now))}
 .week .rail{padding:14px 12px 14px 16px; background:var(--surface-2)}
 .week .rail .wk{font-size:17px; font-family:Archivo,sans-serif; font-weight:700; letter-spacing:-.01em; display:flex; align-items:center; gap:4px}
 .week .rail .dates{font-size:11.5px; color:var(--muted); margin-top:2px}
@@ -971,7 +977,7 @@ body.colored table.all tr:not(.done) .tt{color:var(--cc)}
 .pop .prog textarea{resize:vertical; min-height:44px; font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11.5px}
 .pop .prog textarea::placeholder{color:var(--muted); font-family:"Public Sans",Arial,sans-serif}
 .pop .prog textarea:focus,.pop .prog select:focus,.pop .prog button:focus-visible{outline:2px solid var(--now); outline-offset:1px; --frame-c:var(--now)}
-.pop .prog button{flex:0 0 auto; font:inherit; font-size:12.5px; font-weight:700; color:var(--on-now-container); --fill:var(--now-container); --frame:var(--now-container); padding:6px 14px; cursor:pointer}
+.pop .prog button{flex:0 0 auto; font:inherit; font-size:12.5px; font-weight:700; color:var(--on-now-container); --fill:var(--now-container); --frame:var(--frame-blue, var(--now-container)); padding:6px 14px; cursor:pointer}
 .pop .prog button:hover{filter:brightness(1.1)}
 .pop .prog button.wide{flex:1 1 auto}
 .pop .prog button:disabled{opacity:.4; cursor:default}

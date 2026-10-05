@@ -208,6 +208,11 @@ function navy(dark) {
   // so a deeper navy-black shadow still shows; it only needs to be denser than in light mode.
   v["box-lift"] = dark ? "drop-shadow(0 1px 2px oklch(6% 0.025 262 / .55)) drop-shadow(0 3px 8px oklch(6% 0.025 262 / .35))" : "drop-shadow(0 1px 2px oklch(24% 0.055 258 / .08)) drop-shadow(0 3px 8px oklch(24% 0.055 258 / .07))";
   v["card-lift"] = dark ? "drop-shadow(0 8px 14px oklch(6% 0.025 262 / .55)) drop-shadow(0 1px 3px oklch(6% 0.025 262 / .5))" : "drop-shadow(0 8px 12px oklch(24% 0.055 258 / .10)) drop-shadow(0 1px 2px oklch(24% 0.055 258 / .08))";
+  // Outlines of significant elements, as gradients drawn in the frame layer of the shape system: gold
+  // (highlight to shade, as gold leaf catches light) for what matters now, blue for the active controls.
+  // Only Navy defines them; the template falls back to its solid frames for the other palettes.
+  v["frame-gold"] = "linear-gradient(135deg, oklch(" + (dark ? "88% 0.09 92), oklch(76% 0.095 86) 55%, oklch(60% 0.075 80))" : "84% 0.09 92), oklch(70% 0.095 86) 55%, oklch(56% 0.075 80))");
+  v["frame-blue"] = "linear-gradient(135deg, oklch(" + (dark ? "84% 0.055 246), oklch(66% 0.07 250) 55%, oklch(48% 0.07 255))" : "72% 0.06 246), oklch(46% 0.075 254) 55%, oklch(30% 0.065 258))");
   v["pop-lift"] = dark ? "drop-shadow(0 12px 28px oklch(6% 0.025 262 / .65)) drop-shadow(0 2px 6px oklch(6% 0.025 262 / .5))" : "drop-shadow(0 10px 24px oklch(24% 0.055 258 / .16)) drop-shadow(0 2px 4px oklch(24% 0.055 258 / .10))";
   return v;
 }
@@ -222,7 +227,8 @@ function block(v, indent) {
     line([["shadow", v.shadow]]),
     line([["box-lift", v["box-lift"]]]),
     line([["card-lift", v["card-lift"]]]),
-    line([["pop-lift", v["pop-lift"]]])
+    line([["pop-lift", v["pop-lift"]]]),
+    ...(v["frame-gold"] ? [line([["frame-gold", v["frame-gold"]]]), line([["frame-blue", v["frame-blue"]]])] : [])
   ].join("\n");
 }
 // One palette in light and dark. `sel` narrows :root to the palette ("" for the default).
