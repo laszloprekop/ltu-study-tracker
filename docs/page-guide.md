@@ -89,11 +89,17 @@ for review yet). The course filter applies to every view, the Cards view include
 OKLCH. **Ice** is the default: low chroma, a frosted Nordic mood, courses glacier, moss, heather,
 cloudberry and twilight, rust for alerts, heather for Now, sky blue for announcements, soft
 shadows. Its fills are dim and the text on them carries the colour, like a status badge. **Neon** (`data-palette="neon"` on the root) is the earlier fluorescent set with its cyan
-glow in dark mode. Text colours reach WCAG AA (4.5:1) on every background in both; `node
-tools/palette.mjs --check` prints the main pairs. Mix colours in OKLCH (`color-mix(in oklch, ...)`).
+glow in dark mode. **Navy** (`data-palette="navy"`) comes from a navy and gold mood board: a linen
+ground, one blue family (Z7005E), gold (Z0025E) kept calm in its fills, stone, slate and dusk for
+c3 to c5, a muted brick for alerts, blue for Now; its dark mode is navy with linen text. Text
+colours reach WCAG AA (4.5:1) on every background in all three; `node tools/palette.mjs --check`
+prints the main pairs. Mix two tints of the same hue in OKLCH (`color-mix(in oklch, ...)`); mix
+colours of different hues in OKLab (`color-mix(in oklab, ...)`), because OKLCH mixes hue around
+the wheel and a blue mixed with a linen passes through green.
 The lift belongs to the palette too, in three levels: `--box-lift` (boxes), `--card-lift` (flip
 cards) and `--pop-lift` (popups and the row menu). Light mode gets a shadow, dark mode a glow (cyan
-in Neon, pale ice in Ice), because a shadow vanishes on a dark page. Which element takes which level
+in Neon, pale ice in Ice), because a shadow vanishes on a near-black page. Navy keeps a shadow in
+dark mode: its dark ground is a mid navy, where a deeper shadow still shows. Which element takes which level
 is set in one place, the "Lift" rules in `src/template.html`; a new floating element is added there.
 
 Colour roles follow Material Design 3. Each accent role X (`c1` to `c5`, `alert`, `now`) has

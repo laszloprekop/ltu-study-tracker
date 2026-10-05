@@ -19,6 +19,8 @@
 //
 // Ice (the default): calm, low chroma, a frosted Nordic mood. Chroma is capped per role and the
 // lightness is the calmest one that still reaches WCAG AA (4.5:1) on every background.
+// Navy (data-palette="navy"): linen, navy and gold from a mood board; low chroma, gold kept for
+// highlights, and a shadow (not a glow) in dark mode because its dark ground is navy, not near black.
 // Neon (data-palette="neon"): chroma pushed to the edge of what sRGB can show, so the tints are
 // fluorescent. Reference: the 2018 Viacom neon set, sampled 2026-09-30: magenta #f020a0, green
 // #00f030, cyan #30a0b0, coral #f06060, cream #f0f0d0, navy #000020, pale grey #ece5ec.
@@ -164,6 +166,52 @@ function ice(dark) {
   return v;
 }
 
+// ---- Navy ----
+// Sampled: linen ground 89.5% 0.009 79; navy 24% 0.058 259; mid navy 35% 0.069 254; denim 44% 0.027 244;
+// dusty blue 67% 0.032 243; pale blue 71% 0.060 246; gold 85% 0.095 91 (highlight) to 63% 0.062 81 (shade).
+const NV = { linen: 80, navy: 258, blue: 250, gold: 88, stone: 65, slate: 215, dusk: 300, brick: 30, pine: 155 };
+// Roles: c1 blue, c2 gold, c3 stone, c4 slate, c5 dusk. Alert brick, ok pine, now blue (the accent), announcements gold.
+const navyRoles = [NV.blue, NV.gold, NV.stone, NV.slate, NV.dusk];
+function navy(dark) {
+  const v = {};
+  if (dark) {
+    // the navy becomes the ground; text is linen
+    v.bg = oklch(0.17, NV.navy, 0.035); v.surface = oklch(0.215, NV.navy, 0.04); v["surface-2"] = oklch(0.255, NV.navy, 0.042);
+    v.ink = oklch(0.92, NV.linen, 0.014); v.muted = oklch(0.74, 245, 0.03); v.line = oklch(0.32, 255, 0.04);
+  } else {
+    v.bg = oklch(0.935, NV.linen, 0.011); v.surface = oklch(0.982, NV.linen, 0.006); v["surface-2"] = oklch(0.962, NV.linen, 0.009);
+    v.ink = oklch(0.24, NV.navy, 0.055); v.muted = oklch(0.48, 248, 0.03); v.line = oklch(0.86, NV.linen, 0.014);
+  }
+  const floors = [v.bg, v.surface, v["surface-2"]];
+  // Low chroma throughout, so nothing shouts next to the gold; brick and gold text stay calm.
+  const text = (h, c) => calm(dark ? [0.70, 0.90] : [0.35, 0.60], h, c, floors, dark);
+  // Containers and washes sit on the linen like the board's swatches: low chroma, so a group reads as a
+  // tint of the ground rather than a coloured panel (light 0.02, half of Ice's; dark 0.03).
+  // `calm` scales a role's container and wash chroma: gold and stone are warm and read stronger than
+  // the blues at the same chroma, so they take less (below).
+  const soft = (h, calm = 1) => oklch(dark ? 0.285 : 0.95, h, (dark ? 0.022 : 0.011) * calm);
+  const container = (h, calm = 1) => oklch(dark ? 0.25 : 0.915, h, (dark ? 0.03 : 0.02) * calm);
+  const onContainer = (h, c, fill) => calm(dark ? [0.70, 0.95] : [0.25, 0.55], h, c, [fill], dark, 5);
+  const role = (k, h, c, calm) => { v[k] = text(h, c); v["on-" + k] = dark ? v.bg : oklch(0.982, NV.linen, 0.006); v[k + "-container"] = container(h, calm); v["on-" + k + "-container"] = onContainer(h, c + 0.01, v[k + "-container"]); v[k + "-soft"] = soft(h, calm); };
+  // Stone leans toward red in dark mode (hue 45): at 65 it turns olive on the navy ground.
+  const hues = navyRoles.map(h => h === NV.stone && dark ? 45 : h);
+  // In dark mode a dim gold fill turns brown, so Booch's fill drops to 20%: a warm graphite, with the
+  // gold left to its heading and labels (on-container), like gold leaf on dark paper.
+  hues.forEach((h, i) => role("c" + (i + 1), h, h === NV.gold ? 0.07 : 0.045, i === 1 ? (dark ? 0.2 : 0.6) : i === 2 ? 0.6 : 1));
+  // and its group background goes further, to 10%, so the cards above it keep a trace more warmth
+  if (dark) v["c2-container"] = container(NV.gold, 0.1);
+  role("alert", NV.brick, 0.07); role("now", NV.blue, 0.07);
+  v.ok = text(NV.pine, 0.05);
+  v["ann-container"] = container(NV.gold); v["on-ann-container"] = onContainer(NV.gold, 0.08, v["ann-container"]);
+  v.shadow = dark ? "0 1px 3px oklch(8% 0.03 260 / .5)" : "0 1px 3px oklch(24% 0.055 258 / .10)";
+  // Lift: a shadow in both modes. Unlike Ice and Neon, the dark page is navy (L 0.17), not near black,
+  // so a deeper navy-black shadow still shows; it only needs to be denser than in light mode.
+  v["box-lift"] = dark ? "drop-shadow(0 1px 2px oklch(6% 0.025 262 / .55)) drop-shadow(0 3px 8px oklch(6% 0.025 262 / .35))" : "drop-shadow(0 1px 2px oklch(24% 0.055 258 / .08)) drop-shadow(0 3px 8px oklch(24% 0.055 258 / .07))";
+  v["card-lift"] = dark ? "drop-shadow(0 8px 14px oklch(6% 0.025 262 / .55)) drop-shadow(0 1px 3px oklch(6% 0.025 262 / .5))" : "drop-shadow(0 8px 12px oklch(24% 0.055 258 / .10)) drop-shadow(0 1px 2px oklch(24% 0.055 258 / .08))";
+  v["pop-lift"] = dark ? "drop-shadow(0 12px 28px oklch(6% 0.025 262 / .65)) drop-shadow(0 2px 6px oklch(6% 0.025 262 / .5))" : "drop-shadow(0 10px 24px oklch(24% 0.055 258 / .16)) drop-shadow(0 2px 4px oklch(24% 0.055 258 / .10))";
+  return v;
+}
+
 function block(v, indent) {
   const line = pairs => indent + pairs.map(([k, val]) => `--${k}:${val};`).join(" ");
   return [
@@ -187,11 +235,11 @@ function css(name, sel, light, dark) {
     `:root${sel}[data-theme="dark"]{\n  color-scheme:dark;\n${block(dark, "  ")}\n}`
   ].join("\n");
 }
-// Neon comes second: its selectors are as specific or more, so it wins when data-palette="neon".
-const out = css("Ice", "", ice(false), ice(true)) + "\n" + css("Neon", '[data-palette="neon"]', neon(false), neon(true));
+// Neon and Navy come after Ice: their selectors are as specific or more, so they win when stamped.
+const out = css("Ice", "", ice(false), ice(true)) + "\n" + css("Neon", '[data-palette="neon"]', neon(false), neon(true)) + "\n" + css("Navy", '[data-palette="navy"]', navy(false), navy(true));
 
 if (process.argv.includes("--check")) {
-  for (const [n, v] of [["ice light", ice(false)], ["ice dark", ice(true)], ["neon light", neon(false)], ["neon dark", neon(true)]]) {
+  for (const [n, v] of [["ice light", ice(false)], ["ice dark", ice(true)], ["neon light", neon(false)], ["neon dark", neon(true)], ["navy light", navy(false)], ["navy dark", navy(true)]]) {
     const r = (a, b) => contrast(v[a], v[b]).toFixed(1);
     const pair = k => r("on-" + k + "-container", k + "-container");
     console.log(n.padEnd(11), "ink", r("ink", "bg"), "muted", r("muted", "surface"), "accents", ["c1", "c2", "c3", "c4", "c5", "alert"].map(k => r(k, "surface")).join(" "), "| on-container", ["c1", "c2", "c3", "c4", "c5", "alert", "now", "ann"].map(pair).join(" "), "| on-now", r("on-now", "now"));

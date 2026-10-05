@@ -113,6 +113,59 @@
   --card-lift:drop-shadow(0 0 10px rgba(0,228,253,.16)) drop-shadow(0 6px 14px rgba(0,228,253,.10));
   --pop-lift:drop-shadow(0 0 14px rgba(0,228,253,.24)) drop-shadow(0 8px 24px rgba(0,228,253,.14)) drop-shadow(0 0 1px rgba(0,228,253,.6));
 }
+/* Navy */
+:root[data-palette="navy"]{
+  --bg:#ede9e1; --surface:#fbf9f5; --surface-2:#f6f2ec;
+  --ink:#0e1f39; --muted:#515f6e; --line:#d6d0c7;
+  --c1:#556b82; --on-c1:#fbf9f5; --c1-container:#d9e4f0; --on-c1-container:#46607c; --c1-soft:#e9eff6;
+  --c2:#7a6737; --on-c2:#fbf9f5; --c2-container:#e6e3da; --on-c2-container:#725c23; --c2-soft:#f0eeea;
+  --c3:#7d654f; --on-c3:#fbf9f5; --c3-container:#e9e1db; --on-c3-container:#73573c; --c3-soft:#f2eeea;
+  --c4:#496e78; --on-c4:#fbf9f5; --c4-container:#d5e7eb; --on-c4-container:#346470; --c4-soft:#e7f0f3;
+  --c5:#6e6581; --on-c5:#fbf9f5; --c5-container:#e5e0ef; --on-c5-container:#64587a; --c5-soft:#efedf5;
+  --alert:#905c54; --on-alert:#fbf9f5; --alert-container:#f0dedb; --on-alert-container:#884e45; --alert-soft:#f6ecea;
+  --now:#496c90; --on-now:#fbf9f5; --now-container:#d9e4f0; --on-now-container:#386189; --now-soft:#e9eff6;
+  --ok:#50705b; --ann-container:#e8e2d4; --on-ann-container:#705b21;
+  --shadow:0 1px 3px oklch(24% 0.055 258 / .10);
+  --box-lift:drop-shadow(0 1px 2px oklch(24% 0.055 258 / .08)) drop-shadow(0 3px 8px oklch(24% 0.055 258 / .07));
+  --card-lift:drop-shadow(0 8px 12px oklch(24% 0.055 258 / .10)) drop-shadow(0 1px 2px oklch(24% 0.055 258 / .08));
+  --pop-lift:drop-shadow(0 10px 24px oklch(24% 0.055 258 / .16)) drop-shadow(0 2px 4px oklch(24% 0.055 258 / .10));
+}
+@media (prefers-color-scheme:dark){
+  :root[data-palette="navy"]:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#060f1e; --surface:#0d1a2c; --surface-2:#162337;
+    --ink:#e9e4da; --muted:#9cadbd; --line:#253447;
+    --c1:#8aa1ba; --on-c1:#060f1e; --c1-container:#162330; --on-c1-container:#85a2c0; --c1-soft:#222b35;
+    --c2:#b19c6c; --on-c2:#060f1e; --c2-container:#222220; --on-c2-container:#b39c63; --c2-soft:#2b2a28;
+    --c3:#b79688; --on-c3:#060f1e; --c3-container:#291f1b; --on-c3-container:#bc9482; --c3-soft:#302825;
+    --c4:#7fa6b0; --on-c4:#060f1e; --c4-container:#0f252b; --on-c4-container:#77a8b4; --c4-soft:#1d2d31;
+    --c5:#a299b7; --on-c5:#060f1e; --c5-container:#241e2e; --on-c5-container:#a397bc; --c5-soft:#2c2834;
+    --alert:#c68e85; --on-alert:#060f1e; --alert-container:#2f1c19; --on-alert-container:#cb8c81; --alert-soft:#342624;
+    --now:#7da2c9; --on-now:#060f1e; --now-container:#162330; --on-now-container:#78a3cf; --now-soft:#222b35;
+    --ok:#86a891; --ann-container:#282110; --on-ann-container:#b39c63;
+    --shadow:0 1px 3px oklch(8% 0.03 260 / .5);
+    --box-lift:drop-shadow(0 1px 2px oklch(6% 0.025 262 / .55)) drop-shadow(0 3px 8px oklch(6% 0.025 262 / .35));
+    --card-lift:drop-shadow(0 8px 14px oklch(6% 0.025 262 / .55)) drop-shadow(0 1px 3px oklch(6% 0.025 262 / .5));
+    --pop-lift:drop-shadow(0 12px 28px oklch(6% 0.025 262 / .65)) drop-shadow(0 2px 6px oklch(6% 0.025 262 / .5));
+  }
+}
+:root[data-palette="navy"][data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#060f1e; --surface:#0d1a2c; --surface-2:#162337;
+  --ink:#e9e4da; --muted:#9cadbd; --line:#253447;
+  --c1:#8aa1ba; --on-c1:#060f1e; --c1-container:#162330; --on-c1-container:#85a2c0; --c1-soft:#222b35;
+  --c2:#b19c6c; --on-c2:#060f1e; --c2-container:#222220; --on-c2-container:#b39c63; --c2-soft:#2b2a28;
+  --c3:#b79688; --on-c3:#060f1e; --c3-container:#291f1b; --on-c3-container:#bc9482; --c3-soft:#302825;
+  --c4:#7fa6b0; --on-c4:#060f1e; --c4-container:#0f252b; --on-c4-container:#77a8b4; --c4-soft:#1d2d31;
+  --c5:#a299b7; --on-c5:#060f1e; --c5-container:#241e2e; --on-c5-container:#a397bc; --c5-soft:#2c2834;
+  --alert:#c68e85; --on-alert:#060f1e; --alert-container:#2f1c19; --on-alert-container:#cb8c81; --alert-soft:#342624;
+  --now:#7da2c9; --on-now:#060f1e; --now-container:#162330; --on-now-container:#78a3cf; --now-soft:#222b35;
+  --ok:#86a891; --ann-container:#282110; --on-ann-container:#b39c63;
+  --shadow:0 1px 3px oklch(8% 0.03 260 / .5);
+  --box-lift:drop-shadow(0 1px 2px oklch(6% 0.025 262 / .55)) drop-shadow(0 3px 8px oklch(6% 0.025 262 / .35));
+  --card-lift:drop-shadow(0 8px 14px oklch(6% 0.025 262 / .55)) drop-shadow(0 1px 3px oklch(6% 0.025 262 / .5));
+  --pop-lift:drop-shadow(0 12px 28px oklch(6% 0.025 262 / .65)) drop-shadow(0 2px 6px oklch(6% 0.025 262 / .5));
+}
 /* palette:end */
 *{box-sizing:border-box; scrollbar-color:var(--line) transparent}
 :root[data-theme="light"]{color-scheme:light}
@@ -955,6 +1008,7 @@ body.colored table.all tr:not(.done) .tt{color:var(--cc)}
         <div class="seg tools" role="group" aria-label="Palette" id="palette">
           <button type="button" data-palette-set="ice" title="Ice: calm, frosted colours" aria-label="Ice palette"><svg class="ic"><use href="#i-snowflake"/></svg></button>
           <button type="button" data-palette-set="neon" title="Neon: bright, fluorescent colours" aria-label="Neon palette"><svg class="ic"><use href="#i-lightning"/></svg></button>
+          <button type="button" data-palette-set="navy" title="Navy: linen, navy and gold" aria-label="Navy palette"><svg class="ic"><use href="#i-anchor"/></svg></button>
         </div>
         <button type="button" class="hbtn" data-goview="help" title="Help: how the page works" aria-label="Help"><svg class="ic"><use href="#i-question"/></svg></button>
         <details class="pop profile" id="profile-pop">
@@ -3623,7 +3677,7 @@ state.size = Number(lsGet(LS.size)) || 100;
 state.ping = lsGet(LS.ping) !== "0";
 state.colored = lsGet(LS.colored) !== "0";
 var th = lsGet(LS.theme); if (th === "light" || th === "dark" || th === "system") state.theme = th;
-var pal = lsGet(LS.palette); if (pal === "ice" || pal === "neon") state.palette = pal;
+var pal = lsGet(LS.palette); if (pal === "ice" || pal === "neon" || pal === "navy") state.palette = pal;
 state.showHiddenCards = lsGet(LS.cardsHidden) === "1";
 var ctr = lsGet(LS.cardTrust); state.cardTrust = ctr === "all" || ctr === "trusted" ? ctr : "nofix";
 var sh = lsJson(LS.hours); if (sh && toMin(sh.start) != null && toMin(sh.end) != null) state.hours = sh;
