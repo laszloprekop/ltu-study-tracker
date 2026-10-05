@@ -214,8 +214,8 @@ function navy(dark) {
   // moves along a metal edge. Gold for what matters now and the gold course, blue for active controls
   // and the blue course. Only Navy defines them; elsewhere the plain frames apply.
   const edge = (base, hi, lo) => "oklch(" + base + "), oklch(" + hi + ") 18%, oklch(" + base + ") 38%, oklch(" + lo + ") 68%, oklch(" + base + ")";
-  const gold = dark ? ["76% 0.09 86", "93% 0.07 95", "54% 0.07 78"] : ["72% 0.095 86", "90% 0.08 95", "50% 0.07 78"];
-  const blue = dark ? ["64% 0.07 250", "87% 0.05 244", "42% 0.065 256"] : ["46% 0.075 254", "76% 0.06 244", "26% 0.06 260"];
+  const gold = dark ? ["76% 0.09 86", "88% 0.08 93", "54% 0.07 78"] : ["72% 0.095 86", "84% 0.09 92", "50% 0.07 78"];
+  const blue = dark ? ["64% 0.07 250", "80% 0.06 246", "42% 0.065 256"] : ["46% 0.075 254", "66% 0.07 247", "26% 0.06 260"];
   v["edge-gold"] = edge(...gold); v["edge-gold-b"] = "oklch(" + gold[0] + ")";
   v["edge-blue"] = edge(...blue); v["edge-blue-b"] = "oklch(" + blue[0] + ")";
   v["pop-lift"] = dark ? "drop-shadow(0 12px 28px oklch(6% 0.025 262 / .65)) drop-shadow(0 2px 6px oklch(6% 0.025 262 / .5))" : "drop-shadow(0 10px 24px oklch(24% 0.055 258 / .16)) drop-shadow(0 2px 4px oklch(24% 0.055 258 / .10))";
