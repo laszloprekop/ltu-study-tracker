@@ -100,10 +100,14 @@ The lift belongs to the palette too, in three levels: `--box-lift` (boxes), `--c
 cards) and `--pop-lift` (popups and the row menu). Light mode gets a shadow, dark mode a glow (cyan
 in Neon, pale ice in Ice), because a shadow vanishes on a near-black page. Navy keeps a shadow in
 dark mode: its dark ground is a mid navy, where a deeper shadow still shows.
-Navy also outlines significant elements with gradients, drawn in the shape system's frame layer:
-`--frame-gold` (this week's card, and the edge of every study card under its course stripe) and
-`--frame-blue` (selected filters and toggles, and the main action buttons). Only Navy defines them;
-the rules fall back to the solid frames, so Ice and Neon look as before. Which element takes which level
+Navy also gives significant elements an edged frame: one gradient run along every side (base tone,
+a shining spot, back through the base into a shadow, back to the base), left to right on the top and
+bottom, top to bottom on the sides, each as wide as that side's border. Gold (`--edge-gold`) on this
+week's card, blue (`--edge-blue`) on selected filters, toggles and main buttons, and each study card
+in its course's colour (`--edge-c1` blue for Z7005E, `--edge-c2` gold for Z0025E, the top edge being
+the course stripe). A box opts in with `--edge` and `--edge-b` (its stops and base); the shape
+system's frame layer draws it. Only Navy defines the colours, so Ice and Neon keep their plain
+frames. Navy's announcements are blue. Which element takes which level
 is set in one place, the "Lift" rules in `src/template.html`; a new floating element is added there.
 
 Colour roles follow Material Design 3. Each accent role X (`c1` to `c5`, `alert`, `now`) has

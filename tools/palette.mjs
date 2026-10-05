@@ -170,7 +170,7 @@ function ice(dark) {
 // Sampled: linen ground 89.5% 0.009 79; navy 24% 0.058 259; mid navy 35% 0.069 254; denim 44% 0.027 244;
 // dusty blue 67% 0.032 243; pale blue 71% 0.060 246; gold 85% 0.095 91 (highlight) to 63% 0.062 81 (shade).
 const NV = { linen: 80, navy: 258, blue: 250, gold: 88, stone: 65, slate: 215, dusk: 300, brick: 30, pine: 155 };
-// Roles: c1 blue, c2 gold, c3 stone, c4 slate, c5 dusk. Alert brick, ok pine, now blue (the accent), announcements gold.
+// Roles: c1 blue, c2 gold, c3 stone, c4 slate, c5 dusk. Alert brick, ok pine, now blue (the accent), announcements blue.
 const navyRoles = [NV.blue, NV.gold, NV.stone, NV.slate, NV.dusk];
 function navy(dark) {
   const v = {};
@@ -202,17 +202,22 @@ function navy(dark) {
   if (dark) v["c2-container"] = container(NV.gold, 0.1);
   role("alert", NV.brick, 0.07); role("now", NV.blue, 0.07);
   v.ok = text(NV.pine, 0.05);
-  v["ann-container"] = container(NV.gold); v["on-ann-container"] = onContainer(NV.gold, 0.08, v["ann-container"]);
+  // Announcements in the blue family (the dusty to pale blue strips of the board), a step off c1's hue
+  v["ann-container"] = container(243); v["on-ann-container"] = onContainer(243, 0.07, v["ann-container"]);
   v.shadow = dark ? "0 1px 3px oklch(8% 0.03 260 / .5)" : "0 1px 3px oklch(24% 0.055 258 / .10)";
   // Lift: a shadow in both modes. Unlike Ice and Neon, the dark page is navy (L 0.17), not near black,
   // so a deeper navy-black shadow still shows; it only needs to be denser than in light mode.
   v["box-lift"] = dark ? "drop-shadow(0 1px 2px oklch(6% 0.025 262 / .55)) drop-shadow(0 3px 8px oklch(6% 0.025 262 / .35))" : "drop-shadow(0 1px 2px oklch(24% 0.055 258 / .08)) drop-shadow(0 3px 8px oklch(24% 0.055 258 / .07))";
   v["card-lift"] = dark ? "drop-shadow(0 8px 14px oklch(6% 0.025 262 / .55)) drop-shadow(0 1px 3px oklch(6% 0.025 262 / .5))" : "drop-shadow(0 8px 12px oklch(24% 0.055 258 / .10)) drop-shadow(0 1px 2px oklch(24% 0.055 258 / .08))";
-  // Outlines of significant elements, as gradients drawn in the frame layer of the shape system: gold
-  // (highlight to shade, as gold leaf catches light) for what matters now, blue for the active controls.
-  // Only Navy defines them; the template falls back to its solid frames for the other palettes.
-  v["frame-gold"] = "linear-gradient(135deg, oklch(" + (dark ? "88% 0.09 92), oklch(76% 0.095 86) 55%, oklch(60% 0.075 80))" : "84% 0.09 92), oklch(70% 0.095 86) 55%, oklch(56% 0.075 80))");
-  v["frame-blue"] = "linear-gradient(135deg, oklch(" + (dark ? "84% 0.055 246), oklch(66% 0.07 250) 55%, oklch(48% 0.07 255))" : "72% 0.06 246), oklch(46% 0.075 254) 55%, oklch(30% 0.065 258))");
+  // Edges of significant elements (the template's "edged frame"): one gradient run along every side,
+  // base tone, a shining spot, back through the base into a shadow, and back to the base, as light
+  // moves along a metal edge. Gold for what matters now and the gold course, blue for active controls
+  // and the blue course. Only Navy defines them; elsewhere the plain frames apply.
+  const edge = (base, hi, lo) => "oklch(" + base + "), oklch(" + hi + ") 18%, oklch(" + base + ") 38%, oklch(" + lo + ") 68%, oklch(" + base + ")";
+  const gold = dark ? ["76% 0.09 86", "93% 0.07 95", "54% 0.07 78"] : ["72% 0.095 86", "90% 0.08 95", "50% 0.07 78"];
+  const blue = dark ? ["64% 0.07 250", "87% 0.05 244", "42% 0.065 256"] : ["46% 0.075 254", "76% 0.06 244", "26% 0.06 260"];
+  v["edge-gold"] = edge(...gold); v["edge-gold-b"] = "oklch(" + gold[0] + ")";
+  v["edge-blue"] = edge(...blue); v["edge-blue-b"] = "oklch(" + blue[0] + ")";
   v["pop-lift"] = dark ? "drop-shadow(0 12px 28px oklch(6% 0.025 262 / .65)) drop-shadow(0 2px 6px oklch(6% 0.025 262 / .5))" : "drop-shadow(0 10px 24px oklch(24% 0.055 258 / .16)) drop-shadow(0 2px 4px oklch(24% 0.055 258 / .10))";
   return v;
 }
@@ -228,7 +233,8 @@ function block(v, indent) {
     line([["box-lift", v["box-lift"]]]),
     line([["card-lift", v["card-lift"]]]),
     line([["pop-lift", v["pop-lift"]]]),
-    ...(v["frame-gold"] ? [line([["frame-gold", v["frame-gold"]]]), line([["frame-blue", v["frame-blue"]]])] : [])
+    ...(v["edge-gold"] ? [line([["edge-gold", v["edge-gold"]]]), line([["edge-gold-b", v["edge-gold-b"]], ["edge-blue-b", v["edge-blue-b"]]]), line([["edge-blue", v["edge-blue"]]]),
+      line([["edge-c1", "var(--edge-blue)"], ["edge-c1-b", "var(--edge-blue-b)"], ["edge-c2", "var(--edge-gold)"], ["edge-c2-b", "var(--edge-gold-b)"]])] : [])
   ].join("\n");
 }
 // One palette in light and dark. `sel` narrows :root to the palette ("" for the default).
