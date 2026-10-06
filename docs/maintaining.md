@@ -33,7 +33,12 @@ npm run announcements   # print the announcements per course
 npm run courses         # list your Canvas courses with ids
 npm run progress        # write data/my-progress.json: what Canvas counts as done for YOUR account (git-ignored)
 npm run build:private   # build ltu-study-tracker.private.html with those Canvas marks filled in (git-ignored, never share)
+npm run bugs            # list the new bug reports sent from the hosted app (needs tools/server.env)
 ```
+
+The page shows its version in the footer and sends it with every bug report. It is `version` in
+`package.json`: raise it with every change to the page that gets published (third number for a
+fix, second for a feature). `tools/bugs.sh done <id>` marks a report as dealt with.
 
 The shared page shows, for each material item, whether Canvas has a completion requirement
 (view, mark done, post, submit) as an empty box. Canvas only tells a person about their own

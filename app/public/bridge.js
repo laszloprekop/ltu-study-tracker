@@ -66,9 +66,19 @@
     },
   };
 
+  // Bug reports from the page's footer form: anyone may send one, signed in or not; only the
+  // Maintainer can read them (migration 014). Not part of the claude.ai runtime.
+  var feedback = {
+    send: function (r) {
+      return sb.from("bug_report").insert({ did: r.did || "", expected: r.expected || "", happened: r.happened, contact: r.contact || "", version: r.version || "", route: r.route || "", context: r.context || {} })
+        .then(function (res) { if (res.error) throw res.error; });
+    },
+  };
+
   window.claude = {
     use: function (name) {
       if (name === "canvas") return Promise.resolve(canvas);
+      if (name === "feedback") return Promise.resolve(feedback);
       return ready.then(function (session) {
         if (!session) return null;
         if (name === "user") return { id: function () { return Promise.resolve(session.user.id); } };

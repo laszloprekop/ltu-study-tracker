@@ -1,6 +1,6 @@
 {
   "name": "ltu-study-tracker",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "description": "Week-by-week study tracker for LTU courses, published as a claude.ai artifact, with a read-only Canvas check.",
   "type": "module",
@@ -18,6 +18,7 @@
     "progress": "node tools/canvas-sync.mjs progress",
     "build:private": "node tools/build.mjs --private",
     "palette": "node tools/palette.mjs --write",
+    "bugs": "tools/bugs.sh",
     "test": "node tools/test-ticks.mjs && node tools/test-routes.mjs && node tools/test-dayplan.mjs"
   }
 }

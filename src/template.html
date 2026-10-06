@@ -555,6 +555,31 @@ a.tag.feeds:hover{text-decoration:underline}
 .rowmenu button:hover,.rowmenu button:focus-visible{background:var(--surface-2); outline:none}
 .toast{position:fixed; z-index:50; left:50%; bottom:max(16px, env(safe-area-inset-bottom)); transform:translateX(-50%); display:flex; align-items:center; gap:10px; max-width:calc(100vw - 32px); padding:10px 14px; background:var(--ink); color:var(--surface); font-size:13px; overflow-wrap:anywhere; box-shadow:0 6px 20px rgba(0,0,0,.25)}
 .toast[hidden]{display:none}
+/* The bug report form: slides up in the bottom right corner, over the page, which stays usable */
+.bug{position:fixed; z-index:45; right:max(16px, env(safe-area-inset-right)); bottom:max(16px, env(safe-area-inset-bottom)); width:min(380px, calc(100vw - 32px)); max-height:calc(100dvh - 32px); overflow:auto; box-sizing:border-box; margin:0; padding:14px 16px 16px; display:grid; gap:5px; background:var(--surface); color:var(--ink); border:1px solid var(--muted); box-shadow:0 10px 30px rgba(0,0,0,.3); font-size:13px;
+  transform:translateY(calc(100% + 32px)); visibility:hidden; transition:transform .22s ease, visibility 0s .22s}
+.bug.open{transform:none; visibility:visible; transition:transform .22s ease}
+@media (prefers-reduced-motion:reduce){ .bug,.bug.open{transition:none} }
+.bug-head{display:flex; align-items:center; justify-content:space-between; gap:10px}
+.bug h2{display:flex; align-items:center; gap:6px; margin:0; font-size:14px}
+.bug-x{border:0; padding:4px; background:transparent; color:var(--muted); cursor:pointer; line-height:0}
+.bug-x:hover{color:var(--ink)}
+.bug .note{margin:0 0 4px}
+.bug label{font-weight:600; margin-top:5px}
+.bug label small{font-weight:400; color:var(--muted)}
+.bug textarea,.bug input{font:inherit; width:100%; box-sizing:border-box; border:1px solid var(--muted); padding:6px 8px; background:var(--surface); color:var(--ink); resize:vertical}
+.bug textarea::placeholder,.bug input::placeholder{color:var(--muted); opacity:.8}
+.bug textarea.miss{border-color:var(--alert); outline:1px solid var(--alert)}
+.bug-ctx{margin-top:5px; color:var(--muted); font-size:12px}
+.bug-ctx summary{cursor:pointer}
+.bug-ctx p{margin:4px 0 0; overflow-wrap:anywhere}
+.bug-msg{margin:4px 0 0; padding:6px 8px; background:var(--alert-soft); color:var(--ink)}
+.bug-msg[hidden]{display:none}
+.bug-act{display:flex; flex-wrap:wrap; gap:8px; margin-top:8px}
+.bug-act button{display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:700; padding:6px 12px; border:1px solid var(--muted); background:transparent; color:var(--ink); cursor:pointer}
+.bug-act button.go{border-color:var(--now-container); background:var(--now-container); color:var(--on-now-container)}
+.bug-act button.go .ic{fill:var(--on-now-container)}
+.bug-act button:disabled{opacity:.55; cursor:default}
 .toast button{border:0; padding:4px 8px; background:var(--surface); color:var(--ink); font:inherit; font-weight:600; cursor:pointer}
 /* the row a Link points at, lit for a moment */
 .flash{animation:flash 2.4s ease-out}
@@ -1109,6 +1134,21 @@ body.colored table.all tr:not(.done) .tt{color:var(--cc)}
 
 <div id="rowmenu" class="rowmenu" role="menu" hidden></div>
 <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+<form id="bug" class="bug" role="dialog" aria-labelledby="bug-h" novalidate inert>
+  <div class="bug-head"><h2 id="bug-h"><svg class="ic"><use href="#i-bug"/></svg>Report a bug</h2><button type="button" class="bug-x" data-bugclose title="Close" aria-label="Close"><svg class="ic"><use href="#i-x"/></svg></button></div>
+  <p class="note">One problem per report. Three short answers are enough.</p>
+  <label for="bug-did">1. What were you doing?</label>
+  <textarea id="bug-did" rows="3" maxlength="1500" placeholder="The steps, in order. For example: opened Day Planner, dragged a task to 10:00."></textarea>
+  <label for="bug-exp">2. What did you expect?</label>
+  <textarea id="bug-exp" rows="2" maxlength="1500" placeholder="For example: the task stays at 10:00."></textarea>
+  <label for="bug-got">3. What happened instead? <small>(needed)</small></label>
+  <textarea id="bug-got" rows="3" maxlength="1500" required placeholder="What you saw. Any message, word for word."></textarea>
+  <label for="bug-contact" id="bug-contact-l">Reply to <small>(optional)</small></label>
+  <input id="bug-contact" type="text" maxlength="200" autocomplete="email" placeholder="An email address, only if you want an answer">
+  <details class="bug-ctx"><summary>Sent along with it</summary><p id="bug-ctx"></p></details>
+  <p class="bug-msg" id="bug-msg" role="alert" hidden></p>
+  <div class="bug-act" id="bug-act"></div>
+</form>
 
 <script>
 /*__DATA__*/
@@ -3343,6 +3383,7 @@ var APP_INFO = {
     ["Your Canvas token is never stored", "The token you paste stays in your browser and only passes through the server on its way to Canvas; the server never writes it down, not even in a log. Forget it with one button."],
     ["Calendar links stay yours", "Only you can read the calendar links you add. The server fetches them only from known calendar providers, so a link cannot make it reach anything else."],
     ["Nothing about guests is kept", "Without signing in, no ticks or account exist on the server."],
+    ["A bug report holds what you write", "A report carries your answers, the page version, the view you were on, your theme, window size and browser, and a reply address only if you give one. Only the maintainer can read reports."],
     ["No ads, analytics or tracking", "The page talks only to the tracker's own server and database, loads its typeface from Google Fonts, and visits Google only while you sign in. A content security policy blocks everything else, and the page cannot be shown inside another site."],
     ["Graded answers stay in your group", "Release 4: shared flashcards explain concepts and point to the material; written answers to graded questions are visible only to the group that wrote them."],
     ["Hosted in the EU", "On a server at Hetzner in the EU, over HTTPS. The plan is read from Canvas by a job that can only read a short list of course pages and never sees anyone's grades or progress."],
@@ -3443,13 +3484,76 @@ function canvasCard(){
 var INFO_VIEWS = { about: ["About", "info"], programme: ["The programme", "graduation-cap"], help: ["Help", "lifebuoy"], privacy: ["Privacy", "lock-key"], terms: ["Terms", "file-text"] };
 function infoCard(icon, title, text, extra){ var k = cardKey(text); return '<div class="card infocard"><h3>' + ic(icon) + esc(title) + '</h3>' + cardText(text) + (extra || '') + (k ? '<div class="insight"><b>Key</b> ' + cardInline(k) + '</div>' : '') + '</div>'; }
 function infoNav(cur){ return '<nav class="infonav">' + Object.keys(INFO_VIEWS).map(function(k){ return '<button type="button" data-goview="' + k + '"' + (k === cur ? ' aria-pressed="true"' : '') + '>' + ic(INFO_VIEWS[k][1]) + esc(INFO_VIEWS[k][0]) + '</button>'; }).join("") + '</nav>'; }
+/* ---------- Bug reports: the footer link opens a form in the bottom right corner ---------- */
+// The page's version: "version" in package.json, written in by the build (tools/lib/page.mjs).
+var VERSION = "__VERSION__";
+var BUG_REPO = "https://github.com/laszloprekop/ltu-study-tracker";
+var bugOpener = null, bugApi = null;
+// What goes along with a report, so it can be reproduced. Nothing about ticks, plans or Canvas.
+function bugContext(){
+  var de = document.documentElement;
+  return { where: window.TRACKER_CONFIG ? "app" : "claude.ai", built: DATA.built, theme: de.dataset.theme || "auto", palette: de.dataset.palette || "ice", window: innerWidth + "x" + innerHeight, browser: navigator.userAgent };
+}
+function bugRoute(){ return (location.hash || "#/" + state.view).slice(0, 300); }
+function bugFields(){
+  var v = function(id){ return document.getElementById(id).value.trim(); };
+  return { did: v("bug-did"), expected: v("bug-exp"), happened: v("bug-got"), contact: v("bug-contact") };
+}
+// The report as text, for copying or a GitHub issue; never the reply address, an issue is public.
+function bugText(){
+  var r = bugFields(), c = bugContext();
+  return "**What I was doing**\n" + (r.did || "-") + "\n\n**What I expected**\n" + (r.expected || "-") + "\n\n**What happened instead**\n" + (r.happened || "-") +
+    "\n\n---\nVersion " + VERSION + " (" + c.where + "), view " + bugRoute() + "\n" + c.theme + " theme, " + c.palette + " palette, window " + c.window + "\n" + c.browser;
+}
+function bugMsg(t){ var m = document.getElementById("bug-msg"); m.textContent = t || ""; m.hidden = !t; }
+// Send where the hosted app takes reports; elsewhere the report leaves as a GitHub issue or a copy.
+function bugActions(){
+  document.getElementById("bug-act").innerHTML =
+    (bugApi ? '<button type="submit" class="go">' + ic("paper-plane-tilt") + 'Send report</button>'
+            : '<button type="button" class="go" data-buggh title="Opens a public issue on GitHub with your answers filled in">' + ic("github-logo") + 'Open as a GitHub issue</button>') +
+    '<button type="button" data-bugcopy>' + ic("copy") + 'Copy</button>';
+  document.getElementById("bug-contact").hidden = document.getElementById("bug-contact-l").hidden = !bugApi;
+}
+function openBug(opener){
+  var f = document.getElementById("bug"), c = bugContext(); if (!f) return;
+  bugOpener = opener || null; bugMsg("");
+  document.getElementById("bug-ctx").textContent = "Version " + VERSION + ", the view you are on (" + bugRoute() + "), theme and palette, window size (" + c.window + ") and your browser's name. No ticks, plans, names or Canvas data.";
+  bugActions();
+  f.inert = false; f.classList.add("open"); document.getElementById("bug-did").focus({ preventScroll: true });
+  if (window.TRACKER_CONFIG && window.claude && window.claude.use && !bugApi) window.claude.use("feedback").then(function(api){ if (api) { bugApi = api; bugActions(); } }, function(){});
+}
+function closeBug(){
+  var f = document.getElementById("bug"); if (!f || !f.classList.contains("open")) return;
+  f.classList.remove("open"); f.inert = true;
+  if (bugOpener && document.contains(bugOpener)) bugOpener.focus({ preventScroll: true });
+  bugOpener = null;
+}
+// The one answer a report cannot do without.
+function bugReady(){
+  var got = document.getElementById("bug-got"), ok = !!got.value.trim();
+  got.classList.toggle("miss", !ok);
+  if (!ok) { bugMsg("Say what happened, in the third box."); got.focus(); }
+  return ok;
+}
+function sendBug(){
+  if (!bugApi || !bugReady()) return;
+  var r = bugFields(), btn = document.querySelector("#bug-act button[type=submit]");
+  if (btn) btn.disabled = true; bugMsg("");
+  bugApi.send({ did: r.did, expected: r.expected, happened: r.happened, contact: r.contact, version: VERSION, route: bugRoute(), context: bugContext() }).then(function(){
+    document.getElementById("bug").reset(); closeBug(); toast("Thanks. The report is with the maintainer.");
+  }, function(e){
+    if (btn) btn.disabled = false;
+    bugMsg(e && e.code === "53400" ? "Too many reports came in this hour. Copy yours and try again later." : "Could not send it. Try again, or copy the report.");
+  });
+}
 function renderFoot(){
   var f = document.getElementById("foot"); if (!f) return;
   f.innerHTML = '<nav>' + Object.keys(INFO_VIEWS).map(function(k){ return '<a href="#" data-goview="' + k + '">' + ic(INFO_VIEWS[k][1]) + esc(INFO_VIEWS[k][0]) + '</a>'; }).join("") +
-    '<a href="https://github.com/laszloprekop/ltu-study-tracker" target="_blank" rel="noopener">' + ic("arrow-square-out") + 'Code</a></nav>' +
+    '<a href="#" data-bug>' + ic("bug") + 'Report a bug</a>' +
+    '<a href="' + BUG_REPO + '" target="_blank" rel="noopener">' + ic("arrow-square-out") + 'Code</a></nav>' +
     '<p id="asof"></p>' +
     '<p class="disclaimer">' + ic("info") + 'Unofficial, made by a student. Questions about your data go to the person who shared this page with you.</p>' +
-    '<p class="small">Times are Stockholm time. Icons: Phosphor (MIT).</p>';
+    '<p class="small">Version ' + esc(VERSION) + '. Times are Stockholm time. Icons: Phosphor (MIT).</p>';
 }
 // The profile menu: the account, the Student's Canvas and calendars (hosted app), and deleting it all.
 function renderProfile(){
@@ -3627,6 +3731,23 @@ function migrateAt(tickAt){
 }
 
 document.getElementById("profile-pop").addEventListener("toggle", function(){ if (this.open) { renderProfile(); renderProgressPanel(""); } });
+// The bug report form: its footer link, its own buttons, Escape.
+document.addEventListener("click", function(e){
+  var t = e.target.closest && e.target.closest("[data-bug],[data-bugclose],[data-bugcopy],[data-buggh]"); if (!t) return;
+  e.preventDefault();
+  if (t.hasAttribute("data-bug")) openBug(t);
+  else if (t.hasAttribute("data-bugclose")) closeBug();
+  else if (!bugReady()) return;
+  else if (t.hasAttribute("data-bugcopy")) {
+    var text = bugText();
+    (navigator.clipboard && navigator.clipboard.writeText ? navigator.clipboard.writeText(text) : Promise.reject())
+      .then(function(){ bugMsg("Copied. Paste it to the person who shared this page with you."); }, function(){ bugMsg("Could not copy. Select the three answers and copy them by hand."); });
+  }
+  else window.open(BUG_REPO + "/issues/new?title=" + encodeURIComponent(bugFields().happened.split("\n")[0].slice(0, 80)) + "&body=" + encodeURIComponent(bugText()), "_blank", "noopener");
+});
+document.getElementById("bug").addEventListener("submit", function(e){ e.preventDefault(); sendBug(); });
+document.getElementById("bug").addEventListener("input", function(e){ if (e.target.id === "bug-got" && e.target.value.trim()) { e.target.classList.remove("miss"); bugMsg(""); } });
+document.addEventListener("keydown", function(e){ if (e.key === "Escape") closeBug(); });
 // Close the profile menu on a click outside it, or on Escape.
 document.addEventListener("click", function(e){ var pp = document.getElementById("profile-pop"); if (pp && pp.open && !pp.contains(e.target)) pp.open = false; });
 document.addEventListener("keydown", function(e){ if (e.key === "Escape") { var pp = document.getElementById("profile-pop"); if (pp && pp.open) { pp.open = false; pp.querySelector("summary").focus(); } } });

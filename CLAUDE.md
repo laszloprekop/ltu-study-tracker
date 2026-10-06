@@ -10,6 +10,8 @@
 - Ticks are per viewer: `data/users/<id>/progress` in the artifact db, localStorage as fallback.
   Never move them to a shared path. Never rename a task id or change the id scheme without
   adding the old ids to `LEGACY_IDS`.
+- The footer shows `version` from `package.json`, and bug reports carry it. Raise it with every published
+  change to the page: third number for a fix, second for a feature.
 - Canvas is the source of truth for dates. Run `npm run check` before editing deadlines; the page
   gets them from `data/canvas-inventory.json`, not by hand.
 - Z0025E lectures carry `status: "expected"` until an announcement names them. When

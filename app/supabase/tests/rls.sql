@@ -192,6 +192,25 @@ do $$ begin
   exception when insufficient_privilege then raise notice 'ok anon cannot read votes'; end;
 end $$;
 
+-- Bug reports: anyone sends one, only the Maintainer reads them
+reset role; set local role anon;
+select set_config('request.jwt.claims', '{"role":"anon"}', true);
+insert into public.bug_report (happened, version) values ('rls test: guest report', '1.0.0');
+do $$ begin
+  begin perform 1 from public.bug_report; raise notice 'FAIL anon can read bug reports';
+  exception when insufficient_privilege then raise notice 'ok anon cannot read bug reports'; end;
+  begin insert into public.bug_report (happened, status) values ('x', 'done'); raise notice 'FAIL a sender set the status of a report';
+  exception when insufficient_privilege then raise notice 'ok a sender cannot set the status of a report'; end;
+  begin insert into public.bug_report (happened) values ('  '); raise notice 'FAIL an empty report was stored';
+  exception when check_violation then raise notice 'ok an empty report is refused'; end;
+end $$;
+reset role; set local role authenticated;
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000b","role":"authenticated"}', true);
+insert into public.bug_report (happened) values ('rls test: student report');
+select 'a Student reads bug reports (expect 0): ' || count(*) from public.bug_report;
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000d","role":"authenticated"}', true);
+select 'the Maintainer reads both test reports (expect 2), one with its sender (expect 1): ' || count(*) || ', ' || count(user_id) from public.bug_report where happened like 'rls test: %';
+
 -- Deleting one's own account removes it and its progress, and nobody else's
 reset role; set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000b","role":"authenticated"}', true);

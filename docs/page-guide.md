@@ -9,7 +9,14 @@ Back to the [README](../README.md).
   opens the profile menu: the account (Sign in with Google, Sign out), display settings (pulse,
   course colours, working hours), the Student's Canvas token and Groups, Calendar Links, progress
   (Import, Go back to a day, Export) and deleting the account. Laid out as a bento grid.
-- Footer: About, The programme, Help, Privacy, Terms, the code, when Canvas was last read, and the disclaimer.
+- Footer: About, The programme, Help, Privacy, Terms, Report a bug, the code, when Canvas was last read, the
+  disclaimer and the version (`VERSION`, from `package.json`).
+- Report a bug opens a form that slides up in the bottom right corner (`openBug`): what you were doing, what
+  you expected, what happened instead (the only answer needed), and a reply address if wanted. The
+  version, the view's address, theme, palette, window size and browser go along; never ticks, plans or
+  Canvas data. On the hosted app, Send stores it for the Maintainer (`use("feedback")`, signed in or
+  not). On claude.ai there is nowhere to send it, so the form offers a GitHub issue with the answers
+  filled in, and Copy.
 - About, The programme, Help, Privacy and Terms are views of their own (`renderInfoView`), written plainly in the
   card marks (lists, `code`, **terms**, a Key line) and laid out as bento grids.
 - Icons are Phosphor only, all 16 px except the banner's large alert; the build stops on an icon
