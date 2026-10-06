@@ -184,6 +184,8 @@
 /* hidden always wins: a class with its own display (the Bookings strip had display:flex) must not show an element meant to be hidden */
 [hidden]{display:none !important}
 body{margin:0; background:var(--bg); color:var(--ink); font-family:"Public Sans","Helvetica Neue",Arial,sans-serif; font-size:15px; line-height:1.55}
+/* One distance between neighbouring tiles (cards, strips, panels), in every view and popup */
+:root{--gap:14px}
 .wrap{--gutter:clamp(16px, 2vw, 28px); max-width:none; margin:0; padding-inline:var(--gutter); padding-block:0 56px}
 h1,h2,h3{font-family:Archivo,"Helvetica Neue",Arial,sans-serif; text-wrap:balance; margin:0}
 .mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace; font-variant-numeric:tabular-nums}
@@ -198,7 +200,7 @@ button{font:inherit}
 /* the sticky header frosts what scrolls under it: the page colour, partly see-through, over a blur, across the full width */
 header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; background:color-mix(in oklch, var(--bg) 72%, transparent); -webkit-backdrop-filter:blur(14px) saturate(1.3); backdrop-filter:blur(14px) saturate(1.3); margin-inline:calc(-1 * var(--gutter)); padding-inline:var(--gutter); padding-block:10px 8px; margin-bottom:12px; display:flex; flex-direction:column; gap:8px}
 #asof.stale{color:var(--c4); font-weight:600}
-.moved{--rad:#ff6a00; font-family:Archivo,"Arial Narrow",sans-serif; font-stretch:72%; margin:0 0 14px; background:var(--rad); color:#000; border:2px solid #000; box-shadow:0 0 0 3px var(--rad), 0 6px 24px rgba(255,106,0,.35)}
+.moved{--rad:#ff6a00; font-family:Archivo,"Arial Narrow",sans-serif; font-stretch:72%; margin:0 0 var(--gap); background:var(--rad); color:#000; border:2px solid #000; box-shadow:0 0 0 3px var(--rad), 0 6px 24px rgba(255,106,0,.35)}
 .moved .mv-head{display:flex; align-items:center; gap:12px; padding:10px 14px}
 .moved .mv-head .ic.big{width:40px; height:40px; flex:0 0 40px; color:#000}
 .moved .mv-title{flex:1 1 auto; font-size:19px; font-weight:700; line-height:1.25; letter-spacing:.005em}
@@ -229,7 +231,7 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
 .appview ul,.appview ol{margin:4px 0 0; padding-left:20px; line-height:1.55}
 .appview li{margin:4px 0}
 .appview li b{color:var(--ink)}
-.appview .grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:14px}
+.appview .grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:var(--gap)}
 .appview .note{color:var(--muted); font-size:13px; margin:8px 0 0}
 .tag.disagree{display:inline-flex; align-items:center; gap:3px; background:var(--c4-container); color:var(--on-c4-container)} 
 .chains{padding:6px 10px}
@@ -241,7 +243,7 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
 .chain .prep li.done .tt{text-decoration:line-through; opacity:.6}
 .chain .pdate{color:var(--muted); font-size:12px} .chain .pdate.doby{border:1px dashed var(--muted); padding:0 5px}
 .tag.late{display:inline-flex; align-items:center; gap:3px; background:var(--alert-container); color:var(--on-alert-container)} 
-.grid2{display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:14px}
+.grid2{display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:var(--gap)}
 .disagreements h3{display:flex; align-items:center; gap:8px} .disagreements .copyrep{margin-left:auto; font:inherit; font-size:12px; font-weight:700; padding:4px 10px; --frame:var(--muted); --fill:transparent; color:var(--ink); cursor:pointer}
 .disagreements ul{margin:6px 0 0; padding-left:18px; font-size:13.5px} .disagreements li{margin:4px 0}
 .cardsview .fld{flex:1 1 200px; font:inherit; font-size:13px; padding:6px 8px; color:var(--ink)}
@@ -252,7 +254,7 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
 .cardsview .fbar button[aria-pressed="true"]{color:var(--on-now-container); --fill:var(--now-container); --frame:var(--now); --edge:var(--edge-blue); --edge-b:var(--edge-blue-b)}
 .fbar button .dot{width:8px; height:8px; background:var(--cc, var(--muted)); clip-path:polygon(0 0, 60% 0, 100% 40%, 100% 100%, 0 100%)}
 .fbar button small{font-weight:400; opacity:.8}
-.fgrid{display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:18px; margin-top:10px}
+.fgrid{display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:var(--gap); margin-top:var(--gap)}
 @media (max-width:520px){ .fgrid{grid-template-columns:1fr} }
 .fcard{perspective:1400px; display:flex; cursor:pointer; outline:none; max-width:380px; width:100%; min-width:0; container-type:inline-size}
 .fcard:focus-visible .fc-body{box-shadow:inset 0 0 0 2px var(--now)}
@@ -320,7 +322,7 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
    scrolling panel would carry its content past them onto the page */
 .pop.profile .panel{width:min(760px, calc(100vw - 32px)); padding:0; font-size:13px; line-height:1.5; color:var(--ink)}
 .pop.profile .panel > .pp-grid{max-height:min(82vh, 900px); overflow:auto; overscroll-behavior:contain; padding:14px}
-.pp-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:12px; grid-auto-flow:dense}
+.pp-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:var(--gap); grid-auto-flow:dense}
 .pp-grid.inner{margin:0}
 .pp-span{grid-column:1 / -1}
 .pp-card{position:relative; padding:12px 14px; background:var(--surface-2); clip-path:var(--cut)}
@@ -336,11 +338,11 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
 .foot nav a{display:inline-flex; align-items:center; gap:5px; color:var(--ink); font-weight:600; text-decoration:none}
 .foot nav a:hover{text-decoration:underline}
 .foot p{margin:0} .foot .disclaimer{display:flex; align-items:center; gap:6px; color:var(--ink)}
-.infonav{display:flex; flex-wrap:wrap; gap:6px; margin:0 0 14px}
+.infonav{display:flex; flex-wrap:wrap; gap:6px; margin:0 0 var(--gap)}
 .infonav button,.infoview .plain{display:inline-flex; align-items:center; gap:6px; font:inherit; font-size:13px; font-weight:600; padding:6px 12px; --frame:var(--line); --fill:var(--surface); color:var(--ink); cursor:pointer}
 .infonav button[aria-pressed="true"]{color:var(--on-now-container); --fill:var(--now-container); --frame:var(--now); --edge:var(--edge-blue); --edge-b:var(--edge-blue-b)}
 .infoview h2{display:flex; align-items:center; gap:8px}
-.bento{display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:14px; grid-auto-flow:dense; align-items:start}
+.bento{display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:var(--gap); grid-auto-flow:dense; align-items:start}
 @media (min-width:760px){ .bento > .span2{grid-column:span 2} }
 .bento > section{margin:0}
 .infocard{padding:14px 18px}
@@ -365,11 +367,11 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
 .cardsview .ck-b{display:flex; gap:8px; margin-top:6px}
 .cardsview select{font:inherit; font-size:13px; border:1px solid var(--muted); padding:5px 8px; background:var(--surface); color:var(--ink)}
 .cardsview textarea{font:inherit; font-size:13.5px; border:1px solid var(--muted); padding:6px 8px; background:var(--surface); color:var(--ink)}
-.dayplan{padding:12px 16px 14px}
+.dayplan{padding:12px 16px 14px; margin-bottom:var(--gap)}
 .dayplan h3{display:flex; align-items:baseline; gap:10px; font-size:13.5px; margin:0 0 10px}
 .dayplan h3 .ic{color:var(--muted); align-self:center}
 .dayplan h3 .sum{font-weight:400; color:var(--muted); font-size:12.5px}
-.dayplan .dp{display:grid; grid-template-columns:minmax(0, 3fr) minmax(240px, 2fr); gap:16px}
+.dayplan .dp{display:grid; grid-template-columns:minmax(0, 3fr) minmax(240px, 2fr); gap:var(--gap)}
 @media (max-width:760px){ .dayplan .dp{grid-template-columns:1fr} }
 .dp-grid{position:relative; margin-left:44px}
 .dp-line{position:absolute; left:0; right:0; border-top:1px solid var(--line); opacity:.45}
@@ -399,6 +401,13 @@ body.dragging .dp-block,body.dragging .dp-due,body.dragging .dp-line{pointer-eve
 .dp-due{position:absolute; left:0; right:0; border-top:2px solid var(--cc, var(--alert))}
 .dp-due span{position:absolute; right:4px; top:-9px; padding:0 4px; font-size:11px; font-weight:700; background:var(--surface); color:var(--cc, var(--alert))}
 .dp-side h4{margin:0 0 2px; font-size:12px; letter-spacing:.06em; text-transform:uppercase}
+/* the day's sessions and free time sit beside the timetable, above the list of unplaced work */
+.dp-side h4{display:flex; align-items:center; gap:6px}
+.dp-side h4 .sum{font-weight:400; letter-spacing:0; text-transform:none; color:var(--muted)}
+.dp-sec{margin-bottom:var(--gap)}
+.dp-sec .none{padding:2px 0 0; color:var(--muted); font-size:13px}
+.dp-sec .rows{margin:2px -10px 0}
+.dp-sec .freeday{padding:2px 0 0}
 .dp-items{list-style:none; margin:6px 0 0; padding:0; display:flex; flex-direction:column; gap:4px; max-height:520px; overflow:auto}
 .dp-items li{display:flex; flex-wrap:wrap; align-items:center; gap:4px 6px; padding:5px 6px; --bev:9px; --bw-l:4px; --frame:linear-gradient(to right, var(--cc, var(--muted)) 4px, var(--line) 4px); --fill:var(--surface); font-size:12.5px; cursor:grab}
 .dp-items li .tt{flex:1 1 140px}
@@ -410,7 +419,7 @@ body.dragging .dp-block,body.dragging .dp-due,body.dragging .dp-line{pointer-eve
 .bkstage{display:inline-block; margin-left:8px; padding:1px 8px; font-size:11.5px; font-weight:700; vertical-align:1px; white-space:nowrap}
 .bkstage.claimed{--fill:var(--c2-container); color:var(--on-c2-container)} .bkstage.open{--bw:1px; --fill:var(--surface-2); --frame:var(--line); color:var(--muted)}
 .bkstage.due{--fill:var(--c4-container); color:var(--on-c4-container)} .bkstage.urgent{--fill:var(--alert); color:#fff} .bkstage.nogroup{--fill:var(--surface-2); color:var(--muted)}
-.bkstrip{display:flex; flex-wrap:wrap; align-items:center; gap:6px 4px; margin:0 0 12px; padding:8px 12px; --bev:9px; --bw-l:4px; --frame:linear-gradient(to right, var(--alert) 4px, var(--line) 4px); --fill:var(--surface); font-size:13px}
+.bkstrip{display:flex; flex-wrap:wrap; align-items:center; gap:6px 4px; margin:0 0 var(--gap); padding:8px 12px; --bev:9px; --bw-l:4px; --frame:linear-gradient(to right, var(--alert) 4px, var(--line) 4px); --fill:var(--surface); font-size:13px}
 .bkstrip > b{margin:0 6px 0 4px} .bkstrip a{margin-left:auto; font-weight:600}
 .cvmark{display:inline-flex; align-items:center; justify-content:center; min-width:18px; height:18px; margin:0 2px 0 -2px; font-size:11px; font-weight:800; letter-spacing:-.08em; line-height:1; vertical-align:middle;}
 .cvmark.cv{color:var(--c2)} .cvmark.both{color:var(--on-c2-container); background:var(--c2-container); padding:0 2px}
@@ -635,7 +644,7 @@ a.tag.feeds:hover{text-decoration:underline}
 .quick .faces .ph{width:16px; height:16px}
 
 /* ---------- Week cards ---------- */
-.weeks{--rail:132px; display:flex; flex-direction:column; gap:14px}
+.weeks{--rail:132px; display:flex; flex-direction:column; gap:var(--gap)}
 .week{display:grid; grid-template-columns:var(--rail) minmax(0,1fr); gap:0; scroll-margin-top:130px}
 /* the current week: a 2px ring in the accent colour, drawn behind the surface with the same cut corner */
 .week.now{--bw:2px; --frame:var(--now); --edge:var(--edge-gold); --edge-b:var(--edge-gold-b)}
@@ -707,8 +716,15 @@ a.tag.feeds:hover{text-decoration:underline}
 .dayctl{display:flex; flex-wrap:wrap; gap:8px 12px; align-items:center; margin-bottom:12px}
 .dayctl input[type=date]{font:inherit; font-size:13.5px; padding:4px 8px; border:0; background:var(--surface); color:var(--ink)}
 .dayctl button{font-size:12.5px; font-weight:600; background:var(--surface); border:0; padding:4px 10px; cursor:pointer; color:var(--ink)}
-.day{display:grid; grid-template-columns:repeat(auto-fill, minmax(340px, 1fr)); gap:14px; grid-auto-flow:dense; align-items:start}
-.day .card{padding-bottom:4px}
+/* The three cards under the day plan, stretched to a common height so no row has a hole: side by
+   side when wide; at two columns the last (usually the longest) takes the right column beside the
+   other two; one under another on a phone. */
+.day{display:grid; grid-template-columns:1fr; gap:var(--gap)}
+/* announcements above the day plan are tiles of their own, not lines inside a week */
+.dayctl ~ .ann{margin:0 0 var(--gap)}
+@media (min-width:760px){ .day{grid-template-columns:1fr 1fr} .day > .card:nth-child(3):last-child{grid-column:2; grid-row:1 / span 2} }
+@media (min-width:1160px){ .day{grid-template-columns:repeat(3, minmax(0, 1fr))} .day > .card:nth-child(3):last-child{grid-column:auto; grid-row:auto} }
+.day .card{padding-bottom:4px; min-width:0}
 .day h3{font-size:13.5px; padding:12px 16px 4px; display:flex; gap:8px; align-items:center}
 .day h3 .ic{color:var(--muted)}
 .day h3 .sum{font-weight:400; color:var(--muted); font-size:12.5px}
@@ -729,7 +745,7 @@ body.mapview .wrap{height:100%; display:flex; flex-direction:column; padding-bot
 body.mapview header.top{position:static; flex:0 0 auto}
 body.mapview #termbody{flex:1 1 auto; min-height:0; display:flex; flex-direction:column}
 body.mapview #termbody section{flex:1 1 auto; min-height:0; margin-bottom:12px; display:flex}
-.map{position:relative; display:grid; grid-template-columns:clamp(230px, 18vw, 300px) minmax(0,1fr) clamp(340px, 26vw, 460px); gap:14px; flex:1 1 auto; min-height:0; width:100%}
+.map{position:relative; display:grid; grid-template-columns:clamp(230px, 18vw, 300px) minmax(0,1fr) clamp(340px, 26vw, 460px); gap:var(--gap); flex:1 1 auto; min-height:0; width:100%}
 /* Collapsed rail: the map takes its column and the rail sits over the map's left edge as a thin timeline of dots */
 .map.rail-slim{grid-template-columns:minmax(0,1fr) clamp(340px, 26vw, 460px)}
 .map.rail-slim .legend-g{left:calc(var(--rail-w, 36px) + 10px)}
@@ -1005,7 +1021,7 @@ table.all td.b{display:flex; gap:6px; align-items:center; border-left:3px solid 
 table.all tr.done td.b{border-left-color:var(--line)}
 body.colored table.all tr:not(.done) .tt{color:var(--cc)}
 
-.grid2{display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:14px}
+.grid2{display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:var(--gap)}
 .panel{padding:16px 18px}
 .panel h3{font-size:14px; margin-bottom:8px}
 .panel h3 .dot{display:inline-block; width:8px; height:8px; margin-right:7px; background:var(--cc)}
@@ -1043,7 +1059,6 @@ body.colored table.all tr:not(.done) .tt{color:var(--cc)}
   .week .rail .dates,.week .rail .load,.flag{margin-top:0}
   .playhead{margin-left:-26px}
   .row .when{flex-basis:64px}
-  .day{grid-template-columns:1fr}
   .settings,.progress{margin-left:0}
 }
 </style>
@@ -2044,7 +2059,7 @@ function dpPlace(l){
   var w = "(100% - 10px)";
   return "; left:calc(6px + " + l.inset * 10 + "px + " + w + " * " + (l.from / l.n).toFixed(4) + "); right:calc(" + (l.to < l.n ? 6 : 4) + "px + " + w + " * " + ((l.n - l.to) / l.n).toFixed(4) + "); z-index:" + (l.z + 1);
 }
-function renderDayPlan(t, d){
+function renderDayPlan(t, d, beside){
   var fixed = fixedOn(t, d), planned = plannedOn(d);
   var fixedBusy = fixed.filter(function(f){ return f.kind === "fixed"; }).map(function(f){ return [f.s, f.e]; });
   var busy = fixedBusy.concat(planned.map(function(b){ var s = toMin(b.start); return [s, s + b.mins]; }));
@@ -2074,7 +2089,7 @@ function renderDayPlan(t, d){
   var freeMin = wins.reduce(function(a, w){ return a + w[1] - w[0]; }, 0);
   return '<div class="card dayplan"><h3>' + ic("clock") + 'Day plan<span class="sum">' + (dow === 0 || dow === 6 ? 'weekend, ' : '') + fmtMin(freeMin).replace("~", "") + ' free in ' + esc(state.hours.start) + '\u2013' + esc(state.hours.end) + '</span></h3>' +
     '<div class="dp"><div class="dp-grid" style="height:' + (top(last) + 22) + 'px">' + grid + '</div>' +
-    '<div class="dp-side"><h4>Unplaced this week</h4><p class="note">Place puts an item in the first free slot that fits; or drag it onto a free slot. Placed items drag to another time, or back onto this list.</p><ul class="dp-items">' + list + '</ul></div></div></div>';
+    '<div class="dp-side">' + (beside || "") + '<h4>Unplaced this week</h4><p class="note">Place puts an item in the first free slot that fits; or drag it onto a free slot. Placed items drag to another time, or back onto this list.</p><ul class="dp-items">' + list + '</ul></div></div></div>';
 }
 function placeItem(ref, at, d){
   var t = term(), it = unplaced(t, d).find(function(x){ return x.ref === ref; }); if (!it) return;
@@ -2098,10 +2113,10 @@ function renderDayView(t){
   return '<section>' +
     '<div class="dayctl"><input type="date" id="daypick" value="' + d + '"><button type="button" id="day-prev">' + ic("arrow-left") + 'Day</button><button type="button" id="day-today">Today</button><button type="button" id="day-next">Day' + ic("arrow-right") + '</button><span class="note">' + esc(fullDay(d)) + ', week ' + isoWeek(d) + '</span></div>' +
     anns.map(function(a){ return annBlock(a, a.code); }).join("") +
-    renderDayPlan(t, d) +
+    renderDayPlan(t, d,
+      '<div class="dp-sec sessions-card"><h4>' + ic("chalkboard-teacher") + 'Sessions today' + (today.length ? '<span class="sum">' + today.length + ' to attend</span>' : '') + '</h4>' + (rowsOf(today) || '<div class="none">None.</div>') + '</div>' +
+      '<div class="dp-sec"><h4>' + ic("users-three") + 'Free for group work</h4><div class="freeday" data-freeday="' + d + '"></div></div>') +
     '<div class="day">' +
-    card("chalkboard-teacher", "Sessions today", today.length ? today.length + " to attend" : "", rowsOf(today), "sessions-card") +
-    card("users-three", "Free for group work", "", '<div class="freeday" data-freeday="' + d + '"></div>') +
     card("upload-simple", "Due within 7 days", due.length ? due.length + " deadlines" : "", rowsOf(dueRows, { withDay: true })) +
     card("books", "Material this week", "", mat) +
     card("clipboard-text", "Tasks and later this week", "", rowsOf(tasks, { withDay: true }) + rowsOf(upcoming, { withDay: true })) +

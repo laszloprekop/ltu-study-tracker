@@ -189,8 +189,8 @@ the material blocks.
 Group activities have no fixed slot, so the page shows where they can go instead. Each day heading
 lists the windows inside the viewer's working hours (default 09:00 to 17:00, adjustable next to the
 week and day views, remembered per viewer) that no session occupies, with the longest window marked
-as the best candidate. The week rail sums the free hours Monday to Friday; the Day Planner view has a "Free
-for group work" card. Only sessions on screen count, so filtering to one course frees its time.
+as the best candidate. The week rail sums the free hours Monday to Friday; the Day Planner view lists the day's free
+time beside the timetable. Only sessions on screen count, so filtering to one course frees its time.
 
 ## Overlapping times in the Day Planner
 
@@ -205,6 +205,18 @@ Blocks whose times overlap share the row the way Google Calendar does it (`dpLay
 
 Blocks that meet nothing keep the full width. Free time is not affected: it comes from the busy
 times merged, so an overlapped hour counts once.
+
+## Day Planner layout and the gap between tiles
+
+The day plan card holds the timetable and, in its right half, the day's sessions, the free time
+for group work and the list of unplaced work. Under it sit three cards (Due within 7 days,
+Material this week, Tasks and later this week) in a grid that stretches them to a common height:
+side by side from 1160 px, from 760 px the third card takes the right column beside the other
+two, and one under another below that. So no row leaves a hole beside a short card.
+
+Neighbouring tiles (cards, strips, panels) are `--gap` apart, 14 px, in every view and popup. Use
+`var(--gap)` for a new grid or stack of tiles, never a number. A heading sits 12 px above its
+content and a section 30 px above the next.
 
 ## Tick boxes
 
