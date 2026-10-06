@@ -1,6 +1,5 @@
 {
   "name": "ltu-study-tracker",
-  "version": "1.0.0",
   "private": true,
   "description": "Week-by-week study tracker for LTU courses, published as a claude.ai artifact, with a read-only Canvas check.",
   "type": "module",

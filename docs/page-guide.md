@@ -10,7 +10,7 @@ Back to the [README](../README.md).
   course colours, working hours), the Student's Canvas token and Groups, Calendar Links, progress
   (Import, Go back to a day, Export) and deleting the account. Laid out as a bento grid.
 - Footer: About, The programme, Help, Privacy, Terms, Report a bug, the code, when Canvas was last read, the
-  disclaimer and the version (`VERSION`, from `package.json`).
+  disclaimer and the version (`VERSION`, counted from git by the build).
 - Report a bug opens a form that slides up in the bottom right corner (`openBug`): what you were doing, what
   you expected, what happened instead (the only answer needed), and a reply address if wanted. The
   version, the view's address, theme, palette, window size and browser go along; never ticks, plans or

@@ -3485,7 +3485,7 @@ var INFO_VIEWS = { about: ["About", "info"], programme: ["The programme", "gradu
 function infoCard(icon, title, text, extra){ var k = cardKey(text); return '<div class="card infocard"><h3>' + ic(icon) + esc(title) + '</h3>' + cardText(text) + (extra || '') + (k ? '<div class="insight"><b>Key</b> ' + cardInline(k) + '</div>' : '') + '</div>'; }
 function infoNav(cur){ return '<nav class="infonav">' + Object.keys(INFO_VIEWS).map(function(k){ return '<button type="button" data-goview="' + k + '"' + (k === cur ? ' aria-pressed="true"' : '') + '>' + ic(INFO_VIEWS[k][1]) + esc(INFO_VIEWS[k][0]) + '</button>'; }).join("") + '</nav>'; }
 /* ---------- Bug reports: the footer link opens a form in the bottom right corner ---------- */
-// The page's version: "version" in package.json, written in by the build (tools/lib/page.mjs).
+// The page's version, written in by the build from git: tag v1.0 plus 4 commits is 1.0.4 (tools/lib/page.mjs).
 var VERSION = "__VERSION__";
 var BUG_REPO = "https://github.com/laszloprekop/ltu-study-tracker";
 var bugOpener = null, bugApi = null;

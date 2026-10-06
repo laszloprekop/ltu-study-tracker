@@ -36,9 +36,20 @@ npm run build:private   # build ltu-study-tracker.private.html with those Canvas
 npm run bugs            # list the new bug reports sent from the hosted app (needs tools/server.env)
 ```
 
-The page shows its version in the footer and sends it with every bug report. It is `version` in
-`package.json`: raise it with every change to the page that gets published (third number for a
-fix, second for a feature). `tools/bugs.sh done <id>` marks a report as dealt with.
+The page shows its version in the footer and sends it with every bug report. Nobody sets it: the
+build counts it from git (`version()` in `tools/lib/page.mjs`, `git describe`). The latest tag of
+the form `v1.0` gives the first two numbers and the commits since that tag the third, so `v1.0`
+plus 4 commits is `1.0.4`. For a new first or second number, tag a commit and push the tag:
+
+```
+git tag -a v1.1 -m "What is new" && git push origin v1.1
+```
+
+A build with changes not yet committed counts the commit they are about to become, so build last
+and commit the built page together with its source. The app is built by CI from that commit and
+shows the same number; CI fetches the whole history for this (`fetch-depth: 0`).
+
+`tools/bugs.sh done <id>` marks a bug report as dealt with.
 
 The shared page shows, for each material item, whether Canvas has a completion requirement
 (view, mark done, post, submit) as an empty box. Canvas only tells a person about their own
