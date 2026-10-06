@@ -393,6 +393,8 @@ body.dragging .dp-block,body.dragging .dp-due,body.dragging .dp-line{pointer-eve
    gap to 4px; Week by week: a 3px gap between neighbouring calendar rows) */
 .dp-block.planned{background:color-mix(in oklch, var(--now-soft) 70%, var(--surface)); border-left-color:var(--now); padding-right:22px}
 .dp-block.planned.done{opacity:.5; text-decoration:line-through}
+/* a block lying on another one: an outline in the page colour keeps its edge clear */
+.dp-block.over{box-shadow:0 0 0 2px var(--surface)}
 .dp-x{position:absolute; top:0; right:2px; border:0; background:transparent; color:var(--muted); font-size:15px; line-height:1; cursor:pointer}
 .dp-due{position:absolute; left:0; right:0; border-top:2px solid var(--cc, var(--alert))}
 .dp-due span{position:absolute; right:4px; top:-9px; padding:0 4px; font-size:11px; font-weight:700; background:var(--surface); color:var(--cc, var(--alert))}
@@ -1966,6 +1968,42 @@ function unplaced(t, d){
 }
 // The hint: the first Free Slot long enough for the item. Never placed without the Student.
 function hintFor(item, wins){ var w = wins.find(function(x){ return x[1] - x[0] >= item.mins; }); return w ? w[0] : null; }
+// Where each Day Planner block sits when times overlap. Blocks go into columns (first free one, in
+// start order). One that starts 30 minutes or more after everything it meets in the columns to its left
+// moves over them, inset a step per block it lies on; one stretches right under blocks that start 30
+// minutes or more after it. So a block may cover another's body, never its first lines.
+// evs: [{ s, e }] in minutes. Returns, in the same order, { n, from, to, inset, z }: of n columns the
+// block spans from..to (to exclusive), z is its stacking order.
+function dpLayout(evs){
+  var NEAR = 30, out = evs.map(function(){ return null; });
+  var order = evs.map(function(_, i){ return i; }).sort(function(a, b){ return evs[a].s - evs[b].s || evs[b].e - evs[a].e || a - b; });
+  var cols = [], group = [], end = -Infinity;
+  var meets = function(i, j){ return cols[j].filter(function(o){ return o !== i && evs[o].s < evs[i].e && evs[i].s < evs[o].e; }); };
+  var close = function(){
+    var n = cols.length;
+    group.forEach(function(i){
+      var c = out[i].z, from = c, to = c + 1, inset = 0, j, O;
+      for (j = c - 1; j >= 0; j--) { O = meets(i, j); if (O.some(function(o){ return evs[i].s - evs[o].s < NEAR; })) break; from = j; if (O.length) inset++; }
+      for (j = c + 1; j < n; j++) { O = meets(i, j); if (O.some(function(o){ return evs[o].s - evs[i].s < NEAR; })) break; to = j + 1; }
+      out[i] = { n: n, from: from, to: to, inset: inset, z: c };
+    });
+    cols = []; group = [];
+  };
+  order.forEach(function(i){
+    if (group.length && evs[i].s >= end) close();
+    var c = 0; while (c < cols.length && evs[cols[c][cols[c].length - 1]].e > evs[i].s) c++;
+    if (c === cols.length) cols.push([]);
+    cols[c].push(i); group.push(i); out[i] = { z: c }; end = Math.max(group.length > 1 ? end : -Infinity, evs[i].e);
+  });
+  if (group.length) close();
+  return out;
+}
+// The layout as inline CSS; nothing when the block has the row to itself.
+function dpPlace(l){
+  if (l.n === 1) return "";
+  var w = "(100% - 10px)";
+  return "; left:calc(6px + " + l.inset * 10 + "px + " + w + " * " + (l.from / l.n).toFixed(4) + "); right:calc(" + (l.to < l.n ? 6 : 4) + "px + " + w + " * " + ((l.n - l.to) / l.n).toFixed(4) + "); z-index:" + (l.z + 1);
+}
 function renderDayPlan(t, d){
   var fixed = fixedOn(t, d), planned = plannedOn(d);
   var fixedBusy = fixed.filter(function(f){ return f.kind === "fixed"; }).map(function(f){ return [f.s, f.e]; });
@@ -1979,12 +2017,15 @@ function renderDayPlan(t, d){
   var H = 15, top = function(m){ return (m - first) / SLOT * H; }, grid = "";
   for (var m = first; m < last; m += SLOT) grid += '<div class="dp-line' + (m % 60 === 0 ? ' hour' : '') + '" style="top:' + top(m) + 'px">' + (m % 60 === 0 ? '<span>' + fmtT(m) + '</span>' : '') + '</div>';
   open.forEach(function(w){ for (var m2 = w[0]; m2 + SLOT <= w[1]; m2 += SLOT) grid += '<div class="dp-free" data-slot="' + fmtT(m2) + '" style="top:' + top(m2) + 'px; height:' + H + 'px" title="Free ' + fmtT(m2) + '"></div>'; });
+  var boxes = fixed.filter(function(f){ return f.kind !== "due"; }), nfix = boxes.length;
+  var lay = dpLayout(boxes.map(function(f){ return { s: f.s, e: f.e }; }).concat(planned.map(function(b){ var s = toMin(b.start); return { s: s, e: s + b.mins }; })));
   fixed.forEach(function(f){
+    var l = f.kind === "due" ? null : lay[boxes.indexOf(f)];
     if (f.kind === "due") grid += '<div class="dp-due" style="top:' + top(Math.min(f.s, last)) + 'px' + (f.code ? '; ' + colorVars(f.code) : '') + '"><span>' + esc(fmtT(f.s) + " due: " + f.title) + '</span></div>';
-    else grid += '<div class="dp-block' + (f.cal ? ' cal' : '') + '" style="top:' + (top(f.s) + 1) + 'px; height:' + (Math.max(H, top(f.e) - top(f.s)) - 2) + 'px' + (f.code ? '; ' + colorVars(f.code) : '') + '"><b>' + esc(fmtT(f.s) + "\u2013" + fmtT(f.e)) + '</b> ' + esc(f.title) + (f.cal ? ' <span class="tag yours">' + ic("calendar", "sm") + 'yours</span>' : '') + '</div>';
+    else grid += '<div class="dp-block' + (f.cal ? ' cal' : '') + (l.z ? ' over' : '') + '" style="top:' + (top(f.s) + 1) + 'px; height:' + (Math.max(H, top(f.e) - top(f.s)) - 2) + 'px' + dpPlace(l) + (f.code ? '; ' + colorVars(f.code) : '') + '"><b>' + esc(fmtT(f.s) + "\u2013" + fmtT(f.e)) + '</b> ' + esc(f.title) + (f.cal ? ' <span class="tag yours">' + ic("calendar", "sm") + 'yours</span>' : '') + '</div>';
   });
-  planned.forEach(function(b){ var s = toMin(b.start), done = b.ref && isDone(b.ref);
-    grid += '<div class="dp-block planned' + (done ? ' done' : '') + '" draggable="true" data-pid="' + esc(b.pid) + '" data-mins="' + b.mins + '" title="Drag to move it; drop it on the list to unplace it" style="top:' + (top(s) + 1) + 'px; height:' + (Math.max(H, b.mins / SLOT * H) - 2) + 'px' + (b.code ? '; ' + colorVars(b.code) : '') + '"><b>' + esc(fmtT(s) + "\u2013" + fmtT(s + b.mins)) + '</b> ' + esc(b.title) + '<button type="button" class="dp-x" data-unplan="' + esc(b.pid) + '" title="Remove from the plan" aria-label="Remove from the plan">' + ic("x") + '</button></div>'; });
+  planned.forEach(function(b, i){ var s = toMin(b.start), done = b.ref && isDone(b.ref), l = lay[nfix + i];
+    grid += '<div class="dp-block planned' + (done ? ' done' : '') + (l.z ? ' over' : '') + '" draggable="true" data-pid="' + esc(b.pid) + '" data-mins="' + b.mins + '" title="Drag to move it; drop it on the list to unplace it" style="top:' + (top(s) + 1) + 'px; height:' + (Math.max(H, b.mins / SLOT * H) - 2) + 'px' + dpPlace(l) + (b.code ? '; ' + colorVars(b.code) : '') + '"><b>' + esc(fmtT(s) + "\u2013" + fmtT(s + b.mins)) + '</b> ' + esc(b.title) + '<button type="button" class="dp-x" data-unplan="' + esc(b.pid) + '" title="Remove from the plan" aria-label="Remove from the plan">' + ic("x") + '</button></div>'; });
   var list = items.length ? items.slice(0, 24).map(function(it){
     var h = hintFor(it, wins);
     return '<li draggable="true" data-ref="' + esc(it.ref) + '" data-mins="' + it.mins + '" style="' + colorVars(it.code) + '">' + chip(it.code) + '<span class="tt">' + esc(it.title) + '</span> <small>' + it.mins + ' min</small>' +

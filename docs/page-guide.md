@@ -185,6 +185,20 @@ week and day views, remembered per viewer) that no session occupies, with the lo
 as the best candidate. The week rail sums the free hours Monday to Friday; the Day Planner view has a "Free
 for group work" card. Only sessions on screen count, so filtering to one course frees its time.
 
+## Overlapping times in the Day Planner
+
+Blocks whose times overlap share the row the way Google Calendar does it (`dpLayout`, tested by
+`tools/test-dayplan.mjs`). A block may cover another block's body, never its first lines:
+
+- Starts less than 30 minutes apart: side by side, in columns.
+- A start 30 minutes or more after the block it meets: it lies on that block, inset 10 px per block
+  under it, with an outline in the page colour. The block under it keeps its width.
+- A block stays in its column when moving left would cover the first lines of a block that starts
+  later there.
+
+Blocks that meet nothing keep the full width. Free time is not affected: it comes from the busy
+times merged, so an overlapped hour counts once.
+
 ## Tick boxes
 
 Ids: `d:<course>:<assignmentId>` (deadline), `d:<course>:quizzes:<date>` (quizzes closing
