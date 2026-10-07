@@ -22,6 +22,10 @@ if (isPrivate) {
 let html;
 try { html = withData(shell(), buildData(inventory, progress)); } catch (e) { console.error(e.message); process.exit(1); }
 const outName = isPrivate ? "ltu-study-tracker.private.html" : "ltu-study-tracker.html";
+// A page whose script does not parse shows nothing at all, and no test loads it: stop the build instead.
+for (const m of html.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/g)) {
+  try { new Function(m[1]); } catch (e) { throw new Error("The page script has a syntax error (" + e.message + "). Look for an unescaped quote in src/template.html."); }
+}
 writeFileSync(root(outName), html);
 const kb = Math.round(Buffer.byteLength(html) / 1024);
 console.log(`Wrote ${outName} (${kb} KB)${isPrivate ? " with your Canvas completion state. Do not share this file." : ""}`);

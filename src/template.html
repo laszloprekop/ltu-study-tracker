@@ -418,7 +418,8 @@ body.dragging .dp-block,body.dragging .dp-due,body.dragging .dp-line{pointer-eve
 .dp-items .nofit{color:var(--muted)}
 .row.cal{background:repeating-linear-gradient(135deg, transparent 0 8px, var(--surface-2) 8px 11px)}
 .row.cal + .row.cal{margin-top:3px}
-.tag.yours{background:var(--ink); color:var(--surface)}
+.tag.yours{background:var(--ink); color:var(--surface); max-width:100%}
+.tag.yours .calname{display:inline-block; vertical-align:bottom; max-width:16ch; overflow:hidden; white-space:nowrap; text-overflow:ellipsis}
 .bkstage{display:inline-block; margin-left:8px; padding:1px 8px; font-size:11.5px; font-weight:700; vertical-align:1px; white-space:nowrap}
 .bkstage.claimed{--fill:var(--c2-container); color:var(--on-c2-container)} .bkstage.open{--bw:1px; --fill:var(--surface-2); --frame:var(--line); color:var(--muted)}
 .bkstage.due{--fill:var(--c4-container); color:var(--on-c4-container)} .bkstage.urgent{--fill:var(--alert); color:#fff} .bkstage.nogroup{--fill:var(--surface-2); color:var(--muted)}
@@ -709,7 +710,8 @@ a.tag.feeds:hover{text-decoration:underline}
 .prepare .nsum{margin-left:3px}
 .prepare.ready{opacity:.6}
 .mat li.done .prepare,.row.done .prepare{opacity:.6}
-.mat li a.go{display:inline-flex; color:var(--muted); padding:2px}
+/* Open in Canvas sits right after the item's name */
+.mat li a.go{display:inline-flex; vertical-align:middle; color:var(--muted); padding:2px; margin-left:4px}
 .mat li a.go:hover{color:var(--ink)}
 .creq{flex:0 0 auto; display:inline-flex; margin-top:2px; color:var(--muted); cursor:help}
 .creq.done{color:var(--ok)}
@@ -1388,9 +1390,12 @@ function withCalendar(t, rows){
   if (!state.cal) return rows;
   return rows.concat(calRows(t)).sort(function(a, b){ return a.date.localeCompare(b.date) || String(a.time || "").localeCompare(String(b.time || "")) || (a.kind === "session" ? -1 : 1); });
 }
+// The tag on an event from a Calendar Link: the calendar's name (the one typed when it was added, else the
+// feed's own), "yours" when it has none.
+function calTag(label){ return '<span class="tag yours" title="From your calendar' + (label ? ": " + esc(label) : "") + '">' + ic("calendar", "sm") + '<span class="calname">' + esc(label || "yours") + '</span></span>'; }
 function calRow(r){
   var times = r.time ? ' data-start="' + esc(r.time) + '" data-end="' + esc(r.end || "") + '"' : '';
-  var tag = '<span class="tag yours" title="From your calendar' + (r.label ? ": " + esc(r.label) : "") + '">' + ic("calendar", "sm") + 'yours</span>';
+  var tag = calTag(r.label);
   var feeds = r.target ? '<a class="tag feeds" href="' + esc(r.target.url) + '" target="_blank" rel="noopener" title="This event is for this assessment">for ' + esc(shortTitle(r.target.title).split(",")[0]) + '</a>' : '';
   return '<div class="row session cal"' + (r.code ? ' style="' + colorVars(r.code) + '" data-course="' + r.code + '"' : '') + times + '>' + when(r, {}) +
     '<span class="body"><span class="block"><span class="t">' + ic("calendar-dot", "kic") + '<span class="tt">' + esc(r.title) + '</span>' + tag + feeds + '</span>' +
@@ -1528,8 +1533,8 @@ function matList(code, list, opts){
     var extra = (i.kind === "selfpaced" ? '<span title="A forum post is required">' + ic("chat-text", "sm") + 'post</span>' : '') + (i.minutes ? '<span title="Time it takes">' + ic("clock", "sm") + fmtMin(i.minutes) + '</span>' : '');
     return '<li class="' + hostClass(id, "lvl-" + level + (end ? " endangered" : "")) + '" style="' + colorVars(code) + '" data-course="' + code + '" data-id="' + id + '" data-link="' + id + '">' + box(id) + creq(code, i) +
       '<label for="' + id + '">' + lvl(level) + ic(KIND_ICON[i.kind] || "book-open", "kic") + (i.number ? '<span class="num mono">' + esc(i.number) + '</span>' : '') +
-      '<span class="tt" title="' + esc(KIND[i.kind] || i.kind) + '">' + esc(i.title) + '</span>' + (extra ? '<span class="kind">' + extra + '</span>' : '') + (i.assignmentId ? prepareLine(code, i.assignmentId) : '') + '</label>' +
-      '<a class="go" href="' + esc(i.url) + '" target="_blank" rel="noopener" title="Open in Canvas" aria-label="Open in Canvas">' + ic("arrow-square-out") + '</a>' + rowCtl(id, id, code, i.title) + '</li>';
+      '<span class="tt" title="' + esc(KIND[i.kind] || i.kind) + '">' + esc(i.title) + '</span>' + '<a class="go" href="' + esc(i.url) + '" target="_blank" rel="noopener" title="Open in Canvas" aria-label="Open in Canvas">' + ic("arrow-square-out") + '</a>' + (extra ? '<span class="kind">' + extra + '</span>' : '') + (i.assignmentId ? prepareLine(code, i.assignmentId) : '') + '</label>' +
+      rowCtl(id, id, code, i.title) + '</li>';
   }).join("") + '</ul>';
 }
 function isOpen(key){ return state.open[key] !== false; }
@@ -2007,7 +2012,7 @@ function plannedRefs(){ var out = {}; Object.keys(state.planned).forEach(functio
 function fixedOn(t, d){
   var rows = withCalendar(t, timeline(t)).filter(function(r){ return r.date === d; }), out = [];
   rows.forEach(function(r){
-    if (r.kind === "session" && r.time) { var s = toMin(r.time), e = r.end ? toMin(r.end) : s + 60; out.push({ s: s, e: Math.max(e, s + SLOT), title: r.title, code: r.code, cal: !!r.cal, kind: "fixed" }); }
+    if (r.kind === "session" && r.time) { var s = toMin(r.time), e = r.end ? toMin(r.end) : s + 60; out.push({ s: s, e: Math.max(e, s + SLOT), title: r.title, code: r.code, cal: !!r.cal, label: r.label, kind: "fixed" }); }
     else if (r.kind === "deadline" && r.time) out.push({ s: toMin(r.time), e: toMin(r.time), title: r.title.replace(/ due \d\d:\d\d$/, ""), code: r.code, kind: "due" });
   });
   ((state.bookings && state.bookings.bookings) || []).forEach(function(b){ if (b.mine && b.date === d) { var s = toMin(b.mine); out.push({ s: s, e: s + SLOT, title: "Lab session with the teacher (your slot)", code: b.id.split(":")[0], kind: "fixed" }); } });
@@ -2083,7 +2088,7 @@ function renderDayPlan(t, d, beside){
   fixed.forEach(function(f){
     var l = f.kind === "due" ? null : lay[boxes.indexOf(f)];
     if (f.kind === "due") grid += '<div class="dp-due" style="top:' + top(Math.min(f.s, last)) + 'px' + (f.code ? '; ' + colorVars(f.code) : '') + '"><span>' + esc(fmtT(f.s) + " due: " + f.title) + '</span></div>';
-    else grid += '<div class="dp-block' + (f.cal ? ' cal' : '') + (l.z ? ' over' : '') + '" style="top:' + (top(f.s) + 1) + 'px; height:' + (Math.max(H, top(f.e) - top(f.s)) - 2) + 'px' + dpPlace(l) + (f.code ? '; ' + colorVars(f.code) : '') + '"><b>' + esc(fmtT(f.s) + "\u2013" + fmtT(f.e)) + '</b> ' + esc(f.title) + (f.cal ? ' <span class="tag yours">' + ic("calendar", "sm") + 'yours</span>' : '') + '</div>';
+    else grid += '<div class="dp-block' + (f.cal ? ' cal' : '') + (l.z ? ' over' : '') + '" style="top:' + (top(f.s) + 1) + 'px; height:' + (Math.max(H, top(f.e) - top(f.s)) - 2) + 'px' + dpPlace(l) + (f.code ? '; ' + colorVars(f.code) : '') + '"><b>' + esc(fmtT(f.s) + "\u2013" + fmtT(f.e)) + '</b> ' + esc(f.title) + (f.cal ? ' ' + calTag(f.label) : '') + '</div>';
   });
   planned.forEach(function(b, i){ var s = toMin(b.start), done = b.ref && isDone(b.ref), l = lay[nfix + i];
     grid += '<div class="dp-block planned' + (done ? ' done' : '') + (l.z ? ' over' : '') + '" draggable="true" data-pid="' + esc(b.pid) + '" data-mins="' + b.mins + '" title="Drag to move it; drop it on the list to unplace it" style="top:' + (top(s) + 1) + 'px; height:' + (Math.max(H, b.mins / SLOT * H) - 2) + 'px' + dpPlace(l) + (b.code ? '; ' + colorVars(b.code) : '') + '"><b>' + esc(fmtT(s) + "\u2013" + fmtT(s + b.mins)) + '</b> ' + esc(b.title) + '<button type="button" class="dp-x" data-unplan="' + esc(b.pid) + '" title="Remove from the plan" aria-label="Remove from the plan">' + ic("x") + '</button></div>'; });
@@ -3324,9 +3329,17 @@ function refreshCanvas(){
   if (!window.TRACKER_CONFIG || !window.claude || !window.claude.use) return Promise.resolve();
   return window.claude.use("canvas").then(function(cv){
     if (!cv || !cv.has()) { state.canvas = null; return; }
-    return cv.read(canvasIds()).then(function(data){ state.canvas = data; state.canvasErr = null; lsSet(LS.canvasCache, JSON.stringify(data)); })
+    // While Canvas is being read the card says so and its group fields are locked: a number typed then
+    // would be kept as "set here" and hide the group Canvas is about to give.
+    state.canvasReading = true; renderProfile();
+    return cv.read(canvasIds()).then(function(data){
+      state.canvas = data; state.canvasErr = null; lsSet(LS.canvasCache, JSON.stringify(data));
+      // a number set here that Canvas now confirms is no longer an override
+      var changed = false; Object.keys(state.groups).forEach(function(code){ var c = COURSES[code], g = c && data.groups.find(function(x){ return x.courseId === c.canvasId; }); if (g && g.number === state.groups[code]) { delete state.groups[code]; changed = true; } });
+      if (changed) lsSet(LS.groups, JSON.stringify(state.groups));
+    })
       .catch(function(e){ state.canvasErr = e.code === "token" ? "Canvas did not accept the token. It may have expired: make a new one." : "Canvas could not be reached just now. The marks are from the last read."; });
-  }).then(function(){ applyState(); renderProfile(); return refreshBookings(); });
+  }).then(function(){ state.canvasReading = false; applyState(); renderProfile(); return refreshBookings(); });
 }
 
 /* ---------- Bookings (release 2) ---------- */
@@ -3387,7 +3400,7 @@ var APP_INFO = {
     ["Works without an account", "Without signing in it works like this page: ticks stay in that browser."],
     ["Your Canvas status beside your ticks", "Paste your own Canvas token and each task shows what Canvas has recorded (submitted, posted, marked done or opened) next to your tick, with a warning sign when you ticked a hand-in Canvas has no submission for."],
     ["Lab bookings and their deadlines", "Your group's slot read from the signup sheet, with a warning that grows as the session comes closer and the free slots run out."],
-    ["Your own calendar", "Add a calendar link, such as your group's, and its events appear among the sessions, marked as yours, and count as busy time."],
+    ["Your own calendar", "Add a calendar link, such as your group's, and its events appear among the sessions, marked with the calendar's name, and count as busy time."],
     ["Study cards", "The Cards view drills flashcards for every lab and exam, made from the lectures and lab material. Spaced repetition shows each card just before you would forget it and plans the reviews so you know it on the day of the lab or exam. Every card is open to every classmate, who votes whether it is legit or needs a fix; cards voted faulty are left out by default, and your group's answers to graded questions stay within your group."],
     ["Prep chains", "All deadlines opens with every lab session, workshop and exam and the work that leads to it: the booking, the report, the lectures and readings, each with the day the course teaches it, a warning when that is after the event needs it, and a suggested do-by date where the course gives none. The map opens on the next one and steps through them."],
     ["Where sources disagree", "When Canvas, a PDF and a sign-up sheet give different dates, the row says so and the page uses the earliest one that has not passed, so a stale date never makes you late."],
@@ -3460,11 +3473,11 @@ function calendarCard(){
   var signedIn = !!state.signedIn, links = state.calLinks || [], status = (state.cal && state.cal.links) || [];
   var rowsHtml = links.map(function(l){
     var st = status.find(function(x){ return x.id === l.id; }), host = ""; try { host = new URL(l.url).hostname; } catch (e) {}
-    return '<li><b>' + esc(l.label || host) + '</b> <small>' + esc(host) + '</small> ' + (st ? (st.ok ? '<small>' + st.events + ' event' + (st.events === 1 ? '' : 's') + ' in the coming weeks</small>' : '<small class="err">' + esc(st.error) + '</small>') : '') + ' <button type="button" class="plain" data-cal-remove="' + esc(l.id) + '">Remove</button></li>';
+    return '<li><b>' + esc(l.label || (st && st.label) || host) + '</b> <small>' + esc(host) + '</small> ' + (st ? (st.ok ? '<small>' + st.events + ' event' + (st.events === 1 ? '' : 's') + ' in the coming weeks</small>' : '<small class="err">' + esc(st.error) + '</small>') : '') + ' <button type="button" class="plain" data-cal-remove="' + esc(l.id) + '">Remove</button></li>';
   }).join("");
   return '<section class="pp-card cvcard"><h3>' + ic("calendar-dot") + 'Your calendars</h3>' +
-    (!signedIn ? '<p>Sign in to add a calendar, such as your group\'s Google Calendar. Its events then appear among the sessions, marked as yours, and count as busy time.</p>'
-    : '<p>Add the secret iCal address of a calendar (Google: Settings, the calendar, <i>Secret address in iCal format</i>). Only you can see it. Events appear in Week by week and Day, marked as yours; an event whose description links a Canvas assignment is tied to it.</p>' +
+    (!signedIn ? '<p>Sign in to add a calendar, such as your group\'s Google Calendar. Its events then appear among the sessions, marked with the calendar\'s name, and count as busy time.</p>'
+    : '<p>Add the secret iCal address of a calendar (Google: Settings, the calendar, <i>Secret address in iCal format</i>). Only you can see it. Events appear in Week by week and Day, marked with the name given here (else the calendar\'s own name); an event whose description links a Canvas assignment is tied to it.</p>' +
       (links.length ? '<ul>' + rowsHtml + '</ul>' : '') +
       (state.calErr ? '<p class="err">' + esc(state.calErr) + '</p>' : '') +
       (links.length < 5 ? '<div class="row"><input type="url" id="cal-url" placeholder="https://calendar.google.com/calendar/ical/.../basic.ics" style="flex:1 1 320px" aria-label="Calendar address"><input type="text" id="cal-label" placeholder="Name, e.g. Group 8" maxlength="60" style="width:160px; font:inherit; font-size:13px; border:1px solid var(--muted); padding:6px 8px; background:var(--surface); color:var(--ink)" aria-label="Calendar name"><button type="button" data-cal="add">Add</button></div>' : '<p class="note">Five calendars is the most.</p>') +
@@ -3481,16 +3494,16 @@ function refreshCalendar(){
   }).then(function(){ renderTerm(); });
 }
 function canvasCard(){
-  var has = !!state.canvasHint, d = state.canvas;
+  var has = !!state.canvasHint, d = state.canvas, reading = !!state.canvasReading;
   var conflicts = d ? Object.keys(state.checked).filter(function(id){ var st = statusOf(id); return st && st.cls === "conf"; }).length : 0;
   var groups = Object.keys(COURSES).filter(function(c){ return COURSES[c].canvasId; }).map(function(code){
-    var g = groupOf(code), from = state.groups[code] ? "set here" : g ? "from Canvas" : "unknown";
-    return '<label>' + chip(code) + ' Group <input type="number" min="1" max="99" data-group="' + esc(code) + '" value="' + (g || "") + '" placeholder="?"> <small>' + from + '</small></label>';
+    var g = groupOf(code), from = reading ? "reading Canvas..." : state.groups[code] ? "set here" : g ? "from Canvas" : "unknown";
+    return '<label>' + chip(code) + ' Group <input type="number" min="1" max="99" data-group="' + esc(code) + '" value="' + (g || "") + '" placeholder="?"' + (reading ? ' disabled' : '') + '> <small>' + from + '</small></label>';
   }).join(" ");
   return '<section class="pp-card cvcard"><h3>' + ic("link") + 'Your Canvas</h3>' +
     (has ? '<p>Connected with token <code>' + esc(state.canvasHint) + '</code>' + (d ? ', read ' + esc(longDay(iso(new Date(d.readAt)))) + ' ' + String(new Date(d.readAt).getHours()).padStart(2, "0") + ':' + String(new Date(d.readAt).getMinutes()).padStart(2, "0") : '') + '.' + (conflicts ? ' <b class="err">' + conflicts + ' conflict' + (conflicts === 1 ? '' : 's') + '</b>: ticked here, nothing in Canvas.' : '') + '</p>' +
         (state.canvasErr ? '<p class="err">' + esc(state.canvasErr) + '</p>' : '') +
-        '<div class="row"><button type="button" data-cv="refresh">Read Canvas again</button><button type="button" class="plain" data-cv="forget">Forget the token</button></div>'
+        '<div class="row"><button type="button" data-cv="refresh"' + (reading ? ' disabled>Reading Canvas...' : '>Read Canvas again') + '</button><button type="button" class="plain" data-cv="forget"' + (reading ? ' disabled' : '') + '>Forget the token</button></div>'
       : '<p>Paste a Canvas token to see, next to each tick, what Canvas has recorded for you: hand-ins, posts, pages marked done or opened. The token stays in this browser; the server only passes it on to Canvas and never stores it.</p>' +
         '<ol><li>In Canvas: <b>Account</b>, <b>Settings</b>, <b>+ New access token</b>.</li><li>Purpose <i>Study tracker</i>, an expiry date at the end of the term, <b>Generate token</b>, and copy it.</li><li>Paste it here.</li></ol>' +
         '<div class="row"><input type="text" id="cv-token" class="secret" placeholder="Canvas token" autocomplete="off" autocapitalize="off" spellcheck="false" data-1p-ignore data-lpignore="true" aria-label="Canvas token"><button type="button" data-cv="save">Connect</button></div>' +
@@ -3609,7 +3622,7 @@ function renderInfoView(name){
     cards.push(infoCard("arrows-in", "Bring your ticks along", "Ticks move between pages and devices as a **code**.\n1. Profile menu (person icon, top right): **Export**. The code is copied.\n2. On the other page or device: profile menu, paste it, **Import**.\nKey: per task the later change wins, so an untick moves too."));
     if (hosted) {
       cards.push(infoCard("link", "Connect Canvas", "Shows next to each tick what Canvas has recorded for you.\n1. Canvas: **Account**, **Settings**, **+ New access token**.\n2. Purpose `Study tracker`, an end date at the end of the term.\n3. Paste it in the profile menu, under **Your Canvas**.\nKey: the token stays in your browser; the server never stores it."));
-      cards.push(infoCard("calendar-dot", "Add a calendar", "Your group's calendar appears among the sessions, marked **yours**.\n1. Google Calendar: **Settings**, the calendar, **Secret address in iCal format**. Copy it.\n2. Profile menu, **Your calendars**, paste, **Add**.\nKey: only you can see your links."));
+      cards.push(infoCard("calendar-dot", "Add a calendar", "Your group's calendar appears among the sessions, marked with its name.\n1. Google Calendar: **Settings**, the calendar, **Secret address in iCal format**. Copy it.\n2. Profile menu, **Your calendars**, paste, **Add**.\nKey: only you can see your links."));
     }
     cards.push(infoCard("books", "Study cards", "- Click a card to **turn it over**.\n- Rate how well you knew it: **Again**, **Hard**, **Good**, **Easy**.\n- Spaced repetition brings it back just before you would forget it, and plans it so you know it on the day of the lab or exam.\n- **Check** a classmate's card if it is right; **Something is wrong** hides it until it is fixed.\nWhen you write a card: `- ` makes a list, backticks make `code`, two stars make a **term**, and a line starting `Key:` is the one thing to remember."));
     cards.push(infoCard("calendar-check", "Lab bookings", "Shown on the booking task and in a strip at the top.\n- **Not booked**: there is still time.\n- **Book this week**: the session is a week or less away.\n- **Book now**: two days or less, or one free slot left.\n- **Booked 09:15**: your group has that slot.\nKey: your group number comes from Canvas; set it by hand in the profile menu if it is wrong."));

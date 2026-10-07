@@ -31,11 +31,14 @@ export async function GET(req: Request) {
       let hit = cache.get(key);
       if (!hit || Date.now() - hit.at > TTL) { hit = { at: Date.now(), text: await fetchCalendar(l.url) }; cache.set(key, hit); }
       const evs = parseIcs(hit.text, from, to, 400);
+      // No name typed for the link: the calendar's own name from the feed stands in.
+      const own = /^X-WR-CALNAME(?:;[^:\r\n]*)?:(.*)$/m.exec(hit.text);
+      const label = l.label || (own ? own[1].replace(/\\([,;\\])/g, "$1").trim().slice(0, 60) : "");
       for (const e of evs) {
         const a = e.canvas ? /courses\/(\d+)\/assignments\/(\d+)/.exec(e.canvas) : null;
-        out.push({ ...e, link: l.id, label: l.label, assignment: a ? { courseId: +a[1], id: +a[2] } : null });
+        out.push({ ...e, link: l.id, label, assignment: a ? { courseId: +a[1], id: +a[2] } : null });
       }
-      status.push({ id: l.id, label: l.label, ok: true, events: evs.length });
+      status.push({ id: l.id, label, ok: true, events: evs.length });
     } catch (e) {
       const msg = String((e as Error).message || "");
       status.push({ id: l.id, label: l.label, ok: false, error: /not allowed/.test(msg) ? "not a supported calendar address" : /not public/.test(msg) ? "address refused" : "could not be read" });
