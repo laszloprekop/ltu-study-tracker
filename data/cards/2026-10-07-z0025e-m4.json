@@ -1,0 +1,426 @@
+{
+ "note": "AI-drafted Concept Cards (Claude, 2026-10-07) for Z0025E Module 4 (the network layer, data plane), drafted from the Module 4 overview (4.1), the lecture pages 4.2 and 4.3, the L08 and L09 slides, the three Lecture 8 transcripts and the textbook author's lecture video captions. Uploaded unchecked; classmates vote on each.",
+ "cards": [
+  {
+   "course": "Z0025E",
+   "sources": [
+    "4.2",
+    "4.1"
+   ],
+   "prompt": "What is the job of the network layer, and which devices run it?",
+   "answer": "It carries transport-layer segments from the sending host to the receiving host.\n- Sender: wraps each segment in a **datagram** (the network-layer packet) and passes it to the link layer.\n- Receiver: takes the segment out and delivers it to the transport layer.\n- **Router**: examines the header fields of every IP datagram passing through and moves it from an input port to an output port, along the end-to-end path.\n- Network-layer protocols run in every Internet device: hosts and routers.\nKey: the network layer delivers host to host, one router at a time."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "4.2",
+    "4.1"
+   ],
+   "prompt": "Per-router control plane versus SDN control plane: where are the forwarding tables computed?",
+   "answer": "Traditionally each router computes its own table; in **SDN** (software-defined networking) a remote controller computes them.\n- Per-router: a routing algorithm component runs in each and every router, and the components interact with each other.\n- SDN: a remote controller, on (remote) servers, computes the forwarding tables and installs them in the routers.\n- The data plane is the same in both: each router still forwards datagrams locally with its table.\nKey: SDN moves the control plane out of the routers; forwarding stays in them."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "4.2"
+   ],
+   "prompt": "What does the Internet's best-effort service model guarantee for datagrams?",
+   "answer": "Nothing: the network does its best, but gives no guarantee.\n- No guarantee that a datagram is delivered to its destination.\n- No guarantee on the timing or the order of delivery.\n- No guarantee on the bandwidth available to an end-to-end flow.\n- Other service models did promise more, for example ATM Constant Bit Rate: constant rate, no loss, order and timing kept.\nKey: best effort makes no promise on delivery, order, timing or bandwidth."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "4.2"
+   ],
+   "prompt": "Why has the Internet's best-effort service model been good enough in practice?",
+   "answer": "Its simplicity let it spread everywhere, and other things make up for the missing guarantees.\n- Simple mechanism: easy to deploy widely.\n- Enough bandwidth is provisioned, so real-time applications (interactive voice, video) are \"good enough\" most of the time.\n- Replicated application-layer services (datacenters, content distribution networks) sit close to the clients' networks.\n- Congestion control of \"elastic\" services helps: they adapt their sending rate to the available bandwidth.\nKey: a simple network with enough capacity and smart applications needs no guarantees."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "4.2",
+    "4.1"
+   ],
+   "prompt": "Which main components does a router have, and which belong to the data plane?",
+   "answer": "Input ports, a switching fabric, output ports and a routing processor; the first three are the data plane.\n- **Input ports**: receive datagrams and look up the output port.\n- **Switching fabric**: moves datagrams from input ports to output ports.\n- **Output ports**: buffer, schedule and transmit datagrams.\n- These three forward in hardware, in a nanosecond time frame.\n- **Routing processor**: the control plane (routing, management), in software, in a millisecond time frame.\nKey: ports and fabric forward in hardware; the routing processor decides in software."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "4.2",
+    "4.1"
+   ],
+   "prompt": "What happens to a datagram from arriving at a router until it leaves on an outgoing link?",
+   "answer": "It is looked up at the input port, switched through the fabric, then queued and sent at the output port.\n1. Arrival at an input port: the bits are received and the link-layer protocol is handled.\n2. Lookup: the input port finds the output port for the destination in the forwarding table.\n3. The switching fabric transfers the datagram to that output port.\n4. It waits in the output buffer if datagrams arrive faster than the link can send.\n5. A scheduling discipline picks it, and it is transmitted to the next hop.\nKey: arrive, look up, switch, queue and schedule, forward."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "4.2"
+   ],
+   "prompt": "Which three functions does a router input port perform on an arriving datagram?",
+   "answer": "Physical-layer reception, link-layer processing, and lookup with forwarding.\n- **Line termination**: receives the bits (physical layer).\n- Link-layer protocol, for example Ethernet.\n- **Lookup and forwarding**: header field values are looked up in a forwarding table kept in the input port's own memory. This is **decentralized switching**.\n- Goal: finish input port processing at **line speed**, as fast as datagrams arrive.\n- If datagrams arrive faster than the fabric takes them, they queue at the input port.\nKey: the lookup is done at the input port itself."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "4.2"
+   ],
+   "prompt": "What is a TCAM, and why do routers use it for longest prefix matching?",
+   "answer": "A **TCAM** (ternary content addressable memory) is memory that is searched by its content, which makes the lookup very fast.\n- The router presents the destination address to the TCAM.\n- The matching entry comes back in one clock cycle, whatever the size of the table.\n- Tables are large: the slide example is a Cisco Catalyst with about 1 million routing table entries in TCAM.\nKey: a TCAM answers the lookup in one clock cycle, regardless of table size."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "4.2"
+   ],
+   "prompt": "What does a router's switching fabric do, and what is its switching rate?",
+   "answer": "It transfers each packet from its input link to the appropriate output link.\n- **Switching rate**: the rate at which packets can be transferred from inputs to outputs.\n- It is often measured as a multiple of the line rate `R` of the input and output links.\n- With `N` input ports, a switching rate of `N` times the line rate (`NR`) is desirable.\n- If the fabric is slower than the input ports combined, datagrams queue at the input ports.\nKey: the ideal fabric is N times faster than one line."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "4.2",
+    "4.1"
+   ],
+   "prompt": "What is head-of-the-line (HOL) blocking at a router's input ports?",
+   "answer": "A datagram waiting at the front of an input queue stops the datagrams behind it from moving forward.\n- Cause: **output port contention**. Two input ports hold a datagram for the same output port, and only one can be transferred at a time.\n- The other datagram must wait at the front of its queue.\n- A datagram behind it is blocked too, even when its own output port is free.\n- Input queueing brings queueing delay, and loss when the input buffer overflows.\nKey: one blocked datagram at the head holds up the whole input queue."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "4.2",
+    "4.1"
+   ],
+   "prompt": "Why do datagrams queue at a router's output port, and what can happen to them?",
+   "answer": "They arrive from the switching fabric faster than the link can transmit them.\n- The fabric can deliver at up to `NR`, the link sends at only `R`, so a buffer is needed.\n- Waiting in the buffer is queueing delay.\n- When the buffer is full, datagrams are lost (buffer overflow).\n- A **drop policy** decides which datagram to drop when no buffer is free.\n- A **scheduling discipline** chooses which queued datagram is sent next.\nKey: output queueing starts when the arrival rate through the fabric exceeds the output line speed."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "4.2",
+    "4.1"
+   ],
+   "prompt": "Buffer management at an output port: what do tail drop, priority drop and marking do?",
+   "answer": "**Buffer management** decides which packets to add, drop or mark when the buffer fills up.\n- **Tail drop**: the arriving packet is dropped, because there is no free space.\n- **Priority** drop: a packet is dropped or removed on a priority basis, so a low-priority packet that is already queued can be the one to go.\n- **Marking**: some packets are marked to signal congestion. The slides name `ECN` and `RED`.\nKey: tail drop loses the newest packet; priority drop chooses by importance."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "4.2",
+    "4.1"
+   ],
+   "prompt": "FCFS, priority, round robin and WFQ: how does each scheduling policy pick the next packet?",
+   "answer": "**Packet scheduling** decides which queued packet is sent next on the link.\n- **FCFS** (first come, first served, also called FIFO): in order of arrival at the output port.\n- **Priority**: traffic is put in queues by class; send from the highest-priority queue that holds packets.\n- **Round robin**: scan the class queues in a cycle and send one complete packet from each class in turn, if it has one.\n- **WFQ** (weighted fair queueing): round robin in which each class gets a weighted share.\nKey: FCFS ignores classes, priority favours one class, round robin and WFQ share the link."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "4.2"
+   ],
+   "prompt": "Weighted fair queueing (WFQ): how much service does each traffic class get?",
+   "answer": "Class `i` with weight `w_i` gets the fraction `w_i / (sum of all weights)` of the service in each cycle.\n- WFQ is a generalized round robin: the classes are still served in a cycle, but not equally.\n- Lecture example: weights `0.5`, `0.3` and `0.2` give three classes 50%, 30% and 20% of the transmission time.\n- Result: a minimum bandwidth guarantee for each traffic class.\n- Compare priority scheduling: with a lot of high-priority traffic, low-priority packets may not get sent.\nKey: a class's share is its weight divided by the sum of the weights."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "4.2"
+   ],
+   "prompt": "What is network neutrality, and which router mechanisms does it concern?",
+   "answer": "The principle that an ISP should generally treat Internet traffic equally.\n- Technical side: how an ISP shares out its resources. **Packet scheduling** and **buffer management** are the mechanisms.\n- Social and economic side: protecting free speech, and encouraging innovation and competition between big and small companies.\n- It is enforced through legal rules and policies, which differ from country to country. The rules themselves are outside the course.\nKey: scheduling and buffer management are the tools with which an ISP could favour some traffic."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "4.2"
+   ],
+   "prompt": "Which three things does the IP protocol define, and what is left to other protocols?",
+   "answer": "IP defines the datagram format, the addressing, and the packet handling conventions.\n- **Datagram format**: the fields of the header.\n- **Addressing**: how IP addresses are structured and read.\n- **Packet handling conventions**: for example how a large packet is fragmented.\n- **ICMP**, another network-layer protocol, does error reporting and router \"signaling\".\n- Path selection is not IP: routing protocols (OSPF, BGP) or an SDN controller fill the forwarding table.\nKey: IP gives the format and the addresses; choosing paths is done elsewhere."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "4.2",
+    "4.1"
+   ],
+   "prompt": "Which main fields does the IPv4 datagram header carry?",
+   "answer": "Fields that describe the datagram, guide it through the network, and protect the header.\n- **Version**, **header length**, and **total length** of the datagram in bytes.\n- **Type of service**: diffserv bits (the traffic class) and `ECN` bits (congestion marking).\n- **Identifier, flags, fragment offset**: for fragmentation and reassembly.\n- **TTL**, **upper layer** protocol (for example TCP or UDP), and **header checksum**.\n- 32-bit **source** and **destination IP address**, then options, if any.\nKey: after the header comes the payload, typically a TCP or UDP segment."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "4.2",
+    "4.3"
+   ],
+   "prompt": "Why must a router recompute the IPv4 header checksum for every datagram it forwards?",
+   "answer": "Because the router changes the header: it lowers the `TTL` by one, so the old checksum no longer fits.\n- The **header checksum** is calculated over the IP header only, not over the payload.\n- Checking the payload is left to the transport layer.\n- Recomputing at every router is extra work (overhead) for each datagram.\n- IPv6 has no header checksum, to speed up processing at routers.\nKey: the TTL changes at every hop, so the header checksum must change too."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "4.2"
+   ],
+   "prompt": "How big can an IPv4 datagram be, and how much header overhead do TCP and IP add?",
+   "answer": "At most 64K bytes, but typically `1500` bytes or less; TCP and IP together add `40` bytes of headers.\n- The **total length** field gives the size of the whole datagram in bytes. It is needed because the payload varies in size.\n- IP header: `20` bytes.\n- TCP header: `20` bytes.\n- So `20 + 20 = 40` bytes of overhead, plus any application-layer overhead.\nKey: every TCP segment sent in IP carries 40 bytes of headers."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "4.2",
+    "4.1"
+   ],
+   "prompt": "What does an IPv4 address identify: a host or an interface?",
+   "answer": "An interface: an IPv4 address is a 32-bit identifier given to a network **interface** of a host or router.\n- Interface: the connection between a host or router and a physical link.\n- A router typically has several interfaces, so several IP addresses.\n- A host typically has one or two, for example wired Ethernet and wireless 802.11.\n- **Dotted-decimal notation** writes the 32 bits as four 8-bit numbers: `223.1.1.1` is `11011111 00000001 00000001 00000001`.\nKey: one address per interface, not per device."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "4.2",
+    "4.1"
+   ],
+   "prompt": "What is an IP subnet, and what is the recipe for finding the subnets in a network?",
+   "answer": "A **subnet** is a group of device interfaces that can reach each other without passing through a router.\n- Recipe: detach each interface from its host or router. This leaves \"islands\" of isolated networks.\n- Each island is one subnet.\n- A link between two routers is an island too, so it is a subnet of its own.\n- All interfaces in a subnet have the same high-order address bits, for example `223.1.1.0/24`.\nKey: routers are the borders of subnets."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "4.2",
+    "4.1"
+   ],
+   "prompt": "How do the subnet part and host part of IPv4 addresses show whether two interfaces share a subnet?",
+   "answer": "Two interfaces are in the same subnet when the subnet parts of their addresses are equal.\n- **Subnet part**: the high-order (leftmost) bits, common to all devices in the subnet.\n- **Host part**: the remaining low-order bits, which tell the interfaces apart.\n- With `/24` the subnet part is the first 24 bits.\n- `223.1.1.1` and `223.1.1.4` both start with `223.1.1`: subnet `223.1.1.0/24`. `223.1.2.1` belongs to another subnet, `223.1.2.0/24`.\nKey: equal subnet parts mean the same subnet; between different subnets stands a router."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "4.2"
+   ],
+   "prompt": "CIDR versus classful addressing: what changed in how IPv4 addresses are split?",
+   "answer": "With **CIDR** (Classless InterDomain Routing) the subnet part can have any length; before, only three lengths existed.\n- Classful addressing (until the early 1990s): class A had 8 prefix bits, class B 16, class C 24. This was inefficient.\n- CIDR format: `a.b.c.d/x`, where `x` is the number of bits in the subnet part.\n- Example: `200.23.16.0/23` has a 23-bit subnet part and a 9-bit host part.\n- The slides also call this variable length subnet masking (VLSM).\nKey: CIDR lets the prefix length fit the size of the network."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "4.2"
+   ],
+   "prompt": "What is DHCP for, and what are its advantages over a hard-coded IP address?",
+   "answer": "**DHCP** (Dynamic Host Configuration Protocol) lets a host get its IP address from a network server when it joins the network.\n- The alternative: a system administrator writes the address into a config file by hand.\n- DHCP is \"plug-and-play\".\n- The address comes with a **lease** (a time limit), which the host can renew.\n- Addresses are reused: a host holds one only while it is connected.\n- It supports mobile users who join and leave networks.\nKey: DHCP lends an address for a time; it does not give it away for good."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "4.2"
+   ],
+   "prompt": "Which four messages does a host exchange with a DHCP server to get an IP address?",
+   "answer": "Discover, offer, request and ACK.\n1. **DHCP discover**: the host broadcasts the question whether a DHCP server is out there.\n2. **DHCP offer**: a server answers with an address the host can use, and its lifetime.\n3. **DHCP request**: the host asks to use the offered address.\n4. **DHCP ACK**: the server confirms the address and the lifetime.\nKey: discover and offer are optional; a client that remembers an earlier address and wants to reuse it starts at the request."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "4.2"
+   ],
+   "prompt": "Which addresses and ports does a DHCP discover message use, and why?",
+   "answer": "Source `0.0.0.0` port `68`, destination `255.255.255.255` port `67`: the client has no address yet and does not know the server.\n- `0.0.0.0`: the client has no IP address on this network yet.\n- `255.255.255.255`: the **limited broadcast** address, which reaches all hosts on the subnet.\n- DHCP uses UDP: servers listen on port `67`, clients on port `68`.\n- `yiaddr` (\"your IP address\") is `0.0.0.0` in the discover; the server puts the offered address there.\n- The offer and the ACK also go to the broadcast address.\nKey: a host without an address can only talk by broadcast."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "4.2"
+   ],
+   "prompt": "What else, besides an IP address, can DHCP give a host?",
+   "answer": "The other settings a host needs to use the network.\n- Address of the **first-hop router** (default gateway): where packets go when the destination is outside the local subnet.\n- Name and IP address of the **DNS server**, which turns domain names into IP addresses.\n- **Network mask**: shows the network part and host part of the address, so the host can tell whether a destination is local.\n- **Lease time**: how long the host may use the address before it must renew.\nKey: DHCP hands over address, mask, default gateway and DNS server together."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "4.2"
+   ],
+   "prompt": "How does an organization get its block of IP addresses, and where does its ISP get its own?",
+   "answer": "The organization gets a portion of its ISP's address space; the ISP gets its block through ICANN's regional registries.\n- Slide example: an ISP holds `200.23.16.0/20` and uses 3 more bits to cut it into 8 blocks of `/23`: `200.23.16.0/23`, `200.23.18.0/23`, up to `200.23.30.0/23`.\n- Each organization gets one `/23` block.\n- **ICANN** (Internet Corporation for Assigned Names and Numbers) allocates addresses through 5 regional registries, which may pass them on to local registries.\nKey: addresses are handed down: ICANN, registry, ISP, organization, host."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "4.2"
+   ],
+   "prompt": "What is route aggregation in hierarchical IP addressing?",
+   "answer": "An ISP advertises one prefix that covers all its customers' address blocks, not one route per customer.\n- Slide example: eight organizations hold `200.23.16.0/23` to `200.23.30.0/23`. All lie inside the ISP's `200.23.16.0/20`.\n- The ISP tells the rest of the Internet only: send me anything with addresses beginning `200.23.16.0/20`.\n- Routers elsewhere need one entry for all eight organizations.\n- This works because addresses are given out hierarchically, block inside block.\nKey: hierarchical addressing allows routing information to be advertised efficiently."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "4.2"
+   ],
+   "prompt": "An organization moves to a new ISP but keeps its address block. Why do datagrams still reach it?",
+   "answer": "The new ISP advertises a more specific route for that block, and longest prefix matching picks it.\n- Slide example: Organization 1 (`200.23.18.0/23`) moves from Fly-By-Night-ISP to ISPs-R-Us.\n- Fly-By-Night-ISP still advertises `200.23.16.0/20`, which covers the block.\n- ISPs-R-Us advertises `199.31.0.0/16` and now also `200.23.18.0/23`.\n- A datagram for Organization 1 matches both `/20` and `/23`. The `/23` match is longer, so it goes to ISPs-R-Us.\nKey: this is why forwarding uses the longest matching prefix."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "4.3",
+    "4.1"
+   ],
+   "prompt": "IPv4 address exhaustion: how do NAT and IPv6 each deal with it?",
+   "answer": "NAT lets many devices share one IPv4 address; IPv6 makes the address space much larger.\n- Problem: the 32-bit address space ran out. ICANN allocated its last chunk of IPv4 addresses to the regional registries in 2011.\n- **NAT**: all devices in a local network share just one IPv4 address as far as the outside world is concerned.\n- **IPv6**: 128-bit addresses.\n- IPv6 had more motives: a fixed 40-byte header to speed up processing and forwarding, and different network-layer treatment of \"flows\".\nKey: NAT stretches IPv4; IPv6 replaces it."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "4.3",
+    "4.1"
+   ],
+   "prompt": "Which private IPv4 address ranges does NAT rely on, and what are the advantages of NAT?",
+   "answer": "The prefixes `10/8`, `172.16/12` and `192.168/16`, which can only be used inside a local network.\n- Just one IP address is needed from the provider ISP for all devices.\n- Addresses of hosts in the local network can change without notifying the outside world.\n- The ISP can be changed without changing the addresses of the local devices.\n- Security: devices inside are not directly addressable or visible from the outside world.\nKey: private addresses stay inside the local network; NAT hides them behind one public address."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "4.3"
+   ],
+   "prompt": "Why has NAT been controversial, and why is it here to stay?",
+   "answer": "It breaks design rules of the Internet, but it is used almost everywhere.\n- Routers \"should\" only process up to layer 3, yet a NAT router changes port numbers, which belong to the transport layer.\n- That violates the **end-to-end argument**.\n- The address shortage \"should\" be solved by IPv6.\n- **NAT traversal** is a problem: how does a client connect to a server behind a NAT?\n- Still, NAT is used extensively in home and institutional networks and in 4G/5G cellular networks.\nKey: NAT is a network-layer device that touches transport-layer fields."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "4.3",
+    "4.1"
+   ],
+   "prompt": "Which fields does the IPv6 datagram header contain?",
+   "answer": "A fixed 40-byte header with few fields.\n- **Version** and **priority**: priority among the datagrams of a flow.\n- **Flow label**: identifies datagrams in the same \"flow\"; what a flow is, is not well defined.\n- **Payload length** and **next header** (the upper-layer protocol, or an option carried as a next header).\n- **Hop limit**: as the TTL in IPv4.\n- 128-bit **source** and **destination address**.\nKey: compared with IPv4, the flow label is new and the addresses are four times as long."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "4.3"
+   ],
+   "prompt": "In an IPv4 tunnel between IPv6 routers B and E, which addresses do the outer and inner headers carry?",
+   "answer": "The outer IPv4 datagram goes from B to E; the IPv6 datagram inside keeps its own source and destination.\n- Slide example: path A, B, C, D, E, F. A and F speak IPv6, C and D only IPv4, B and E both.\n- A sends an IPv6 datagram: source A, destination F.\n- B puts it in an IPv4 datagram: source B, destination E.\n- C and D forward it as an ordinary IPv4 datagram.\n- E takes the IPv6 datagram out and forwards it to F.\nKey: the outer addresses are the tunnel ends; logically B and E look directly connected."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "4.3"
+   ],
+   "prompt": "Why has the move from IPv4 to IPv6 taken so long?",
+   "answer": "Not all routers can be upgraded at the same time, so both versions run side by side, and several things slow the change.\n- There is no \"flag day\" on which every router switches.\n- After some 30 years, about 45% of Google's clients used IPv6 (2024).\n- Replacing devices that are not IPv6 compatible is expensive.\n- NAT makes things work without IPv6 in many cases.\n- There is no standard solution for IPv6 to IPv4 compatibility, and running both in parallel costs ISPs money.\nKey: IPv6 has no flag day; it spreads slowly beside IPv4."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "4.3",
+    "4.1"
+   ],
+   "prompt": "How does generalized forwarding (match+action) differ from destination-based forwarding?",
+   "answer": "It can match on many header fields and can do more than forward.\n- Both follow **match plus action**: match bits in the arriving packet's header, then take an action.\n- **Destination-based forwarding**: match only the destination IP address; action: forward to an output port.\n- **Generalized forwarding**: match on link-, network- and transport-layer header fields; actions: forward, drop, modify, or send the packet to the controller.\n- The forwarding table is then also called a **flow table**.\nKey: destination-based forwarding is one special case of match+action."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "4.3"
+   ],
+   "prompt": "Which four parts does a rule in a flow table have?",
+   "answer": "Match, actions, priority and counters.\n- **Match**: pattern values for packet header fields; `*` is a wildcard (any value).\n- **Actions** for a matched packet: drop, forward, modify, or send it to the controller.\n- **Priority**: decides between rules whose patterns overlap.\n- **Counters**: number of bytes and number of packets.\n- A **flow** is defined by header field values in the link, network and transport layers.\nKey: a flow table is a list of match+action rules with priorities and counters."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "4.3",
+    "4.1"
+   ],
+   "prompt": "What is OpenFlow, and what are its benefits?",
+   "answer": "One of the first **SDN** standards: it defines the communication protocol between SDN controllers and the forwarding plane of network devices.\n- Benefits: programmability, centralized intelligence, and an abstraction of the network architecture.\n- The idea started at Stanford University in 2008.\n- It is now managed by the Open Networking Foundation.\n- An OpenFlow flow table entry has three parts: match, action and stats (packet and byte counters).\nKey: OpenFlow is the language between the SDN controller and the devices that forward."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "4.3"
+   ],
+   "prompt": "Which header fields can an OpenFlow flow table entry match on?",
+   "answer": "Fields from three layers, plus the port the packet came in on.\n- **Ingress port**: the port of arrival.\n- Link layer: source MAC, destination MAC, Ethernet type, VLAN ID, VLAN priority.\n- Network layer: IP source, IP destination, IP protocol, IP type of service.\n- Transport layer: TCP/UDP source port and destination port.\n- A field that does not matter is a wildcard `*`.\nKey: one rule can look at link, network and transport headers at once."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "4.3"
+   ],
+   "prompt": "How can OpenFlow rules with wildcards act as destination-based forwarding or as a firewall?",
+   "answer": "Only the matched field and the action differ; every other field is a wildcard `*`.\n- Forwarding: IP destination `51.6.0.8`, action `port6`: those datagrams go to output port 6.\n- Firewall: TCP destination port `22`, action `drop`: blocks all datagrams to the ssh port.\n- Firewall: IP source `128.119.1.1`, action `drop`: blocks all datagrams that host sends.\n- Layer 2 forwarding: a destination MAC address, action `port3`: those frames go to output port 3.\nKey: to read a rule, find the fields that are not `*`, then the action."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "4.3",
+    "4.1"
+   ],
+   "prompt": "How does the match+action abstraction describe a router, a switch, a firewall and a NAT?",
+   "answer": "Each device is the same idea with a different match and a different action.\n- **Router**: match the longest destination IP prefix; action: forward out a link.\n- **Switch**: match the destination MAC address; action: forward or flood.\n- **Firewall**: match IP addresses and TCP/UDP port numbers; action: permit or deny.\n- **NAT**: match IP address and port; action: rewrite address and port.\nKey: match+action unifies different kinds of network devices."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "4.3"
+   ],
+   "prompt": "Why is match+action called a simple form of network programmability?",
+   "answer": "Because flow table rules program what a device does with each packet.\n- The processing is programmable and per packet.\n- By filling the flow tables of many devices, network-wide behaviours can be \"programmed\".\n- Historical roots: active networking.\n- Today, more general programming: **P4** (Programming Protocol-independent Packet Processors), a domain-specific language that specifies how data plane devices (switches, NICs, routers, filters) process packets.\nKey: flow tables are a limited program; P4 is a fuller language for the data plane."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "4.3",
+    "4.1"
+   ],
+   "prompt": "What is a middlebox, and which kinds are common?",
+   "answer": "A box on the data path between source and destination host that performs functions other than the normal, standard functions of an IP router (RFC 3234).\n- **NAT**: home, cellular and institutional networks.\n- **Firewalls** and **IDS/IPS** (intrusion detection and prevention systems): corporate, institutional, service providers, ISPs.\n- **Load balancers**: corporate, service provider, data center, mobile networks.\n- **Caches**: service providers, mobile networks, CDNs.\n- Application-specific boxes: service providers, institutional, CDN.\nKey: middleboxes sit everywhere along the path."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "4.3",
+    "4.1"
+   ],
+   "prompt": "How does the behaviour of a middlebox differ from that of a traditional IP router?",
+   "answer": "A traditional router only forwards a datagram by its destination IP address; a middlebox can inspect, modify, filter or otherwise process the traffic.\n- NAT rewrites addresses and port numbers.\n- A firewall permits or denies packets by IP addresses and port numbers.\n- A **load balancer** acts on application-layer headers, for example to spread HTTP requests over server copies. It is sometimes called a Layer 7 switch.\n- A cache also stores content: storage and computation, not only forwarding.\nKey: a router works at layer 3; middleboxes work up to the application layer."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "4.3"
+   ],
+   "prompt": "How are middleboxes changing: what are whitebox hardware, SDN and NFV?",
+   "answer": "From closed, proprietary hardware towards software on open, generic hardware.\n- At first: proprietary (closed) hardware solutions.\n- **Whitebox hardware**: hardware that implements an open API; its local actions are programmable through match+action.\n- Innovation and differentiation move into software.\n- **SDN**: (logically) centralized control and configuration management, often in a private or public cloud.\n- **NFV** (network functions virtualization): programmable services over whitebox networking, computation and storage.\nKey: middlebox functions are becoming software."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "4.3"
+   ],
+   "prompt": "What is the IP hourglass, and what is the Internet's \"thin waist\"?",
+   "answer": "The protocol stack drawn as an hourglass: many protocols above and below, and only one in the middle, IP.\n- Above: many application and transport protocols (HTTP, SMTP, RTP, QUIC, DASH, TCP, UDP).\n- Below: many link and physical technologies (Ethernet, PPP, WiFi, Bluetooth, copper, radio, fiber).\n- **Thin waist**: one network-layer protocol, IP, which every one of the billions of Internet-connected devices must implement.\n- At \"middle age\" the waist thickens: middleboxes (NAT, firewalls, caching) work inside the network.\nKey: IP is the one protocol that every Internet device shares."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "4.3"
+   ],
+   "prompt": "Which three cornerstone beliefs does RFC 1958 name for the Internet's architecture?",
+   "answer": "Simple connectivity, IP as the narrow waist, and intelligence at the network edge.\n- The goal is **connectivity**.\n- The tool is the **Internet Protocol**.\n- The intelligence is **end to end**, not hidden in the network: complexity sits at the network edge.\n- The RFC adds that many would say there is no architecture, only a tradition that was not written down for 25 years.\n- Middleboxes challenge the third belief: they put intelligence inside the network.\nKey: goal connectivity, tool IP, intelligence end to end."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "4.3"
+   ],
+   "prompt": "What does the end-to-end argument say about where to implement a network function?",
+   "answer": "A function can be done completely and correctly only with the knowledge and help of the application at the end points, so the network itself cannot provide it as a feature.\n- Functions such as reliable data transfer or congestion control could sit in the network (hop by hop) or at the network edge (end to end).\n- An incomplete version inside the network can still be useful, but only as a performance enhancement.\n- Stated by Saltzer, Reed and Clark in 1981.\nKey: do it at the ends; the network may help, but cannot finish the job."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "4.3"
+   ],
+   "prompt": "Where is the intelligence in the telephone network, the early Internet and today's Internet?",
+   "answer": "It moved from inside the network, to the edge, and now sits in both.\n- 20th century phone network: intelligence and computing at the network switches.\n- Internet before 2005: intelligence and computing at the edge.\n- Internet after 2005: programmable network devices, and intelligence, computing and massive application-level infrastructure at the edge.\nKey: the Internet began with a simple core and smart ends; now the network devices are programmable too."
+  }
+ ]
+}

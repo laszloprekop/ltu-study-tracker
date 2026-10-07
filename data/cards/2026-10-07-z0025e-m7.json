@@ -1,0 +1,375 @@
+{
+ "note": "AI-drafted Concept Cards (Claude, 2026-10-07) for Z0025E Module 7 (wireless and mobile networks), drafted from the overview's Learning Objectives and Study Guide, the Lecture 14 page and slides, and the linked Knowledge Checks and interactive problems. Uploaded unchecked; classmates vote on each.",
+ "cards": [
+  {
+   "course": "Z0025E",
+   "sources": [
+    "7.2",
+    "7.1"
+   ],
+   "prompt": "Wireless versus mobility: which two different challenges does Module 7 separate?",
+   "answer": "**Wireless** is about communicating over a wireless link. **Mobility** is about a user who changes the **point of attachment** (where the device connects to the network).\n- Wireless challenges: path loss, interference, multipath propagation, hidden terminals, sharing the medium.\n- Mobility challenges: locating the device, updating network state, routing traffic to its current location, handover.\n- A wireless host can be stationary: wireless does not always mean mobile.\nKey: wireless is a link problem, mobility is a where-is-the-device problem."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "7.2",
+    "7.1"
+   ],
+   "prompt": "Which three elements make up a wireless network, next to the wired network infrastructure?",
+   "answer": "Wireless hosts, base stations and wireless links.\n- **Wireless hosts**: laptops, smartphones, IoT devices. They run the applications and may be stationary or mobile.\n- **Base station**: typically connected to the wired network. It relays packets between the wired network and the wireless hosts in its area. Examples: cell towers, 802.11 access points.\n- **Wireless link**: connects hosts to the base station, and can also be a backbone link. A multiple access protocol coordinates who may send.\nKey: hosts reach the wired network over a wireless link through a base station."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "7.2"
+   ],
+   "prompt": "Infrastructure mode versus ad hoc mode in a wireless network: what is the difference?",
+   "answer": "In **infrastructure mode** a base station connects the hosts to the wired network. In **ad hoc mode** there is no base station.\n- Infrastructure mode: in a **handoff** the mobile changes the base station that connects it to the wired network.\n- Ad hoc mode: a node can only transmit to other nodes within link coverage.\n- Ad hoc nodes organize themselves into a network and route among themselves.\nKey: infrastructure mode relies on a base station, ad hoc nodes rely on each other."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "7.2"
+   ],
+   "prompt": "Which four classes of wireless network follow from single or multiple hops, with or without infrastructure?",
+   "answer": "Two questions give four classes: is there infrastructure (a base station), and is it one wireless hop or several?\n- Infrastructure, single hop: the host connects to a base station that connects to the larger Internet (WiFi, cellular).\n- Infrastructure, multiple hops: the host may relay through several wireless nodes to reach the larger Internet (**mesh net**).\n- No infrastructure, single hop: no connection to the larger Internet (Bluetooth, ad hoc nets).\n- No infrastructure, multiple hops: nodes may relay to reach each other (MANET, VANET).\nKey: base station or not, one hop or many."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "7.2"
+   ],
+   "prompt": "Roughly which transmission rates do Bluetooth, the 802.11 versions, 4G LTE and 5G reach?",
+   "answer": "From about `2 Mbps` (Bluetooth) up to about `14 Gbps` (802.11ax), in the lecture's overview of wireless links.\n- 802.11 versions: b `11 Mbps`, g `54 Mbps`, n `600 Mbps`, ac `3.5 Gbps`, ax `14 Gbps`.\n- Cellular: 4G LTE hundreds of Mbps, 5G `10 Gbps`.\n- Bluetooth: `2 Mbps`.\n- The same overview sorts links by range: indoor (10 to 30 m), outdoor (50 to 200 m), midrange outdoor (200 m to 4 km), long range outdoor (4 to 15 km).\n- Real rates depend on distance, noise and other factors.\nKey: newer 802.11 and 5G reach Gbps, Bluetooth stays at a few Mbps."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "7.2",
+    "7.1"
+   ],
+   "prompt": "Which three properties make a wireless link harder to use than a wired link?",
+   "answer": "Decreased signal strength, interference from other sources, and multipath propagation.\n- **Path loss**: the radio signal attenuates (gets weaker) as it travels through matter.\n- **Interference**: wireless frequencies such as 2.4 GHz are shared by many devices (WiFi, cellular, motors).\n- **Multipath propagation**: the signal reflects off objects and the ground, so copies arrive at slightly different times.\n- Together they make even a point-to-point wireless link much more difficult than a wire.\nKey: a wireless signal fades, gets disturbed and arrives as several copies."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "7.2"
+   ],
+   "prompt": "What are SNR and BER on a wireless link, and how do they depend on each other?",
+   "answer": "**SNR** (signal-to-noise ratio) says how strong the signal is compared with the noise. **BER** (bit error rate) is the probability that a transmitted bit is received in error.\n- A larger SNR makes it easier to extract the signal from the noise, so the BER is lower.\n- For a given physical layer: more transmit power gives a higher SNR and so a lower BER.\n- For a given SNR: choose the physical layer (modulation technique) that meets the BER requirement and gives the highest throughput.\nKey: high SNR means few bit errors, and allows a faster modulation."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "7.2"
+   ],
+   "prompt": "What is rate adaptation in 802.11, and when does a device switch to a lower rate?",
+   "answer": "**Rate adaptation**: base station and mobile change the transmission rate (the physical layer modulation technique) while the mobile moves and the SNR varies.\n1. The node moves away from the base station: SNR decreases, BER increases.\n2. When the BER becomes too high, they switch to a lower transmission rate that has a lower BER.\n- Slide example: QAM256 at `8 Mbps`, QAM16 at `4 Mbps`, BPSK at `1 Mbps`. The faster the modulation, the higher the SNR it needs for the same BER.\nKey: weak signal, slower but more robust modulation."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "7.2",
+    "7.1"
+   ],
+   "prompt": "What is the hidden terminal problem in a wireless network?",
+   "answer": "Two senders, A and C, both reach a receiver B but cannot hear each other, so they are unaware that their signals interfere at B.\n- **Hidden terminal**: A and B hear each other, B and C hear each other, A and C do not.\n- **Fading** (signal attenuation over distance) gives the same result: A's and C's signals are too weak at each other's position, but both still reach B.\n- Carrier sensing at A does not show C's transmission, so CSMA/CD does not work well.\n- This is an extra problem, beyond the usual multiple access problem.\nKey: a sender cannot sense every collision that happens at the receiver."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "7.2",
+    "7.1"
+   ],
+   "prompt": "What is CDMA, and how can several users send at the same time on the same frequency?",
+   "answer": "**CDMA** (Code Division Multiple Access) gives every user a unique code: the channel is divided by code.\n- All users share the same frequency.\n- Each user encodes its data with its own **chipping sequence** (its code).\n- Users can transmit simultaneously with minimal interference if the codes are **orthogonal** (chosen so that they do not disturb each other in decoding).\n- The channel adds the transmissions together. A receiver that uses one sender's code recovers that sender's data from the sum.\nKey: same frequency, same time, different codes."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "7.2"
+   ],
+   "prompt": "How does CDMA encode a data bit and decode it again?",
+   "answer": "Both steps multiply by the sender's chipping sequence. Bits and code values are `1` or `-1`, and the code has `M` values per bit.\n1. Encode: multiply the data bit by each code value: `Z(i,m) = d(i) * c(m)`. One bit becomes `M` channel values.\n2. Decode: multiply each received value by the same code value, add them all, divide by `M`. The result is the original bit.\n- With two senders the receiver does the same on the summed channel values, with the code of the sender it wants.\nKey: encode is bit times code, decode is received times code, summed and divided by M."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "7.2",
+    "7.1"
+   ],
+   "prompt": "What is a Basic Service Set (BSS) in an 802.11 wireless LAN?",
+   "answer": "A **BSS** (also called a cell) in infrastructure mode is the wireless hosts together with the **access point** (AP) they use.\n- The AP is the base station of 802.11: a wireless host communicates with it.\n- The AP connects through a switch or router to the Internet.\n- The wired network is not part of the BSS.\n- A LAN can have several BSSs, each with its own AP.\nKey: BSS = wireless hosts plus their access point."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "7.2",
+    "7.1"
+   ],
+   "prompt": "Which steps does an arriving host take to join an 802.11 network?",
+   "answer": "It must **associate** with an access point (AP), then get an IP address.\n1. Scan the channels and listen for **beacon frames**, which carry the AP's name (**SSID**) and MAC address.\n2. Select an AP to associate with.\n3. Possibly perform authentication.\n4. Typically run DHCP to get an IP address in the AP's subnet.\n- Channels: the spectrum is divided into channels at different frequencies. The AP admin chooses one, and a neighbouring AP may have chosen the same one, which gives interference.\nKey: find an AP by its beacon, associate, authenticate, then DHCP."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "7.2"
+   ],
+   "prompt": "Passive versus active scanning in 802.11: how does a host find an access point?",
+   "answer": "In **passive scanning** the host listens for beacon frames from the APs. In **active scanning** the host asks first.\n- Passive: (1) APs send beacon frames, (2) the host sends an Association Request frame to the selected AP, (3) that AP answers with an Association Response frame.\n- Active: (1) the host broadcasts a Probe Request frame, (2) APs answer with Probe Response frames, (3) Association Request to the selected AP, (4) Association Response from it.\n- Both end with the same request and response pair.\nKey: passive waits for beacons, active sends a probe."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "7.2",
+    "7.1"
+   ],
+   "prompt": "Why does 802.11 use collision avoidance (CSMA/CA) and not collision detection (CSMA/CD)?",
+   "answer": "Because a wireless sender cannot reliably detect collisions, 802.11 tries to avoid them.\n- Collisions are difficult to sense: the sender's own signal is strong, the received signal is weak because of fading.\n- Not all collisions can be sensed in any case: hidden terminal, fading.\n- Both protocols are CSMA: sense before transmitting, so as not to collide with an ongoing transmission.\n- Ethernet's CSMA/CD detects a collision after transmission begins and reacts. 802.11 transmits the entire frame, with no collision detection.\nKey: Ethernet detects collisions, WiFi is designed to avoid them."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "7.2",
+    "7.1"
+   ],
+   "prompt": "Which steps do an 802.11 sender and receiver follow in CSMA/CA?",
+   "answer": "The sender waits for an idle channel, sends the whole frame, and waits for an ACK.\n1. Channel sensed idle for **DIFS** (the wait before sending a full frame): transmit the entire frame.\n2. Channel sensed busy: start a random backoff timer. It counts down only while the channel is idle. Transmit when it expires.\n3. No ACK: increase the random backoff interval and repeat step 2.\n- Receiver: if the frame arrived OK, return an ACK after **SIFS** (a short wait).\n- The ACK is needed because of the hidden terminal problem.\nKey: wait DIFS, back off if busy, and trust only the ACK."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "7.2"
+   ],
+   "prompt": "What do RTS and CTS frames do in 802.11?",
+   "answer": "They let a sender reserve the channel for a data frame with small reservation packets.\n1. The sender transmits a small **RTS** (request-to-send) packet to the base station, using CSMA.\n2. The base station broadcasts a **CTS** (clear-to-send) in response.\n3. All nodes hear the CTS: the sender transmits its data frame, the other stations defer.\n- RTSs may still collide with each other, but they are short.\n- This reduces the effect of hidden terminals.\nKey: a short RTS and CTS exchange keeps long data frames from colliding."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "7.2"
+   ],
+   "prompt": "Which MAC addresses do address 1, 2 and 3 of an 802.11 frame hold?",
+   "answer": "Receiver, transmitter, and the router interface behind the access point (AP).\n- **Address 1**: MAC address of the wireless host or AP that is to receive the frame.\n- **Address 2**: MAC address of the wireless host or AP that transmits the frame.\n- **Address 3**: MAC address of the router interface to which the AP is attached.\n- Address 4 is used only in ad hoc mode.\n- Example: host H1 sends to router R1 through the AP: address 1 = AP, address 2 = H1, address 3 = R1.\nKey: an 802.11 frame names the AP as well as the two ends."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "7.2"
+   ],
+   "prompt": "A host moves between two access points in the same IP subnet. What changes, and what stays?",
+   "answer": "The IP address can stay the same, because the host remains in the same IP subnet. Only the switch has to learn the new path.\n- The two access points (two BSSs) are connected to the same switch.\n- Question for the switch: which AP is the host associated with now?\n- Answer: **self-learning**. The switch sees a frame from the host and remembers which switch port leads to it.\nKey: inside one subnet, moving is solved by the switch at the link layer."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "7.2"
+   ],
+   "prompt": "How does 802.11 power management let a node sleep without losing frames?",
+   "answer": "The node tells the access point (AP) that it will sleep until the next beacon frame, and the beacon tells it whether to stay awake.\n1. Node to AP: going to sleep until the next beacon frame.\n2. The AP knows not to transmit frames to this node.\n3. The node wakes up before the next beacon frame.\n4. The beacon frame contains a list of the mobiles that have AP-to-mobile frames waiting.\n5. On the list: the node stays awake to receive them. Not on the list: it sleeps again until the next beacon.\nKey: the AP holds the frames, the beacon says who has frames waiting."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "7.2",
+    "7.1"
+   ],
+   "prompt": "4G/5G cellular networks versus the wired Internet: what is similar and what is different?",
+   "answer": "They use the same Internet protocols, but add a different wireless link layer, mobility and user identity.\n- Similar: an edge and a core (both belong to the same carrier), a global network of networks, connected to the wired Internet.\n- Similar: HTTP, DNS, TCP, UDP, IP, NAT, Ethernet, tunneling, SDN, separate data and control planes.\n- Different: mobility is a first class service, and the user has an identity (SIM card).\n- Different: users subscribe to a provider: a **home network** versus roaming on visited networks.\nKey: cellular is IP plus mobility and subscriber identity."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "7.2",
+    "7.1"
+   ],
+   "prompt": "Which elements does the 4G LTE architecture have, and which belong to the radio access network?",
+   "answer": "Mobile device and base station form the **radio access network**. HSS, MME, S-GW and P-GW form the all-IP **Enhanced Packet Core** (EPC).\n- **Mobile device** (UE, User Equipment): smartphone, tablet, laptop or IoT device with a 4G LTE radio.\n- **Base station** (eNode-B): at the edge of the carrier's network.\n- **HSS** and **MME**: control elements for subscriber data, authentication and mobility.\n- **S-GW** and **P-GW**: gateways on the data path between mobile and Internet.\nKey: radio access network at the edge, EPC as the core, and the P-GW as the door to the Internet."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "7.2"
+   ],
+   "prompt": "What is the IMSI in a 4G LTE network?",
+   "answer": "The **IMSI** (International Mobile Subscriber Identity) is a 64-bit number that identifies the subscriber.\n- It is stored on the **SIM** (Subscriber Identity Module) card.\n- The SIM card carries the global identity information, including which network is the home network.\n- When a mobile associates with a base station it provides its IMSI, which identifies itself and its home network.\n- It gives the user an identity in the cellular network, something the wired Internet does not have.\nKey: the IMSI on the SIM card says who the subscriber is and where home is."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "7.2",
+    "7.1"
+   ],
+   "prompt": "What does a 4G base station (eNode-B) do, and how does it differ from a WiFi access point?",
+   "answer": "The **eNode-B** sits at the edge of the carrier's network and manages the radio side for the mobile devices in its coverage area (its cell).\n- It manages the wireless radio resources.\n- It coordinates device authentication with other elements.\n- It is similar to a WiFi AP, but it has an active role in user mobility.\n- Unlike a WiFi AP, it coordinates with nearby base stations to optimize radio use.\nKey: an eNode-B is an access point that also takes part in mobility."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "7.2",
+    "7.1"
+   ],
+   "prompt": "What does the Home Subscriber Service (HSS) do in a 4G network?",
+   "answer": "The **HSS** stores information about the mobile devices for which its network is the home network.\n- Roaming access capabilities.\n- QoS (quality of service) profiles.\n- Authentication information.\n- It works with the MME in device authentication.\n- It holds identity and services information while the mobile is in the home network and while it is roaming, and it learns the location of a roaming mobile.\nKey: the HSS is the home network's database of its subscribers."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "7.2",
+    "7.1"
+   ],
+   "prompt": "Serving Gateway (S-GW) versus PDN Gateway (P-GW) in 4G LTE: what does each do?",
+   "answer": "Both are on the data path between the mobile and the Internet. The **S-GW** is the mobility anchor, the **P-GW** is the gateway to the outside.\n- S-GW: all traffic of the mobile device (UE) passes through it.\n- S-GW: also other router and mobile functions, for example billing and lawful traffic interception.\n- P-GW (Packet Data Network gateway): the gateway to the mobile cellular network. From outside it looks like any other Internet gateway router.\n- P-GW: provides NAT services, for example IP address assignment.\nKey: S-GW anchors the moving device, P-GW faces the Internet."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "7.2",
+    "7.1"
+   ],
+   "prompt": "What does the Mobility Management Entity (MME) do in a 4G network?",
+   "answer": "The **MME** is the control element that authenticates devices, manages their mobility and sets up their data path. It carries no user data itself.\n- Device authentication (device-to-network and network-to-device), coordinated with the HSS of the mobile's home network.\n- Device handover between cells.\n- Tracking and **paging** (finding) the device's location.\n- Path setup: the tunnels from the mobile device to the P-GW.\nKey: the MME controls authentication, mobility and tunnels, but is not on the data path."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "7.2"
+   ],
+   "prompt": "Control plane versus data plane in LTE: which elements belong to each?",
+   "answer": "LTE separates them. The **control plane** sets things up, the **data plane** carries the users' datagrams.\n- Control plane: MME and HSS, which talk to the base station and the gateways. New protocols for mobility management, security and authentication.\n- Data plane: base station, S-GW, P-GW. New protocols at the link and physical layers.\n- The data plane makes extensive use of tunneling to support mobility: IP tunnels from the base station to the S-GW and on to the P-GW.\nKey: MME and HSS control, base station and gateways forward."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "7.2"
+   ],
+   "prompt": "What does a datagram look like inside a 4G tunnel between base station, S-GW and P-GW?",
+   "answer": "The mobile's original datagram travels unchanged inside another datagram (**encapsulation**).\n- Mobile to base station: the plain datagram, from the mobile's address to the server's address. Not encapsulated, but encrypted on this radio hop.\n- Base station to S-GW, and S-GW to P-GW: an outer datagram between the two tunnel ends, carried over UDP, with the original datagram inside.\n- P-GW to server: the plain datagram again.\n- The server does not know about the tunneling.\nKey: inside the carrier's network the datagram rides in tunnels that the two end points never see."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "7.2"
+   ],
+   "prompt": "How does a mobile device associate with a base station in LTE?",
+   "answer": "It listens for the base stations' synch signals, reads what they broadcast, and picks one.\n1. Every base station broadcasts a **primary synch signal** every 5 ms on all frequencies. Several carriers may be heard.\n2. The mobile finds a primary synch signal, then the information the base station broadcasts: channel bandwidth, configurations, cellular carrier.\n3. The mobile selects a base station, for example with a preference for its home carrier.\n4. More steps follow: authenticate, establish state, set up the data plane.\nKey: find a synch signal, read the carrier information, choose."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "7.2",
+    "7.1"
+   ],
+   "prompt": "Home network versus visited network: what does each mean for a mobile device?",
+   "answer": "The **home network** is the cellular provider with which the user has a (paid) service plan. A **visited network** is any other network.\n- The home network's HSS stores the identity and services information.\n- **Roaming**: using a visited network. Service agreements between networks give access to visiting mobiles.\n- ISP and WiFi networks have no notion of a global home: credentials (username, password) are stored on the device or with the user, and different networks need different credentials. Exception: eduroam.\nKey: home is where the subscription is, everywhere else is visited."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "7.2"
+   ],
+   "prompt": "How are the cellular networks of different carriers connected to each other?",
+   "answer": "The global cellular network is a network of IP networks.\n- 4G networks are all IP.\n- Carriers interconnect with each other and with the public Internet at exchange points, over the public Internet and the inter-carrier **IPX** (an IP network between carriers).\n- Legacy 2G and 3G networks are not all IP and are handled in another way.\nKey: carriers link their all-IP networks to each other and to the Internet at exchange points."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "7.2",
+    "7.1"
+   ],
+   "prompt": "Which kinds of mobility exist from the network's point of view, and which are the hard ones?",
+   "answer": "A spectrum from no mobility to high mobility. The challenge: when a device moves to another network, how does the network know to forward packets to the new network?\n1. The device moves between networks but powers down while moving: no mobility.\n2. The device moves within the same access point in one provider network.\n3. The device moves among access points in one provider network.\n4. The device moves among several provider networks while keeping ongoing connections: high mobility.\nKey: mobility is hard when the device changes network and its connections must survive."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "7.2",
+    "7.1"
+   ],
+   "prompt": "Why is mobility not simply left to the routers and their routing tables?",
+   "answer": "It would work with no change to Internet routing, but it is not scalable to billions of mobiles.\n- Routers approach: routers advertise the permanent address (or number) of each visiting mobile through the usual routing table exchange. Longest prefix match then shows where each mobile is.\n- End-systems approach: put the functionality at the edge.\n- It has two forms: **indirect routing** (through the home network) and **direct routing** (the correspondent sends to the mobile's foreign address).\nKey: per-mobile routes do not scale, so mobility is handled at the edge."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "7.2",
+    "7.1"
+   ],
+   "prompt": "What is registration in mobility management, and what is the result?",
+   "answer": "**Registration** tells the home network where the mobile is now.\n1. The mobile associates with the **mobility manager** of the visited network.\n2. The visited mobility manager registers the mobile's location with the HSS in the home network.\n- Result: the visited mobility manager knows about the mobile, and the home HSS knows the mobile's location.\n- The mobile keeps its permanent IP address from the home network. In the visited network it also gets a local address (a NAT address in the slide example).\nKey: the home network must always know which visited network the mobile is in."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "7.2",
+    "7.1"
+   ],
+   "prompt": "How does a datagram reach a mobile in a visited network with indirect routing?",
+   "answer": "Through the home network: the correspondent sends to the mobile's permanent address, and the home network forwards it.\n1. The **correspondent** (the other end) uses the mobile's home address as destination address.\n2. The home network gateway receives the datagram and forwards it through a tunnel to the visited network gateway.\n3. The visited gateway router forwards it to the mobile.\n4. The reply goes from the visited gateway back through the home network, or directly to the correspondent.\nKey: with indirect routing the correspondent only ever knows the home address."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "7.2",
+    "7.1"
+   ],
+   "prompt": "How does a datagram reach a mobile in a visited network with direct routing?",
+   "answer": "The correspondent first asks the home network where the mobile is, then sends straight to the visited network.\n1. The correspondent contacts the home HSS and gets the address of the mobile's visited network.\n2. The correspondent addresses its datagrams to the visited network address.\n3. The visited gateway router forwards them to the mobile.\n- A mobile node has two addresses: the **permanent address** (home network) and the **foreign address** or **care-of-address** (COA) in the visited network.\nKey: with direct routing the correspondent learns the care-of-address and skips the home network."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "7.2",
+    "7.1"
+   ],
+   "prompt": "Indirect versus direct routing to a mobile: what are the trade-offs?",
+   "answer": "Indirect routing is transparent to the correspondent but can take a long way round. Direct routing is efficient but the correspondent must take part.\n- Indirect: **triangle routing** (correspondent, home network, mobile), inefficient when correspondent and mobile are in the same network.\n- Indirect: a move to a new visited network only needs a new registration. Ongoing (TCP) connections can be maintained.\n- Direct: no triangle routing.\n- Direct: not transparent, and a change of visited network adds complexity.\nKey: indirect is simple for the correspondent, direct is shorter for the packets."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "7.2",
+    "7.1"
+   ],
+   "prompt": "Which four major mobility tasks does a 4G network carry out for a roaming mobile?",
+   "answer": "Association, control-plane configuration, data-plane configuration and handover.\n1. **Base station association**: the mobile provides its IMSI, which identifies it and its home network.\n2. **Control-plane configuration**: the MME and the home HSS establish state: the mobile is in the visited network.\n3. **Data-plane configuration**: the MME configures forwarding tunnels. Visited and home network establish tunnels from the home P-GW to the mobile.\n4. **Mobile handover**: the mobile changes its point of attachment to the visited network.\nKey: attach, register, build tunnels, hand over."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "7.2",
+    "7.1"
+   ],
+   "prompt": "4G handover, steps 1 to 4: what happens until the mobile can use the new base station?",
+   "answer": "The source base station (BS) prepares the move with the target BS, then tells the mobile.\n1. The source BS selects the target BS and sends it a Handover Request message.\n2. The target BS pre-allocates radio time slots and answers with a Handover Request ACK with information for the mobile.\n3. The source BS informs the mobile of the new BS. The mobile can now send through it: for the mobile the handover looks complete.\n4. The source BS stops sending datagrams to the mobile and forwards them to the new BS, which sends them on by radio.\nKey: the source base station starts the handover."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "7.2"
+   ],
+   "prompt": "4G handover, steps 5 to 7: what does the network do after the mobile has switched base station?",
+   "answer": "It moves the tunnel end to the target base station (BS) and frees the old resources. These are steps 5 to 7 of the handover.\n- Step 5: the target BS informs the MME that it is the new BS for the mobile. The MME instructs the S-GW to change the tunnel endpoint to the target BS.\n- Step 6: the target BS sends an ACK back to the source BS: handover complete. The source BS can release its resources.\n- Step 7: the mobile's datagrams now flow through the new tunnel between the target BS and the S-GW.\nKey: after a handover only the tunnel between base station and S-GW is moved."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "7.2",
+    "7.1"
+   ],
+   "prompt": "What is Mobile IP, and how do its agents compare with the 4G elements?",
+   "answer": "**Mobile IP** is an architecture for mobility in the Internet, standardized about 20 years ago. It uses indirect routing through the home network, with tunnels.\n- **Home agent**: the combined roles of the 4G HSS and the home P-GW.\n- **Foreign agent**: the combined roles of the 4G MME and S-GW.\n- It has protocols for agent discovery in the visited network and for registering the visited location in the home network (ICMP extensions).\n- It did not see wide deployment or use.\nKey: Mobile IP is indirect routing with a home agent and a foreign agent, rarely used in practice."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "7.2",
+    "7.1"
+   ],
+   "prompt": "How do wireless links and mobility affect TCP and other higher-layer protocols?",
+   "answer": "Logically very little, but the performance suffers.\n- Logically: the best effort service model is unchanged, and TCP and UDP run over wireless and mobile networks.\n- Loss and delay: bit errors lead to discarded packets or to delays from link-layer retransmissions, and a handover can lose packets.\n- TCP interprets every loss as congestion and decreases its congestion window, here unnecessarily.\n- Real-time traffic suffers from the delays.\n- Bandwidth is a scarce resource on wireless links.\nKey: TCP mistakes wireless and handover loss for congestion and slows down for no reason."
+  }
+ ]
+}

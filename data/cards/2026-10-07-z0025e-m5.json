@@ -1,0 +1,406 @@
+{
+ "note": "AI-drafted Concept Cards (Claude, 2026-10-07) for Z0025E Module 5 (the network layer control plane), drafted from the overview's Learning Objectives and Study Guide, the lecture pages 5.2, 5.3 and 5.4, the L10, L11 and L12 slides and the lecture video captions. Uploaded unchecked; classmates vote on each.",
+ "cards": [
+  {
+   "course": "Z0025E",
+   "sources": [
+    "5.2"
+   ],
+   "prompt": "What is the goal of a routing protocol, and what does a \"good\" path mean?",
+   "answer": "To find good paths (routes) from the sending host to the receiving host through the network of routers.\n- **Path**: the sequence of routers that packets pass on the way from source to destination.\n- **Good** can mean least cost, fastest or least congested.\n- Routing algorithms do not work with delay or bandwidth directly. They work with abstract **link costs**: numbers that can stand for any of these, or a mix.\nKey: a routing algorithm looks for the least-cost path, and the link costs decide what \"good\" means."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "5.2"
+   ],
+   "prompt": "How is a network modelled as a graph for routing, and who decides the link costs?",
+   "answer": "As a graph `G = (N, E)`: `N` is the set of routers (nodes) and `E` the set of links (edges) between them.\n- `c(a,b)` is the cost of the direct link between `a` and `b`. It is `∞` when the two are not direct neighbours.\n- The **network operator** defines the costs. The routing algorithm does not care where they come from.\n- A cost could always be `1`, or be lower for a link with more bandwidth, or be higher for a more congested link.\n- With every cost `1`, the least-cost path is the shortest path.\nKey: routers are nodes, links are edges, and the operator sets the cost of each link."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "5.2"
+   ],
+   "prompt": "Routing algorithms: what do global versus decentralized and static versus dynamic mean?",
+   "answer": "They sort routing algorithms by the information a router has and by how fast routes change.\n- **Global**: all routers have the complete topology and all link costs (**link-state** algorithms).\n- **Decentralized**: a router first knows only the link costs to its attached neighbours, then computes iteratively and exchanges information with them (**distance-vector** algorithms).\n- **Static**: routes change slowly over time.\n- **Dynamic**: routes change more quickly, with periodic updates or after link cost changes.\nKey: global or decentralized is about information, static or dynamic about time."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "5.2",
+    "5.1"
+   ],
+   "prompt": "What does link-state routing need before a router can compute its routes, and what does it produce?",
+   "answer": "Every router needs the whole map: the network topology and all link costs.\n- Each router sends its link state to all other routers (**link-state broadcast**), so all nodes have the same information.\n- With the map, a router runs **Dijkstra's algorithm** on its own. It computes the least-cost paths from itself (the source) to all other nodes.\n- The result gives the forwarding table of that router.\n- The algorithm is iterative: after `k` iterations the least-cost paths to `k` destinations are known.\nKey: link-state routing asks \"given the complete map, what is my best path?\""
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "5.2"
+   ],
+   "prompt": "In Dijkstra's algorithm, what do D(v), p(v) and N' stand for?",
+   "answer": "They are the three things written down in every step of the algorithm.\n- `D(v)`: the current estimate of the cost of the least-cost path from the source to node `v`.\n- `p(v)`: the **predecessor** of `v`, the node just before `v` on that path.\n- `N'`: the set of nodes whose least-cost path is definitively known.\n- `c(x,y)`: the cost of the direct link from `x` to `y`, `∞` if they are not direct neighbours.\n- A node in `N'` stays there. `D(v)` is only ever replaced by a smaller value.\nKey: `D` is the best cost found so far, `p` says through which node, `N'` holds the finished nodes."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "5.2",
+    "5.1"
+   ],
+   "prompt": "Which steps does Dijkstra's algorithm repeat to find the least-cost paths from a source u?",
+   "answer": "It starts at `u` and confirms one more node in every round.\n1. Start: `N' = {u}`. For each neighbour `v` of `u`, `D(v) = c(u,v)`. For all other nodes, `D(v) = ∞`.\n2. Pick the node `w` outside `N'` with the smallest `D(w)` and add it to `N'`.\n3. For each neighbour `v` of `w` that is not in `N'`: `D(v) = min(D(v), D(w) + c(w,v))`. If the new value is smaller, `p(v)` becomes `w`.\n4. Repeat 2 and 3 until all nodes are in `N'`.\nKey: confirm the cheapest unconfirmed node, then check whether going through it makes its neighbours cheaper."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "5.2"
+   ],
+   "prompt": "How does a router get its forwarding table from the result of Dijkstra's algorithm?",
+   "answer": "By following the predecessors back to the source, which gives the first link of each path.\n- The predecessors `p(v)` of all nodes together form the **least-cost-path tree** from the source.\n- For each destination, the forwarding table holds only the outgoing link: the first link of the path in that tree.\n- Lecture example from `u`: destination `v` uses link `(u,v)` directly. All other destinations (`x`, `y`, `w`, `z`) use link `(u,x)`, because their least-cost paths all start through `x`.\nKey: the forwarding table stores the first hop to each destination, not the whole path."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "5.2"
+   ],
+   "prompt": "What does Dijkstra's link-state algorithm cost in computation and in messages for n nodes?",
+   "answer": "Both are `O(n²)` in the lecture.\n- **Computation**: in each of the `n` iterations, all nodes not yet in `N'` must be checked. That is `n(n+1)/2` comparisons, so `O(n²)`. More efficient implementations reach `O(n log n)`.\n- **Messages**: each router must broadcast its link state to the other routers. One router's message crosses `O(n)` links, so all together `O(n²)`.\nKey: link-state routing pays `O(n²)` messages to give every router the full map."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "5.2"
+   ],
+   "prompt": "Why can routes oscillate in link-state routing?",
+   "answer": "Because link costs can depend on the traffic volume that the links carry.\n- A link with much traffic gets a high cost.\n- The next computation finds routes that avoid it, and the traffic moves to other links.\n- Now those links have the high cost and the first one looks cheap, so the computation after that moves the traffic back.\n- The routes keep flipping (**oscillation**), although the network itself did not change.\nKey: when cost follows traffic, each new routing changes the costs it was based on."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "5.2",
+    "5.1"
+   ],
+   "prompt": "What does the Bellman-Ford equation say about the least cost from node x to node y?",
+   "answer": "The least cost from `x` to `y` is the cheapest choice among `x`'s neighbours: `Dx(y) = min over v of ( c(x,v) + Dv(y) )`.\n- `c(x,v)`: the cost of the direct link from `x` to neighbour `v`.\n- `Dv(y)`: that neighbour's own least cost to `y`.\n- `x` adds the two for every neighbour and takes the smallest sum.\n- The neighbour that gives the minimum is the **next hop** on the least-cost path to `y`.\n- `x` needs no map: only its own link costs and what each neighbour reports.\nKey: my best cost is the minimum of (cost to a neighbour + that neighbour's best cost)."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "5.2",
+    "5.1"
+   ],
+   "prompt": "How does a node run the distance-vector algorithm, step by step?",
+   "answer": "It waits, recomputes, and tells its neighbours only when something changed.\n1. Wait for a local link cost change, or for a **distance vector** (**DV**: a node's least-cost estimates to all destinations) from a neighbour.\n2. Recompute its own DV with the Bellman-Ford equation.\n3. If the DV changed, send it to the neighbours. If not, do nothing.\n- **Iterative**, **asynchronous**: each step is started by a local event.\n- **Distributed**, **self-stopping**: no notification received, no action taken.\nKey: the estimates converge to the real least costs, and then the messages stop."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "5.2"
+   ],
+   "prompt": "How fast does routing information spread through a network in distance-vector routing?",
+   "answer": "One hop per round of exchange, so it can take as many rounds as the network's diameter.\n- At `t=0` a node's state is known only at that node.\n- At `t=1` it has reached the direct neighbours and may influence their distance vectors.\n- At `t=2` it may influence nodes up to 2 hops away, and so on.\n- In the lecture example it took 4 time steps, the **diameter** of that network (the largest distance between two nodes, in hops), for one node's state to reach the nodes 4 hops away.\nKey: distance-vector information diffuses hop by hop; it is not instant."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "5.2",
+    "5.1"
+   ],
+   "prompt": "What is the count-to-infinity problem in distance-vector routing?",
+   "answer": "After a link cost goes up, two nodes keep raising their cost through each other in small steps.\n- \"Good news travels fast\": a lower cost spreads quickly. \"Bad news travels slow\": a higher cost does not.\n- Lecture example: `y`'s link to `x` jumps to `60`. `z` has reported cost `5`, so `y` picks `6` via `z`. But `z`'s path runs through `y`, so `z` answers `7`, `y` then `8`, and so on.\n- Cause: neighbours report only their lowest cost, not the path behind it.\n- It goes on until the cost is more than `50`.\nKey: a node cannot see that its neighbour's path runs through itself."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "5.2",
+    "5.1"
+   ],
+   "prompt": "Link-state versus distance-vector routing: what does each router know, and how does it compute?",
+   "answer": "Link-state works from a complete map, distance-vector from what the neighbours say.\n- **Link-state**: a global view of topology and link costs. Each router computes the least-cost paths alone, with Dijkstra's algorithm.\n- **Distance-vector**: only local link costs and the distance vectors from neighbours. Routers exchange and update estimates repeatedly, with the Bellman-Ford equation.\n- Both can end with the same least-cost routes. They differ in what each router knows and how it learns it.\nKey: link-state computes alone from the full map; distance-vector computes together with neighbours."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "5.2",
+    "5.1"
+   ],
+   "prompt": "Link-state versus distance-vector: how do they compare in message complexity and convergence?",
+   "answer": "Link-state sends more messages; distance-vector can take long to converge.\n- **Messages**: link-state sends `O(n²)` messages for `n` routers. Distance-vector exchanges messages only between neighbours.\n- **Convergence** of link-state: an `O(n²)` algorithm with `O(n²)` messages. It may have oscillations.\n- **Convergence** of distance-vector: the time varies. It may have routing loops and the count-to-infinity problem.\nKey: link-state pays in messages, distance-vector pays in convergence time."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "5.2",
+    "5.1"
+   ],
+   "prompt": "Link-state versus distance-vector: what happens when a router malfunctions or is compromised?",
+   "answer": "In link-state routing the damage stays local; in distance-vector routing it spreads.\n- **Link-state**: the router can advertise an incorrect link cost. Each router computes only its own table, so problems stay local.\n- **Distance-vector**: the router can advertise an incorrect path cost, for example a really low cost to everywhere.\n- Other routers then send their traffic to it, where it is lost: **black-holing**.\n- Each router's table is used by others, so the error propagates through the network.\nKey: a bad link-state router hurts locally, a bad distance-vector router spreads its error."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "5.3",
+    "5.1"
+   ],
+   "prompt": "Why is Internet routing organised into Autonomous Systems (ASes)?",
+   "answer": "Because one flat network of identical routers does not work at Internet size.\n- **Scale**: with billions of destinations, routers cannot store them all, and exchanging routing tables would swamp the links.\n- **Administrative autonomy**: each network admin may want to control routing in its own network.\n- So routers are grouped into **autonomous systems** (**AS**, also \"domains\"), each a network under one organisation.\n- Routing is split in two: inside an AS (intra-AS) and among ASes (inter-AS).\nKey: ASes keep routing scalable and let each organisation run its own network."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "5.3",
+    "5.1"
+   ],
+   "prompt": "Intra-AS versus inter-AS routing: which routers take part, and which entries does each fill?",
+   "answer": "Intra-AS routing works inside one AS, inter-AS routing among ASes.\n- **Intra-AS** (intra-domain): all routers in an AS run the same protocol. Different ASes can run different ones.\n- **Inter-AS** (inter-domain): done by **gateway routers**, the routers at the edge of an AS with links to other ASes. They also do intra-AS routing.\n- Forwarding table entries for destinations inside the AS: from intra-AS routing alone.\n- Entries for external destinations: from inter-AS and intra-AS routing together.\nKey: every router runs the AS's own protocol; only gateway routers also talk to other ASes."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "5.3"
+   ],
+   "prompt": "Which intra-AS routing protocols does the lecture name, and what kind is each?",
+   "answer": "Three: RIP, EIGRP and OSPF.\n- **RIP** (Routing Information Protocol): classic distance-vector, with distance vectors exchanged every 30 seconds. No longer widely used.\n- **EIGRP** (Enhanced Interior Gateway Routing Protocol): distance-vector based. Cisco-proprietary for decades, open since 2013.\n- **OSPF** (Open Shortest Path First): link-state. The most widely deployed intra-AS protocol today.\n- **IS-IS**: an ISO standard, essentially the same as OSPF.\nKey: inside an AS, OSPF (link-state) is the usual choice; RIP and EIGRP are distance-vector."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "5.3",
+    "5.1"
+   ],
+   "prompt": "How does OSPF compute routes inside an Autonomous System?",
+   "answer": "As classic link-state routing: flood the link states, then run Dijkstra's algorithm.\n- Each router floods **link-state advertisements** (messages with the state of its links) to all other routers in the AS.\n- These OSPF messages are carried directly over IP, not in TCP or UDP.\n- Each router then has the full topology and uses Dijkstra's algorithm to compute its forwarding table.\n- Several link cost metrics are possible: bandwidth, delay.\n- \"Open\" means publicly available. All OSPF messages are authenticated.\nKey: OSPF is link-state routing in practice, within one AS."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "5.3"
+   ],
+   "prompt": "How does hierarchical OSPF keep link-state routing scalable in a large AS?",
+   "answer": "It splits the AS into two levels: local **areas** and one **backbone**.\n- Link-state advertisements are flooded only inside one area, or only inside the backbone.\n- A router knows the detailed topology of its own area, and only the direction towards other destinations.\n- **Area border router**: summarizes the distances to destinations in its own area and advertises them in the backbone.\n- **Backbone router**: runs OSPF limited to the backbone.\n- **Boundary router**: connects to other ASes.\nKey: flooding stays inside an area, and area border routers pass on summaries."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "5.3",
+    "5.1"
+   ],
+   "prompt": "eBGP versus iBGP: what does each do?",
+   "answer": "**eBGP** runs between ASes, **iBGP** inside one AS.\n- **BGP** (Border Gateway Protocol) is the inter-AS routing protocol of the Internet, the \"glue that holds the Internet together\".\n- **eBGP**: a gateway router obtains reachability information (which destinations can be reached) from a neighbouring AS.\n- **iBGP**: that information is propagated to all routers inside the AS.\n- Gateway routers run both eBGP and iBGP.\n- Lecture example: router 2c learns path `AS3,X` from 3a via eBGP, then passes it to all AS2 routers via iBGP.\nKey: eBGP brings routes into the AS, iBGP spreads them inside it."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "5.3"
+   ],
+   "prompt": "What is a BGP session, and what does an AS promise when it advertises a path?",
+   "answer": "Two BGP routers (**peers**) exchange BGP messages over a semi-permanent TCP connection on port `179`.\n- They advertise paths to destination network **prefixes** (subnets, for example a `/16` or a `/24`).\n- BGP is a **path-vector** protocol: an advertisement names the path of ASes, not just a cost.\n- BGP lets a subnet tell the rest of the Internet: \"I am here, here is who I can reach, and how\".\n- When a gateway router of AS3 advertises path `AS3,X` to AS2, AS3 promises AS2 that it will forward datagrams towards `X`.\nKey: an advertised path is a promise to carry traffic to that prefix."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "5.3",
+    "5.1"
+   ],
+   "prompt": "What is in a BGP route advertisement, and what do AS-PATH and NEXT-HOP mean?",
+   "answer": "A BGP route is a **prefix** plus **attributes**.\n- **Prefix**: the destination being advertised.\n- **AS-PATH**: the list of ASes through which the advertisement has passed, for example `AS2, AS3, X`.\n- **NEXT-HOP**: the specific router that leads to the next-hop AS.\n- AS-PATH holds no cost and no policy rules, only the ASes on the way.\nKey: BGP advertises which ASes a route crosses, not what it costs."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "5.3",
+    "5.1"
+   ],
+   "prompt": "How does an AS enforce routing policy in BGP?",
+   "answer": "By choosing which advertised paths to accept, and which paths to advertise.\n- A gateway router uses policy to accept or decline an advertised path.\n- Policy also decides whether to advertise a path on to other ASes.\n- Typical policy: an ISP carries no **transit traffic** between other ISPs, only traffic to or from its customers. In the lecture, B does not advertise path `BAw` to C, so C does not route through B to `w`.\n- A **dual-homed** customer (attached to two providers) does not advertise a route between them.\nKey: a path that is not advertised cannot be used by the neighbour."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "5.3",
+    "5.1"
+   ],
+   "prompt": "In which order does a BGP router choose among several routes to the same destination?",
+   "answer": "Policy first, then the shortest AS-PATH, then the closest NEXT-HOP router.\n1. **Local preference** value: a policy decision.\n2. Shortest **AS-PATH**.\n3. Closest **NEXT-HOP** router: hot potato routing.\n4. Additional criteria.\nKey: BGP is not simply a shortest-path protocol; the chosen route need not have the lowest cost or the fewest links."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "5.3"
+   ],
+   "prompt": "What is hot potato routing?",
+   "answer": "A router sends traffic for an external destination to the local gateway router with the least intra-domain cost.\n- It applies when a router learns via iBGP that a prefix can be reached through more than one gateway router of its AS.\n- It picks the gateway that is cheapest to reach inside the AS and does not worry about the inter-domain cost.\n- Goal: get the packet out of the own network as quickly as possible.\n- Lecture example: 2d chooses 2a and not 2c, although that path has more AS hops to `X`.\nKey: hot potato routing lowers the AS's own cost, not the cost of the whole path."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "5.3"
+   ],
+   "prompt": "How does a router inside an AS get a forwarding table entry for a prefix outside the AS?",
+   "answer": "By combining what iBGP says (which gateway router) with what OSPF says (which interface leads to it).\n1. A gateway router learns a path to prefix `X` from a neighbouring AS via eBGP.\n2. The routers inside the AS learn via iBGP that the path to `X` goes through that gateway.\n3. Each of them knows from OSPF which of its interfaces leads to the gateway.\n4. It enters that interface for `X` in its forwarding table.\n- Lecture example: 1d learns that `X` goes through 1c. OSPF says interface 1 leads to 1c, so `X` gets interface 1.\nKey: BGP names the exit gateway, OSPF finds the way to it."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "5.3",
+    "5.1"
+   ],
+   "prompt": "OSPF versus BGP: why does the Internet route differently inside an AS and between ASes?",
+   "answer": "Because the two problems differ in policy, performance and scale.\n- **Policy**: between ASes, an admin wants control over how its traffic is routed and who routes through its network. Inside an AS there is one admin, so policy matters less.\n- **Performance**: intra-AS routing can focus on it. In inter-AS routing, policy dominates.\n- **Scale**: hierarchical routing keeps tables small and update traffic low.\n- **OSPF**: intra-AS, link-state. **BGP**: inter-AS, path-vector.\nKey: OSPF asks for the best path in my network; BGP also asks which routes my organisation wants to use and advertise."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "5.3",
+    "5.1"
+   ],
+   "prompt": "How does an SDN control plane differ from traditional per-router control?",
+   "answer": "SDN moves the control functions out of the routers into a logically centralized controller.\n- **Traditional**: a monolithic router holds the switching hardware and runs proprietary implementations of the standard protocols in a proprietary router OS.\n- **SDN**, first: generalized, flow-based forwarding (for example OpenFlow).\n- Second: control plane and data plane are separated.\n- Third: control functions sit outside the data-plane switches.\n- Fourth: programmable control applications.\nKey: in SDN the switches only forward, and software on a controller decides how."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "5.3",
+    "5.1"
+   ],
+   "prompt": "Why is a logically centralized control plane attractive, according to the lecture?",
+   "answer": "It makes the network easier to manage and to program.\n- Easier management: fewer router misconfigurations, more flexible traffic flows.\n- Tables computed centrally and then distributed are easier to \"program\" than tables that result from a distributed algorithm in every router.\n- An open, non-proprietary control plane fosters innovation.\n- **Traffic engineering** (steering traffic onto chosen paths) is hard with traditional routing: link weights are the only control knobs.\nKey: with central control the operator programs the paths directly, not through link weights."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "5.3"
+   ],
+   "prompt": "Which three layers make up an SDN architecture, and which APIs connect them?",
+   "answer": "Data-plane switches at the bottom, the SDN controller in the middle, network-control applications on top.\n- **Data-plane switches**: fast, simple, commodity switches. The controller installs their flow tables.\n- **SDN controller** (network operating system): keeps the network state.\n- **Network-control applications**: the \"brains\", for example routing, load balancer, firewall.\n- **Southbound API**: controller to switches (for example OpenFlow).\n- **Northbound API**: controller to applications.\nKey: applications decide, the controller knows the network, switches forward."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "5.3"
+   ],
+   "prompt": "Which three layers does an SDN controller have inside?",
+   "answer": "An interface layer for applications, a state-management layer, and a communication layer.\n- **Interface layer** to the network-control applications: abstractions and APIs, such as the network graph and intent.\n- **Network-wide state management**: the state of links, switches and services, kept in a distributed database (link-state info, host info, switch info, statistics, flow tables).\n- **Communication layer**: talks to the controlled switches, with protocols such as OpenFlow or SNMP.\nKey: the top talks to applications, the middle stores the state, the bottom talks to the switches."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "5.3",
+    "5.1"
+   ],
+   "prompt": "What is the OpenFlow protocol, and which three classes of messages does it have?",
+   "answer": "The protocol that operates between an SDN controller and a switch.\n- It uses TCP to exchange messages, with optional encryption.\n- **Controller-to-switch** messages.\n- **Asynchronous** messages, from switch to controller.\n- **Symmetric** messages (miscellaneous).\n- It is distinct from the OpenFlow API, which is used to specify generalized forwarding actions (the match plus action rules of Module 4).\nKey: OpenFlow is how the controller reads and changes a switch."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "5.3"
+   ],
+   "prompt": "Which key OpenFlow messages go from controller to switch, and which from switch to controller?",
+   "answer": "Four key messages go down to the switch and three come up from it.\n- Down: **features** (ask for the switch's features), **configure** (query or set configuration parameters).\n- Down: **modify-state** (add, delete or modify flow entries in the OpenFlow tables), **packet-out** (send this packet out of a specific switch port).\n- Up: **packet-in** (hand a packet, and its control, to the controller).\n- Up: **flow-removed** (a flow table entry was deleted), **port status** (a change on a port).\nKey: operators do not write these messages by hand; they use higher-level abstractions at the controller."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "5.3"
+   ],
+   "prompt": "In SDN, what happens between switch, controller and routing application when a link fails?",
+   "answer": "The switch reports it, the application computes new routes, and the controller installs new flow tables.\n1. The switch at the failed link sends an OpenFlow **port status** message to the controller.\n2. The controller updates its link-state information.\n3. The Dijkstra routing application, registered for link status changes, is called.\n4. It reads the network graph and link-state info in the controller and computes new routes.\n5. The controller computes new flow tables and installs them with OpenFlow in the switches.\nKey: switches report and obey; the computing happens above them."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "5.4",
+    "5.1"
+   ],
+   "prompt": "What is ICMP used for, and how are ICMP messages carried?",
+   "answer": "**ICMP** (Internet Control Message Protocol) lets hosts and routers tell each other network-level information, mostly errors.\n- Error reporting: an unreachable host, network, port or protocol.\n- Echo request and echo reply, used by ping.\n- ICMP sits \"above\" IP: its messages are carried directly as payload in IP datagrams, as TCP and UDP segments are. It is still not seen as a transport-layer protocol.\n- Users rarely see it, except through ping and traceroute.\nKey: ICMP is how an IP network reports errors and conditions back to an end system."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "5.4"
+   ],
+   "prompt": "What does an ICMP message contain, and which type and code values matter most?",
+   "answer": "A type, a code, and the first 8 bytes of the IP datagram that caused the message.\n- Type `8`, code `0`: echo request (ping). Type `0`, code `0`: echo reply (ping).\n- Type `3`: destination unreachable. Code `0` is network, `1` host, `2` protocol, `3` port.\n- Type `11`, code `0`: TTL expired.\n- The copied bytes let the receiver see which of its datagrams the message is about.\nKey: type and code together name the event."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "5.4"
+   ],
+   "prompt": "Which ICMP messages does traceroute rely on, and how does it know it reached the destination?",
+   "answer": "**TTL expired** (type `11`, code `0`) from each router, **port unreachable** (type `3`, code `3`) from the destination.\n1. The source sends sets of UDP segments: the first set with TTL `1`, the second with TTL `2`, and so on.\n2. The `n`th router decrements the TTL to `0`, discards the datagram and sends TTL expired back from its own IP address.\n3. The destination host typically answers with port unreachable. The source then knows the path has ended.\n- Routers may send these messages, but need not.\nKey: traceroute turns an error message into a way to list the routers on a path."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "5.4",
+    "5.1"
+   ],
+   "prompt": "Ping versus traceroute: what does each one test, and with which ICMP messages?",
+   "answer": "Ping tests whether a destination answers; traceroute reveals the routers on the way to it.\n- **Ping**: sends an ICMP echo request to the destination and waits for the echo reply. Question: can I reach it, and how long does the round trip take?\n- **Traceroute**: sends probes with growing TTL values. Each router where the TTL expires returns an ICMP TTL expired message. Question: which routers does traffic meet on the path?\n- Ping uses messages made for this purpose. Traceroute uses an error condition on purpose.\nKey: ping asks the destination; traceroute makes the routers in between answer."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "5.4",
+    "5.1"
+   ],
+   "prompt": "Which components does network management consist of?",
+   "answer": "A managing server, managed devices with agent and data, and a network management protocol.\n- **Managing server**: an application, typically with human network managers in the loop.\n- **Managed device**: equipment with configurable hardware and software.\n- **Agent**: the software on a managed device that talks to the managing server.\n- **Data**: the device's state: configuration data, operational data, statistics.\n- **Network management protocol**: the server queries and configures devices with it; devices report data and events.\nKey: one managing server watches and configures many devices."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "5.4",
+    "5.1"
+   ],
+   "prompt": "Which three approaches can a network operator use to manage devices?",
+   "answer": "CLI, SNMP/MIB and NETCONF/YANG.\n- **CLI** (command line interface): the operator types or scripts commands directly to individual devices, for example over ssh.\n- **SNMP/MIB**: the operator queries or sets device data (the MIB) with the Simple Network Management Protocol.\n- **NETCONF/YANG**: more abstract, network-wide and holistic, with the emphasis on configuring many devices together.\n- Why manage at all: a network has thousands of interacting hardware and software components.\nKey: CLI: one device at a time. SNMP: read and set device data. NETCONF/YANG: configure the network as a whole."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "5.4"
+   ],
+   "prompt": "SNMP: what are request/response mode and trap mode, and which message types belong to each?",
+   "answer": "In request/response mode the managing server asks; in trap mode the device speaks first.\n- `GetRequest`, `GetNextRequest`, `GetBulkRequest`: manager to agent, \"get me data\" (one data instance, the next in a list, a block).\n- `SetRequest`: manager to agent, set a MIB value.\n- `Response`: agent to manager, the value, in answer to a request.\n- `Trap`: agent to manager, sent without a request, to inform the manager of an exceptional event.\nKey: get and Set come from the manager; a Trap comes unasked from the device."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "5.4"
+   ],
+   "prompt": "What is a MIB in SNMP?",
+   "answer": "The **MIB** (Management Information Base) holds a managed device's operational data, and some configuration data.\n- The data is gathered into MIB modules. 400 MIB modules are defined in RFCs, and there are many more vendor-specific ones.\n- **SMI** (Structure of Management Information) is the data definition language for it.\n- Each variable has an object ID, a name and a type. Example: `UDPInDatagrams`, a 32-bit counter of the total datagrams delivered.\n- SNMP gets these values and can set them.\nKey: the MIB is the data, SNMP is the protocol that fetches and changes it."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "5.4",
+    "5.1"
+   ],
+   "prompt": "What is NETCONF, and how does it talk to devices?",
+   "answer": "**NETCONF** is a protocol to actively manage and configure devices network-wide, between a managing server and managed devices.\n- Actions: retrieve, set, modify and activate configurations.\n- **Atomic commit** over multiple devices: a change is made on all of them or on none.\n- Also: query operational data and statistics, subscribe to notifications.\n- It uses **remote procedure calls** (RPC: the server calls an operation on the device and gets a reply), encoded in XML, over a secure, reliable transport such as TLS.\nKey: NETCONF configures many devices together, with XML-encoded RPCs."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "5.4"
+   ],
+   "prompt": "Which NETCONF operations read, change and protect a device's configuration?",
+   "answer": "`<get-config>` and `<get>` read, `<edit-config>` changes, `<lock>` protects.\n- `<get-config>`: retrieve all or part of a configuration. `<get>`: also operational state data.\n- `<edit-config>`: change a configuration. The `<rpc-reply>` holds `<ok>`, or an error with rollback.\n- `<lock>`, `<unlock>`: lock the configuration datastore against commands from other sources (NETCONF, SNMP, CLI).\n- `<create-subscription>`: turn on event notifications.\n- A session opens with `<hello>` and ends with `<close-session>`.\nKey: every NETCONF operation is an RPC that the device answers with an `<rpc-reply>`."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "5.4",
+    "5.1"
+   ],
+   "prompt": "What is YANG, and what is its role next to NETCONF?",
+   "answer": "**YANG** is the data modeling language that specifies the structure, syntax and semantics of NETCONF network management data.\n- It has built-in data types, like SMI.\n- An XML document that describes a device and its capabilities can be generated from a YANG description.\n- It can express constraints among data that a valid NETCONF configuration must satisfy (correctness, consistency).\n- Division of work: YANG describes the data, NETCONF carries it in its RPC messages (for example inside `<edit-config>`).\nKey: YANG is the model of the data, NETCONF is the protocol that moves it."
+  }
+ ]
+}

@@ -1,0 +1,875 @@
+{
+ "note": "AI-drafted Concept Cards (Claude, 2026-10-07) for Z7005E Module 1 (Analysera och förstå krav, toward Laboration 1), drafted from the slide text of lectures F02 to F07 (Canvas items 1.1 to 1.6). Uploaded unchecked; classmates vote on each.",
+ "cards": [
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.1"
+   ],
+   "prompt": "Waterfall versus evolutionary development process: when are the users involved?",
+   "answer": "In waterfall only at the two ends, in an evolutionary process all the way through.\n- Both have the same stages: black box requirements, functional specification, system design, system development, system test, system validation.\n- **Waterfall**: users take part in the requirements and in the validation. The developers do everything between. The lecture calls this gap 'the 2-year void'.\n- **Evolutionary**: a **user group** and **system experts** are involved during the whole process, so there is no void.\nKey: evolutionary development keeps users and system experts involved the whole time."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.1"
+   ],
+   "prompt": "Which artifacts does each stage of the development process produce?",
+   "answer": "Each stage leaves its own **artifacts** (the documents and models that the work produces).\n- Black box requirements: resource plan, project portfolio.\n- Functional specification: actors, use cases, use case diagrams, storyboards, requirements specification (kravspecifikation).\n- System design: class, sequence, statechart and activity diagrams, design patterns.\n- System development: notes and details, signatures, design patterns.\n- System test: test plan, test cases.\nKey: use cases and storyboards belong to the functional specification, the detailed diagrams to system design."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.1"
+   ],
+   "prompt": "What is UML, and which three methods was it merged from?",
+   "answer": "**UML** (Unified Modeling Language) is the de facto standard for modelling object-oriented systems.\n- **OMT** (James Rumbaugh): development processes.\n- **OOSE** (Ivar Jacobson): use-case driven design.\n- **Booch** (Grady Booch): notation.\nKey: UML joined the notations of three leading object-oriented methods into one."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.1"
+   ],
+   "prompt": "What are models used for in software development, according to the UML lecture?",
+   "answer": "Modelling is central to every activity that leads up to good software.\n- To understand the system as a whole and in parts.\n- To visualise and control its architecture.\n- To communicate the wanted structure and behaviour.\n- To find cases of abstraction and reuse.\n- To manage risks.\nKey: about 20% of UML is enough to model 80% of most problems."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.1"
+   ],
+   "prompt": "What are the four basic principles of modelling?",
+   "answer": "Models hide complexity so that a system becomes understandable. Four principles guide them.\n1. The choice of models strongly shapes how a problem is attacked and how the solution looks.\n2. Every model can be expressed at different levels of precision.\n3. The best models are connected to reality.\n4. No single model is enough: a system is best described by a small set of nearly independent models.\nKey: choose the models with care, and never rely on one model alone."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.1",
+    "1.3"
+   ],
+   "prompt": "What does each of the five main UML diagram types show?",
+   "answer": "Each diagram shows the system from one side.\n- **Use case diagram** (användarfallsdiagram): the functions of the system as the user sees them.\n- **Activity diagram**: dynamic behaviour of the system, drawn as a flowchart.\n- **Sequence diagram**: dynamic behaviour between actors and system objects.\n- **Statechart diagram**: dynamic behaviour of one single object.\n- **Class diagram**: static structure: objects, attributes and associations.\nKey: the diagrams are views of the same system, not a sequence of steps."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.1"
+   ],
+   "prompt": "What is the role of the system expert (product owner) in design?",
+   "answer": "The system expert gives the requirements and feedback that a good design depends on.\n- A good design is not possible while the main requirements are unknown, so feedback from users is vital.\n- The system expert helps most with interaction and usage.\n- The system expert can be, and probably is, a user.\n- The system expert is used above all to identify the use cases of the system.\nKey: the system expert is the main help for finding the use cases."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.1"
+   ],
+   "prompt": "Which kinds of external entity can an actor model in UML?",
+   "answer": "An **actor** (aktör) models something outside the system that communicates with it.\n- A user, e.g. Passenger: a person in the train.\n- An external system, e.g. GPS satellite: gives the system GPS coordinates.\n- The physical environment.\n- An actor has a unique name and, if wanted, a description.\nKey: an actor is anything outside the system that communicates with it, not only a person."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.1",
+    "1.2"
+   ],
+   "prompt": "Which parts make up a written use case, from name to special requirements?",
+   "answer": "A **use case** (användarfall) is written as a flow of events with fixed parts around it.\n- A unique name and the participating actors, e.g. PurchaseTicket with Passenger.\n- **Entry conditions**: what holds before it starts, e.g. the passenger has enough money.\n- **Flow of events**: the numbered steps.\n- **Exit conditions**: what holds when it ends, e.g. the passenger has a ticket.\n- **Special requirements**: limits on the flow, e.g. a report is acknowledged within 30 seconds.\nKey: name, actors, entry conditions, flow of events, exit conditions, special requirements."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.1"
+   ],
+   "prompt": "Which advice does the functional design lecture give for working with use cases?",
+   "answer": "A use case is a functional view of the system, and it is worked out in rounds.\n- Not every detail has to be captured at the start: leave room for iteration and discussion.\n- The most commonly used use cases are the most important to get right.\n- Use cases also affect how the system is tested during development.\n- Start with a minimal set of use cases, then let it evolve.\nKey: few use cases first, and the most used ones done best."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.1"
+   ],
+   "prompt": "What does a use case diagram show, and what are its elements?",
+   "answer": "The functionality of the system from the user's point of view.\n- **Actors**, e.g. WatchUser and WatchRepairPerson.\n- **Use cases**: the functions, e.g. ReadTime, SetTime, ChangeBattery.\n- A **package**: the system that holds the use cases, e.g. SimpleWatch.\n- It shows how the use cases relate to the actors.\nKey: a use case diagram shows which actor takes part in which use case."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.1"
+   ],
+   "prompt": "<<extend>> versus <<include>> between use cases: what is the difference?",
+   "answer": "Extend is for exceptions, include is for reuse.\n- **<<extend>>**: an exceptional or seldom used case, e.g. Cancel, NoChange, TimeOut and OutOfOrder for PurchaseTicket. It is taken out of the main flow for clarity.\n- **<<include>>**: behaviour taken out so that it can be reused, not because it is an exception, e.g. CollectMoney for PurchaseSingleTicket and PurchaseMultiCard.\n- A use case with an exceptional flow can extend more than one use case.\n- An <<extend>> relationship is directed to the use case that is extended.\nKey: an exception extends, a shared part is included."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.1"
+   ],
+   "prompt": "What does an activity diagram show, and how is it related to a statechart diagram?",
+   "answer": "The flow of control within a system, drawn as a flowchart of activities.\n- It is a special case of a statechart diagram in which the states are activities.\n- E.g. Handle Incident, then Document Incident, then Archive Incident.\n- Activity diagrams are related to use cases: the activities can be use cases.\nKey: an activity diagram is a statechart whose states are activities."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.1"
+   ],
+   "prompt": "Decisions, concurrency and swimlanes: what does each add to an activity diagram?",
+   "answer": "Branching, parallel flows, and who carries out each action.\n- **Decisions**: the flow takes one of several branches, each marked with a condition in square brackets, e.g. `[lowPriority]` leads to Allocate Resources.\n- **Concurrency**: **splitting** divides the flow of control into several threads. **Synchronization** brings several activities together again.\n- **Swimlanes**: lanes that group actions by the object or subsystem that carries them out, e.g. Dispatcher and FieldOfficer.\nKey: decisions choose a path, splitting runs paths side by side, swimlanes show who acts."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.1"
+   ],
+   "prompt": "What is a storyboard in functional design, and why is it worth making?",
+   "answer": "A **storyboard** is a step by step picture story of the user's actions.\n- It visualises interaction. At least one is made per major use case.\n- Main tools: pen and paper.\n- Storyboards are the first prototypes: paper is cheap and quick.\n- Shown picture by picture to users who try to complete a task, they give feedback almost at once and reveal faults early.\n- Faults in how a system should be used are very expensive to correct later, if they can be corrected at all.\nKey: a storyboard is the cheapest first prototype of a use case."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.1"
+   ],
+   "prompt": "Which rules does the functional design lecture give for drawing a storyboard?",
+   "answer": "Five rules keep a storyboard easy to follow.\n1. Write which actor and which use case it describes.\n2. Name and number every picture, so it is easy to refer to.\n3. Start with the entry condition (where the user starts to interact with the system) and end with the exit condition, as in the use case.\n4. One step at a time, easy to understand.\n5. Show the activity: describe what happens between the pictures.\nKey: a storyboard follows its use case from entry condition to exit condition, one step per picture."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.1"
+   ],
+   "prompt": "How does the lecture's use case table rank use cases with cost, value and risk (CVR)?",
+   "answer": "Each use case gets three scores from 1 to 10, and their product is the CVR.\n- **Cost**: `1` = low, `10` = high.\n- **Value**: `1` = high, `10` = low. This scale is turned around.\n- **Risk**: `1` = low, `10` = high.\n- `CVR = cost * value * risk`, e.g. Create report: `2 * 2 * 6 = 24`.\n- In the example a low CVR is developed early, but after the use cases it depends on: Print report (CVR `20`) is second because it depends on Create report (CVR `24`).\nKey: a low CVR means cheap, valuable and low risk, so it is built early."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.1",
+    "1.2"
+   ],
+   "prompt": "What does 'failing gracefully' mean in project work, and how are risks managed?",
+   "answer": "Starting small and simple and evolving in small steps, so that a failure does not lose much.\n- Risks are identified early.\n- Value is weighed against risk to prioritise the work.\n- The parts of the system with the lowest value to risk ratio are done last.\n- The critical risks (the hardest parts) are studied first.\nKey: small steps make failures cheap, and the hardest risks are studied first."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.1"
+   ],
+   "prompt": "In which order does the lecture suggest working from a system description to prototypes?",
+   "answer": "From text to actors, use cases, diagrams and paper prototypes.\n1. Write a text description of the system and identify its actors.\n2. Express what the actors use the system for as use cases. Start with a minimal set.\n3. Attach values to each use case: cost, value, risk, dependencies, priority, metrics.\n4. Draw use case diagrams (use cases and actors) and activity diagrams (how the use cases relate).\n5. Make simple paper storyboards and paper prototypes. Throw them away, start small, evolve.\nKey: describe, find actors, find use cases, value them, draw them, prototype on paper."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.2"
+   ],
+   "prompt": "Why does a project specify requirements at all?",
+   "answer": "To give the customer what the customer wants, from one shared view of the system.\n- An unhappy customer or investor will most likely never return.\n- The requirements are the **shared system view**: the same picture of the system for all involved.\n- Bad input gives bad output: the lecture's 'crap in, crap out'.\n- The goal of a project: on time, within budget, and meeting the requirements.\nKey: requirements are the shared picture of what the customer will get."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.2"
+   ],
+   "prompt": "What is wrong with requirements written as huge volumes of text?",
+   "answer": "It is the common way to express requirements, and it has three weaknesses.\n- The text is difficult to comprehend.\n- It is open to different interpretations.\n- It contains design instead of the essential requirements.\n- On top of that, the requirements change during development.\nKey: long requirement texts are hard to read, read differently by each person, and mixed with design."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.2"
+   ],
+   "prompt": "How much more does a requirements error cost to fix late than early?",
+   "answer": "About 20 times more during development and about 200 times more after delivery.\n- The figures are from Boehm and Papaccio (1988).\n- The cost to fix grows through the phases: requirements definition, design, coding, unit testing, post-delivery.\n- The lecture's conclusion: get the requirements done right, and do not underestimate design.\nKey: `20` times during development, `200` times after delivery."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.2"
+   ],
+   "prompt": "Black box requirements versus functional (technical) specification: who is each for?",
+   "answer": "Black box requirements are for customers, the functional specification is for developers.\n- **Black box requirements**: the system seen from outside: actors, use cases, use case diagrams, activity diagrams, state charts, data flow diagrams, storyboards and user interfaces.\n- **Functional or technical specification**: detailed and mostly text. It holds sequence diagrams, classes and modules, test plans, and the non-functional requirements: performance, reliability, availability, error handling.\nKey: the customer reads use cases and storyboards, the developer reads the detailed specification."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.2"
+   ],
+   "prompt": "Problem space versus solution space: where does a requirement belong?",
+   "answer": "In the problem space: a requirement says what the system shall do, not how.\n- **Problem space** (what): the system lets the user see the balance of the account.\n- **Solution space** (how): the balances are stored in a table called 'balance' in an Access database. This is design, not a requirement.\n- The same rule holds when asking for requirements: ask what the system should do, not how.\nKey: requirements say what, design says how."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.2"
+   ],
+   "prompt": "Which three priority levels can a requirement have?",
+   "answer": "Essential, desirable and optional.\n- **Essential** (skall).\n- **Desirable** (bör).\n- **Optional** (option).\n- Lecture example for a game: every game character has the same set of qualities (essential), every area has a set of preferred qualities (desirable), the player's character ages (optional).\nKey: every requirement is marked skall, bör or option."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.2"
+   ],
+   "prompt": "What is gold-plating of requirements, and what is the remedy?",
+   "answer": "**Gold-plating** is decorating the requirements with half promises.\n- It is easy to do.\n- It makes far too many requirements unfeasible (not possible to deliver).\n- Remedy: keep the requirements as simple as possible.\n- Promising too much shows ambition, but failing to deliver loses trust. Promising too little can look lazy, but what was promised is delivered.\nKey: every half promise is a requirement that may prove impossible to deliver."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.2"
+   ],
+   "prompt": "How is a performance requirement written so that it can be tested?",
+   "answer": "As a ceiling on the duration or wait time that holds in 95% or 99% of the cases.\n- An average time alone is weak: convenience depends on getting rid of the excessive waits.\n- A ceiling for every single case is often not technically possible to guarantee.\n- So the ceiling is set for a share of the cases.\n- E.g. the system schedules a meeting within 5 seconds in 95% of the cases.\nKey: a testable performance requirement names a time limit and a percentage of cases."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.2"
+   ],
+   "prompt": "How is a usability requirement made testable?",
+   "answer": "By stating something that can be measured.\n- The ability to do a task without help within a certain time, after using the system for a decided period.\n- The average time to carry out a task without errors.\n- A count of actions, e.g. the scheduling constraints for a meeting with `N` persons are filled in with fewer than `5*N` keystrokes or mouse clicks.\nKey: usability becomes testable as a time or a count of actions."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.2"
+   ],
+   "prompt": "What is requirements refinement, and which three kinds are there?",
+   "answer": "Turning a vague, ambiguous wish into a clear, precise requirement, in small steps.\n- From 'I would like it to ...' to 'When PQR, the system shall XYZ'.\n- Kind 1: making a vague statement more precise.\n- Kind 2: saying what the system should do, as opposed to its users.\n- Kind 3: dealing with situations not yet considered.\n- E.g. 'improve the responsiveness to customer complaints' becomes: when the clerk enters the customer code, the system recommends the next customer-service action.\nKey: a refined requirement has the form 'when this happens, the system shall do that'."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.2"
+   ],
+   "prompt": "Which eight qualities do good requirements have?",
+   "answer": "Good requirements are:\n- **Correct**: the software shall really meet it. **Unambiguous**: only one interpretation.\n- **Complete**: all significant requirements, nothing left 'to be decided'. **Consistent**: no conflicts.\n- **Ranked by importance**: each one is prioritised (essential, desirable, optional).\n- **Verifiable**: a process can check that the software meets it. **Modifiable**: stated only once, not mixed.\n- **Traceable**: numbered, so it can be followed backward and forward.\nKey: correct, unambiguous, complete, consistent, prioritised, verifiable, modifiable, traceable."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.2"
+   ],
+   "prompt": "How should the system expert (user) be asked about requirements?",
+   "answer": "With prepared, open-ended questions, not with 'What should the system do?'.\n- 'What should the system do?' is too general.\n- The questions are prepared as a **question route**: an order of questions from what to how, not a strict questionnaire.\n- Open-ended questions, no yes/no questions.\n- No negative 'why' questions: the aim is to learn about habits, not reasons.\nKey: open questions about what users do, in a prepared order from what to how."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.2"
+   ],
+   "prompt": "What is the lecture's advice on the Software Requirements Specification (SRS) document?",
+   "answer": "Use the standard as a recommendation, and do not overdo it.\n- **SRS**: the requirements document (kravspecifikation). IEEE 830-1993 is the recommendation named for it.\n- Many companies say that ISO 9001 and the IEEE standards are trusted too much.\n- Balanced is best: an iterative process instead of too much documentation.\nKey: the users are more important than the documents."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.3"
+   ],
+   "prompt": "How is a UML sequence diagram read: columns, arrows, narrow rectangles and dashed lines?",
+   "answer": "It shows the messages that objects send each other.\n- Columns: classes (objects).\n- Arrows: messages, e.g. `selectZone()`.\n- Narrow rectangles: **activations**.\n- Dashed lines: **lifelines**.\n- The start of an arrow shows which activation sent the message. An activation lasts as long as all the activations nested in it.\nKey: columns are objects, arrows are messages, rectangles are activations."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.3"
+   ],
+   "prompt": "When are sequence diagrams used, and how do they complement class diagrams?",
+   "answer": "They show behaviour as interactions: what happens in the system when a user does something.\n- In requirements analysis: to refine use case descriptions and to find more objects (**participating objects**).\n- In system design: to refine the interfaces of subsystems.\n- Sequence diagram: the **run-time view** (behaviour). Class diagram: the **compile-time view** (structure).\n- They take time to build, but are worth it where the interactions are complex.\nKey: class diagrams show structure, sequence diagrams show interaction at run time."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.3"
+   ],
+   "prompt": "Which interaction frames can a UML sequence diagram use (alt, opt, par, ...)?",
+   "answer": "Seven frames, each marking a part of the diagram with a keyword.\n- `alt`: conditional, e.g. accept or decline an invitation. `opt`: optional.\n- `par`: the parts run in parallel.\n- `loop`: iteration.\n- `region`: one thread. `neg`: invalid.\n- `ref`: reference, the part is defined in another diagram.\nKey: `alt` chooses, `opt` may be skipped, `loop` repeats, `par` runs in parallel."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.3"
+   ],
+   "prompt": "What does a statechart diagram show, and what are its elements?",
+   "answer": "The dynamic behaviour of one object: its states and what moves it between them.\n- **Initial state** and **final state**.\n- **State**, e.g. Blink Hours on a watch.\n- **Event**, e.g. `button1Pressed`.\n- **Transition**: the move from one state to another when an event happens.\n- For an app it answers the question: what can be done from this screen?\nKey: a statechart is states joined by transitions, and events set the transitions off."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.3"
+   ],
+   "prompt": "Functional, object and dynamic model: which UML diagrams belong to each?",
+   "answer": "The course keeps to a few UML notations, sorted into three models.\n- **Functional model**: use case diagram.\n- **Object model**: class diagram.\n- **Dynamic model**: sequence, statechart and activity diagrams.\n- UML has many more notations. It is powerful but complex, and too many exotic features make models hard to understand.\n- UML is not a methodology (a way of working), only a notation.\nKey: functional is use cases, object is classes, dynamic is sequence, statechart and activity."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.3"
+   ],
+   "prompt": "What is classification in software design, and which two design tasks belong to it?",
+   "answer": "**Classification** is grouping by common structure or behaviour. It finds the classes and objects.\n- **Discovery**: recognising the **key abstractions**, the classes and objects that form the vocabulary of the problem domain.\n- **Invention**: devising generalised abstractions and new **mechanisms**, the structures that say how objects collaborate.\n- So a developer has two primary design tasks: to find the key abstractions and the mechanisms.\nKey: classes are partly discovered in the problem and partly invented."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.3"
+   ],
+   "prompt": "What does classification help to identify among classes?",
+   "answer": "Generalization, specialization and aggregation hierarchies.\n- Classification is about finding common attributes.\n- **Coupling** and **cohesion** are metrics for what classes and objects have in common.\n- The best software designs look simple, but a simple architecture takes a lot of hard work.\nKey: classification finds the hierarchies among classes."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.3"
+   ],
+   "prompt": "Which four ways are there to evolve a classification of classes?",
+   "answer": "Derivation, factorization, composition and abstraction.\n1. **Derivation**: creating new subclasses from existing ones.\n2. **Factorization**: splitting a large class into several smaller ones.\n3. **Composition**: uniting smaller classes into one larger class.\n4. **Abstraction**: discovering what classes have in common and devising a new class for it.\nKey: derive, split, unite, abstract."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.4"
+   ],
+   "prompt": "Which three questions does interaction design answer?",
+   "answer": "What does a person do, feel and know?\n- Do: how does the person affect the world?\n- Feel: what does the person sense of the world?\n- Know: what does the person learn?\nKey: do, feel, know."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.4"
+   ],
+   "prompt": "Artist/engineer, interface designer, interaction designer: what is each concerned with?",
+   "answer": "Each role looks at a different thing.\n- **Artist or engineer**: what is on the screen.\n- **Interface designer**: the person in front of the screen. Often takes a static view of the interface.\n- **Interaction designer**: engaging with technology over time, creating a two-way conversation with the machine.\nKey: the screen, the person, the conversation over time."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.4"
+   ],
+   "prompt": "Which phases does the interaction design process have, and what is the goal of each?",
+   "answer": "Discovery, design, prototype and evaluation.\n- **Discovery**: a deep understanding of the user and the problem space.\n- **Design**: designs that meet the needs of the stakeholders. It includes generating ideas.\n- **Prototype**: quickly prototyped interactive experiences with little or no coding.\n- **Evaluation**: data about the usability of the design, for a specified group of users doing a particular activity in a specified environment.\nKey: understand, design, prototype, evaluate."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.4"
+   ],
+   "prompt": "Who counts as a user or stakeholder of a product, beyond the person operating it?",
+   "answer": "More groups than is obvious, but not 'everyone': designing for everyone pleases no one.\n- Those who interact directly with the product.\n- Those who manage the direct users.\n- Those who receive output from the product.\n- Those who make the purchasing decision.\n- Those who use competitors' products.\nKey: users include the people who manage, receive from, and pay for the product."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.4"
+   ],
+   "prompt": "Which three categories of users does Eason (1987) name?",
+   "answer": "Primary, secondary and tertiary users.\n- **Primary**: frequent, hands-on users.\n- **Secondary**: occasional users, or users through someone else.\n- **Tertiary**: people affected by the introduction of the system, or who will influence its purchase.\nKey: primary users use it often, secondary sometimes, tertiary are affected by it."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.4"
+   ],
+   "prompt": "What is the aim of ideation in interaction design, and how is it started?",
+   "answer": "A large quantity of diverse ideas.\n- Aim: to step beyond the obvious solutions, to use the views of the whole group, and to uncover unexpected areas to explore.\n- **Fluency** means volume of ideas, **flexibility** means variety.\n- **'How might we ...?'** questions: short questions that launch a brainstorming.\n- Methods: brainstorming (best with an interdisciplinary team), writing ideas independently on post-it notes, mind mapping, inspiration from other products on the market.\nKey: ideation aims for many and varied ideas, beyond the obvious ones."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.4",
+    "1.5"
+   ],
+   "prompt": "What does a persona describe?",
+   "answer": "A **persona** is a described example user that stands for a user group.\n- Name and demographics: background, age, gender, education.\n- Ability: computer experience, skills.\n- Motivations and goals.\n- Needs: expectations, frequency of use, special conditions.\n- Before a persona is written, the type of system or service is defined.\nKey: a persona answers 'who are the users?' with one concrete person."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.4"
+   ],
+   "prompt": "What is a scenario in interaction design, and which questions does it answer?",
+   "answer": "A **scenario** focuses on one task or activity, to understand how the system is applied.\n- Who does it? (a persona)\n- Why?\n- What do they need to do?\n- Scenarios are good to use at demonstrations.\nKey: a scenario is one persona doing one task for a reason."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.4"
+   ],
+   "prompt": "Which methods for design and prototyping does the interaction design lecture list?",
+   "answer": "Prototyping explores a design and communicates it visually, with the focus on the user's experience. Six methods are listed.\n- Drawing and storyboards.\n- **Paper prototype** (pappersprototyp).\n- **Wireframing** (mockups): simple pictures of the screens.\n- **Wizard of Oz** prototyping: a person plays the part of the system.\n- Functional (interactive) prototypes.\nKey: rapid prototyping gives early feedback with little or no coding."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.4"
+   ],
+   "prompt": "How can a slide deck (e.g. PowerPoint) work as an interactive prototype?",
+   "answer": "By adding 'functionality' with links between the slides.\n- Insert Hyperlink or Action on an element of a slide.\n- The link jumps to a place in the document, the last slide viewed, the first slide, and so on.\n- Balsamiq is named as another tool for rapid prototyping.\nKey: hyperlinks turn drawn screens into a prototype that can be clicked through."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.4"
+   ],
+   "prompt": "Why should a design be evaluated early?",
+   "answer": "To optimise the process: the design is checked before it is implemented.\n- New experience is put to use quickly.\n- It answers: is the work on the right track?\n- It brings out new thoughts and ideas.\n- It shows whether something has changed.\n- Ways to do it: collect feedback, interview the user groups, hold workshops.\nKey: evaluate the design before starting to implement it."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.4"
+   ],
+   "prompt": "Which four approaches to evaluating a design does the interaction design lecture name?",
+   "answer": "Quick and dirty, usability testing, field studies and predictive evaluation.\n- **Quick and dirty**: informal feedback.\n- **Usability testing**: lab studies in a controlled setting.\n- **Field studies**: users in their natural setting.\n- **Predictive evaluation**: experts predict the problems.\nKey: the four differ in how formal they are and in whether users take part."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.4"
+   ],
+   "prompt": "Quick and dirty evaluation versus formal usability testing: what is the difference?",
+   "answer": "One is informal and fast, the other controlled and measured.\n- **Quick and dirty**: informal feedback from users and consultants on whether the ideas fit their needs, at any time. It gives fast input to the design.\n- **Formal usability testing**: typical users do typical tasks in a controlled setting, watched and recorded on video. Key presses may be logged.\n- The recordings give performance times, errors, and explanations of what users did.\n- Questionnaires and interviews collect the users' opinions.\nKey: quick and dirty gives fast opinions, usability testing gives measured performance."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.4"
+   ],
+   "prompt": "What are field studies (ethnographic studies) used for in evaluation?",
+   "answer": "To understand what users do naturally and how technology affects them, in their natural setting.\n- To identify opportunities for new technology.\n- To determine design requirements.\n- To decide how to introduce new technology.\n- To evaluate technology in use.\n- The contrast is a laboratory-based study: a controlled, instrumented environment.\nKey: field studies look at real use in the real place."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.4"
+   ],
+   "prompt": "What is predictive evaluation of a design?",
+   "answer": "Experts use their knowledge of typical users to predict usability problems.\n- It can involve theoretically based models.\n- Users do not need to be present.\n- It is relatively quick and inexpensive.\nKey: predictive evaluation needs experts, not users."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.4"
+   ],
+   "prompt": "What is a norm, and what is norm criticism (normkritik)?",
+   "answer": "A **norm** is what the majority of people consider fitting in a certain context.\n- Norms are often hard to notice. They show when someone breaks them.\n- **Norm criticism** (normkritik): exploring and making visible the norms that affect actions and values.\nKey: a norm stays invisible until someone breaks it."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.4"
+   ],
+   "prompt": "What should system developers keep in mind about norms and user categories?",
+   "answer": "That people are different.\n- People are often grouped into roles, e.g. user categories. Which assumptions are made then, and what is missed?\n- Who sets the requirements, develops and tests the system?\n- Which norms do those people bring with them, and how can that affect the solution?\nKey: the people who specify, build and test a system bring their own norms to it."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.4"
+   ],
+   "prompt": "Same support for all, adapted support, or removing the cause: how do the three differ?",
+   "answer": "Three ways to treat people that the lecture sets side by side under the question: fair?\n- Everyone is treated equally: all get the same support.\n- The support is adapted to make up for the differences: all have equivalent access.\n- The root cause of the inequality has been dealt with: all have equivalent access without support.\nKey: the same support for all does not give the same access for all."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.4"
+   ],
+   "prompt": "What does gender equality (jämställdhet) mean, and what does it not mean?",
+   "answer": "Women and men have the same rights, obligations and opportunities in all essential areas of life.\n- It does not mean that men and women are identical in all behaviours, preferences and abilities.\n- It does not mean that all gender differences must be eliminated.\n- It does not mean an even gender representation always and in all areas.\n- The lecture cites a 2020 report about large gaps in gender equality in the IT industry.\nKey: the same rights, obligations and opportunities, not sameness."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.4"
+   ],
+   "prompt": "What is a style guide (stilguide) for a user interface for, and what does it define?",
+   "answer": "Its purpose is unity: the whole interface follows the same rules.\n- Appearance (graphic profile): e.g. fonts, colours, icons, shapes.\n- Positioning and order of elements.\n- Logic in dialogues.\n- Terms (begrepp).\nKey: a style guide makes all parts of an interface look and behave alike."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.4",
+    "1.5"
+   ],
+   "prompt": "What are Jakob Nielsen's 10 usability heuristics?",
+   "answer": "Ten principles of usability (användbarhetsprinciper), here two per line.\n- Visibility of system status. Match between the system and the real world.\n- User control and freedom. Consistency and standards.\n- Error prevention. Recognition rather than recall.\n- Flexibility and efficiency of use. Aesthetic and minimalist design.\n- Help users recognise, diagnose and recover from errors. Help and documentation.\nKey: the ten heuristics work as a checklist for a usable interface."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.5"
+   ],
+   "prompt": "Which nine human needs does Max-Neef's model list, and in which four ways is each described?",
+   "answer": "Nine needs, each described as being, having, doing and interacting.\n- Existence, protection, affection.\n- Understanding, participation, leisure.\n- Creativeness, identity, liberty.\n- E.g. understanding: being curious, having education, doing study, interacting in school and family.\nKey: max-Neef: nine human needs, each in four forms."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.5"
+   ],
+   "prompt": "What does Vroom's model of expectations say motivation depends on?",
+   "answer": "On three expectations in a chain: effort, performance, reward.\n1. **Effort**: enough effort will lead to sufficient performance.\n2. **Performance**: enough performance will lead to a sufficient reward.\n3. **Reward**: the reward is appreciated.\nKey: effort leads to performance, performance leads to a reward, and the reward has to be worth having."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.5"
+   ],
+   "prompt": "What is compared in the balance (equality) model of expectations?",
+   "answer": "A person's own results and efforts, set against the results and efforts of others.\n- One side: the results of the individual and the efforts of the individual.\n- Other side: the results of others and the effort of others.\n- The expectation is balance (equality) between the two sides.\n- The slide names the model 'Adam'.\nKey: people expect the same return for their effort as others get for theirs."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.5"
+   ],
+   "prompt": "Hackman and Oldham: how does the type of work lead to high motivation?",
+   "answer": "The type of work creates a psychological state, and that state gives high motivation.\n- Type of work: variation, type of task, significance, governance, feedback.\n- Psychological state: meaningfulness, responsibility, expected result.\n- Result: high motivation.\nKey: work, then psychological state, then motivation."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.5"
+   ],
+   "prompt": "Purpose, context, role, importance: what does each say about a system in a usability scenario?",
+   "answer": "Four questions about the setting the system is made for.\n- **Purpose**: to replace or improve an existing system, to streamline operation and work processes, or to introduce a new process.\n- **Context**: developed during continued operation, in a restructuring phase, or in a start-up phase.\n- **Role**: the system drives a restructuring, or is only one issue in a set of changes.\n- **Importance**: mission critical for the customer, or just a nice extra to have.\nKey: purpose, context, role and importance set the frame for usability."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.5"
+   ],
+   "prompt": "How is a scenario broken into steps (scenario mapping)?",
+   "answer": "By focusing on one task and breaking that task into steps.\n- Each step is described with: persona, motivator, intent, action, resolution.\n- The notes are colour-coded: ideas, questions, comments or considerations.\n- The scenario mapping is done as a brainstorm.\nKey: one task, split into steps, each with persona, motivator, intent, action and resolution."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.5"
+   ],
+   "prompt": "Which four types of focus groups are there, and what is each for?",
+   "answer": "A **focus group** is a group of users or customers who discuss a product together.\n- **Exploratory**: the general attitude towards a product or service.\n- **Feature prioritisation**: which features appeal to users or customers.\n- **Competitive analysis**: what value people see in competing products.\n- **Trend explanation**: what drives a trend in user or customer behaviour.\nKey: explore attitudes, prioritise features, analyse competitors, explain trends."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.5"
+   ],
+   "prompt": "What kind of information is a focus group used to gather?",
+   "answer": "Opinions and reactions.\n- Ideas, attitudes, preferences and opinions.\n- Reactions to product concepts, and feedback on competitors.\n- General problems with a product or service.\n- Information that helps to design other studies, or to understand confusing results.\nKey: a focus group collects attitudes and reactions."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.5"
+   ],
+   "prompt": "What are the strengths and weaknesses of focus groups?",
+   "answer": "Cheap and fast, but a small sample that is easily skewed.\n- Strengths: inexpensive, concentrated data in a short time, insight into different users and customers, a flexible way to collect data.\n- Weakness: a small sample size, so conclusions are hard to draw.\n- Weakness: dominant individuals can skew the results, and conflicts and power struggles cause problems.\n- Weakness: data on detailed work activities is hard to gather.\n- A focus group requires good moderation.\nKey: a focus group gives much data quickly, but not data to draw firm conclusions from."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.5"
+   ],
+   "prompt": "Machine-centered versus people-centered view: how does each describe people and machines?",
+   "answer": "Each view sees strengths on one side and faults on the other.\n- **Machine-centered view**: people are vague, disorganised, distractible, emotional and illogical. Machines are precise, orderly, undistractible, unemotional and logical.\n- **People-centered view**: people are creative, compliant, attentive to change, resourceful and able to decide flexibly from context. Machines are dumb, rigid, insensitive to change and unimaginative.\n- The question behind it: should people adapt to machines, or machines to people?\nKey: one view sees people as the weak part, the other sees machines so."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.5"
+   ],
+   "prompt": "Which golden rules of interface design does the HCI lecture list?",
+   "answer": "Seven rules, listed under the heading 'the 8 golden rules'. Following them is one of the lecture's three principles of user experience, with recognising user diversity and balancing automation with human control.\n- Strive for consistency. Enable frequent users to use shortcuts.\n- Offer informative feedback.\n- Design dialogues to yield closure.\n- Permit easy reversal of actions.\n- Support internal locus of control. Reduce short-term memory load.\nKey: consistency, shortcuts, feedback, closure, reversal, control, low memory load."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.5"
+   ],
+   "prompt": "Automation and human control: which tasks suit humans better, and which suit machines?",
+   "answer": "Humans are generally better with the unexpected, machines with the repetitive and exact.\n- Humans: sense unexpected events, adapt decisions from experience, develop new solutions, act in emergencies and novel situations.\n- Humans reason **inductively**: they generalise from observations.\n- Machines: monitor pre-specified events, recall details accurately, respond fast and consistently, do several things at once.\n- Machines reason **deductively**: they infer from a general principle.\nKey: judgement for the human, routine for the machine."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.5"
+   ],
+   "prompt": "What are the five essential principles of interaction design?",
+   "answer": "Consistency, perceivability, learnability, predictability and feedback.\n- **Consistency**.\n- **Perceivability**: the user can perceive what is there.\n- **Learnability**: the system is easy to learn.\n- **Predictability**: the user can tell what will happen.\n- **Feedback**: the system shows what happened.\nKey: consistent, perceivable, learnable, predictable, with feedback."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.5"
+   ],
+   "prompt": "What does Fitts's law say about pointing at a target?",
+   "answer": "The time it takes to point at a target depends on the distance to the target and on its size.\n- The larger the distance to move, the longer it takes.\n- The larger the target, the easier it is to hit, and not to overshoot.\n- The slides spell it 'Fitt's law'.\nKey: near and big is fast, far and small is slow."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.5"
+   ],
+   "prompt": "What does Hick's law say about choosing among alternatives?",
+   "answer": "The time a person needs to make a selection is proportional to the logarithm of the number of alternatives.\n- It applies when the user can search by dividing the list into parts, e.g. an alphabetical list.\n- It does not apply when a linear search is needed, e.g. a randomly ordered list of commands.\nKey: more alternatives take longer to choose from, but only by the log of their number."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.5"
+   ],
+   "prompt": "What do the letters in GOMS stand for, and what is GOMS used for?",
+   "answer": "**GOMS** techniques predict how people will use a proposed system, in numbers and in words.\n- **Goals**: what a user wants to accomplish.\n- **Operators**: the operations used to reach a goal.\n- **Methods**: sequences of operators that reach a goal.\n- **Selection rules**: how a method is selected for a goal.\nKey: goals, operators, methods, selection rules."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.5"
+   ],
+   "prompt": "Perception versus cognition: what is the difference?",
+   "answer": "Perception takes information in, cognition works with it.\n- **Perception**: how information is perceived and sensed. 80% of information comes through sight.\n- **Cognition**: thinking: how data is processed, memory, learning, objectives and actions.\n- Cognition works on three levels: automatic, rule-based and knowledge-based.\nKey: perception is sensing, cognition is thinking."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.5"
+   ],
+   "prompt": "Top-down versus bottom-up perception: what is the difference?",
+   "answer": "Perception can start from what is known or from what is sensed.\n- **Top-down**: what is seen is created from what is already known: experience, models, ideas, expectations. The forest is seen first.\n- **Bottom-up**: the sensed information is combined into a whole. What is seen is what is there. The trees are seen first.\n- How things are experienced depends on earlier experiences, the context and the objectives.\nKey: top-down starts from expectations, bottom-up starts from the senses."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.6"
+   ],
+   "prompt": "Symmetric versus asymmetric balance in a layout: what is the difference?",
+   "answer": "**Balance** (balans) gives a page visual balance and stability.\n- **Symmetric balance**: the elements are evenly distributed.\n- **Asymmetric balance**: different elements whose **visual weight** is in balance, e.g. one large picture on one side and several small elements on the other.\n- Dark elements get more weight.\n- Radial balance is named as well.\nKey: balance is about equal visual weight, not about equal elements."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.6"
+   ],
+   "prompt": "What is contrast used for in interface design, and how is it created?",
+   "answer": "**Contrast** (kontrast) makes elements stand out and improves readability.\n- It is created with contrasting colours, sizes or shapes.\n- It follows the colour theme and the branding.\n- E.g. light text on a dark background or the reverse, and the design of road signs.\n- Text and background need a high contrast value. Colour choices are checked against the WCAG guidelines with a contrast analyser.\nKey: contrast separates elements and makes text readable."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.6"
+   ],
+   "prompt": "How does visual hierarchy guide the user through a page?",
+   "answer": "**Hierarchy** (hierarki) leads the eyes through the page and stresses the important elements.\n- Size, colour and placement create a visual order.\n- E.g. larger and bolder fonts for headings, subtler ones for body text.\n- **Typographic hierarchy**: headings, subheadings, body text and quotes present the information in a clear order.\n- Font weight and size draw attention to key information.\nKey: size, colour and placement show what is most important."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.6"
+   ],
+   "prompt": "What does the design principle of unity (enhällighet) ask for?",
+   "answer": "A familiar and intuitive experience through the whole website, with a feeling of unity and coherence on the page.\n- Recurring style elements: navigation, colour schemes, fonts, layout structures.\n- Design elements that people associate with the product or service.\n- Start from what the end user expects and build on that.\n- It applies to navigation as well.\nKey: the same colours, fonts and navigation through the whole website."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.6"
+   ],
+   "prompt": "What does the design principle of proportions say?",
+   "answer": "Elements are sized in relation to each other to balance the page layout.\n- Size relations create dynamics and focus.\n- E.g. larger pictures for important content, smaller ones for less important information.\nKey: the size of an element shows its importance."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.6"
+   ],
+   "prompt": "How does the design principle of focus draw attention to what matters on a page?",
+   "answer": "**Focus** (fokus) pulls attention to the most important parts of the page.\n- Not too much information on one page: less clutter.\n- Understand the user's intentions and minimise the number of steps to complete a task.\n- Colour, light, contrast and placement highlight important areas.\n- E.g. a **CTA** (call to action) button that is more colourful or larger than other elements, or a simple and fast check-in on a hotel booking site.\nKey: little clutter, few steps per task, and the important parts highlighted."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.6"
+   ],
+   "prompt": "Feedback and responsive design versus reactive design: what does each principle mean?",
+   "answer": "One answers the user, the other fits the screen.\n- **Feedback and responsive design** (återkoppling och responsiv design): the page answers the user's interactions, e.g. buttons that change look when clicked, loading symbols.\n- Why: if nothing visible happens after pressing 'pay', the user may press 'pay' again.\n- **Reactive design** (reaktiv design): a layout that adapts to the screen size and orientation of the device.\n- Its tools: media queries and flexible grid layouts in CSS.\nKey: in the lecture's terms, responsive answers the user and reactive adapts to the screen."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.6"
+   ],
+   "prompt": "How is a website made accessible (tillgänglighet)?",
+   "answer": "**Accessibility** means the site is usable for people with different abilities: the whole intended target group.\n- Universal design: follow accessibility standards such as **WCAG** (Web Content Accessibility Guidelines).\n- Elements that work with screen readers, content with high contrast, navigation by keyboard.\n- Alternative text for images: `<img alt='...' src='...'>`.\n- **ARIA** (Accessible Rich Internet Applications) labels.\nKey: WCAG, screen readers, contrast, keyboard navigation, alt text."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.6"
+   ],
+   "prompt": "What is the purpose of the principle of context and proximity in web design?",
+   "answer": "To group related content and interactive elements, so that users understand intuitively how to navigate and interact.\n- Goal: less **cognitive load** (mental effort), because the structure of the site is obvious and easy to grasp.\n- Groupings help to tell content apart and to find things. People look for structure and associations.\n- The principle builds on the Gestalt laws.\nKey: what belongs together is placed together."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.6",
+    "1.5"
+   ],
+   "prompt": "Gestalt laws of proximity and similarity: what does each say, and how are they used?",
+   "answer": "**Gestalt** psychology says that people see structures.\n- **Law of proximity** (närhet): elements close to each other are seen as related, elements further apart as separate.\n- **Law of similarity** (likhet): elements that look alike are seen as part of the same group.\n- Use: to organise content and navigation elements in a meaningful way.\n- The lectures also name closure, continuity and simplicity (the law of Prägnanz: people look for structures).\nKey: close together or alike means belonging together."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.6"
+   ],
+   "prompt": "Where should buttons, form labels and related content be placed (strategic placement)?",
+   "answer": "Next to what they belong to.\n- CTA (call to action) buttons: near the content they are associated with, to drive conversions.\n- Form fields: grouped with their labels, for better readability and fewer filling errors.\n- Related articles or products: beside the primary content, to encourage further exploring.\nKey: an element is placed in the context it belongs to."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.6"
+   ],
+   "prompt": "Which means does the lecture give for grouping related things visually?",
+   "answer": "Containers, spacing, and a few lines.\n- **Visual containers**: cards, shadows and other design elements that group related articles or functions.\n- **Spacing**: enough space between the groups to tell them apart clearly.\n- **Lines and borders**: they mark off areas, but are used sparingly so that the page does not look messy.\n- Unplanned placement with differences in spacing gives a chaotic design.\nKey: groups are shown by containers and by even, sufficient spacing."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.6"
+   ],
+   "prompt": "What does 'interactivity within context' mean for feedback and step-by-step flows?",
+   "answer": "Feedback and next steps appear where the action took place.\n- Feedback near the action: e.g. the validation of a form field is shown near that field.\n- Sequencing of user actions: each next step follows logically from the one before, within the same visual area.\n- **Wizard-style interface**: typically used for surveys, with one question per page and a 'next' button.\nKey: feedback is shown near the element where the action was done."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.6"
+   ],
+   "prompt": "What is the psychology of colour in interface design?",
+   "answer": "Different colours affect people's feelings and behaviour.\n- Colours are chosen to bring out the wanted reactions and to match the personality of the brand.\n- Blue strengthens feelings of trust and stability.\n- Red can create a feeling of urgency or importance.\nKey: blue for trust and stability, red for urgency and importance."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.6"
+   ],
+   "prompt": "How is a colour scheme (färgschema) chosen for a design?",
+   "answer": "With the colour wheel (färgcirkeln), to get a harmonious and visually pleasing design.\n- The colours are picked as complementary, analogous or tetradic colours.\n- Tools named: Adobe Color and Coolors.\n- Not too many colours: they overload the users.\nKey: a colour scheme is picked from the colour wheel, with few colours."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.6"
+   ],
+   "prompt": "Why do cultural associations matter when choosing colours?",
+   "answer": "Colours have different meanings in different cultures.\n- Research: find out how the target group perceives colours, to avoid misunderstandings or unintended associations.\n- Adaptation: adjust the colour choices to the geographic or demographic target group.\nKey: check what a colour means to the target group."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.6"
+   ],
+   "prompt": "What does white space (vitutrymme) do in a design?",
+   "answer": "**White space**, also called negative space, gives the eyes room to breathe and brings out the other design elements.\n- Used well, it gives a clean and clear layout.\n- It can lead the user's focus and improve navigation on the page.\n- In text: enough **line height** improves readability, and correct spacing between letters and words improves the flow of the text.\n- By the law of proximity, space between two blocks of text makes them read as two texts.\nKey: empty space is a design element of its own."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.6"
+   ],
+   "prompt": "Which elements does typography work with on a web page?",
+   "answer": "Typography uses text to carry information and also to add to the visual flow and look of the page.\n- Font family (teckensnittsfamilj), font style and size.\n- **Line height** (linjehöjd, leading): the space between lines.\n- **Kerning** (bokstavsutrymme) and **tracking** (bokstavsvidd): the spacing of the letters.\nKey: font family, style, size, line height, kerning and tracking."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.6"
+   ],
+   "prompt": "Which five font families are there, and what does each suit?",
+   "answer": "Serif, sans-serif, monospace, cursive and fantasy.\n1. **Serif**: traditional, respected, easy to read in print.\n2. **Sans-serif**: modern, clean, easy to read on screens.\n3. **Monospace**: every character takes the same space, good for code.\n4. **Cursive**: personal, emphasised, used sparingly.\n5. **Fantasy**: unique, expressive, used for a strong visual point of interest.\nKey: a web page names a font family and several alternative fonts, because not every font exists everywhere."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.6"
+   ],
+   "prompt": "How is typography made to adapt to different screens (responsive typography)?",
+   "answer": "With scalable units for font sizes and with media queries.\n- Scalable units: `em`, `rem` (root em) and `vw` (viewport width).\n- **Media queries** change the typographic settings by device and orientation.\n- For accessibility, text contrast and size follow the WCAG guidelines, tested e.g. with WebAIM's contrast checker. This makes the text readable also for users with impaired vision.\nKey: scalable units and media queries keep text readable on every screen size."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.6"
+   ],
+   "prompt": "How do colour and typography support a brand?",
+   "answer": "By being used consistently, so that the brand is recognised.\n- Colour palettes complement the logo and the brand material.\n- The same shades are used on all platforms and in all marketing material.\n- One or a few fonts, used consistently, strengthen the personality and values of the brand.\n- E.g. LTU is meant to use the font Bembo in official documents.\nKey: the same colours and fonts everywhere make a brand recognisable."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.6"
+   ],
+   "prompt": "Which basic navigation elements does a website have, and where do they sit?",
+   "answer": "Horizontal menu, vertical menu, dropdown menu and search field.\n- **Horizontal menu**: links to the main pages (contact, about). Mostly at the top, at the bottom in some mobile apps.\n- **Vertical menu**: main pages and subpages, suits expanding. Mostly on the left, on the right on some mobile-adapted pages.\n- **Dropdown menu**: for large sites with much content, less clutter. The **hamburger menu** is one form of it.\n- **Search field**: lets users find specific information quickly.\nKey: horizontal on top for main pages, vertical on the left for subpages too."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.6"
+   ],
+   "prompt": "Which four rules make website navigation effective?",
+   "answer": "Consistency, clarity, prioritisation and contextual navigation.\n- **Consistency**: the navigation elements are placed the same way on all pages.\n- **Clarity**: every link is clear and self-explaining, with a descriptive label.\n- **Prioritisation**: important links are prominent and easy to reach.\n- **Contextual navigation**: the options adapt to the user's interactions and to where on the site the user is.\nKey: same place, clear labels, important links first, options that fit the context."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.6"
+   ],
+   "prompt": "Which two pitfalls in website navigation does the lecture warn about?",
+   "answer": "Overload and deep menus.\n- **Overload**: too many options can overwhelm users and make information harder to find.\n- **Deep menus**: a navigation structure that is too deep forces too many clicks to reach the wanted content.\nKey: not too many options, not too many levels."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.6"
+   ],
+   "prompt": "Which four methods test and evaluate website navigation?",
+   "answer": "Card sorting, lab testing, A/B testing and heatmaps.\n- **Card sorting**: every navigation link is written on a post-it and users sort them for different scenarios. It shows whether the link names and the tree structure match what users expect.\n- **Lab testing**: users navigate a prototype while observed, and say what they do and expect.\n- **A/B testing**: several prototypes are compared. Mind order bias and experience bias.\n- **Heatmaps**: eye tracking shows where users look for a function.\nKey: card sorting tests the names and structure, the other three test use."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.6"
+   ],
+   "prompt": "What matters when using images on a web page?",
+   "answer": "Relevance, quality and alt texts.\n- **Relevance**: the images fit the content and add value for the user.\n- **Quality**: high quality, but not so large that the page loads slowly.\n- **Alt texts**: descriptive texts for accessibility (screen readers, visually impaired users) and for **SEO** (search engine optimisation).\n- Legal: only media that may be used or is royalty free, with credit given when the licence requires it.\nKey: relevant, high quality but light, with alt text, and legal to use."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.6"
+   ],
+   "prompt": "What matters when using video and audio on a web page?",
+   "answer": "Four points: engaging, performance, accessibility, controls.\n- Engaging: videos can demonstrate products, explain complex concepts or tell stories.\n- Performance: compress video files and use streaming services, so that the server is not loaded.\n- Accessibility: captions and transcripts for those who cannot or do not want to listen to the sound.\n- Controls: full control over playback, with clear play, pause and stop buttons.\n- Animations and interactive elements (hover effects, slideshows) make a site livelier and give direct feedback.\nKey: compressed, captioned, and under the user's control."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.6"
+   ],
+   "prompt": "What are the key elements of search engine optimisation (SEO)?",
+   "answer": "Keywords, content quality and user experience.\n- **Keywords** (sökord): the words the target group uses to search for the products or services.\n- **Content quality**: valuable and relevant content that satisfies the intent of the search.\n- **User experience**: SEO is not only about search engines, but about a positive experience for the users.\nKey: the right keywords, good content, a good experience."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "1.6"
+   ],
+   "prompt": "Which three on-page SEO elements does the lecture name?",
+   "answer": "Title tags with meta descriptions, heading tags, and internal links.\n- **Title tags and meta descriptions**: tell search engines and users what the page contains.\n- **Heading tags** (`H1`, `H2`, ...): structure the content and stress important parts.\n- **Internal linking**: a network of links within the site helps search engines to understand the structure and the weight of the pages.\nKey: titles, headings and internal links tell a search engine what a page is about."
+  }
+ ]
+}

@@ -258,14 +258,15 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
 @media (max-width:520px){ .fgrid{grid-template-columns:1fr} }
 .fcard{perspective:1400px; display:flex; cursor:pointer; outline:none; max-width:380px; width:100%; min-width:0; container-type:inline-size}
 .fcard:focus-visible .fc-body{box-shadow:inset 0 0 0 2px var(--now)}
-/* at least a playing card's 5 to 7, measured on the card's own width; taller when the text needs it */
-.fc-in{flex:1 1 auto; min-width:0; display:grid; min-height:140cqw; transition:transform .55s cubic-bezier(.2,.7,.2,1); transform-style:preserve-3d}
+/* at least a playing card's 5 to 7, measured on the card's own width; taller when the text needs it, up to
+   twice the width: past that the prompt or answer scrolls inside, so one long card never stretches its row */
+.fc-in{flex:1 1 auto; min-width:0; display:grid; grid-template-rows:minmax(0, 1fr); min-height:140cqw; max-height:200cqw; transition:transform .55s cubic-bezier(.2,.7,.2,1); transform-style:preserve-3d}
 .fcard.flipped .fc-in{transform:rotateY(180deg)}
 /* the face carries the shadow, its body the cut corner, so the shadow follows the bevelled shape */
 /* --card-lift comes with the palette (tools/palette.mjs) */
-.fc-face{grid-area:1 / 1; display:flex; backface-visibility:hidden; -webkit-backface-visibility:hidden}
+.fc-face{grid-area:1 / 1; display:flex; min-height:0; backface-visibility:hidden; -webkit-backface-visibility:hidden}
 .fc-back{transform:rotateY(180deg)}
-.fc-body{flex:1 1 auto; min-width:0; overflow-wrap:anywhere; display:flex; flex-direction:column; gap:7px; padding:12px 14px 14px;
+.fc-body{flex:1 1 auto; min-width:0; min-height:0; overflow-wrap:anywhere; display:flex; flex-direction:column; gap:7px; padding:12px 14px 14px;
   --bev:16px; --bw-t:5px; --stripe:var(--cc, var(--now)); --frame:linear-gradient(var(--stripe) 5px, var(--line) 5px); --edge:var(--cce); --edge-b:var(--cceb); --fill:var(--surface)}
 /* the course stripe is the frame's top side, 5 px, following the cut */
 .fc-back .fc-body{--stripe:var(--now); --fill:var(--surface-2)}
@@ -290,7 +291,8 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
 @keyframes pluck{to{transform:scale(.05); opacity:0}}
 .fcard.pluck{animation:pluck .36s cubic-bezier(.5,0,.75,0) forwards; pointer-events:none; z-index:5; position:relative}
 @media (prefers-reduced-motion:reduce){ .fcard.pluck{animation:none} }
-.fc-q{flex:1 1 auto; display:flex; align-items:center; font-family:Archivo,sans-serif; font-size:20px; font-weight:700; line-height:1.3; color:var(--ink)}
+.fc-q,.fc-a{min-height:0; overflow-y:auto; scrollbar-width:thin; overscroll-behavior:contain}
+.fc-q{flex:1 1 auto; display:flex; align-items:safe center; font-family:Archivo,sans-serif; font-size:20px; font-weight:700; line-height:1.3; color:var(--ink)}
 .fc-a{flex:1 1 auto; font-size:13.5px; line-height:1.4; color:var(--ink)}
 .fc-a p{margin:0 0 6px} .fc-a ul,.fc-a ol{margin:0 0 6px; padding-left:18px} .fc-a li{margin:2px 0}
 /* the answer's opening line reads as its title; a hint card's "Linked from" line sits small above it */
@@ -1896,10 +1898,13 @@ function renderCardsView(t){
       (one ? '<div class="fgrid one">' + flipCard(t, one, "drill") + '</div>' : '<p class="note">This card no longer exists, or it is a group answer card that only its group sees.</p>') + '</div></section>';
   }
   var pool = drillable(t), due = pool.filter(isDue), today = todayIso(), f = state.cardFilter || "due", hiddenN = C.list.filter(cardHidden).length, tr = state.cardTrust || "nofix";
-  var sets = {}; pool.forEach(function(c){ cardEvents(t, c).forEach(function(e){ if (e.a.due < today) return; var k = e.code + ":" + e.a.id; (sets[k] = sets[k] || { k: k, e: e, cards: [] }).cards.push(c); }); });
+  // A Set whose lab or exam has passed stays only with the Drill Goal "until mastered": then it is quick practice.
+  var keepPast = state.drillGoal === "mastered";
+  var sets = {}; pool.forEach(function(c){ cardEvents(t, c).forEach(function(e){ if (e.a.due < today && !keepPast) return; var k = e.code + ":" + e.a.id; (sets[k] = sets[k] || { k: k, e: e, cards: [] }).cards.push(c); }); });
   var setList = Object.keys(sets).map(function(k){ return sets[k]; }).sort(function(p, q){ return p.e.a.due.localeCompare(q.e.a.due); });
   var itemF = /^m:/.test(f) ? cardItem(f) : null;
   var picked = f === "due" ? due : f === "all" ? pool : itemF ? pool.filter(function(c){ return (c.sources || []).indexOf(f) >= 0; }) : (sets[f] ? sets[f].cards : []);
+  var pastSet = !keepPast && /^[^:]+:\d+$/.test(f) && !sets[f] && pool.some(function(c){ return cardEvents(t, c).some(function(e){ return e.code + ":" + e.a.id === f; }); });
   var shown = cardQueue([f, tr, state.filter, state.showHiddenCards ? 1 : 0].join("|"), picked, pool), doneN = Object.keys(state.cq.done).length;
   var filters = '<button type="button" data-cardfilter="due"' + (f === "due" ? ' aria-pressed="true"' : '') + '>' + ic("clock", "sm") + 'Due now <b>' + due.length + '</b></button>' +
     setList.map(function(s){ var dn = s.cards.filter(isDue).length, known = s.cards.filter(function(c){ return recallOn(c, s.e.a.due) >= 0.9; }).length;
@@ -1913,7 +1918,7 @@ function renderCardsView(t){
     (hiddenN || state.showHiddenCards ? '<button type="button" data-cardshowhidden="1" aria-pressed="' + (state.showHiddenCards ? "true" : "false") + '" title="Show the cards you hid, faded, so you can bring them back">' + ic(state.showHiddenCards ? "eye" : "eye-slash", "sm") + 'Hidden <b>' + hiddenN + '</b></button>' : '') + '</div>';
   var grid = shown.length ? '<div class="fgrid">' + shown.map(function(c){ return flipCard(t, c, "drill"); }).join("") + '</div>'
     : doneN ? '<p class="note">' + ic("check-circle", "sm") + ' Round done: ' + doneN + (doneN === 1 ? ' card' : ' cards') + ' practised. <button type="button" class="plain" data-cardround="1">Shuffle a new round</button></p>'
-    : '<p class="note">' + (f === "due" ? (pool.length ? "Nothing is due: every card is scheduled for later. Pick a set above to practise its cards anyway." : "No cards here yet. Write one below.") : "No cards here.") + '</p>';
+    : '<p class="note">' + (f === "due" ? (pool.length ? "Nothing is due: every card is scheduled for later. Pick a set above to practise its cards anyway." : "No cards here yet. Write one below.") : pastSet ? "This lab or exam has passed, so its cards are put away. Choose \"until mastered\" below to keep practising them." : "No cards here.") + '</p>';
   var toFix = C.maintainer ? C.list.filter(function(c){ return trustOf(c) === "fix"; }) : [];
   var mineG = (C.groups || []).map(function(g){ return g.course + " Group " + g.group_number; }).join(", ");
   var courseOpts = Object.keys(COURSES).filter(function(k){ return COURSES[k].canvasId; }).map(function(k){ return '<option value="' + esc(k) + '">' + esc(label(k)) + '</option>'; }).join("");
@@ -1952,7 +1957,7 @@ function cardText(text){
 // A Card belongs to the Card Set of every assessment its Sources prepare for (Module 2 Quiz and Midterm 1
 // alike). Its header names the Set being viewed, else the nearest; the rest are listed on hover.
 function flipCard(t, c, mode){
-  var C = state.cards, today = todayIso(), evs = cardEvents(t, c).filter(function(e){ return e.a.due >= today; }), rv = C.reviews[c.id], flipped = !!(state.flipped && state.flipped[c.id]);
+  var C = state.cards, today = todayIso(), evs = cardEvents(t, c).filter(function(e){ return e.a.due >= today || (state.drillGoal === "mastered" && e.code + ":" + e.a.id === state.cardFilter); }), rv = C.reviews[c.id], flipped = !!(state.flipped && state.flipped[c.id]);
   var ev = evs.find(function(e){ return e.code + ":" + e.a.id === state.cardFilter; }) || evs[0] || null, others = evs.filter(function(e){ return e !== ev; });
   var evName = function(e){ return shortTitle(e.a.title).split(",")[0] + ", " + longDay(e.a.due); };
   var hid = cardHidden(c), v = votesOf(c), k = trustOf(c), may = canVote(c), mineNote = may ? "" : " (you wrote this card)";
@@ -3790,7 +3795,7 @@ document.addEventListener("change", function(e){
   if (!b) return;
   if (b.dataset && b.dataset.pinname) { renamePin(b.dataset.pinname, b.value); state.pinEdit = null; renderTerm(); return; }
   if (b.id === "daypick") { state.day = b.value || todayIso(); state.routeTarget = null; renderTerm(); return; }
-  if (b.name === "dgoal") { state.drillGoal = b.value === "mastered" ? "mastered" : "event"; lsSet(LS.drillGoal, state.drillGoal); return; }
+  if (b.name === "dgoal") { state.drillGoal = b.value === "mastered" ? "mastered" : "event"; lsSet(LS.drillGoal, state.drillGoal); renderTerm(); return; }
   if (b.id === "cv-opened") { state.openedCounts = b.checked; lsSet(LS.openedCounts, b.checked ? "1" : "0"); applyState(); renderTerm(); return; }
   if (b.dataset && b.dataset.group) { var gv = parseInt(b.value, 10); if (gv > 0 && gv < 100) state.groups[b.dataset.group] = gv; else delete state.groups[b.dataset.group]; lsSet(LS.groups, JSON.stringify(state.groups)); renderTerm(); refreshBookings(); return; }
   if (b.id === "g-hops") { state.mapHops = Number(b.value); lsSet(LS.mapHops, String(state.mapHops)); document.getElementById("g-hops-v").textContent = hopsLabel(); applySel(term()); return; }

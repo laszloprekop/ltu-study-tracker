@@ -178,7 +178,8 @@ _Avoid_: Check (a Check confirms a Card is correct), study
 
 **Drill Goal**:
 A Student's choice of how long Reviews continue: until the Key Event (the default), or until
-mastered, carrying on past smaller Key Events towards the midterms and final exams.
+mastered, carrying on past smaller Key Events towards the midterms and final exams. Until mastered
+also keeps the Card Sets of Key Events that have passed, as quick practice.
 _Avoid_: Mode, horizon
 
 ### Links

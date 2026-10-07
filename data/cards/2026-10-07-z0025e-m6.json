@@ -1,0 +1,345 @@
+{
+ "note": "AI-drafted Concept Cards (Claude, 2026-10-07) for Z0025E Module 6 (the link layer and LANs), drafted from the overview's Learning Objectives and Study Guide, the Lecture 13 page and slides, the two lecture video captions and the linked Knowledge Checks. Uploaded unchecked; classmates vote on each.",
+ "cards": [
+  {
+   "course": "Z0025E",
+   "sources": [
+    "6.2",
+    "6.1"
+   ],
+   "prompt": "What is the job of the link layer, and what are nodes, links and frames?",
+   "answer": "The link layer moves a datagram from one node to the physically adjacent node over a single link.\n- **Node**: a host or a router.\n- **Link**: the communication channel between adjacent nodes along the path: wired, wireless or a LAN.\n- **Frame**: the layer-2 packet. It encapsulates (wraps) the datagram.\n- Two nodes joined at the link layer have no router between them, only links and perhaps link-layer switches.\nKey: the network layer plans the whole path, the link layer carries the datagram over one link at a time."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "6.2",
+    "6.1"
+   ],
+   "prompt": "Which services can a link-layer protocol offer?",
+   "answer": "Framing, link access, reliable delivery, flow control, error detection and error correction, all between adjacent nodes.\n- **Framing**: wrap the datagram in a frame (header and trailer).\n- **Link access**: rules for using a shared medium, with MAC addresses in the frame header.\n- **Reliable delivery**: ACKs, timeouts and retransmission, as in the transport layer.\n- **Flow control**: pacing, so the sender does not overflow the receiver.\n- Error detection and correction, and half-duplex or full-duplex transfer.\nKey: each link protocol offers its own set of these services, not always all of them."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "6.2",
+    "6.1"
+   ],
+   "prompt": "What do the sending and the receiving interface do with a datagram at the link layer?",
+   "answer": "The sending side wraps the datagram in a frame, the receiving side checks the frame and unwraps it.\n1. Sending side: encapsulate the datagram in a frame, adding addresses, error checking bits and whatever fields the protocol needs for reliable transfer or flow control.\n2. Pass the frame to the physical layer, which sends it bit by bit.\n3. Receiving side: look for errors and do flow control and the other services.\n4. Extract the datagram and pass it up to the network layer.\nKey: the datagram travels over the link as the payload of a frame."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "6.2"
+   ],
+   "prompt": "Why can one datagram be carried by several different link-layer protocols on its way?",
+   "answer": "Each link on the path can use its own link protocol, for example WiFi on the first link and Ethernet on the next.\n- Each link protocol offers different services: it may or may not give reliable transfer, for example.\n- Lecture analogy, a trip from Princeton to Lausanne: limo, then plane, then train.\n- The tourist is the datagram, each leg of the trip is a link, the transportation mode is the link-layer protocol, the travel agent is the routing algorithm.\nKey: one datagram, many links, and each link carries it in its own way."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "6.2"
+   ],
+   "prompt": "Where in a host is the link layer implemented?",
+   "answer": "In the **network interface card** (NIC) or on a chip, as a combination of hardware, software and firmware.\n- The NIC, for example an Ethernet or WiFi card, implements the link layer and the physical layer.\n- It attaches to the host's system buses.\n- The lower parts of the link layer and the physical layer are hardware.\n- The upper parts of the link layer, such as handing data up and handling interrupts, are software in the operating system.\n- Every host has a link layer.\nKey: the link layer is where the protocol stack splits between hardware and software."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "6.2"
+   ],
+   "prompt": "Error detection versus error correction at the link layer: what is the difference?",
+   "answer": "With **error detection** the receiver only notices a bit error. With **error correction** it also finds and repairs the wrong bits itself.\n- Bit errors come from signal attenuation (the signal gets weaker) and from noise.\n- After detection, the receiver signals for a retransmission or drops the frame.\n- After correction, no retransmission is needed.\n- The link layer uses codes that are more powerful than the Internet checksum of the transport layer.\nKey: detection finds the error, correction fixes it without sending again."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "6.2"
+   ],
+   "prompt": "On which links is link-layer reliable delivery used, and on which is it seldom used?",
+   "answer": "It is seldom used on links with few bit errors, and it is used on wireless links, where error rates are high.\n- It works between adjacent nodes with the known tools: ACKs, NAKs, timeouts and retransmission.\n- Wireless links suffer from noise and interference. Bluetooth and 4G LTE links retransmit frames in this way.\n- Ethernet does not: the receiving NIC sends no ACKs or NAKs.\n- Lost data is then recovered only if a higher layer does reliable data transfer, for example TCP.\nKey: reliable delivery on the link is for links with many bit errors, typically wireless ones."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "6.2",
+    "6.1"
+   ],
+   "prompt": "Point-to-point link versus broadcast link: what is the difference?",
+   "answer": "A **point-to-point link** has a single sender and a single receiver. A **broadcast link** is a shared wire or medium with many senders and receivers.\n- Point-to-point: the link between an Ethernet switch and a host, or PPP for dial-up access.\n- Broadcast: old-fashioned Ethernet on a shared cable, the upstream channel of a cable (HFC) access network, 802.11 wireless LAN, 4G/5G, satellite.\n- Human example of a shared medium: people talking at a cocktail party.\nKey: only a broadcast link needs rules for who may send, because its nodes share one channel."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "6.2",
+    "6.1"
+   ],
+   "prompt": "What is a collision, and why does a shared channel need a multiple access protocol?",
+   "answer": "A **collision** happens when a node receives two or more signals at the same time: they interfere, and none of the transmissions succeeds.\n- A **multiple access protocol** (MAC protocol) is a distributed algorithm that decides how nodes share the channel, that is, when each node may transmit.\n- There is no separate (out-of-band) channel for coordination: the nodes can only agree by using the shared channel itself.\nKey: one channel and many senders: without a rule for who sends when, the transmissions destroy each other."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "6.2"
+   ],
+   "prompt": "What would an ideal multiple access protocol do on a broadcast channel of rate R?",
+   "answer": "It would give one sender the full rate, share the rate fairly among many, need no coordinator and be simple.\n1. When one node wants to transmit, it sends at rate `R`.\n2. When `M` nodes want to transmit, each sends at an average rate of `R/M`.\n3. Fully decentralized: no special node coordinates, and no clocks or slots need to be synchronized.\n4. Simple.\nKey: full rate for one node, a fair share of `R/M` for many, with no central control."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "6.2",
+    "6.1"
+   ],
+   "prompt": "Which three classes of multiple access (MAC) protocols are there?",
+   "answer": "Channel partitioning, random access and taking turns.\n- **Channel partitioning**: divide the channel into pieces (time slots, frequency bands, codes) and give each node a piece for its own use. Examples: TDMA, FDMA.\n- **Random access**: the channel is not divided. Collisions are allowed, and the protocol recovers from them. Examples: ALOHA, CSMA/CD.\n- **Taking turns**: nodes transmit in turn, and a node with more to send can take a longer turn. Examples: polling, token passing.\nKey: split the channel, accept collisions, or pass the turn around."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "6.2"
+   ],
+   "prompt": "TDMA versus FDMA: how does each divide a shared channel?",
+   "answer": "**TDMA** (time division multiple access) divides time into slots. **FDMA** (frequency division multiple access) divides the spectrum into frequency bands.\n- TDMA: access goes in rounds. Each station gets a slot of fixed length in every round, long enough to send one packet.\n- FDMA: each station gets a fixed frequency band.\n- In both, the slot or band of a station with nothing to send stays idle.\n- Slide example: of 6 stations only 1, 3 and 4 have packets, so slots or bands 2, 5 and 6 go unused.\nKey: both give every station a fixed piece of the channel, whether it uses it or not."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "6.2"
+   ],
+   "prompt": "How does slotted ALOHA work?",
+   "answer": "A node sends a fresh frame in the next time slot. After a collision it sends the frame again in each following slot with probability `p`, until it succeeds.\n- Setting: all frames have the same size, and one **slot** is the time needed to send one frame.\n- The nodes are synchronized and start to transmit only at the beginning of a slot.\n- If 2 or more nodes transmit in a slot, all nodes detect the collision.\n- Without a collision, the node can send a new frame in the next slot.\nKey: send at the next slot, and after a collision retry at random."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "6.2"
+   ],
+   "prompt": "Why does slotted ALOHA retransmit with probability p, and not always in the next slot?",
+   "answer": "If the colliding nodes always sent again in the next slot, they would collide forever.\n- With probability `p`, hopefully only one of them transmits and succeeds, and the others transmit in a later slot.\n- ALOHA introduced two ideas that later random access protocols keep: let collisions happen, and use **randomization** (a random choice) to recover from them.\n- Ethernet and WiFi also randomize after a collision, in a slightly different way.\nKey: A random retry breaks the tie between the colliding nodes."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "6.2"
+   ],
+   "prompt": "What is the maximum efficiency of slotted ALOHA, and where does the number come from?",
+   "answer": "At best `1/e = 0.37`: only 37% of the slots carry a frame successfully.\n- **Efficiency**: the long-run fraction of successful slots when many nodes all have many frames to send.\n- `N` nodes each transmit in a slot with probability `p`.\n- A given node succeeds with probability `p(1-p)^(N-1)`: it sends, and the other `N-1` do not.\n- Some node succeeds with probability `N·p(1-p)^(N-1)`.\n- The best `p`, with `N` going to infinity, gives `1/e`. Pure ALOHA (no slots) reaches only half of that.\nKey: slotted ALOHA does useful work at most 37% of the time."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "6.2"
+   ],
+   "prompt": "What are the pros and cons of slotted ALOHA?",
+   "answer": "It is simple and decentralized, but it wastes slots.\n- Pro: a single active node can transmit continuously at the full rate of the channel.\n- Pro: highly decentralized. Only the slots in the nodes need to be in sync.\n- Pro: simple.\n- Con: slots are wasted by collisions, and other slots are wasted because they stay idle.\n- Con: clock synchronization is needed, which is overhead.\nKey: easy to run and good for one sender, wasteful when many nodes send."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "6.2"
+   ],
+   "prompt": "CSMA versus CSMA/CD: what does collision detection add?",
+   "answer": "**CSMA** (carrier sense multiple access) listens before it transmits. **CSMA/CD** also detects a collision during its own transmission and stops.\n- CSMA: channel sensed idle, transmit the entire frame. Sensed busy, defer.\n- CSMA without collision detection: a collision wastes the whole packet transmission time.\n- CSMA/CD: colliding transmissions are aborted within a short time, which reduces the wasted channel time.\n- Collision detection is easy on wired links and difficult on wireless ones.\nKey: CSMA does not interrupt others, CSMA/CD also stops talking when someone else starts."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "6.2"
+   ],
+   "prompt": "Why can collisions still happen when nodes use carrier sensing (CSMA)?",
+   "answer": "Because of **propagation delay**, the time a signal needs to travel from one node to another.\n- A node may sense the channel idle although another node has already begun to transmit: the signal has not reached it yet.\n- Both then transmit, and the two signals collide.\n- The distance between the nodes and the propagation delay decide how likely a collision is.\n- Randomization (backoff) is for recovery after a collision. It does not prevent the first collision.\nKey: an idle channel only means that no signal has arrived yet, not that nobody is sending."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "6.2"
+   ],
+   "prompt": "Which steps does the Ethernet CSMA/CD algorithm follow to send a frame?",
+   "answer": "Sense the channel, transmit when it is idle, and on a collision abort, jam and back off.\n1. The NIC gets a datagram from the network layer and creates a frame.\n2. It senses the channel. Idle: start transmitting. Busy: wait until it is idle, then transmit.\n3. If the entire frame is sent without a collision, the NIC is done with it.\n4. If it detects another transmission while sending, it aborts and sends a **jam signal** to tell all stations.\n5. After aborting, it waits a random **backoff** time and returns to step 2.\nKey: listen, send, and after a collision stop and retry later."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "6.2"
+   ],
+   "prompt": "How does Ethernet's binary (exponential) backoff choose the waiting time after a collision?",
+   "answer": "After the `m`-th collision of a frame, the NIC picks `K` at random from `{0, 1, 2, ..., 2^m - 1}` and waits `K·512` bit times.\n- Then it returns to sensing the channel.\n- More collisions mean a larger range for `K`, so a longer backoff interval.\n- Reason: many collisions suggest that many nodes have frames to send, and a longer interval spreads their retries out.\n- With only a few senders the interval stays short.\nKey: the more collisions a frame has had, the longer the random wait can be."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "6.2"
+   ],
+   "prompt": "What does the CSMA/CD efficiency formula say, and when is the efficiency close to 1?",
+   "answer": "`efficiency = 1 / (1 + 5·t_prop / t_trans)`: it is close to 1 when the propagation delay is small compared with the frame transmission time.\n- `t_prop`: the maximum propagation delay between 2 nodes in the LAN.\n- `t_trans`: the time to transmit a maximum-size frame.\n- `t_prop` going to 0: collisions are detected early.\n- `t_trans` going to infinity: a frame that grabs the channel holds it for a long time.\n- CSMA/CD performs better than ALOHA and is still simple, cheap and decentralized.\nKey: short distances and long frames make CSMA/CD efficient."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "6.2",
+    "6.1"
+   ],
+   "prompt": "Channel partitioning versus random access: how does each perform at low and at high load?",
+   "answer": "Channel partitioning is good at high load and poor at low load. Random access is the opposite.\n- Channel partitioning, high load: shares the channel efficiently and fairly, up to 100% utilization.\n- Channel partitioning, low load: delay in channel access, and a node gets only `1/N` of the bandwidth even if it is the only active node.\n- Random access, low load: efficient, a single node can fully use the channel.\n- Random access, high load: collisions cause overhead.\n- Taking turns protocols try to get the best of both.\nKey: fixed shares suit a busy channel, random access suits a quiet one."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "6.2"
+   ],
+   "prompt": "Polling versus token passing: how does each taking turns protocol work?",
+   "answer": "In **polling** a controller node invites the other nodes (clients) to transmit in turn. In **token passing** a control **token** (a special message) goes from node to node in order, and the node holding it may transmit.\n- Polling is typically used with simple devices.\n- Token passing: a node with nothing to send passes the token on at once.\n- Both avoid collisions, but need a join/leave protocol and cost overhead and latency.\n- Single point of failure: the controller in polling, the token in token passing.\nKey: polling has a master that asks, token passing hands the right to send around."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "6.2"
+   ],
+   "prompt": "Which multiple access protocol do Ethernet, 802.11 WiFi and Bluetooth use?",
+   "answer": "Ethernet uses CSMA/CD, 802.11 uses CSMA/CA, and Bluetooth uses polling.\n- Ethernet and 802.11 are random access. Carrier sensing and collision detection are easy on a wire and hard on wireless.\n- Bluetooth is a taking turns protocol.\n- FDDI and token ring are taking turns protocols with token passing.\n- Channel partitioning (by time, frequency or code) is the third class, with TDMA and FDMA.\nKey: wired Ethernet detects collisions (CD), WiFi uses CSMA/CA, Bluetooth polls."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "6.2",
+    "6.1"
+   ],
+   "prompt": "What is a MAC address, and what does it look like?",
+   "answer": "A **MAC address** is the 48-bit link-layer address of an interface. It is used locally, to get a frame to another interface on the same LAN.\n- Also called LAN, physical or Ethernet address.\n- Written in hexadecimal, for example `1A-2F-BB-76-09-AD`. Each character stands for 4 bits.\n- Burned into the ROM of the NIC, and sometimes also settable by software.\n- Every interface on a LAN has a unique MAC address.\n- IEEE administers them: a manufacturer buys a portion of the address space.\nKey: 48 bits, tied to the network card, used only on the local link."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "6.2",
+    "6.1"
+   ],
+   "prompt": "IP address versus MAC address: why does an interface need both?",
+   "answer": "The IP address says where the datagram finally has to go. The MAC address says which interface receives the frame on the current link.\n- IP address: 32 bits, network layer, used for forwarding across networks.\n- MAC address: 48 bits, link layer, used only within one link.\n- An IP address is not portable: it depends on the subnet of the node.\n- A MAC address is flat and portable: it stays when the interface moves to another LAN.\n- Analogy: MAC address like a Social Security Number, IP address like a postal address.\nKey: IP addresses steer the whole journey, MAC addresses deliver on one link."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "6.2",
+    "6.1"
+   ],
+   "prompt": "What is ARP for, and what does an ARP table hold?",
+   "answer": "**ARP** (address resolution protocol) finds the MAC address of an interface on the local network when only its IP address is known.\n- A node needs that MAC address to build the frame that carries the datagram.\n- Every IP node on a LAN (host or router) has an **ARP table**.\n- An entry holds an IP address, the matching MAC address and a TTL.\n- **TTL** (time to live): the time after which the mapping is forgotten, typically 20 minutes.\n- The table holds mappings for some nodes of the LAN, not for all.\nKey: ARP translates a known IP address into the MAC address the frame needs."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "6.2",
+    "6.1"
+   ],
+   "prompt": "How does host A use ARP to find the MAC address of host B on the same LAN?",
+   "answer": "A broadcasts an ARP query with B's IP address, and B answers with its MAC address.\n1. B's MAC address is not in A's ARP table, so A sends an **ARP query** that contains B's IP address.\n2. The query goes to the broadcast address `FF-FF-FF-FF-FF-FF`, so all nodes on the LAN receive it.\n3. B replies with an **ARP response** that gives its MAC address. The reply is a frame sent to A's MAC address only.\n4. A adds B's IP and MAC address to its ARP table, with a TTL.\nKey: the question goes to everyone, the answer comes back to the asker alone."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "6.2",
+    "6.1"
+   ],
+   "prompt": "A datagram passes a router on its way to another subnet. Which addresses change: IP or MAC?",
+   "answer": "The MAC addresses of the frame change at the router. The IP addresses of the datagram stay the same.\n- The IP addresses say where the datagram finally has to go, for the whole journey.\n- The MAC addresses in the frame name the sending and the receiving interface of the current link only.\n- Within one subnet the frame crosses in one go, with the same source and destination MAC addresses.\n- Passing a router means a change of subnet: the datagram continues in a frame with new source and destination MAC addresses.\nKey: IP addresses are end to end, MAC addresses are hop by hop."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "6.2",
+    "6.1"
+   ],
+   "prompt": "Bus Ethernet versus switched Ethernet: how do the two topologies differ?",
+   "answer": "On a **bus** all nodes share one coaxial cable and can collide. In **switched** Ethernet a switch sits in the centre and the nodes do not collide with each other.\n- Bus: popular through the mid 1990s.\n- Bus: all nodes are in one **collision domain** (they can collide), handled by CSMA/CD.\n- Bus: every frame travels to all adapters and is processed by them.\n- Switched: prevails today.\n- Switched: each \"spoke\" from the switch to a node runs its own separate Ethernet protocol.\nKey: A bus is one shared cable, a switch gives every node a link of its own."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "6.2",
+    "6.1"
+   ],
+   "prompt": "Why is Ethernet called connectionless and unreliable?",
+   "answer": "Ethernet does no handshake before sending, and the receiver does not acknowledge frames.\n- **Connectionless**: no handshaking between the sending and the receiving NIC.\n- **Unreliable**: the receiving NIC sends no ACKs or NAKs to the sending NIC.\n- Data in a dropped frame is recovered only if the original sender uses reliable data transfer in a higher layer, for example TCP. Otherwise the data is lost.\n- Ethernet's MAC protocol is unslotted CSMA/CD with binary backoff.\nKey: Ethernet sends and hopes: repairing losses is left to higher layers."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "6.2"
+   ],
+   "prompt": "What do the many 802.3 Ethernet standards share, and in what do they differ?",
+   "answer": "They share one MAC protocol and one frame format. They differ in speed and in physical layer medium.\n- Speeds on the standards slide: from 2 Mbps up to 40 Gbps.\n- Media: copper (twisted pair) cable or fiber. Example names: `100BASE-TX` on copper, `100BASE-FX` on fiber.\n- Ethernet is the dominant wired LAN technology: the first widely used one, simple and cheap.\n- It kept up with the speed race, from 10 Mbps to 400 Gbps, and one chip can handle several speeds.\nKey: many speeds and cables, one frame format and one MAC protocol."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "6.2",
+    "6.1"
+   ],
+   "prompt": "What must an Ethernet frame contain so that it can be delivered across a LAN?",
+   "answer": "The destination and the source MAC address, the data it carries, and bits for error checking.\n- **Destination address**: the MAC address of the receiving interface. `FF-FF-FF-FF-FF-FF` is broadcast: all nodes on the LAN.\n- **Source address**: the 48-bit MAC address of the sending node.\n- **Type** field: lets the receiver hand the payload to the right higher-level protocol.\n- **Data** (payload): typically an IP datagram.\n- **CRC** (cyclic redundancy check) field: used to check the frame for bit errors.\nKey: who it is for, who sent it, what is inside, and a check that it arrived intact."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "6.2",
+    "6.1"
+   ],
+   "prompt": "What is an Ethernet switch, and what makes it transparent and plug-and-play?",
+   "answer": "A **switch** is a link-layer device that stores Ethernet frames and forwards them by their MAC address.\n- It examines the MAC address of an incoming frame and forwards the frame selectively, to one or more outgoing links.\n- When it forwards a frame onto a segment, it uses CSMA/CD to access that segment.\n- **Transparent**: hosts are unaware that switches are present.\n- **Plug-and-play**: a switch does not need to be configured, because it is self-learning.\nKey: A switch forwards frames by MAC address, and neither hosts nor administrators have to tell it how."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "6.2"
+   ],
+   "prompt": "Why can several hosts on an Ethernet switch transmit at the same time without collisions?",
+   "answer": "Each host has its own dedicated, direct connection to the switch, and each link is its own collision domain.\n- The Ethernet protocol runs separately on each incoming link.\n- The links are **full duplex**: both ends can send at the same time.\n- The switch buffers packets.\n- Slide example: A to A' and B to B' can transmit simultaneously without a collision.\n- But A to A' and C to A' cannot happen simultaneously, since both use the link to A'.\nKey: A switch turns one shared channel into many private links."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "6.2",
+    "6.1"
+   ],
+   "prompt": "How does an Ethernet switch learn which host is reachable through which interface?",
+   "answer": "It is **self-learning**: when a frame arrives, the switch notes the source MAC address and the interface the frame came in on.\n- The **switch table** starts empty. An entry holds the MAC address of a host, the interface that leads to it, and a time stamp (TTL).\n- Each arriving frame shows where its sender is, so the switch records that sender and interface pair.\n- An entry times out: it is removed when no frame from that address arrives for some time.\n- No routing protocol and no manual configuration is needed.\nKey: A switch learns from the source address of every frame it receives."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "6.2",
+    "6.1"
+   ],
+   "prompt": "A frame arrives at a switch interface. Which three things can the switch do with it?",
+   "answer": "Flood it, drop it or forward it, depending on the switch table entry for the frame's destination MAC address.\n- No entry for the destination: **flood**, that is, send the frame out on all interfaces except the one it arrived on.\n- Entry points to the interface the frame arrived on: drop the frame (**filtering**). The destination is on that side already.\n- Entry points to another interface: **forward** the frame to that interface only.\n- In every case the switch also learns the source address.\nKey: unknown destination: flood. Same interface: drop. Other interface: forward."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "6.2"
+   ],
+   "prompt": "Switch versus router: what do they have in common, and how do they differ?",
+   "answer": "Both are store-and-forward devices with a forwarding table. They work at different layers and with different addresses.\n- Switch: link-layer device. It examines link-layer headers, that is, MAC addresses.\n- Router: network-layer device. It examines network-layer headers, that is, IP addresses.\n- A switch learns its table by itself, using flooding and learning from arriving frames.\n- A router computes its table with routing algorithms.\nKey: A switch learns MAC addresses by watching frames, a router computes routes for IP addresses."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "6.2",
+    "6.1"
+   ],
+   "prompt": "Which problems appear when a large switched LAN is one single broadcast domain?",
+   "answer": "All layer-2 broadcast traffic must cross the entire LAN, which hurts efficiency, security and privacy.\n- Broadcast traffic: ARP, DHCP and frames to an unknown MAC address.\n- Efficiency: a broadcast to the whole network is wasteful.\n- Security: messages are exposed to more end devices.\n- Privacy: devices receive messages they have no need to see.\n- Administration: a user who moves office is attached to another switch, but wants to stay in the old group.\nKey: the bigger the broadcast domain, the more devices get traffic they should not get."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "6.2",
+    "6.1"
+   ],
+   "prompt": "What is a VLAN, and how does it change where frames go in a switched network?",
+   "answer": "A **VLAN** (virtual LAN) is a virtual network made inside a physical switched network: a group of end devices forms its own network, and traffic is restricted to the group.\n- Slide example: a Computer Science (CS) and an EE department.\n- With VLANs, CS is its own network of end devices.\n- A CS user who moves to an EE office is physically attached to the EE switch but can stay logically attached to CS.\n- The lecture only introduces VLANs. Their details are not covered in this course.\nKey: group membership, not the cable, decides which devices a frame can reach."
+  }
+ ]
+}

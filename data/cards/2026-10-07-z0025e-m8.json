@@ -1,0 +1,335 @@
+{
+ "note": "AI-drafted Concept Cards (Claude, 2026-10-07) for Z0025E Module 8 (Security), drafted from the overview's Learning Objectives and Study Guide, the Lecture 15 and Lecture 16 pages and their slides. Uploaded unchecked; classmates vote on each.",
+ "cards": [
+  {
+   "course": "Z0025E",
+   "sources": [
+    "8.2",
+    "8.1"
+   ],
+   "prompt": "Which four goals does secure network communication have?",
+   "answer": "Confidentiality, authentication, message integrity, and access and availability.\n- **Confidentiality**: only the sender and the intended receiver understand the message. The sender encrypts, the receiver decrypts.\n- **Authentication**: sender and receiver confirm each other's identity.\n- **Message integrity**: a change to the message, in transit or afterwards, cannot go undetected.\n- **Access and availability**: the service can be reached and used by its users.\nKey: a mechanism that gives one of these goals does not give the others automatically."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "8.2",
+    "8.1"
+   ],
+   "prompt": "What can an intruder do to a network conversation, and which security goal does each act threaten?",
+   "answer": "An intruder (Trudy in the slides) can intercept, delete and add messages.\n- **Eavesdropping**: intercepting messages. Threatens confidentiality.\n- **Inserting** messages into a connection: threatens message integrity.\n- **Impersonation**: faking (spoofing) the source address or any other packet field. Threatens authentication.\n- **Hijacking**: taking over a running connection by removing the sender or receiver and taking their place.\n- **Denial of service**: overloading resources so that others cannot use a service. Threatens availability.\nKey: each attack threatens a different security goal."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "8.2",
+    "8.1"
+   ],
+   "prompt": "Symmetric key versus public key cryptography: what is the difference?",
+   "answer": "Symmetric key systems share one secret key, public key systems use two different keys.\n- **Symmetric key**: both sides encrypt and decrypt with the same key (`KA = KB`). Efficient, but the key must first be agreed safely.\n- **Public key**: a **public key** that all may know encrypts, a **private key** that only the receiver knows decrypts (`KA ≠ KB`). Needs no shared secret, but costs more computing.\n- **Diffie-Hellman key exchange** lets two parties who never met create a shared secret key over an insecure channel.\nKey: one shared key versus a public and private key pair."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "8.2"
+   ],
+   "prompt": "Which three attacks on an encryption scheme are there, sorted by what the attacker holds?",
+   "answer": "Ciphertext-only, known-plaintext and chosen-plaintext attacks.\n- **Ciphertext-only attack**: Trudy has only ciphertext (the encrypted text) to analyse. Two approaches: **brute force** (search through all keys) or statistical analysis.\n- **Known-plaintext attack**: Trudy also has plaintext (readable text) that belongs to the ciphertext, so in a substitution cipher she can work out some letter pairings.\n- **Chosen-plaintext attack**: Trudy can get the ciphertext for a plaintext she chooses herself.\nKey: the attacker holds ciphertext only, known plaintext, or plaintext of her own choice."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "8.2"
+   ],
+   "prompt": "DES versus AES: how do the two symmetric key standards differ?",
+   "answer": "Both are symmetric key encryption standards; **AES** replaced **DES** and has much longer keys.\n- **DES** (Data Encryption Standard, 1993): `56`-bit key, `64`-bit plaintext input.\n- A DES-encrypted phrase was decrypted by brute force in less than a day.\n- **3DES** makes DES more secure: encrypt 3 times with 3 different keys.\n- **AES** (Advanced Encryption Standard, 2001): `128`-bit blocks, keys of `128`, `192` or `256` bits.\n- A brute force search that takes 1 second on DES takes 149 trillion years on AES.\nKey: DES has a 56-bit key that brute force can find, AES uses 128 bits or more."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "8.2"
+   ],
+   "prompt": "Which two requirements must a public key encryption algorithm such as RSA meet?",
+   "answer": "The two keys must undo each other, and the private key must not be computable from the public key.\n- Requirement 1: decrypting with the private key what was encrypted with the public key gives the message back: `KB-(KB+(m)) = m`.\n- Requirement 2: given the public key `KB+`, it should be impossible to compute the private key `KB-`.\n- **RSA** (Rivest, Shamir, Adelson) is such an algorithm. It is built on modulo-n arithmetic and prime numbers; the details are not examined.\nKey: anyone can encrypt with the public key, only the holder of the private key can decrypt."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "8.2",
+    "8.1"
+   ],
+   "prompt": "Why is public key cryptography used only to exchange a session key, not to encrypt all the data?",
+   "answer": "Because public key cryptography is too slow for large amounts of data.\n- Exponentiation in RSA is computationally intensive: DES is at least 100 times faster than RSA.\n- So public key cryptography only sets up the secure connection: Bob and Alice use RSA to exchange a **session key** `KS`, a symmetric key for the data of this session.\n- Once both have `KS`, they encrypt the data with symmetric key cryptography.\nKey: public key cryptography carries the session key, the fast symmetric key carries the data."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "8.2"
+   ],
+   "prompt": "Authentication protocols ap1.0 to ap3.1: why does each attempt to prove identity fail?",
+   "answer": "Each one sends something that Trudy can fake or copy.\n- `ap1.0`, Alice says \"I am Alice\": in a network Bob cannot see Alice, so Trudy simply says the same.\n- `ap2.0`, adds Alice's source IP address: Trudy creates a packet that spoofs Alice's address.\n- `ap3.0`, adds Alice's secret password: Trudy records the packet and later plays it back to Bob, a **replay attack** (the slides say playback attack).\n- `ap3.1`, encrypts the password: the replay attack still works, since Trudy replays the packet without having to read it.\nKey: a proof that is the same every time can be recorded and replayed."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "8.2"
+   ],
+   "prompt": "What is a nonce, and how does it stop a replay attack in authentication (ap4.0)?",
+   "answer": "A **nonce** is a number `R` that is used only once in a lifetime, so an old recording is useless.\n1. Alice says \"I am Alice\".\n2. Bob sends Alice a nonce `R`.\n3. Alice returns `R` encrypted with the secret key she shares with Bob: `KA-B(R)`.\n4. Bob decrypts it. Only Alice knows the key, and `R` is new, so Alice must be there now (she is \"live\").\n- Drawback: `ap4.0` needs a shared symmetric key.\nKey: a new nonce each time proves the other side is live, because a recorded answer does not fit it."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "8.2"
+   ],
+   "prompt": "How does ap5.0 authenticate with a public key, and how does a man-in-the-middle attack break it?",
+   "answer": "`ap5.0` uses a nonce and public key cryptography, but nothing shows whose public key it is.\n- Protocol: Bob sends nonce `R`, Alice returns `KA-(R)`, made with her private key. Bob gets her public key and checks that `KA+(KA-(R)) = R`.\n- **Man-in-the-middle attack**: Trudy poses as Alice to Bob and as Bob to Alice.\n- Trudy answers Bob with `KT-(R)` and her own public key `KT+`. Bob's check succeeds, so Trudy passes as Alice.\n- Bob encrypts with `KT+`. Trudy reads the message and passes it on, encrypted with Alice's public key.\nKey: a public key only helps if it is certain whose key it is."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "8.2",
+    "8.1"
+   ],
+   "prompt": "How is a simple digital signature made and checked, and what does it prove?",
+   "answer": "The sender encrypts the message with the sender's own private key; the receiver checks it with the sender's public key.\n- Signing: Bob creates `KB-(m)` and sends it with `m`.\n- Checking: Alice applies Bob's public key and tests that `KB+(KB-(m)) = m`.\n- If it holds: Bob signed `m`, no one else did, and he signed `m` and not a changed message.\n- **Non-repudiation**: Alice can take `m` and the signature to court and prove that Bob signed `m`.\n- It is verifiable and nonforgeable: not even Alice could have made it.\nKey: signing uses the private key, checking uses the public key."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "8.2",
+    "8.1"
+   ],
+   "prompt": "What is a message digest, and which properties must a cryptographic hash function have?",
+   "answer": "A **message digest** `H(m)` is a fixed-size fingerprint that a **hash function** `H` computes from a message `m`, also a large one.\n- Easy to compute.\n- Many-to-1: the message cannot be recovered from the digest.\n- The digest always has the same size.\n- It is computationally infeasible to find two different messages `x` and `y` with `H(x) = H(y)`.\n- Examples: **MD5** gives a `128`-bit digest, **SHA-1** a `160`-bit digest.\nKey: a hash function turns any message into a short fingerprint that no other message can be made to match."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "8.2",
+    "8.1"
+   ],
+   "prompt": "Why is the message digest signed instead of the whole message, and how is it verified?",
+   "answer": "Public key encryption of a long message is computationally expensive, so only the short digest is signed.\n1. Bob hashes the message, `H(m)`, and encrypts the digest with his private key: `KB-(H(m))`. This is the digital signature.\n2. Bob sends the message and the signature.\n3. Alice hashes the received message herself.\n4. Alice decrypts the signature with Bob's public key and compares the two digests.\n- Equal: the message was signed by Bob and was not changed.\nKey: a digital signature is a signed message digest."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "8.2",
+    "8.1"
+   ],
+   "prompt": "Encryption, hash, MAC and digital signature: which security property does each one give?",
+   "answer": "Each mechanism gives a different property; protocols combine them.\n- **Encryption**: confidentiality. Only a key holder can read the message.\n- **Hash function**: a fixed-size digest that shows whether a message changed. Alone it does not prove who created it.\n- **MAC** (message authentication code): a code made with a secret MAC key, as in a TLS record. Gives message integrity.\n- **Digital signature**: a digest signed with the sender's private key. Shows who sent the message and that it is unchanged.\nKey: encryption hides, a hash fingerprints, a signature proves the sender."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "8.2"
+   ],
+   "prompt": "What does a Certification Authority (CA) do, and how does Alice use a certificate?",
+   "answer": "A **Certification Authority** binds a public key to a particular entity (person, website, router).\n1. The entity registers its public key with the CA and gives proof of identity.\n2. The CA creates a **certificate**: the entity's public key, digitally signed with the CA's private key.\n3. Alice, who wants Bob's public key, gets Bob's certificate, from Bob or elsewhere.\n4. She applies the CA's public key to it and gets Bob's public key.\n- This closes the gap that the man-in-the-middle attack on `ap5.0` uses.\nKey: a certificate is a public key with the CA's signature that says whose key it is."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "8.3",
+    "8.1"
+   ],
+   "prompt": "How does Alice send Bob a confidential e-mail, and why does she use two kinds of key?",
+   "answer": "She encrypts the message with a new symmetric key and encrypts that key with Bob's public key.\n1. Alice generates a random symmetric key `KS`.\n2. She encrypts the message with it: `KS(m)`. A symmetric key is used for efficiency.\n3. She encrypts `KS` with Bob's public key, `KB+(KS)`, and sends both parts.\n4. Bob recovers `KS` with his private key, then decrypts `KS(m)` to get `m`.\n- This gives confidentiality only: it does not prove that Alice is the sender.\nKey: the symmetric key protects the message, the public key protects the symmetric key."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "8.3",
+    "8.1"
+   ],
+   "prompt": "Which three keys does Alice use for an e-mail with confidentiality, integrity and authentication?",
+   "answer": "Her own private key, a new symmetric key, and Bob's public key.\n1. Alice hashes the message and signs the digest with her private key: `KA-(H(m))`. Gives integrity and authentication.\n2. She encrypts message and signature with a new symmetric key `KS`. Gives confidentiality.\n3. She encrypts `KS` with Bob's public key and sends both parts.\n- Bob recovers `KS` with his private key, decrypts, hashes the message, decrypts the signature with Alice's public key, and compares.\nKey: sign with the sender's private key, encrypt with a symmetric key, protect that key with the receiver's public key."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "8.3",
+    "8.1"
+   ],
+   "prompt": "What is TLS, and which three security services does it give an application?",
+   "answer": "**TLS** (Transport Layer Security) is a widely deployed security protocol above the transport layer: it sits between the application and TCP.\n- Confidentiality: through symmetric encryption.\n- Integrity: through cryptographic hashing.\n- Authentication: through public key cryptography.\n- Almost all browsers and web servers support it: `https` on port `443`.\n- It offers an API that any application can use. Its forerunner SSL (secure socket layer) is deprecated since 2015.\nKey: TLS protects the communication between two applications with all three techniques together."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "8.3",
+    "8.1"
+   ],
+   "prompt": "Which four phases does a TLS connection go through?",
+   "answer": "Handshake, key derivation, data transfer and connection closure.\n1. **Handshake**: the two sides use certificates and private keys to authenticate, and exchange or create a shared secret.\n2. **Key derivation**: both derive a set of separate keys from the shared secret.\n3. **Data transfer**: the data stream is sent as a series of **records**, protected by encryption and a MAC.\n4. **Connection closure**: special messages close the connection securely.\nKey: a secure protocol protects more than the data: also who is talking, the keys, the order of the data and the end of the connection."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "8.3"
+   ],
+   "prompt": "What happens in the handshake of the toy TLS protocol (t-tls), and what is its drawback?",
+   "answer": "The client verifies the server and sends it a master secret.\n1. Bob (client) sets up a TCP connection with Alice (server).\n2. Bob sends a t-tls hello, Alice answers with her public key certificate, and Bob verifies that she is really Alice.\n3. Bob sends the **master secret** (MS) encrypted with Alice's public key, `KA+(MS)`. Alice decrypts it with her private key. All other session keys are generated from MS.\n- Drawback: 3 RTT (round-trip times), TCP handshake included, before the client can receive data.\nKey: the certificate authenticates the server, the master secret yields all session keys."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "8.3"
+   ],
+   "prompt": "Why does TLS derive four keys from the master secret instead of using one key?",
+   "answer": "Using the same key for more than one cryptographic function is considered bad, so encryption and the MAC get different keys, in each direction.\n- `Kc`: encryption key for data from client to server.\n- `Mc`: MAC key for data from client to server.\n- `Ks`: encryption key for data from server to client.\n- `Ms`: MAC key for data from server to client.\n- A **key derivation function** (KDF) creates them from the master secret and possibly some extra random data.\nKey: two functions times two directions gives four keys."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "8.3"
+   ],
+   "prompt": "Why does TLS cut the data stream into records, each with its own MAC?",
+   "answer": "So that the receiver can check integrity record by record, as the data arrives.\n- TCP gives a byte stream. With one MAC at the end of the stream there would be no message integrity until all data had arrived and the connection was closed.\n- Solution: break the stream into a series of **records**.\n- Each client-to-server record carries a MAC made with `Mc`, and the receiver can act on each record as it arrives.\n- The record (length, data, MAC) is encrypted with the symmetric key `Kc` and passed to TCP.\nKey: one MAC per record means integrity is checked during the transfer, not after it."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "8.3"
+   ],
+   "prompt": "How does TLS defend the data stream against re-ordering and replay attacks?",
+   "answer": "With TLS sequence numbers that go into the MAC, and with a nonce.\n- **Re-ordering attack**: a man-in-the-middle intercepts TCP segments and puts them in another order by changing the sequence numbers, which is possible because the TCP header is not encrypted.\n- **Replay attack**: data that was sent before is sent again.\n- Defence: TLS has its own sequence numbers, and the MAC is computed over the data and the TLS sequence number.\n- A nonce is the second defence the slides name.\nKey: TCP sequence numbers can be manipulated, TLS sequence numbers are protected by the MAC."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "8.3"
+   ],
+   "prompt": "What is a truncation attack on TLS, and how do record types prevent it?",
+   "answer": "The attacker forges a TCP connection close segment, so one or both sides think there is less data than there really is.\n- Defence: every record has a **type** field. Type `0` is data, type `1` is close.\n- The type field tells whether the record ends the TLS connection.\n- The MAC is now computed over the data, the type and the sequence number.\n- Record layout, encrypted with `Kc`: length, type, data, MAC.\nKey: a TLS connection ends with a close record that the MAC protects, not with a bare TCP close."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "8.3",
+    "8.1"
+   ],
+   "prompt": "IPsec transport mode versus tunnel mode: what does each one protect?",
+   "answer": "Transport mode protects only the payload of a datagram, tunnel mode the entire datagram.\n- **IPsec** gives encryption, authentication and integrity per datagram, at the network layer.\n- It covers user and control traffic (TCP, UDP, BGP, DNS messages).\n- **Transport mode**: only the datagram payload is encrypted and authenticated.\n- **Tunnel mode**: the entire datagram is encrypted and authenticated, then put in a new datagram with a new IP header and tunnelled to the destination. VPNs use it.\nKey: transport mode protects the payload, tunnel mode packs the whole datagram into a new one."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "8.3"
+   ],
+   "prompt": "AH versus ESP: what does each IPsec protocol provide?",
+   "answer": "Both give source authentication and data integrity; only ESP also gives confidentiality.\n- **AH** (Authentication Header): source authentication and data integrity, but no confidentiality.\n- **ESP** (Encapsulation Security Protocol): source authentication, data integrity and confidentiality.\n- ESP is used more widely than AH, because of the popularity of VPNs.\n- Either protocol can be used in transport mode or in tunnel mode.\nKey: AH shows where a datagram comes from and that it is unchanged, ESP also hides its content."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "8.3"
+   ],
+   "prompt": "What is a VPN, and how does IPsec carry traffic between two offices of one organization?",
+   "answer": "A **VPN** (virtual private network) is a private network created over the public Internet instead of a physical one.\n- Confidentiality: traffic is encrypted before it enters the public Internet.\n- From headquarters to a branch office: the gateway router turns the plain IPv4 datagram into an IPsec datagram and sends it to the Internet.\n- The IPsec datagram has a traditional IP header and an encrypted payload.\n- IPsec peers can be two end systems, two routers or firewalls, or a router or firewall and an end system.\nKey: a VPN sends private traffic encrypted over the public Internet."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "8.3"
+   ],
+   "prompt": "What is an IPsec security association (SA), and what does a router store for it?",
+   "answer": "A **security association** is a one-way relation from a sending to a receiving entity, set up before any data is sent.\n- Both ends keep state about the SA, as TCP endpoints do: IP is connectionless, IPsec is connection-oriented.\n- It is directional: one SA per direction.\n- Stored: a `32`-bit identifier, the **Security Parameter Index** (SPI), and the origin and destination interfaces.\n- Also stored: the type of encryption and its key, the type of integrity check and the authentication key.\nKey: an SA is the state (SPI, algorithms, keys) that two IPsec peers hold for one direction of traffic."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "8.3"
+   ],
+   "prompt": "How does IPsec stop an attacker from replaying a sniffed datagram?",
+   "answer": "With a sequence number in every datagram of a security association (SA).\n- For a new SA the sender sets the sequence number to `0`.\n- For each datagram sent on the SA it increments the counter and puts the value in the sequence number field.\n- The destination checks for duplicates.\n- It does not keep track of all received packets: it uses a window.\n- Why: duplicate packets that pass authentication may disrupt a service.\nKey: a sequence number seen before marks a replayed datagram."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "8.3"
+   ],
+   "prompt": "What is IKE in IPsec for, and how do its PSK and PKI variants differ?",
+   "answer": "**IKE** (Internet Key Exchange) sets up IPsec security associations (SAs) by message exchange, not by hand.\n- Manual keying is impractical for a VPN with hundreds of endpoints.\n- IKE messages settle the algorithms, secret keys and SPI numbers.\n- **PSK** (pre-shared secret): both sides start with the same secret.\n- **PKI**: both sides start with a public and private key pair and a certificate, and exchange certificates.\n- In both, the peers authenticate each other and get one SA in each direction.\nKey: IKE authenticates the peers and creates the SAs, from a shared secret or from certificates."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "8.3",
+    "8.1"
+   ],
+   "prompt": "Which four steps make an 802.11 (WiFi) connection secure?",
+   "answer": "Discovery, authentication, key distribution and encryption.\n1. **Discovery**: the access point (AP) advertises the authentication and encryption it offers; the mobile requests its choice.\n2. **Mutual authentication**: mobile and **authentication server** (AS) authenticate each other with a symmetric key, hashing and nonces, and derive a session key.\n3. **Session key distribution**: the AS gives the session key to the AP.\n4. **Encrypted communication**: mobile and AP encrypt with the session key, mostly using AES.\nKey: the mobile authenticates to a server behind the AP."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "8.3",
+    "8.1"
+   ],
+   "prompt": "How does authentication in 4G LTE work, and how does it differ from WiFi?",
+   "answer": "Mobile and network authenticate each other through the mobile's home network.\n- The mobile associates with the base station (BS), then authenticates with the **HSS** (Home Subscriber Service) of its home network, using its IMSI, via the **MME** (Mobility Management Entity).\n- Mobile and BS set the keys that encrypt their frames, separate for data and control plane.\n- Unlike WiFi: the SIM card gives a global identity and contains shared keys.\n- Services in a visited network depend on the paid subscription in the home network.\nKey: in 4G the SIM card and the home network authenticate."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "8.3",
+    "8.1"
+   ],
+   "prompt": "What is a firewall, and why does an organization use one?",
+   "answer": "A **firewall** isolates an organization's internal network from the larger Internet: it lets some packets pass and blocks others.\n- Inside is the trusted network, outside the untrusted public Internet.\n- It prevents denial of service attacks such as **SYN flooding**: many bogus TCP connections leave no resources for real ones.\n- It prevents illegal modification of, and access to, internal data.\n- It allows only authorized access to the inside network.\n- Three types: stateless and stateful packet filters, application gateways.\nKey: a firewall decides which traffic may cross the network border."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "8.3"
+   ],
+   "prompt": "How does a stateless packet filter decide whether to forward or drop a packet?",
+   "answer": "It checks each packet on its own against a table of rules, the **access control list** (ACL).\n- It runs in the router that connects the internal network to the Internet.\n- Fields it uses: source and destination IP address, TCP or UDP source and destination port, ICMP message type, TCP SYN and ACK bits.\n- The ACL holds (action, condition) pairs, applied from top to bottom.\n- The example ACL in the slides ends with a rule that denies everything else.\n- It looks like OpenFlow forwarding in SDN.\nKey: a stateless filter judges one packet at a time by its header fields and remembers nothing."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "8.3"
+   ],
+   "prompt": "Stateless versus stateful packet filter: what is the difference?",
+   "answer": "A stateful packet filter also tracks every TCP connection; a stateless one judges each packet alone.\n- A stateless filter admits packets that make no sense, for example one with the ACK bit set although no TCP connection was set up.\n- A **stateful packet filter** tracks connection setup (SYN) and teardown (FIN), so it can tell whether a packet makes sense.\n- It times out inactive connections and then no longer admits their packets.\n- Its ACL has one more column: check the connection state table before admitting.\nKey: a stateful filter remembers connections and admits only packets that fit one."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "8.3"
+   ],
+   "prompt": "What is an application gateway, and how does it control telnet access to the outside?",
+   "answer": "An **application gateway** filters packets on application data as well as on IP, TCP and UDP fields.\n- Example: only selected internal users may telnet to the outside.\n1. All telnet users must telnet through the gateway.\n2. For an authorized user the gateway sets up a telnet connection to the destination host and relays the data between the two connections.\n3. The router filter blocks all telnet connections that do not start at the gateway.\nKey: an application gateway can decide per user, because it stands in the middle of the application's connection."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "8.3"
+   ],
+   "prompt": "Which limitations do firewalls and application gateways have?",
+   "answer": "They cannot stop every attack, and more security means less communication.\n- **IP spoofing**: a router cannot know whether data really comes from the claimed source.\n- Each application that needs special treatment needs its own gateway, and client software must know how to contact it (for example a proxy address set in the web browser).\n- Filters often use an all-or-nothing policy for UDP.\n- Trade-off: the degree of communication with the outside world against the level of security.\n- Many highly protected sites still suffer from attacks.\nKey: a firewall lowers the risk but guarantees nothing."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "8.3",
+    "8.1"
+   ],
+   "prompt": "Firewall versus intrusion detection system (IDS): what does each one do?",
+   "answer": "A firewall filters packets by rule; an **IDS** inspects traffic more deeply to detect attacks.\n- Packet filtering sees TCP/IP headers only and does not correlate sessions.\n- **Deep packet inspection**: an IDS looks at packet contents, for example checking strings against known virus and attack strings.\n- It examines correlation among multiple packets (port scanning, network mapping, DoS attacks) and can use machine learning to find anomalies.\n- Several IDS sensors can check at different locations.\nKey: a firewall mainly controls traffic, an IDS mainly detects suspicious activity."
+  },
+  {
+   "course": "Z0025E",
+   "sources": [
+    "8.1",
+    "8.3"
+   ],
+   "prompt": "At which parts of the network can security be applied, and what does each mechanism protect?",
+   "answer": "Network security is not tied to one layer: where it is applied decides what it protects.\n- Application: **secure e-mail** protects one application message.\n- Transport: **TLS** protects the communication between two applications.\n- Network: **IPsec** protects IP datagrams, independently of the application.\n- Wireless access: authentication and a session key protect the wireless link.\n- Network perimeter: **firewalls** and **IDS** control and monitor traffic; they do not encrypt single communications.\nKey: the right mechanism depends on what must be protected, from whom, and where."
+  }
+ ]
+}

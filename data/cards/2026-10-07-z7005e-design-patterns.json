@@ -1,0 +1,328 @@
+{
+ "note": "AI-drafted Concept Cards (Claude, 2026-10-07) for Z7005E section 3.6 Design Patterns, drafted from the Canvas pages 3.6.0 to 3.6.8 and the captions of the videos 3.6.1 to 3.6.6. Uploaded unchecked; classmates vote on each.",
+ "cards": [
+  {
+   "course": "Z7005E",
+   "sources": [
+    "3.6.0"
+   ],
+   "prompt": "What is a design pattern in software design?",
+   "answer": "A proven, generic template for solving a design problem that keeps coming back during software development.\n- **Recurring**: the same kind of problem shows up again and again.\n- **Proven**: the solution has already been tried and found to work.\n- **Generic**: it is a template, not tied to one particular system.\nKey: a design pattern is a reusable solution to a common design problem."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "3.6.0"
+   ],
+   "prompt": "Which six categories of design patterns does the course cover, and what is each about?",
+   "answer": "Creational, structural, behavioural, concurrency, cloud and architectural.\n- **Creational**: how objects are created.\n- **Structural**: how classes and objects are composed into larger structures.\n- **Behavioural**: how responsibilities are spread between objects and how the objects interact.\n- **Concurrency**: multithreading and parallel computation. **Cloud**: challenges of cloud-based applications.\n- **Architectural**: the high-level structure of the whole system.\nKey: the first three are about classes and objects; the last three are about threads, the cloud and the whole system."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "3.6.6",
+    "3.6.8"
+   ],
+   "prompt": "Why are design patterns used in software engineering?",
+   "answer": "They are tools for building software that is readable, modifiable, maintainable and robust.\n- They solve common design problems with solutions that are already proven.\n- They work as a common language: colleagues can share a design idea by naming the pattern.\n- They help developers make informed design decisions.\nKey: patterns are tools in the toolbox and shared words for design ideas."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "3.6.3",
+    "3.6.6"
+   ],
+   "prompt": "When should a design pattern be applied, and when not?",
+   "answer": "Only when the application has an actual need for it: a pattern is a tool, never a goal in itself.\n- Patterns are not **silver bullets** (solutions that fix everything).\n- Their value depends on seeing where and when a pattern fits.\n- A pattern should not be forced into a design: its use must be justified in the specific context.\n- The requirements of the project guide the choice of pattern.\nKey: start from the problem and the requirements, not from the pattern."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "3.6.1",
+    "3.6.2"
+   ],
+   "prompt": "How can design patterns be combined? Which examples does the course give for creational and structural patterns?",
+   "answer": "Patterns are often used together, and much of their value comes from that.\n- **Singleton** combined with **Factory Method**.\n- **Builder** used with **Abstract Factory**.\n- **Adapter** with **Factory Method**: one factory creates both in-house and third-party components that share the same main function.\nKey: patterns are building blocks that work together, not separate recipes."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "3.6.2"
+   ],
+   "prompt": "What are structural design patterns concerned with?",
+   "answer": "How classes and objects are composed (put together) to form larger structures.\n- They give simple ways to set up relationships between entities.\n- They help manage relationships and dependencies between classes and objects, so the parts form one whole.\n- The course teaches four: **Adapter**, **Bridge**, **Decorator** and **Facade**.\nKey: structural patterns are about how the parts are connected."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "3.6.2"
+   ],
+   "prompt": "Bridge pattern: what does it separate, and what does that make possible?",
+   "answer": "It separates an **abstraction** (the interface the client uses) from its **implementation**, so the two can vary independently.\n- The abstraction holds an implementation object and passes the work on to it: `impl.operationImpl()`.\n- The implementation can be replaced without changing the client's code.\n- Course example: in a communication system the abstraction is the communication and the implementation is the protocol (HTTP, FTP, SMTP).\n- It gives weaker coupling and is in line with the Single Responsibility Principle.\nKey: Bridge lets the what and the how change separately."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "3.6.2"
+   ],
+   "prompt": "Object Adapter versus Class Adapter: how do they differ?",
+   "answer": "An Object Adapter uses composition, a Class Adapter uses inheritance.\n- **Object Adapter**: implements the target interface and holds the existing class as a field (**composition**) and passes calls on to it.\n- **Class Adapter**: implements the target interface and also extends the existing class (**inheritance**).\n- The Object Adapter is generally preferred because its coupling is weaker.\n- The Class Adapter is useful when the adapter must work with the target system and the original system at the same time.\nKey: Object Adapter wraps, Class Adapter inherits; wrapping gives weaker coupling."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "3.6.2"
+   ],
+   "prompt": "Does a Facade stop clients from using the subsystem behind it directly?",
+   "answer": "No. The Facade only adds a simpler view; the functions underneath can still be called directly.\n- It gives convenient access to the commonly used functions.\n- It may combine several functions into one to support a common use case.\n- It offers one uniform view of the complex inside to one or more external clients.\nKey: a Facade is a shortcut, not a wall."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "3.6.3"
+   ],
+   "prompt": "What are behavioural design patterns about, and how do they differ from structural patterns?",
+   "answer": "They are about how objects communicate and how responsibilities are spread between them.\n- **Structural patterns** shape the structure of a group of related objects.\n- **Behavioural patterns** shape the behaviour and communication of objects.\n- The aim is objects that work together well with **loose coupling** (few dependencies on each other).\n- The course teaches seven: Observer, Chain of Responsibility, State, Strategy, Command, Iterator and Mediator.\nKey: structural is how objects are put together, behavioural is how they talk."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "3.6.3"
+   ],
+   "prompt": "Chain of Responsibility: how does a request find the object that handles it?",
+   "answer": "It is passed along a chain of handler objects until one of them handles it or the chain ends.\n- Each handler holds a reference to the next handler.\n- A handler that cannot handle the request passes it on to the next one.\n- In effect it is a linear search for an object that can handle the request.\n- The sender of the request is decoupled from the receiver.\nKey: each handler either handles the request or passes it on."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "3.6.3"
+   ],
+   "prompt": "Why use a Chain of Responsibility for something like a logger?",
+   "answer": "To give each class a single responsibility, instead of one long class that does everything.\n- With every way of making logs in one class, the logging function becomes long and hard to read.\n- In a chain, each logger class deals with only one way of making logs.\n- This keeps the Single Responsibility Principle and improves understandability and maintainability.\nKey: the chain splits one big handler into small ones with one job each."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "3.6.3"
+   ],
+   "prompt": "State pattern: what does it do, and what does it replace?",
+   "answer": "It lets an object change its behaviour when its internal state changes, so the object seems to have changed its class.\n- Each state is its own class behind one `State` interface.\n- The **context** (the object whose behaviour changes) holds the current state object, which is replaced when the state changes: `setState(state)`.\n- It replaces large, monolithic conditional statements.\n- The idea is similar to state chart diagrams.\nKey: one class per state instead of one big conditional."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "3.6.3"
+   ],
+   "prompt": "State versus Strategy: they look alike in design, so what is the difference?",
+   "answer": "The purpose: State follows the object's own internal state, Strategy lets the client pick an algorithm.\n- Alike: in both, a context object holds an object behind an interface (`State` or `Strategy`) that can be replaced at run time.\n- **State**: the behaviour changes because the internal state of the object changed.\n- **Strategy**: there are several algorithms for one task, and the client decides at run time which one is used.\nKey: State is about what condition the object is in, Strategy is about which way the job is done."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "3.6.3"
+   ],
+   "prompt": "Command pattern: which two responsibilities does it separate, and why does that help?",
+   "answer": "Issuing a command is separated from the thing that is commanded, by putting each action in its own object.\n- All details of an action sit in one object, as in graphical user interfaces and action listeners.\n- It supports the Single Responsibility Principle and improves **cohesion** (how well the contents of a class belong together).\n- Class names such as `FileOpenCommand` and `FileSaveAsCommand` show at once what each class is responsible for, so less documentation is needed.\nKey: one action, one class, named after what it does."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "3.6.3"
+   ],
+   "prompt": "What does the Iterator pattern give access to, and what does it hide?",
+   "answer": "It gives access to the elements of an **aggregate object** (a collection) one after another, and hides how the collection is built inside.\n- An iterator offers `hasNext()` (is there another element?) and `next()` (return the next one).\n- Many programming languages support it by default.\n- Writing an own iterator is useful when a collection must be traversed in different ways depending on the requirements.\nKey: Iterator walks through a collection without showing its inner structure."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "3.6.3"
+   ],
+   "prompt": "Mediator pattern: how does it reduce coupling between objects?",
+   "answer": "One mediator object holds the logic for how a set of objects interact, so they do not refer to each other directly.\n- Each component knows the mediator and tells it what happened, e.g. `mediator.notify(\"ButtonPressed\", this)`.\n- The mediator handles the notification.\n- This gives loose coupling, and the interaction can be varied independently of the objects.\nKey: objects talk to the mediator, not to each other."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "3.6.3"
+   ],
+   "prompt": "Facade and Mediator: how can the two be combined on one subsystem?",
+   "answer": "The Facade simplifies the interface to the subsystem, and the Mediator mediates between the parts inside it.\n- **Facade**: a simple interface to a complex subsystem.\n- **Mediator**: mediates between functions and classes in the subsystem.\n- Adding the Mediator makes it possible to support additional functionality or use cases.\nKey: Facade simplifies the way in, Mediator coordinates what is inside."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "3.6.4"
+   ],
+   "prompt": "What are concurrency design patterns for, and which problems do they address?",
+   "answer": "They give safe and efficient ways to manage several threads in multitasking and multithreaded programs.\n- A **thread** is one path of execution in a program; several can run at the same time.\n- Typical problems: **race conditions**, **deadlocks** and **thread safety**.\n- The patterns manage access to shared resources, schedule tasks and optimise performance.\n- The course teaches five: Monitor, Lock, Read-write lock, Scheduler and Thread pool.\nKey: concurrent programming is not only about speed, it is also about data integrity and synchronisation."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "3.6.4"
+   ],
+   "prompt": "Lock pattern: what does a lock guarantee, and what is a critical section?",
+   "answer": "Only one thread at a time can run the code protected by the lock, the **critical section**.\n- The critical section is a part of the code that modifies shared data.\n- A thread takes the lock before the section and releases it after: `lock.lock()` then `lock.unlock()`.\n- The shared data is then modified by only one thread at any time (**mutual exclusion**), which prevents race conditions.\n- It is one of the simplest and most fundamental concurrency patterns.\nKey: one lock, one thread inside at a time."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "3.6.4"
+   ],
+   "prompt": "Monitor pattern: what does it add to plain mutual exclusion?",
+   "answer": "Waiting and signalling: a thread can wait (block) until a condition becomes true, and other threads can signal that it has.\n- A monitor consists of a **mutex** (a lock object) and **condition variables**.\n- A condition variable is basically a container of threads that wait for a certain condition.\n- The mutual exclusion means only one method is active in the object at a time, which protects the object's state.\n- In Java: `synchronized(monitor) { ... }` around the critical section.\nKey: a monitor is a lock plus a way to wait for a condition and be signalled."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "3.6.4"
+   ],
+   "prompt": "Read-write lock: who may hold it at the same time, and when does it pay off?",
+   "answer": "Many threads may read at the same time, but a write needs exclusive access.\n- It has separate locks for read and write access: `readLock()` and `writeLock()`.\n- Several threads can read the data in parallel.\n- Only one thread can write at a time, which protects data integrity.\n- It fits data that many threads read but that is updated only occasionally: performance and responsiveness improve in read-heavy cases.\nKey: reading is shared, writing is exclusive."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "3.6.4"
+   ],
+   "prompt": "Scheduler pattern: what does it control in a concurrent system?",
+   "answer": "The order in which threads or tasks are executed.\n- It works like an organiser: it keeps track of all tasks and decides which task runs under which conditions.\n- Tasks can follow time-based rules, e.g. `scheduleAtFixedRate(...)` runs a task every 10 seconds in the course example.\n- It decides how threads or tasks get access to resources or processors, using scheduling algorithms.\n- It is useful for load balancing and for reaching a wanted quality of service level.\nKey: the scheduler decides which task runs when."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "3.6.4"
+   ],
+   "prompt": "Thread pool pattern: how does it work, and what does it save?",
+   "answer": "A set of threads is created in advance (the pool) and reused for task after task.\n- A new task is handed to a thread from the pool.\n- When the task is finished, the thread returns to the pool, ready for the next task.\n- It avoids the overhead of creating and destroying a thread for every task.\n- It can limit the level of concurrency: `Executors.newFixedThreadPool(5)` gives a pool of 5 threads.\nKey: reuse ready threads instead of creating a new one per task."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "3.6.5"
+   ],
+   "prompt": "What are cloud design patterns for, and which areas do they target?",
+   "answer": "They solve challenges in designing and implementing cloud-based applications.\n- Areas named in the course: availability, data management, design and implementation, messaging, management and monitoring, performance and scalability, resilience, and security.\n- Together the patterns make applications more robust, resilient and better performing.\n- Real implementations often rely on cloud-specific libraries, services or frameworks, so the course's Java examples are only rudimentary.\nKey: cloud patterns keep cloud applications available, scalable and resilient."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "3.6.5"
+   ],
+   "prompt": "Asynchronous Request and Reply: how does the client get its answer without waiting?",
+   "answer": "The client sends the request, gets an acknowledgement at once, and collects the result later.\n- Restaurant picture: place the order (API request), get an order number (acknowledgement), then wait for the food.\n- The client can check now and then whether the result is ready (**HTTP polling**) or be told when it is (**event notification**, like a pager that buzzes).\n- The work is handed over to another backend service or a message queue.\n- It suits long-running processes: the client is free to carry on instead of being blocked.\nKey: acknowledge now, deliver the result later."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "3.6.5"
+   ],
+   "prompt": "CQRS (Command and Query Responsibility Segregation): what is separated, and why?",
+   "answer": "Reading and writing are separated into two models: **commands** change data, **queries** read it.\n- Restaurant picture: one person takes orders and another serves food, instead of an overloaded staff doing both at once.\n- It reduces **resource contention** (reads and writes competing for the same resources) and improves performance and security.\n- The hard part is keeping the read store in sync with the write store, often through events that the write store publishes and the read store consumes.\nKey: one model for writing, one for reading, kept in sync by events."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "3.6.5"
+   ],
+   "prompt": "Event Sourcing: how is the state of an application stored?",
+   "answer": "As a sequence of events, one for each change, kept in an **event store**.\n- It works like bookkeeping: every transaction is logged, which forms an **audit trail** (a full record of what happened).\n- The events are **immutable**: they are not changed after they are stored.\n- Replaying the events gives the current state of the application.\n- Replay helps with debugging, with understanding behaviour over time, and with recreating a system after a break-in or manipulation.\nKey: store every change as an event, and the state can be rebuilt by replaying them."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "3.6.5"
+   ],
+   "prompt": "Retry pattern: which kind of failure does it handle, and how?",
+   "answer": "**Transient errors** (temporary faults): the failed operation is tried again automatically.\n- A loop or other logic retries a connection to a database, an API or another service when certain error codes are received.\n- The course example stops after a fixed number of tries: `MAX_RETRIES = 3`.\n- The application does not fail at the first error, which makes it more reliable and resilient.\nKey: a temporary fault gets another try before the application gives up."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "3.6.5"
+   ],
+   "prompt": "Circuit Breaker pattern: what does it do when an operation keeps failing?",
+   "answer": "It detects the failures and stops the application from triggering the failing operation again and again.\n- It monitors failures and opens or closes the circuit; the operation is performed only while the circuit is closed.\n- It protects against overload and **cascading failures** (one failure causing the next).\n- The application can degrade gracefully: it loses some functionality instead of collapsing completely.\nKey: stop calling what is likely to fail."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "3.6.5"
+   ],
+   "prompt": "Bulkhead pattern: how does it keep one failure from taking down the whole application?",
+   "answer": "It isolates parts of the application into separate pools, so a failure stays inside its own pool.\n- The name comes from the partitions in a ship's hull.\n- If one pool fails, the others carry on without interruption.\n- A pool can limit how many operations run concurrently.\n- It suits architectures that must keep high availability while handling large traffic volumes.\nKey: separate pools, so one failure does not spread."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "3.6.5"
+   ],
+   "prompt": "Throttling pattern: what does it protect an application or API from?",
+   "answer": "From being overloaded with requests: it controls the rate at which incoming requests are handled.\n- It paces the incoming requests so that rate limits are not exceeded.\n- Resource consumption stays controlled, and performance stays consistent and manageable.\n- The course places it under availability and resilience, with scalability added.\nKey: throttling limits how fast requests may come in."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "3.6.5"
+   ],
+   "prompt": "Queue-Based Load Levelling: how does a queue help during a traffic spike?",
+   "answer": "Requests are placed in a queue and processed from it at a controlled rate, which smooths the load on the system.\n- A request is added to the queue for later processing.\n- The system components keep operating smoothly even during traffic spikes.\n- The video describes it as balancing workloads across several instances of an application, which improves performance and scalability.\nKey: the queue takes the peak, the system works at an even pace."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "3.6.6"
+   ],
+   "prompt": "What are architectural design patterns, and which aspects of a system do they address?",
+   "answer": "High-level solutions to recurring design problems that help define the overall structure and behaviour of an application.\n- They address managing complexity, reusability, reliability and scalability.\n- They work at the level of software components and how these interact.\n- The course teaches four: Layered, Model-View-Controller, Microservices and Event-Driven.\nKey: architectural patterns shape the bigger picture, the whole system."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "3.6.6"
+   ],
+   "prompt": "Layered architecture pattern: how is the system structured?",
+   "answer": "As a sequence of layers, each with a specific role and responsibility.\n- Typical layers: **presentation**, **business** logic and **data access**.\n- The layers give **separation of concerns** (each part deals with one matter), which makes the application easier to maintain and scale.\n- It is perhaps the most common architectural pattern.\nKey: one layer, one responsibility."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "3.6.6"
+   ],
+   "prompt": "Model-View-Controller (MVC): what are the three components, and what is gained?",
+   "answer": "**Model** (data), **View** (presentation) and **Controller** (logic): three interconnected components.\n- It separates the concerns of an application, and is popular for user interfaces and web applications.\n- The look and feel can be varied independently of how data is stored and managed.\n- The clear division makes testing, maintenance and scaling easier.\nKey: data, presentation and control logic each get their own part."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "3.6.6"
+   ],
+   "prompt": "Microservices pattern: how is the application divided, and how does it compare with a monolith?",
+   "answer": "Into small, loosely coupled services that can be developed, deployed and scaled independently.\n- Each service is responsible for a distinct function and runs as a separate process.\n- The services communicate through lightweight mechanisms such as HTTP/REST.\n- Compared with a large **monolithic** application (everything in one unit), microservices are easier to maintain and modify.\n- Services can be combined to form larger applications.\nKey: many small independent services instead of one big application."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "3.6.6"
+   ],
+   "prompt": "Event-driven architecture: what is it built around, and what does it give?",
+   "answer": "Around events: producing them, detecting them, consuming them and reacting to them.\n- Components communicate through events, which keeps them loosely coupled.\n- This promotes scalability and flexibility.\n- It is especially effective for systems that need real-time responsiveness and adaptability.\nKey: events, not direct dependencies, connect the components."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "3.6.6"
+   ],
+   "prompt": "Why is the microservices pattern often combined with event-driven architecture?",
+   "answer": "Together they form an architecture that is highly scalable and allows asynchronous processing and loose coupling.\n- Microservices split the application into independent services.\n- Event-driven architecture manages the events of the system.\nKey: independent services plus events give scale, asynchronous work and loose coupling."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "3.6.6"
+   ],
+   "prompt": "What should decide which architectural pattern a project uses, and why does the choice matter?",
+   "answer": "The needs of the specific project, the complexity of the system and the problem to be solved.\n- Each architectural pattern has its own strengths, weaknesses and ideal use cases.\n- How the architecture is structured has a big effect on how implementation challenges are solved later on.\n- The choice becomes more important the larger the software system is.\nKey: choose the architecture from the project's needs, because it shapes what is built after it."
+  }
+ ]
+}

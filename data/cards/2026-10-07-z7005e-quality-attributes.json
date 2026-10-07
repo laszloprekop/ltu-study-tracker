@@ -1,0 +1,661 @@
+{
+ "note": "AI-drafted Concept Cards (Claude, 2026-10-07) for Z7005E section 4.2 Software Quality Attributes (availability, modifiability, integrability, testability, performance, extensibility), drafted from the Canvas pages 4.2.0 to 4.2.6 and 4.2.11, the captions of the 4.2.0 to 4.2.5 videos, the Extensibility report linked from 4.2.6 and the slides of Föreläsning 13. Uploaded unchecked; classmates vote on each.",
+ "cards": [
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.0"
+   ],
+   "prompt": "What is a software quality attribute?",
+   "answer": "A **quality attribute** (kvalitetsattribut) is a non-functional requirement: it says how well a system does its work, not what it does.\n- Functional requirements are the \"what\": features and functions.\n- Quality attributes are the \"how\": how often the system is available, how fast it responds, how easily it can be changed.\n- They decide if a system is robust and meets the users' expectations in real conditions.\nKey: functions say what the system does, quality attributes say how well it does it."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.0",
+    "4.2.11"
+   ],
+   "prompt": "Which six quality attributes does Z7005E cover, and what does each mean in one line?",
+   "answer": "Availability, modifiability, integrability, testability, performance and extensibility, a few of the many in ISO/IEC 25010:2011.\n- **Availability**: operational and accessible when needed.\n- **Modifiability**: takes changes easily, without new defects.\n- **Integrability**: components or systems combine and work as one.\n- **Testability**: can be tested effectively. **Performance**: responds to requests and handles its workload efficiently.\n- **Extensibility**: new functions can be added without much disruption.\nKey: five attributes have videos, extensibility builds on three of them."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.0"
+   ],
+   "prompt": "Why do quality attributes matter to a software designer? Give the three reasons from the course.",
+   "answer": "They shape the user experience, they affect each other, and they are tied to design patterns.\n- User experience and usefulness: how often the system is available, how fast it responds, how easily it changes.\n- They are interconnected: improving one may affect another, so the designer must understand the **trade-offs** (what is given up to gain something else).\n- Many design patterns arose to meet a certain quality attribute. Knowing the link helps to choose the right pattern for a problem.\nKey: a system must be functionally correct and also good in quality."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.6"
+   ],
+   "prompt": "Architectural tactic versus architectural pattern: what is the difference?",
+   "answer": "A **tactic** is a small building block of design about a single element or interaction; a **pattern** is a larger solution built from several tactics.\n- Each set of tactics is grouped by the quality attribute goal it serves.\n- An **architectural pattern** solves a recurring design problem: it defines a collection of element types and how they interact.\n- Breaking a pattern down into its tactics shows which quality attribute concerns it addresses, and how.\nKey: tactics are atoms, patterns are molecules."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.6"
+   ],
+   "prompt": "Which six parts does a quality attribute scenario have?",
+   "answer": "A **quality attribute scenario** is a short description of how a system must respond to a stimulus. It has six parts.\n- **Stimulus**: an event that arrives at the system. **Source**: where it comes from.\n- **Response**: how the system should behave when the stimulus occurs.\n- **Response measure**: how the response is measured, a metric and a threshold.\n- **Environment**: the conditions under which the stimulus occurs.\n- **Artifact**: the part of the system the requirement applies to, often the whole system.\nKey: source, stimulus, artifact, environment, response, response measure."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.6"
+   ],
+   "prompt": "Why are quality attribute requirements written as scenarios and not only named?",
+   "answer": "A name such as \"extensibility\" is vague and open to interpretation; a scenario gives the quality an operational definition.\n- Quality attribute names are categories, too imprecise to evaluate an architecture against.\n- Scenarios work as architectural test cases: they show which qualities the architecture supports and where the risks are.\n- A **general scenario** is a template that gives the type of value for each part.\n- A **concrete scenario** fills in values for one particular system.\nKey: a quality attribute can only be evaluated against scenarios, not against its name."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.5",
+    "4.2.6"
+   ],
+   "prompt": "Which trade-offs between quality attributes does the course point out?",
+   "answer": "Improving one quality attribute often costs another, so the designer has to find a balance.\n- Late binding helps modifiability and integrability, but its overhead can hurt performance.\n- An intermediary helps extensibility and modifiability, but always adds latency (performance).\n- Asynchronous messages (Publish-Subscribe) give loose coupling, but less deterministic behavior, which hurts testability.\n- Performance used to drive architecture at the cost of other qualities; with cheaper hardware, other qualities now compete with it.\nKey: a gain in one attribute is usually paid for in another."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.2",
+    "4.2.5"
+   ],
+   "prompt": "How does late binding (deferred binding) affect the different quality attributes?",
+   "answer": "**Late binding** means deciding something late, for example the method to call at runtime and not at compile time. It makes change easier and has a price.\n- Modifiability and integrability: gain, changes can be made late and cheaply.\n- Performance: loses, late binding adds overhead.\n- Availability: resources bound late must meet the same availability principles, or they weaken the whole system.\n- Testability: components bound late can bring unexpected behavior and need special attention in tests.\nKey: late binding buys flexibility and pays with overhead and complexity."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.6"
+   ],
+   "prompt": "Why can the performance loss from an intermediary be an acceptable trade-off?",
+   "answer": "A negative effect on another quality attribute does not mean that its level becomes unacceptable.\n- An intermediary always adds latency: it adds processing and communication steps.\n- The added latency may be only a small fraction of the end-to-end latency of the most important use cases.\n- Then extensibility and modifiability are gained for a small cost in latency.\n- Trade-offs are general: other decisions used together with a pattern can change the effect.\nKey: judge a trade-off by the size of the loss in the important use cases."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.2",
+    "4.2.6"
+   ],
+   "prompt": "Why can too much support for a quality attribute hurt a design?",
+   "answer": "Every mechanism for a quality attribute adds elements and complexity, so it has to be worth its cost.\n- Overdoing modifiability can make the system more complex.\n- It is impossible to plan for every change: the effort belongs in the parts where change is likely.\n- If few and similar extensions are expected, a plug-in system may be unnecessary complexity.\n- If different functions are added often and at different times, a flexible mechanism is almost certainly worth the effort.\nKey: weigh the complexity a mechanism adds against how much it will be used."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.1"
+   ],
+   "prompt": "What does availability mean as a quality attribute?",
+   "answer": "**Availability** means that the software is ready and operational when it is needed.\n- It includes reliability and also recovery: the system can repair itself when it breaks down.\n- The system hides or mends **faults** so that they do not become **failures**, and total downtime stays under an acceptable limit.\n- Causes: human or hardware errors, software failures, even failed air conditioning.\n- Links: a denial of service attack (security) makes a system unavailable; a very slow response (performance) is close to a failure.\nKey: availability is about keeping faults from becoming failures."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.1"
+   ],
+   "prompt": "How is availability measured, and where is the expected level written down?",
+   "answer": "Availability is the ratio `MTBF / (MTBF + MTTR)`, and the expected level is usually stated in a service level agreement.\n- `MTBF`: mean time between failures. `MTTR`: mean time to repair.\n- The ratio gives the probability that the system delivers its service within the required bounds over a time interval.\n- Scheduled downtime is not counted: the system is seen as not needed then.\n- A **service level agreement** (SLA) states the guaranteed availability level and usually the penalties for breaking it.\nKey: availability = `MTBF / (MTBF + MTTR)`, scheduled downtime excluded."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.1"
+   ],
+   "prompt": "Into which categories are the availability tactics grouped, and which tactics belong to each?",
+   "answer": "Three categories.\n- **Detect faults**: monitoring, ping/echo, heartbeat, timestamp, condition monitoring, sanity checking, voting, exception detection, self-test\n- **Recover from faults**, preparation and repair: redundant spare, rollback, exception handling, software update, retry, ignore faulty behavior, graceful degradation, reconfiguration\n- Recover, reintroduction: shadow, state resynchronization, escalating restart, non-stop forwarding\n- **Prevent faults**: removal from service, transactions, predictive model, exception prevention, increase competency set\nKey: detect, recover, prevent."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.1"
+   ],
+   "prompt": "Availability, detect faults: what do monitoring, ping/echo, heartbeat and timestamp do?",
+   "answer": "They check that the system is alive and that events arrive in the right order.\n- **Monitoring**: keeps track of the performance and the behavior of the system.\n- **Ping/echo**: a signal is sent and a response is awaited, to make sure the system is operational.\n- **Heartbeat**: the software itself reports that the process is still running.\n- **Timestamp**: events get a time mark, to detect an incorrect sequence of events, mostly in distributed communication.\nKey: ping/echo asks \"are you there?\", a heartbeat says \"I am here\" without being asked."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.1"
+   ],
+   "prompt": "Availability, detect faults: what do condition monitoring, sanity checking, voting and self-test do?",
+   "answer": "They check that values and results are correct, not only that the system is alive.\n- **Condition monitoring**: checks conditions in a process or device, for example with checksums.\n- **Sanity checking**: checks that an operation or output of a component is reasonable.\n- **Voting**: several instances decide on a value; on a discrepancy a decision is made about which result to use.\n- **Self-test**: a component tests itself for correct operation, started by itself or by a system monitor.\nKey: these tactics judge correctness; monitoring, ping/echo and heartbeat judge liveness."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.1"
+   ],
+   "prompt": "Availability: what do the tactics exception detection, exception handling and exception prevention do?",
+   "answer": "One tactic in each category deals with **exceptions**, conditions that change the normal flow of execution.\n- **Exception detection** (detect faults): notices such conditions, for example a system exception or a timeout.\n- **Exception handling** (recover from faults): deals with the exception in a productive way and does not let the system crash.\n- **Exception prevention** (prevent faults): keeps exceptions from occurring, for example with error correcting code or by masking possible problems.\nKey: detect the exception, handle it, or better, prevent it."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.1"
+   ],
+   "prompt": "Recovering from faults: what do redundant spare, rollback, software update and retry do?",
+   "answer": "They belong to preparation and repair, the first group of tactics for recovering from faults.\n- **Redundant spare**: spare components stand ready to take over if the primary component fails.\n- **Rollback**: the system returns to an earlier state that is known to be good.\n- **Software update**: faults are corrected through patches or upgrades.\n- **Retry**: the system attempts the same operation again after a failure.\nKey: take over with a spare, go back, patch, or try again."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.1"
+   ],
+   "prompt": "Recovering from faults: what do ignore faulty behavior, graceful degradation and reconfiguration do?",
+   "answer": "All three keep the system running although a fault is still there. They belong to preparation and repair.\n- **Ignore faulty behavior**: operation continues as well as possible in spite of a known fault.\n- **Graceful degradation**: critical functions are kept, less critical functions are dropped when a failure occurs.\n- **Reconfiguration**: responsibilities are reassigned so that as much functionality as possible is kept.\nKey: a system that cannot be repaired at once should lose its least important functions first."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.1"
+   ],
+   "prompt": "Availability: which tactics reintroduce a failed component, and what does each do?",
+   "answer": "Reintroduction, the second group of recovery tactics, brings a failed or upgraded component back.\n- **Shadow**: the component runs in shadow mode until its correctness is confirmed.\n- **State resynchronization**: active and standby components are kept in sync, typically with checkpoints.\n- **Escalating restart**: parts of the system are restarted step by step, no more than needed to solve the issue.\n- **Non-stop forwarding**: from router design, traffic is still forwarded if the controller fails.\nKey: a repaired component is checked and synchronised before it is trusted again."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.1"
+   ],
+   "prompt": "Availability: which tactics prevent faults, and what does each do?",
+   "answer": "Five tactics avoid faults before they occur; the fifth is exception prevention.\n- **Removal from service**: a possibly faulty component is taken offline for inspection or repair.\n- **Transactions**: several steps are bundled so that the whole bundle can be undone at once. Data stays intact if one step fails or threads collide on the same data.\n- **Predictive model**: watches the health of a process and acts when conditions predict a likely fault.\n- **Increase competency set**: the software handles a wider range of situations.\nKey: prevention acts before the fault, recovery after it."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.1"
+   ],
+   "prompt": "Which design and implementation considerations does the course give for availability?",
+   "answer": "Availability is planned from the first design: the code must handle faults and disruptions, not only the normal case.\n- Know the most critical functions and keep them running.\n- Log the events leading up to a failure; detect faults and notify the right parties quickly.\n- Recover through redundancy, disconnect the source of the fault, or run in a **degraded mode** (essential functions only) during repair.\n- Keep data accessible also under bad conditions.\n- Resources bound late must follow the same availability principles.\nKey: decide early how the system behaves when a fault occurs."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.1"
+   ],
+   "prompt": "Which techniques do the course's applied examples use to achieve availability?",
+   "answer": "They combine hardware and software measures so that one failure does not stop the service.\n- Spread the load: load balancers, auto-scaling, content delivery networks.\n- Keep copies: geo-replication, distributed databases, redundant backup systems.\n- Take over on failure: failover to a standby system, battery backup with alerts.\n- Check health: regular automated health checks, self-diagnostics.\n- Isolate failures: with microservices a failing service (recommendations) leaves another (playback) unaffected.\nKey: redundancy, failover and health checks return in every example."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.9"
+   ],
+   "prompt": "Lecture 13, mobile safety button: which questions does the example raise about availability?",
+   "answer": "It asks what must be available at all times, and what that means for the code.\n- The device: a fall detector triggers an alarm and sends the GPS position to a carer. It gives spoken instructions to calm the patient and to guide onlookers (medicine, CPR).\n- Question 1: which features and functions must always be available, and which may run as degraded functions?\n- Question 2: what are the implications for the architectural elements, for the system and hardware, and for the source code?\nKey: availability in practice starts with choosing the functions that must always work."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.2"
+   ],
+   "prompt": "What does modifiability mean as a quality attribute?",
+   "answer": "**Modifiability** is the ability of software to adapt and evolve over time: change is handled with as little cost and risk as possible.\n- Most of the cost of a software system comes after its first release.\n- The reason is that change is inevitable: new features, fixed defects, a better user experience, new technologies or standards.\n- A modifiable system takes such changes without high cost or unexpected side effects.\nKey: modifiability is about the cost and risk of change."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.2"
+   ],
+   "prompt": "Which four questions does an architect ask when planning for modifiability?",
+   "answer": "What can change, how likely is the change, when is it made and by whom, and what does it cost.\n- What: functions, platform, environment, the system's qualities, its capacity.\n- Likelihood: not every change can be planned for, so the most probable ones are planned for.\n- When: in the source code, at compilation, build, configuration or execution.\n- Who: a developer, an end user, a system administrator, or the system itself (a self-adaptive system).\n- Cost: see the two costs of a modifiability mechanism.\nKey: what, how likely, when and who, at what cost."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.2"
+   ],
+   "prompt": "Modifiability: which two costs are weighed when a mechanism for change is chosen?",
+   "answer": "The cost of introducing the mechanism, and the cost of making each change with it.\n- Example: a user interface builder is expensive to acquire, but changes made with it are cheap.\n- The expected number of changes is weighed against the cost of the mechanism. This is a prediction.\n- Fewer changes than expected: the expensive mechanism was not warranted.\n- No suitable mechanism: change piled on change leads to **technical debt** (extra work later, caused by quick solutions now).\nKey: a mechanism pays off only if enough changes use it."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.2"
+   ],
+   "prompt": "How is modifiability measured?",
+   "answer": "By the resources spent to make a change, and by what the change does to the rest of the system.\n- Number, size and complexity of the artifacts affected by the change.\n- Effort (person-hours), time and money needed to make it.\n- Impact on other functions or quality attributes.\n- Number of new defects the change introduces.\n- Adaptability: how quickly the system adjusts to changes.\nKey: fewer artifacts touched, less effort and fewer new defects mean higher modifiability."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.2",
+    "4.2.9"
+   ],
+   "prompt": "Into which categories are the modifiability tactics grouped, and which tactics belong to each?",
+   "answer": "Three categories: increase cohesion, reduce coupling, defer binding.\n- **Increase cohesion**: split module, redistribute responsibilities.\n- **Reduce coupling**: encapsulate, use an intermediary, abstract common services, restrict dependencies.\n- **Defer binding**: component replacement, discovery, shared repositories, polymorphism. Lecture 13 also lists aspects, configuration-time binding, resource files and interpret parameters.\n- The video adds a fourth aim: reduce the size of modules.\nKey: related things together, few connections between modules, decisions as late as possible."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.2"
+   ],
+   "prompt": "Modifiability: which tactics reduce coupling, and what does each do?",
+   "answer": "**Coupling** measures how closely modules are connected. With high coupling a change in one module may affect others, so change costs more.\n- **Encapsulate**: changes stay contained inside the module.\n- **Use an intermediary**: direct dependencies between modules are reduced.\n- **Abstract common services**: a common service is abstracted once and used by several modules.\n- **Restrict dependencies**: fewer dependencies are allowed, which limits the impact of a change.\nKey: the fewer and weaker the connections, the less a change spreads."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.2"
+   ],
+   "prompt": "Modifiability: which tactics increase cohesion, and why does module size matter?",
+   "answer": "**Cohesion** measures how closely the responsibilities of one module are related. With high cohesion a change is less likely to affect several modules.\n- Aim: each module has a single, well-defined purpose.\n- **Redistribute responsibilities**: similar responsibilities scattered over several modules are brought together.\n- **Split module**: a large module is divided into smaller, more manageable ones.\n- Size: a larger module is harder and costlier to modify and more prone to bugs; small ones are easier to understand.\nKey: small modules with one purpose keep a change in one place."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.2"
+   ],
+   "prompt": "Modifiability: what does the tactic defer binding mean, and what is externalizing change?",
+   "answer": "**Defer binding** means deciding specific values or configurations as late as possible in the life cycle, so that late changes cost less.\n- It only works if the architecture is designed to take late changes.\n- Tactics: component replacement, service discovery, shared repositories, polymorphism.\n- **Externalizing change**: creating a modifiability mechanism is separated from using it.\n- Example: a developer sets the mechanism up; an administrator or installer later uses it to change the system without modifying code.\nKey: bind late, and let someone other than the developer make the change."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.2"
+   ],
+   "prompt": "Which design and implementation considerations does the course give for modifiability?",
+   "answer": "Modifiability means anticipating where change will occur and making those parts of the code easy to change.\n- Sources of change: technical updates, legal adjustments, societal trends, business strategy, customer requirements.\n- Ask which responsibilities are added or modified, and which others are affected.\n- Choose data abstractions that make a change less severe.\n- After a change the system must still meet its requirements and resource limits.\n- Deferring binding has a price: overhead, complexity, possible effects on availability or security.\nKey: put the effort where change is expected."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.2"
+   ],
+   "prompt": "Which SOLID principles and Booch metrics does the course link directly to modifiability?",
+   "answer": "The Single Responsibility Principle and the Open/Closed Principle, and designing for high cohesion, high primitiveness and weak coupling.\n- Designing by the SOLID principles and Booch's metrics already goes far towards modifiable software.\n- These five have a clear and direct effect on modifiability.\n- They match the tactic categories: increase cohesion and reduce coupling.\nKey: one responsibility per class, open for extension, cohesive, primitive, weakly coupled."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.2"
+   ],
+   "prompt": "Which techniques do the course's applied examples use to achieve modifiability?",
+   "answer": "Refactoring, separation of concerns and design patterns that isolate the part that changes.\n- Old payroll class: Extract Method and Move Method (tax code moves to a `TaxCalculator` class).\n- Adding login: middleware, and separate modules for separate concerns.\n- Changing database type: Repository pattern and Strategy pattern hide the database operations.\n- UI themes: Bridge pattern, theme classes such as `DarkTheme`.\n- New payment methods: Factory pattern to create them, Decorator pattern to add behavior.\nKey: organised, modular code that follows known patterns is easy to modify."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.9"
+   ],
+   "prompt": "Lecture 13: how is modifiability reached in a game that must live for decades?",
+   "answer": "Through **separation of concerns** (each part handles one matter) and a modular design.\n- Separate modules: graphics engine, game engine, game mechanisms, quests and story, UI and controls.\n- Seen from performance and scalability: bottlenecks can scale independently of the game mechanisms.\n- The lecture also shows that overdoing modifiability has consequences.\nKey: parts that change for different reasons live in different modules."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.9"
+   ],
+   "prompt": "Lecture 13, exam preparation: which points should a discussion of modifiability cover?",
+   "answer": "What might change, how the design supports it, and what balance is right.\n- Change: what might change, and which design choice best supports such a change?\n- Balance: what is an appropriate balance? Overdoing modifiability might hurt the design.\n- Other quality attributes: what is an appropriate balance with them?\n- Tactics to reason with: increase cohesion, reduce coupling, defer binding.\nKey: name the likely change, the design choice for it, and its cost for other attributes."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.3"
+   ],
+   "prompt": "What does integrability mean as a quality attribute?",
+   "answer": "**Integrability** is the ease with which separately developed components can be combined and made to work as one unit.\n- It includes the cost and technical risk of anticipated and, to some extent, unanticipated future integrations.\n- The units may come from an external vendor and may have implemented requirements differently.\n- Example: a North American plug fits a North American socket. A British socket needs an adapter, and more if the device expects `110V` and gets `220V`.\nKey: integrations that the architecture anticipated are simple, the others are costly."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.3"
+   ],
+   "prompt": "Integrability: what do size and distance between interfaces mean?",
+   "answer": "**Size** is the number of potential dependencies between the units and the system; **distance** is how hard it is to resolve the differences at each dependency.\n- Integrability is about finding and bridging the distance at each potential dependency.\n- The trend towards services and microservices is about decoupling: fewer dependencies and less distance.\n- An interface here is not just an API: it covers all relevant dependencies between the elements.\nKey: size is how many dependencies, distance is how different the two sides are."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.3"
+   ],
+   "prompt": "Which five kinds of distance between cooperating elements does integrability distinguish?",
+   "answer": "Syntactic, data semantic, behavioral semantic, temporal and resource distance. Each is something the elements must agree on.\n- **Syntactic distance**: the number and type of the data elements shared.\n- **Data semantic distance**: the meaning of the data; two elements of the same type are interpreted the same way.\n- **Behavioral semantic distance**: the behavior.\n- **Temporal distance**: the assumptions about time.\n- **Resource distance**: the assumptions about shared resources.\nKey: format, meaning, behavior, time, resources."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.3"
+   ],
+   "prompt": "How is integrability measured?",
+   "answer": "By the cost of making the systems integrate, with metrics much like those for modifiability.\n- Number of components changed.\n- Percentage of code or lines of code changed.\n- Effort, monetary cost or calendar time needed.\n- The similarity is no surprise: integrability is a form of planning for modifiability.\nKey: less code changed and less effort to integrate mean higher integrability."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.3"
+   ],
+   "prompt": "Into which categories are the integrability tactics grouped, and which tactics belong to each?",
+   "answer": "Three groups: limit dependencies, adapt, coordinate. Together they reduce the number of dependencies between components and the distance between them.\n- **Limit dependencies**: encapsulate, use an intermediary, restrict communication paths, standards, abstract common services.\n- **Adapt**: discover, tailor interface, configure behavior.\n- **Coordinate**: orchestrate, manage resources.\nKey: fewer dependencies, components that can adapt, and a coordinator between them."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.3"
+   ],
+   "prompt": "Integrability: which tactics limit dependencies, and what does each do?",
+   "answer": "Five tactics reduce the number of dependencies.\n- **Encapsulate**: all access goes through an explicit interface, so changes do not spread.\n- **Use an intermediary**: breaks dependencies, for example publish-subscribe or a protocol translator.\n- **Restrict communication paths**: limits which elements may talk to an element, for example only through an enterprise service bus.\n- **Standards**: a common basis across platforms and vendors.\n- **Abstract common services**: similar services are hidden behind one common interface.\nKey: every dependency goes through an explicit, shared interface."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.3"
+   ],
+   "prompt": "Integrability: what do the tactics discover, tailor interface and configure behavior do?",
+   "answer": "They let components adapt, so that they can interact with a wider range of other components.\n- **Discover**: a discovery service works as a catalog of relevant addresses, which makes the binding between services flexible.\n- **Tailor interface**: capabilities are added or hidden without changing the API or the implementation. It resolves differences, can prevent attacks and can translate data.\n- **Configure behavior**: the system offers several options and so supports more kinds of components.\nKey: find the other side, adjust the interface, choose the behavior."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.3"
+   ],
+   "prompt": "Integrability: what do the tactics orchestrate and manage resources do?",
+   "answer": "Both coordinate components through a central mechanism.\n- **Orchestrate**: a control mechanism coordinates the services, so that they can stay unaware of each other. This lowers integration cost and dependencies.\n- **Manage resources**: a **resource manager** governs access to computing resources. This avoids resource exhaustion and keeps access fair.\nKey: services do not call each other or take resources directly, a coordinator does it for them."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.3"
+   ],
+   "prompt": "Which design and implementation considerations does the course give for integrability?",
+   "answer": "Integrability starts with asking which systems or parts may integrate, and when they become known to each other.\n- Provide mechanisms for discovering services and policies for late binding.\n- Manage requests: accept or reject them, exchange information, notify, log.\n- Systems beyond one's own control need coordination: protocols, underlying networks.\n- Make data models compatible in syntax and semantics; keep data encapsulated.\n- Do not exhaust shared resources; mind security, availability and performance.\nKey: plan who integrates, how they find each other and how their data fits."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.3"
+   ],
+   "prompt": "Which techniques do the course's applied examples use to achieve integrability?",
+   "answer": "They rely on defined interfaces, standards and software placed between the systems.\n- Shop and payment gateways: API integration, and the Adapter pattern for incompatible interfaces.\n- CRM and email tool: webhooks to notify of events, middleware to transform and pass on data.\n- Health systems: HL7 standards for clinical data, an enterprise service bus to route messages.\n- Social media login: OAuth (an open standard) and SDKs.\n- ERP and supply chain: data integration tools, service-oriented architecture.\nKey: standards, adapters and middleware return in every example."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.9"
+   ],
+   "prompt": "Lecture 13: which integrability problems explain why smart home technology is not more popular?",
+   "answer": "The benefits are clear (safety, sustainability, convenience), but the systems do not integrate well.\n- Different systems mean many apps.\n- A lot of data, but few services built on it.\n- Questions of trust, privacy and security.\n- A lot of hands-on work is needed to make it work.\nKey: technology that does not integrate \"just\" does not work for the user."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.4"
+   ],
+   "prompt": "What does testability mean as a quality attribute?",
+   "answer": "**Testability** is the ease with which software reveals its faults through execution-based testing (testing by running it).\n- As a likelihood: given at least one fault, how likely is the software to fail on the next test execution.\n- The more testable a system is, the quicker it reveals its faults.\n- Revealing a bug is not enough: testability also makes finding and fixing it more efficient.\n- A large part of development cost goes to testing; a well thought out architecture can reduce it.\nKey: a testable system shows its faults quickly."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.4"
+   ],
+   "prompt": "Testability: what is an oracle, and what must be possible with a component under test?",
+   "answer": "An **oracle** is the agent, human or computational, that compares the actual output of a program with the expected result.\n- Model of testing: a program turns inputs into output, and the oracle assesses it.\n- Output is more than the produced value: it can include quality measures such as the time taken.\n- The internal state of the program can also be shown to the oracle.\n- For a testable system it must be possible to control each component's inputs, manipulate its internal state and observe its outputs or state.\nKey: control the inputs and the state, observe the outputs and the state."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.4"
+   ],
+   "prompt": "What is a test harness, and which forms of it does the course name?",
+   "answer": "A **test harness** is specialised software or hardware that helps to control and observe a component under test.\n- Form 1: record and playback of the data sent across interfaces.\n- Form 2: a simulator of the external environment, for example for testing embedded software.\n- A harness or test framework can be a substantial piece of code itself.\n- It deserves the same care and attention to testability as the rest of the software.\nKey: the harness gives the tester control over inputs and a view of outputs."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.4"
+   ],
+   "prompt": "How is testability measured?",
+   "answer": "By how effective the tests are at finding faults, and how long it takes to test to a wanted level of coverage.\n- Effort to find a fault or a class of faults.\n- Effort to reach a given percentage of test coverage.\n- Probability that the next test reveals a fault.\n- Time to run the tests and to prepare the test infrastructure; effort to bring the system into a specific state.\n- Reduction in risk exposure.\nKey: less effort per fault found and per percent of coverage means higher testability."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.4",
+    "4.2.9"
+   ],
+   "prompt": "Into which categories are the testability tactics grouped, and which tactics belong to each?",
+   "answer": "Two categories: control and observe system state, limit complexity.\n- **Control and observe system state**: specialized interfaces, record/playback, localize state storage, abstract data sources, sandbox, executable assertions.\n- **Limit complexity**: limit structural complexity, limit nondeterminism.\n- Control and observation are so central that they often define testability.\nKey: make the state visible and controllable, and keep the design simple."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.4"
+   ],
+   "prompt": "Testability: what do specialized interfaces, record/playback and localize state storage do?",
+   "answer": "They give testers control over, and a view of, the state inside a component.\n- **Specialized interfaces**: interfaces made for testing that control or capture variable values, for example to set, get or reset the state, or to turn on verbose output.\n- **Record/playback**: recreates the state that led to a fault, so the issue is easier to reproduce and debug.\n- **Localize state storage**: the state is stored in one place, so a component can easily be started in a wanted state.\nKey: reach the state, replay the state, keep the state in one place."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.4"
+   ],
+   "prompt": "Testability: what do abstract data sources, sandbox and executable assertions do?",
+   "answer": "They control what goes into the system under test and show when it goes wrong.\n- **Abstract data sources**: control over the input data, for example the test system can easily be pointed at another test database.\n- **Sandbox**: an isolated instance of the system for experiments without limits. It can use resource virtualization, a controllable version of a resource such as system time.\n- **Executable assertions**: hand-coded assertions at chosen places show when and where the program is in a faulty state.\nKey: controlled input, an isolated copy, and checks inside the code."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.4"
+   ],
+   "prompt": "Testability: which tactics limit complexity, and what does each involve?",
+   "answer": "Limit structural complexity and limit nondeterminism. Complex software is hard to test because its space of operating states is very large.\n- **Limit structural complexity**: avoid cyclic dependencies, reduce dependencies overall, simplify inheritance hierarchies, limit polymorphism.\n- Test-friendly architectural patterns help too, for example the layered pattern.\n- **Limit nondeterminism**: avoid uncontrolled or unpredictable behavior, which makes testing very difficult.\nKey: fewer dependencies and predictable behavior mean fewer states to test."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.4"
+   ],
+   "prompt": "Which design and implementation considerations does the course give for testability?",
+   "answer": "Testability is designed in from the start, beginning with the responsibilities that are most critical.\n- Test most rigorously what has the highest impact and risk.\n- Support running the test harness, capturing results and logging the events leading up to a fault.\n- Support **state injection** (putting the system into a chosen state) at several points.\n- Avoid unnecessary dependencies (weak coupling) and reduce nondeterminism.\n- Use primitive functions (simple, well-defined tasks); watch components bound late.\nKey: code that can be isolated, set to a state and observed is easy to test."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.4"
+   ],
+   "prompt": "Which techniques do the course's applied examples use to achieve testability?",
+   "answer": "They separate the parts of the code so that each can be tested alone.\n- Decoupled, modular code: database, server and user interface are separated.\n- **Dependency injection**: dependencies are given from outside at runtime, so mock objects can replace them.\n- Mocking and simulation: mock services or a virtual environment replace third-party systems or the real world.\n- Primitive, pure functions without side effects; side effects are isolated.\n- Values such as thresholds in external configuration files, not hard-coded.\nKey: what can be replaced by a mock can be tested in isolation."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.9"
+   ],
+   "prompt": "Lecture 13, exam preparation: which points should a discussion of testability cover?",
+   "answer": "What to test most, if a test harness is worth it, and how much complexity is acceptable.\n- Extra important to test: functional (user) requirements, non-functional requirements, bugs from previous iterations, known problems.\n- Is a test harness worth developing? It depends on the project's size, its longevity, the number of developers.\n- Complexity: balance the complexity of supporting testability with other quality attributes.\n- Tactics to reason with: control and observe system state, limit complexity.\nKey: testing effort follows risk, and the harness must be worth its cost."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.5"
+   ],
+   "prompt": "What does performance mean as a quality attribute?",
+   "answer": "**Performance** is about time: the ability of a system to meet its timing requirements when it responds to events.\n- Every operation takes time: a computation less than a disk access, traffic in one data center less than between continents.\n- Events are interrupts, messages, requests from users, or the passing of time.\n- The pattern of the events and the system's response to them form the basis of performance.\n- Every system has performance requirements, also unstated ones: a typed character must not take long to appear.\nKey: performance means meeting timing requirements."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.5"
+   ],
+   "prompt": "How is performance measured?",
+   "answer": "With timing measurements, and with counts of what the system could not handle.\n- **Latency**: the time taken to respond.\n- **Throughput**: the number or percentage of satisfied requests over a time interval.\n- **Jitter**: the variation in response time, important for systems with timing deadlines.\n- Number or percentage of requests that go unsatisfied: points to capacity problems.\n- Utilization of resources such as CPU, memory, thread pool or buffer: points to bottlenecks.\nKey: latency, throughput, jitter, unsatisfied requests, resource utilization."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.5"
+   ],
+   "prompt": "Performance versus scalability: how does the course relate the two?",
+   "answer": "**Scalability** is increasing a system's capacity for work while keeping its performance level. The course calls it a kind of modifiability.\n- The two are connected, but scalability is more about making the system easy to change.\n- Example: a scalable resource pool, whose size is easy to adjust if it becomes a bottleneck.\n- Performance is often improved only after a version is built and found lacking. Designing with performance in mind anticipates this.\nKey: performance is about time, scalability is about changing capacity."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.5"
+   ],
+   "prompt": "Performance: how does a designer find the parts of a system that are worth optimising?",
+   "answer": "By measuring where the time is actually spent.\n- Instrument the system and log timing information.\n- Do not spend much time optimising parts that account for only a small percentage of the total time.\n- Focus the work on the critical parts of the system.\nKey: measure first, then optimise the parts where the time goes."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.5"
+   ],
+   "prompt": "Processing time versus blocked time: what is the difference?",
+   "answer": "In **processing time** the system is working on its response; in **blocked time** it is unable to respond.\n- Processing time: the system works actively and consumes resources.\n- Blocked time: a resource is unavailable, there is **contention** (several users compete for one resource), or the system depends on other computations.\n- Both are aspects of understanding and measuring performance, and the tactics act on them.\nKey: time is lost either by working or by waiting."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.5"
+   ],
+   "prompt": "Into which categories are the performance tactics grouped, and which tactics belong to each?",
+   "answer": "Two categories: control resource demand, manage resources. They are not exclusive and often work best together.\n- **Control resource demand**: manage work requests (manage event arrival, manage sampling rate), limit event response, prioritize events, reduce computational overhead, bound execution times, improve the efficiency of resource usage.\n- **Manage resources**: increase resources, introduce concurrency, maintain multiple copies of computations or data, schedule resources, bound queue sizes.\nKey: ask for less, or use what there is better."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.5"
+   ],
+   "prompt": "Performance: which tactics control resource demand, and what does each do?",
+   "answer": "They manage how many events are processed and how the system responds to them.\n- **Manage work requests**: for example manage event arrival through a service level agreement, or manage the sampling rate.\n- **Limit event response**: events wait in a queue. **Prioritize events**: by importance.\n- **Reduce computational overhead**: periodic cleaning, less indirection, no intermediaries, co-located resources.\n- **Bound execution times**: a limit on the execution time used for one event.\n- **Improve the efficiency of resource usage**.\nKey: less work arrives, and each piece of work costs less."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.5"
+   ],
+   "prompt": "Performance: which tactics manage resources, and what does each do?",
+   "answer": "They improve performance also when the demand cannot be controlled.\n- **Increase resources**: faster or additional processors or memory, the most trivial way.\n- **Introduce concurrency**: work is done in parallel.\n- **Maintain multiple copies of computations or data**: this may improve load balancing.\n- **Schedule resources**: scheduling based on the availability of resources.\n- **Bound queue sizes**: a limit on the number of queued requests.\nKey: more resources, parallel work, copies, scheduling and limited queues."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.5"
+   ],
+   "prompt": "Which design and implementation considerations does the course give for performance?",
+   "answer": "Performance work starts with finding the parts with heavy load, time-critical responses or peak-hour use.\n- This includes data: data structures and algorithms must be efficient and scalable.\n- Build in tactics from the start; they can affect the whole architecture.\n- Choose technology, such as a web framework, also by its ability to meet the performance requirements.\n- Monitor and manage the critical resources continuously, also at peak load.\n- Balance with modifiability and integrability: late binding adds overhead.\nKey: performance is a continuous process, from design to operation."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.5"
+   ],
+   "prompt": "Concurrency: what does it give performance, and which problems does it bring?",
+   "answer": "**Concurrency** lets tasks execute in parallel, which can raise performance much, but it brings its own challenges.\n- The challenges are largest when the parallel executions are distributed.\n- Possible problems: data loss, latency or jitter, mostly under heavy load and during synchronization between the executions.\n- Remedy: careful coordination and robust communication mechanisms between the concurrent parts.\nKey: parallel work is faster only if the parts are coordinated well."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.5"
+   ],
+   "prompt": "Which techniques do the course's applied examples use to achieve performance?",
+   "answer": "Each example removes waiting: on the network, on storage or on a busy server.\n- Online games: UDP for faster transmission; Level of Detail rendering by distance from the player.\n- Stock trading: low latency data streams on dedicated networks; in-memory databases.\n- Shop on Black Friday: load balancers, caching of frequently used data, concurrency.\n- Augmented reality: hardware acceleration with the GPU, optimised algorithms.\n- Emergency response: a real-time operating system, dedicated communication channels.\nKey: the techniques are chosen to fit the timing demands of each application."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.6"
+   ],
+   "prompt": "What does extensibility mean as a quality attribute?",
+   "answer": "**Extensibility** is the ease with which new capabilities can be added to a system, ideally without modifying its core.\n- Additions are made in known, planned ways through **extension points** built into the architecture.\n- They may be made by independent development teams.\n- It is not only that features can be added, but that this is quick, safe and economical.\n- Examples: browser extensions, plug-ins in audio editing tools, language plug-ins in an IDE.\nKey: an extensible system grows through extension points, not by changing its core."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.6"
+   ],
+   "prompt": "Why does extensibility build on modifiability, integrability and testability?",
+   "answer": "Extensibility is a composite attribute: each of the three provides one thing that an extension needs.\n- Modifiability: the system can change for new requirements, locally and at low cost.\n- Integrability: new components are added with little effort and without disrupting existing functions, through clear interfaces.\n- Testability: every extension must be tested, so that it does not break existing functions or bring new bugs.\n- A system that is costly to change or difficult to test is equally hard to extend.\nKey: change it, fit it in, prove it works."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.6"
+   ],
+   "prompt": "Extensibility: what are the core, an extension point, an extension mechanism and an extension?",
+   "answer": "They are the parts of an extensible system.\n- **Core**: the core functionality of the system, the thing that is extended.\n- **Extension point**: an explicitly identified point in the system where extensions can be added.\n- **Extension mechanism**: a realisation of one or more tactics or patterns that makes an extension possible.\n- **Extension**: a new capability that builds on the core and uses the extension points.\n- **Extended system**: the core together with one or more extensions.\nKey: the overall goal is to extend the system without modifying the core."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.6",
+    "4.2.9"
+   ],
+   "prompt": "Which five aspects must an architect consider and support when designing for extensibility?",
+   "answer": "Extension strategy, testing strategy, lifecycle management, deployment strategy and dependency management.\n- **Extension strategy**: how extensions are packaged and integrated.\n- **Testing strategy**: how extensions are tested, alone and combined.\n- **Lifecycle management**: when extensions are included and activated (compile time, deployment time, runtime).\n- **Deployment strategy**: how extensions are checked, approved and signed.\n- **Dependency management**: ordering, composition, compatibility checking and shared resources.\nKey: package, test, activate, deploy, manage dependencies."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.6"
+   ],
+   "prompt": "How is the extensibility of an architecture evaluated? Name the three categories of characteristics.",
+   "answer": "Against anticipated extensions written as scenarios, by judging how well the architecture supports three categories of characteristics.\n- **Management of dependencies**: extensions are loosely coupled, highly cohesive and understandable.\n- **Management of system state**: the state is controllable and observable, which reduces the testing effort.\n- **Management of deployments**: granular (parts deployed separately), controllable (monitored, rolled back) and efficient.\n- Few existing metrics fit; more precise measures need the code and its history.\nKey: dependencies, system state, deployments."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.6"
+   ],
+   "prompt": "Extensibility general scenario: what are its stimulus, response and response measure?",
+   "answer": "Stimulus: someone adds a new extension or a new version of one. Response: the extension works. Response measure: what it cost.\n- Source: a core or external developer. Artifact: an extension point or a set of extension mechanisms.\n- Environment: development, integration or deployment time, or runtime.\n- Response: the extension is completed, integrated and tested, works correctly with the core and does not disturb other extensions.\n- Response measure: components or lines of code changed, effort, money, calendar time, new defects.\nKey: an extension is added, and the cost of adding it is measured."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.6",
+    "4.2.9"
+   ],
+   "prompt": "Into which categories are the extensibility tactics grouped, and which tactics belong to each?",
+   "answer": "Three categories: manage dependencies, manage system state, manage deployments.\n- **Manage dependencies**: encapsulate, use an intermediary, restrict communication paths, abstract common services, defer binding, discover service (static), discover service (dynamic).\n- **Manage system state**: specialized interfaces, record/playback, localize state storage. The same three are testability tactics.\n- **Manage deployments**: orchestrate, manage resources, segment deployments.\nKey: the extensibility tactics are mostly borrowed from modifiability, integrability and testability."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.6"
+   ],
+   "prompt": "Extensibility: how do the manage dependencies tactics help when a system is extended?",
+   "answer": "They let an extension depend only on a small, explicit part of the core.\n- **Encapsulate**: the foundation of the others; only the extension points are exposed.\n- **Use an intermediary**: future additions need no change in the core.\n- **Restrict communication paths**: less knowledge is needed to create an extension.\n- **Abstract common services**: an extension deals with a single abstraction to reach existing services.\n- **Defer binding**: functionality is added without recompiling the core.\nKey: the fewer things an extension must know, the cheaper it is to add."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.6"
+   ],
+   "prompt": "Discover service (static) versus discover service (dynamic): what is the difference?",
+   "answer": "Static: one service locates another by querying a directory service. Dynamic: service providers are discovered and bound at runtime.\n- Static is often a database or a wiki that describes the service, its location and its API.\n- Static is cheap to set up where things do not change often, and works badly where the locations of services change often.\n- Dynamic defers discovery and binding; it needs more investment up front.\n- Both make an architecture more loosely coupled and more understandable.\nKey: static looks a service up in a directory, dynamic finds and binds it while the system runs."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.6"
+   ],
+   "prompt": "Extensibility: what do the tactics orchestrate, manage resources and segment deployments do?",
+   "answer": "They are the manage deployments tactics: extensions are coordinated and deployed in a controlled way.\n- **Orchestrate**: a control mechanism coordinates the services; extensions integrate with it, not point to point with many components.\n- **Manage resources**: a resource manager stops extensions from overusing resources and from conflicting over them.\n- **Segment deployments**: deployment is gradual, not all or nothing (phased rollout, canary release, blue/green deployment). Effects can be monitored and rolled back.\nKey: one coordinator, guarded resources, and one extension at a time."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.6"
+   ],
+   "prompt": "Which four architectural patterns does the course text name for extensibility, with which trade-offs?",
+   "answer": "Microkernel/Plug-in, Layers, Publish-Subscribe and Intercepting Filter.\n- **Microkernel/Plug-in**: plug-ins join a core through extension points, Price: testing all plug-in combinations.\n- **Layers**: each layer uses only the layer below. Price: more complex to build, some performance.\n- **Publish-Subscribe**: asynchronous messages over a bus. Price: latency, testability, security.\n- **Intercepting Filter**: added filters process data before or after a component. Price: performance.\nKey: each pattern buys extensibility and pays mostly with performance or testability."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "4.2.9"
+   ],
+   "prompt": "Lecture 13, exam preparation: which points should a discussion of extensibility cover?",
+   "answer": "What might be added, which design supports it, and how much complexity extensibility may add.\n- Addition: what might be added, and can it be added without changing the existing design?\n- Design patterns: those that support late binding, layered structures, modularity.\n- Complexity: balance the complexity of supporting extensibility with other quality attributes.\n- Tactics to reason with: manage dependencies, manage system state, manage deployments.\nKey: name the likely addition, the design that takes it without change, and its cost in complexity."
+  }
+ ]
+}

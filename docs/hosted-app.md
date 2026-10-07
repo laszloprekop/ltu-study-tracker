@@ -32,10 +32,14 @@ lists everything. The lists live in one place in `src/template.html` (`APP_INFO`
   their rows, the earliest not-yet-past deadline is used, and each course's list copies as a
   report for the teacher. These work on the claude.ai page too.
 - Cards (`docs/plan/release-4.md`): drill with FSRS at 90% recall, aimed at each card's next lab or
-  exam (Drill Goal); Card Sets per event from the cards' Sources; every card open to all, with
+  exam (Drill Goal); Card Sets per event from the cards' Sources, a passed event's Set kept only
+  with the Drill Goal "until mastered"; a card is at most twice as tall as it is wide and a longer
+  prompt or answer scrolls inside it; every card open to all, with
   public legit and needs-fix Votes and a trust filter; a random order per round, Again back at a
   random place; write Concept, Question and Group answer cards. Drafts from the Maintainer's machine:
-  `node tools/cards/upload.mjs data/cards/<file>.json`.
+  `node tools/cards/upload.mjs data/cards/<file>.json`. What still lacks cards:
+  `node tools/cards/coverage.mjs -v`; length, format and duplicate checks before an upload:
+  `node tools/cards/lint.mjs`.
 
 **Coming next** (`docs/plan/release-1.md`, then the design in `CONTEXT.md` and `docs/adr/`)
 

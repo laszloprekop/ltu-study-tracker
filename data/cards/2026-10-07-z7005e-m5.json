@@ -1,0 +1,533 @@
+{
+ "note": "AI-drafted Concept Cards (Claude, 2026-10-07) for Z7005E Module 5 (implementing, testing and documenting software), drafted from the slides of Föreläsning 14 (unit testing and refactoring) and Föreläsning 17 (the software development life cycle) and the Workshop 6 page. Uploaded unchecked; classmates vote on each.",
+ "cards": [
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.1"
+   ],
+   "prompt": "What does a black-box test check?",
+   "answer": "A **black-box test** checks only that the actual output for a given input matches the output the requirements ask for.\n- The code inside the box is not looked at.\n- The expected output comes from the requirements.\n- Lecture example: `getRectangleArea(5,4)` passes when it returns `20` and fails for anything else.\nKey: black-box testing compares actual output with required output, nothing more."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.1"
+   ],
+   "prompt": "Why must the same tests be run again and again, not only once when the code is written?",
+   "answer": "Because code that worked can break later without anyone noticing.\n- Several developers may work on different versions, so old bugs may come back.\n- A change in one place may introduce a bug somewhere else.\n- A change may alter the behaviour without the developer knowing.\n- A developer may simply have made an error.\nKey: tests are repeated because every change can break something that used to work."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.1"
+   ],
+   "prompt": "Which three elementary cases does a test of a value range need?",
+   "answer": "A range is tested with values within it, at its boundaries and outside it.\n1. Within the range: a normal, legal value.\n2. At the boundaries of the range: the first and last legal values.\n3. Outside the range: an illegal value.\n- The number of cases is kept small on purpose: without a limit the testing never stops.\nKey: test inside, on the edge and outside, and no more than needed."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.1"
+   ],
+   "prompt": "Why is a test that executes every statement of the code not sufficient?",
+   "answer": "Because one test can run every line and give the correct output while a condition in the code is still wrong.\n- Lecture example: the input `u=2, v=0, x=3` executes all four lines and gives the correct result `2.5`.\n- Yet the line `if ((u==2) || (x>3))` is wrong: the flowchart it implements says `x>0`.\n- The test does not notice, because `u==2` is already true and the faulty half is never decisive.\n- An input with `u=3` is needed to reveal it.\nKey: covering every statement does not cover every outcome of every condition."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.1"
+   ],
+   "prompt": "What does unit testing add compared with trying the program by hand?",
+   "answer": "**Unit testing** (enhetstestning) runs the tests automatically.\n- The tests are written once.\n- They can then be run often, also in the background.\n- Lecture example of the slow way: starting the program five times by hand with the ages 17, 18, 19, 20 and 21.\nKey: A unit test is written once and run automatically as often as wanted."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.1"
+   ],
+   "prompt": "Which three properties must code have before it can be unit tested?",
+   "answer": "Consistency, comparable output and primitiveness.\n- **Consistency**: the same input always leads to the same expected output.\n- **Comparability**: the output can be compared with the expectation.\n- **Primitiveness**: one function focuses on one thing.\nKey: unit tests need code that answers the same way every time, in a form that can be compared, one task per function."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.1"
+   ],
+   "prompt": "What is an assertion in a unit test?",
+   "answer": "An **assertion** is the statement in a test that compares the required output with the actual output.\n- Form in the lecture: `assertEquals(requirement, actual output)`.\n- If the two are equal the test passes, otherwise it fails.\n- JUnit has several variants of each assert.\nKey: the assertion is where a test states what the requirement expects."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.1"
+   ],
+   "prompt": "What are capture replay tools, and which two problems are common with them?",
+   "answer": "**Capture replay tools** are macro recorders at the level of the graphical user interface: a common way to automate tests.\n- The recorded steps are a script, with calls such as `GetEdit()`, `SetEdit()` and `ClickButton()`.\n- They often give quick and easy results.\n- Problem 1: test maintenance, the work of keeping the scripts up to date.\n- Problem 2: test **flakiness**, tests that do not give a stable result.\nKey: recording clicks is quick to start with, but the tests are hard to maintain and flaky."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.1"
+   ],
+   "prompt": "Why should a JUnit test method test one thing and use few assert statements?",
+   "answer": "Because the first assert that fails stops the test, so nothing is learned about the asserts after it.\n- The lecture's rule: test one thing at a time per test method.\n- Ten small tests are much better than one large test.\n- With one assert per test, every failure is reported on its own.\nKey: the first failing assert hides all later ones, so keep each test small."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.1"
+   ],
+   "prompt": "How should a JUnit test deal with exceptions instead of using try/catch?",
+   "answer": "The test stays free of logic: an expected exception is declared, and an unexpected one is left for JUnit to catch.\n- JUnit 4: `@Test(expected = ArrayIndexOutOfBoundsException.class)`, the test passes when the method body raises that exception.\n- JUnit 5: `assertThrows(ArrayIndexOutOfBoundsException.class, () -> { list.get(4); });`\n- If no exception is supposed to be thrown, nothing is caught in the test: JUnit reports it.\nKey: declare the expected exception, never hide exceptions in try/catch."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.1"
+   ],
+   "prompt": "Why is a dependent test order a danger in a test suite?",
+   "answer": "If running Test A before Test B gives different results from running B before A, the tests depend on each other in a hidden way.\n- The lecture's judgement: something is likely confusing.\n- The hidden dependency should be made explicit.\nKey: the result of a test must not depend on which test ran before it."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.1"
+   ],
+   "prompt": "What does the lecture's alcohol-age example show about boundary values in tests?",
+   "answer": "It shows that bugs sit exactly on the boundaries, so each boundary value needs its own test.\n- Rule: under 18 no alcohol, 18 to 20 supermarket and restaurant, 20 and older also Systembolaget.\n- The pseudo code used `age > 18` and `age > 20`, so the ages 18 and 20 fell through: two bugs.\n- Correct is `age >= 18` and `age >= 20`.\n- Cases to test: `age < 18`, `age = 18`, `18 < age < 20`, `age = 20`, `age > 20`.\nKey: A `>` written for `>=` is only found by a test at the boundary value itself."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.1"
+   ],
+   "prompt": "Why can a coverage report show a missed branch that no test input can ever reach?",
+   "answer": "Because a condition with two parts has four combinations, and the surrounding code can make one of them impossible.\n- Lecture example: `else if (age>=18 && age<20)` after `if (age<18)`.\n- Ages 18 and 19 give true and true, age 20 gives true and false.\n- Age 17 would give false and true, but it is caught by the first `if`.\n- False and false would need an age below 18 and at least 20 at once.\n- Result on the slide: 1 out of 4 branches missed.\nKey: some branch combinations cannot occur, so they stay uncovered whatever the tests do."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.1"
+   ],
+   "prompt": "What makes a requirement testable?",
+   "answer": "A testable requirement can be checked with a clear yes or no.\n- It is not open to interpretation.\n- It is not vague or ambiguous.\n- It captures a single aspect.\n- It is **quantifiable**: it can be measured.\n- Lecture example: not \"easy\", but \"should not take longer than 30 minutes for a new user to master\".\nKey: A requirement is testable when it is unambiguous, about one thing and measurable."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.1"
+   ],
+   "prompt": "What does testability mean for the code itself?",
+   "answer": "Each requirement can be tested in the code, directly or indirectly.\n- Functions are primitive: each focuses on a single task.\n- Black-box testing is possible: a specific input yields an expected output.\n- **State injection**: a test is run with a stored state, which makes it more repeatable.\n- State injection promotes encapsulation, interface segregation, Liskov substitution and dependency inversion.\nKey: testable code has single-task functions, predictable output and a state that a test can put in."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.1"
+   ],
+   "prompt": "What do Lehman's laws of Continuing Change and Increasing Complexity say?",
+   "answer": "They describe how a program evolves: it must keep changing, and changing makes it more complex.\n- **Law of Continuing Change**: a program that is used in reality must change, or it becomes less and less useful.\n- **Law of Increasing Complexity**: as a program evolves it becomes more complex, until work is done to maintain or reduce the complexity.\nKey: used software must change, and change adds complexity unless someone works against it."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.1"
+   ],
+   "prompt": "What does Lehman's law of Conservation of Familiarity say?",
+   "answer": "As a system evolves, its developers must keep their mastery of its content and behaviour.\n- Without knowing how and why the system was designed as it was, changes become very difficult.\n- Such changes damage the ability to understand the system.\n- The lecture's lesson from it: document the important things, for example with comments in the code.\nKey: A system can only evolve well while its developers still understand why it is built as it is."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.1"
+   ],
+   "prompt": "What is software re-engineering, and which three steps does it have?",
+   "answer": "**Re-engineering** means understanding an existing software system and then improving it, without changing its functionality.\n1. **Reverse engineering**: analysing the system to get a description of it.\n2. **Restructuring** or **refactoring**: improving the design without changing the external behaviour.\n3. **Forward engineering**: going from the design to a physical implementation.\n- In short: examination, analysis, alteration.\nKey: re-engineering is reverse engineering, refactoring, forward engineering, with the functionality kept."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.1"
+   ],
+   "prompt": "Which two reasons does the lecture give for re-engineering a system?",
+   "answer": "To make the system better, and to cope with changes outside the system.\n- Better means: more maintainable, easier to understand, better performance.\n- Changes outside the system: new software and new hardware that it has to work with.\nKey: A system is re-engineered to improve its quality or to follow its surroundings."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.1"
+   ],
+   "prompt": "What does reverse engineering produce, and what makes it hard?",
+   "answer": "**Reverse engineering** analyses the components of a system and their relationships, and produces a description of the system.\n- It is the first step of re-engineering.\n- The more complex a program is, the harder it is to reverse engineer.\n- If even the architecture cannot be understood, the lecture goes up to the intentions level: what the system is supposed to do.\nKey: reverse engineering turns existing code into a description of the system."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.1"
+   ],
+   "prompt": "Refactoring versus rewriting: what is the difference?",
+   "answer": "**Refactoring** does not change the external behaviour of the code, rewriting does.\n- Refactoring improves the design of the code after it has been written.\n- Lecture analogy: `(x - 1) * (x + 1) = x^2 - 1`, a different form with the same value.\n- Restructuring is used as another word for it.\nKey: after refactoring the code is built differently but behaves the same."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.1"
+   ],
+   "prompt": "What is forward engineering?",
+   "answer": "**Forward engineering** moves from an abstract, implementation-independent design to a physical implementation of a system.\n- It is the traditional way of designing systems.\n- It is the third step of re-engineering, after reverse engineering and refactoring.\n- In the lecture's example it included architecture documents, design patterns and principles, and frameworks.\nKey: forward engineering is the usual direction: from design to working code."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.1"
+   ],
+   "prompt": "At which three levels can a system be re-engineered?",
+   "answer": "At the source code level, the function level and the architecture level.\n- **Source code level**: changing the structure, improving algorithms, porting to a new language.\n- **Function level**: updates to a class, interface changes such as method names.\n- **Architecture level**: the types of components, the interactions between them, the modules.\nKey: re-engineering can change lines of code, the interface of classes or the whole architecture."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.1"
+   ],
+   "prompt": "What is the intentions level in re-engineering, and when is it needed?",
+   "answer": "The **intentions level** is an extra abstraction level above the architecture: what the system is supposed to do.\n- It is needed when the architecture of the system cannot be understood.\n- It captures the essence of the application.\n- It can be seen as the start of a new architecture.\n- In the lecture's example it was written down as features.\nKey: with no usable architecture, start from what the system is meant to do."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.1"
+   ],
+   "prompt": "Which five problems at architecture level does reverse engineering typically find?",
+   "answer": "Insufficient documentation, improper layering, lack of modularity, duplicated code and duplicated functionality.\n- Documentation: missing or not up to date.\n- Layering: missing or improper layers make the system less portable and adaptable.\n- Modularity: strong coupling between modules hinders evolution.\n- Duplicated code: copy and paste is quick but very bad for maintenance.\n- Duplicated functionality: similar functionality in several places.\nKey: no documents, no layers, no modules, and the same thing written many times."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.1"
+   ],
+   "prompt": "What is refactoring trying to achieve in the code, according to the lecture?",
+   "answer": "A better design, measured by a handful of key points.\n- Increase cohesion.\n- Decrease coupling.\n- Modularize the parts of the system.\n- Decrease class sizes.\n- Give classes and methods better names.\nKey: refactoring aims at high cohesion, low coupling, modules, small classes and good names."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.1"
+   ],
+   "prompt": "Why should refactoring not be done from scratch, and what can it reuse?",
+   "answer": "Reusing existing knowledge and tools saves time, so the lecture's rule is: do not do it all from scratch.\n- **Design principles**: the fundamentals.\n- **Design patterns**: reusable software designs that build on the principles.\n- **Frameworks**: a skeleton for an application, often built with design patterns.\n- Fowler's refactoring catalog lists many small refactorings at the low level.\nKey: build on others' shoulders: principles, patterns and frameworks instead of reinventing the wheel."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.1"
+   ],
+   "prompt": "What is the low-level refactoring for two classes with similar features?",
+   "answer": "Create a superclass and move the common features into it.\n- This is the lecture's example from the refactoring catalog.\n- Low-level refactorings like this are basic for someone who knows the principles and patterns.\n- Architectural patterns belong to the higher levels, refactoring can be done at the lower ones.\nKey: shared features of two classes move up into a common superclass."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.1"
+   ],
+   "prompt": "What does a software framework dictate, and what are its hot spots and frozen spots?",
+   "answer": "A **software framework** dictates the architecture of an application: its components and its flow of control.\n- **Hot spots**: the places where the developer makes changes.\n- **Frozen spots**: the parts hidden from normal development.\n- The design parameters say what can be changed.\nKey: A framework fixes the architecture, the developer fills in the hot spots."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.1"
+   ],
+   "prompt": "What is the Big Bang approach to re-engineering, and how do features keep it safe?",
+   "answer": "The **Big Bang approach** rebuilds the whole system instead of improving it piece by piece.\n- In the lecture's example the old code was too poor to refactor at the lower levels.\n- A **feature** is a realized functional requirement: behaviour a user can trigger and observe.\n- The list of features keeps the external behaviour intact during the rebuild.\n- After the Big Bang the new code is refactored in small steps, as an iterative process.\nKey: rebuild in one big step with the features as the fixed point, then refactor in small steps."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.1"
+   ],
+   "prompt": "How did the lecture's example try to show that re-engineered code is better?",
+   "answer": "By measuring **code complexity**: how difficult the application is to maintain, change and understand.\n- Greater complexity means less maintainable and less understandable code.\n- Measure used: **Lines of Code** (LOC), counted without comments and blank lines.\n- LOC depends on the programming language.\n- \"It feels better\" is not enough, and better is very hard to prove.\nKey: better has to be shown with a measure such as LOC, not with a feeling."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.1"
+   ],
+   "prompt": "What is Dependency Injection, and which principle does it build on?",
+   "answer": "With **Dependency Injection** (DI) an authoritative component injects the dependencies into the other components, which do not fetch them on their own.\n- It is one method of following the dependency inversion principle.\n- It builds on **Inversion of Control**, also called the Hollywood Principle: \"Don't call us, we'll call you\".\n- It increases modularity and extensibility.\n- A **Service Locator** is an object that knows how to get hold of all services the application needs.\nKey: A component is handed its dependencies from outside."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.7"
+   ],
+   "prompt": "Modifiability, extensibility, testability: what does each ask of a design?",
+   "answer": "Each names a different kind of future work that the design must allow without a redesign.\n- **Modifiability**: things that might change can be changed. Workshop example: room layout, combat logic.\n- **Extensibility**: things that might be added can be added. Workshop example: new items, new monsters.\n- **Testability**: core features are designed so that they can be tested later, also if no tests exist yet.\nKey: change what exists, add what is new, test what matters, all without redesigning existing code."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.7"
+   ],
+   "prompt": "How many design principles and design patterns should a refactoring apply?",
+   "answer": "As many as give a good balance, not as many as possible.\n- The goal named in the workshop is comprehensible, flexible and maintainable code.\n- Every design choice should be justified.\n- Every design choice should contribute to good design.\nKey: A pattern earns its place by a reason, not by being known."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.5"
+   ],
+   "prompt": "Which naming conventions does the lecture give for classes, variables and constants?",
+   "answer": "Names are concatenated words, and the first letter shows what kind of thing is named.\n- Concatenated words with a capital inside, as in `cylinderLength` (camel case).\n- Class names begin with a capital.\n- Variable names begin in lower case.\n- Constants are in capitals, as in `MAX_NAME_LENGTH`, declared `static final`.\nKey: `ClassName`, `variableName`, `CONSTANT_NAME`."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.5"
+   ],
+   "prompt": "How do the lecture's naming rules mark data members and accessor methods?",
+   "answer": "Data members get an underscore, and accessor methods start with get, set or is.\n- `_timeOfDay`: the underscore separates a data member from other variables, since it is global to its object.\n- `getName()`, `setName()`, and `isBox()` for a method that returns a boolean.\n- For collections: `insertIntoName()`, `removeFromName()`.\n- Instance variable, local variable and parameter can be told apart as `_length`, `length`, `aLength`.\nKey: the form of a name shows what kind of thing it is."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.5"
+   ],
+   "prompt": "What should the documentation of a method contain?",
+   "answer": "What the method does and why, plus what a caller and a later developer need to know.\n- Parameters it must be passed (`@param` tag) and exceptions it throws (`@exception` tag).\n- **Pre- and post-conditions**: what must hold before the call and what holds after it.\n- The reason for its visibility, and known bugs.\n- Whether it has been tested and where its test script is.\n- An example of use, and the history of changes if no version management system is used.\nKey: document what, why, inputs, exceptions, conditions, bugs and tests."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.5"
+   ],
+   "prompt": "What can code documentation link a class or a function to?",
+   "answer": "To the requirements it addresses and to the tests that check it.\n- A class can address specific requirements, noted by their numbers, for example `UserSleep : #1002, #1003`.\n- A function can link to a requirement and to a test, for example `FunctionalRequirement: #1004` and `test #132`.\n- It may even be useful to refer to the requirements specification.\nKey: links from code to requirement and test numbers show why the code exists and how it is checked."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.5"
+   ],
+   "prompt": "What should be documented for an attribute of a class?",
+   "answer": "A description of what it is used for, and all invariants that apply to it.\n- An **invariant** is a quantitative fact about the attribute that always holds.\n- Lecture examples: `1 < _age < 130` and `36 < _length * _width < 193`.\nKey: an attribute's documentation says its purpose and the limits its value always stays within."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.5"
+   ],
+   "prompt": "How should attributes be initialized, and what alternative does the lecture give for objects?",
+   "answer": "Attributes should always be initialized, as in `private float _balance = 0;`.\n- An attribute that is an object of another class is traditionally created through the constructor of that class.\n- Alternative: initialize when the value is first accessed. The attribute is declared without a value and assigned on access.\n- For this the class supplies a static method such as `getDefaultCustomer()`, with a comment on why these default values were chosen.\nKey: never leave an attribute uninitialized: set it at once or on first access."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.5"
+   ],
+   "prompt": "What is debugging trying to do?",
+   "answer": "**Debugging** attempts to match a symptom with its cause.\n- The symptom is a difference between expected and actual performance.\n- The lecture calls it an art.\n- Debugging methods and tools do not replace careful evaluation based on a complete design model and clear source code.\nKey: debugging is the search from a visible symptom back to its cause."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.5"
+   ],
+   "prompt": "Why is debugging so difficult?",
+   "answer": "Because the symptom often says little about where or what the cause is.\n- Symptom and cause may be far apart in the code.\n- The symptom may disappear for a while when another error is corrected, or appear only now and then.\n- It may come from something that is not an error, such as rounding, or from a human error that is hard to trace.\n- It may come from timing, not from processing.\n- The input conditions may be hard to reproduce, and causes may be spread over several tasks.\nKey: the symptom rarely points straight at its cause."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.5"
+   ],
+   "prompt": "Which three main debugging strategies does the lecture name?",
+   "answer": "Brute force, backtracking and cause elimination.\n- **Brute force**: collect as much run-time information as possible and look through it.\n- **Backtracking**: trace the source code backward from the place of the symptom.\n- **Cause elimination**: form hypotheses about the cause and prove or rule them out.\nKey: search everything, walk backward, or reason about the cause."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.5"
+   ],
+   "prompt": "Brute force debugging: what does it use, and when is it used?",
+   "answer": "Brute force uses memory dumps, run-time traces and output statements, and is what remains when all else fails.\n- It is the most commonly used strategy, but not necessarily the best.\n- Debugging tools help: **breakpoints** (stops at a chosen line), step-by-step tracing, checking variable values and conditions, and **watches** (values kept in view).\nKey: brute force is the most common strategy, not the best one."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.5"
+   ],
+   "prompt": "How does backtracking work as a debugging strategy, and where does it stop working?",
+   "answer": "Backtracking starts where the symptom was uncovered and traces the source code backward by hand until the cause is found.\n- It can be used successfully in small programs.\n- In large programs the number of possible backward paths may become unmanageably large.\nKey: backtracking walks backward from the symptom, which only works while the paths are few."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.5"
+   ],
+   "prompt": "Induction versus deduction in cause elimination debugging: what is the difference?",
+   "answer": "**Induction** goes from the specific to the general, **deduction** from the general to the specific.\n- Induction: locate and organize the data, devise a hypothesis, prove the hypothesis.\n- Deduction: list the possible causes, use the data to eliminate causes, refine, prove.\n- **Rubberducking** also belongs here: explaining the code line by line to a rubber duck.\nKey: induction builds one hypothesis from the data, deduction strikes causes off a list."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.5"
+   ],
+   "prompt": "Which three questions should be asked before correcting a bug?",
+   "answer": "Whether the cause exists elsewhere, what the fix might break, and how the bug could have been prevented.\n1. Is the cause of the bug reproduced in another part of the program? Similar errors may occur there.\n2. What next bug might the fix introduce? Assess the coupling of the logic and data structures around the fix.\n3. What could have been done to prevent this bug in the first place?\nKey: before fixing, look sideways, forward and back."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.5"
+   ],
+   "prompt": "Which common problems of a software release does the lecture list, and what does each harm?",
+   "answer": "A release can fail on time, quality, usefulness or control of its contents, and each failure harms something else.\n- It takes too long, or is not useful: harms revenue.\n- It is unpredictable: harms the plans that depend on it.\n- Poor quality, or overlooked distribution and installation: harms support.\n- Unplanned contents: harms integrity.\n- Uncontrolled contents: harms reliability.\nKey: late, unpredictable, poor, useless or uncontrolled releases each have their own cost."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.5"
+   ],
+   "prompt": "Time to market, features, quality: how does a release balance the three?",
+   "answer": "Only one of the three can be the top priority, but the other two must not be ignored.\n- The three pull against each other, which is the challenge of release management.\n- The **release criteria** (the conditions for calling a release done) reflect the chosen priorities.\nKey: pick one top priority among time, features and quality, and keep the other two in balance."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.5"
+   ],
+   "prompt": "Which ten steps does the release process have?",
+   "answer": "From deciding what is in the release to handing it out, in ten steps.\n1. Define content (step 1) and assign version (2).\n2. Plan release (3).\n3. Build (4), package (5), deploy (6) and test (7).\n4. Control change (8) and assess readiness (9).\n5. Release (10).\nKey: decide what and which version, plan, build and test, control changes, check readiness, release."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.5"
+   ],
+   "prompt": "What belongs to the content of a release besides the software?",
+   "answer": "Everything delivered with it: documents, training and information for customers.\n- The software itself is the **golden build**: the final release package.\n- Documentation and training materials.\n- Marketing material and internal documents.\n- Customer notification and release notes.\n- Each open item is marked **Must** or **Nice**: needed for this release, or wanted if there is time.\nKey: A release is the golden build plus all that customers and staff need around it."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.5"
+   ],
+   "prompt": "What is a version in release management?",
+   "answer": "A **version** is a unique identifier for the state of the product at a certain point in time.\n- Versions are sequential.\n- Not all versions are released.\n- Schemes: Major.Minor.Patch.Fix (`1.1.2.1`), Major.Feature.Patch (`1.1.2`), Major.Feature.Patch.Build (`1.0.0.301`).\n- In some projects odd-numbered versions are development releases.\nKey: A version number names one exact state of the product, released or not."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.5"
+   ],
+   "prompt": "Private build, integration build, release build: who sees each and what is it for?",
+   "answer": "The three builds differ in who sees them, how often they are made and why.\n- **Private build**: the individual developer, one or more times per change task. Feedback on the changes just made.\n- **Integration build**: the whole development team, after each change task or daily (nightly). Integrates the latest changes and runs the automated tests.\n- **Release build**: the independent test team and customers, at the end of each iteration or release. Packages the release for distribution.\nKey: private for one developer, integration for the team, release for testers and customers."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.5"
+   ],
+   "prompt": "What happens in the Package step of a release?",
+   "answer": "The release package is created: it contains all release deliverables.\n- As a file: `.tar`, `.zip`, `.exe`, `.msi`.\n- On a medium: CD-ROM, web, app store.\n- The **Bill of Materials** lists what is in the package.\n- The final release package is the golden build.\nKey: packaging gathers all deliverables into one package with a list of its contents."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.5"
+   ],
+   "prompt": "Which five kinds of test does the test plan of a release run, and what does each ask?",
+   "answer": "Functional, regression, performance, reliability and stress tests.\n- **Functional test**: does it function as required?\n- **Regression test**: did old bugs reappear?\n- **Performance test**: does it perform within acceptable limits?\n- **Reliability test**: does it function consistently over time?\n- **Stress test**: does it function consistently under volume?\nKey: required function, old bugs, speed, time and load: one kind of test for each."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.5"
+   ],
+   "prompt": "How is a change request handled in the Control Change step of a release?",
+   "answer": "Change is allowed, but only in a controlled way: through a change request and a decision on it.\n- Scope, requirements and design are first fixed as a **baseline**.\n- The decision is one of three: approve, reject or defer.\n- It is taken by the **Change Control Board** (CCB), with members from several functions.\n- The decision rests on an impact analysis and on the business drivers.\nKey: A change to the baseline needs a request and a decision: approve, reject or defer."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.5"
+   ],
+   "prompt": "How is it decided that a release is ready?",
+   "answer": "The **release criteria** define \"done\", and a Go/No-Go decision is taken against them.\n- Criteria: defined deliverables, features (must have versus nice to have), quality (test results, metrics), schedule.\n- Objective, quantifiable criteria are preferred.\n- Also checked: the readiness of the organization (support, training, marketing, sales) and whether the risk is acceptable.\n- Go/No-Go: a formal sign-off by the stakeholders, on the release manager's recommendation, then executive approval.\nKey: ready means the release criteria are met and the stakeholders sign off."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.5"
+   ],
+   "prompt": "Find rate versus fix rate: what do they show about release readiness?",
+   "answer": "They show when the product has become stable: when more defects are fixed than are opened.\n- **Find rate**: how many defects are found (opened) in a period.\n- **Fix rate**: how many defects are fixed in that period.\n- Lecture example: stability was reached at week 35 of testing, when the fixed defects exceeded the opened ones.\n- Other common metrics: defect density and rate of change.\nKey: the product is stable once defects are fixed faster than they are found."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.5"
+   ],
+   "prompt": "Which types of software maintenance are there?",
+   "answer": "Corrective, adaptive and perfective maintenance, with preventative maintenance as a fourth in brackets.\n- **Corrective**: fixing defects. Reactive: the defect must be corrected at once or soon.\n- **Adaptive**: changes to meet the evolving needs of the user and the environment.\n- **Perfective**: all efforts to improve the quality of the software.\n- Work of the different types is often done at the same time.\nKey: correct faults, adapt to change, perfect the quality."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.5"
+   ],
+   "prompt": "Adaptive maintenance: which two kinds of change does it cover?",
+   "answer": "Changes to cope with a new environment, and changes because the requirements have changed.\n- Environment: for example changed hardware or a changed operating system.\n- Requirements: work to enhance the functionality when the organisation or business changes.\n- The second kind is often larger in scale than other types of maintenance.\nKey: adaptive maintenance follows changes around the system and changes in what users need."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.5"
+   ],
+   "prompt": "How is maintenance work split between fixing faults, new environments and new requirements?",
+   "answer": "Most maintenance is new requirements: `65%`, against `18%` for adapting to a new environment and `17%` for correcting faults.\n- A **defect** here means the system does not perform as originally intended or as specified in the requirements.\n- So bug fixing is the smallest of the three shares.\nKey: about two thirds of maintenance is new requirements, not bug fixing."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.5"
+   ],
+   "prompt": "What does perfective maintenance include?",
+   "answer": "**Perfective maintenance** is all effort to improve the quality of the software.\n- Restructuring code.\n- Creating and updating documentation.\n- Improving reliability or efficiency.\n- Improving performance.\nKey: perfective maintenance makes working software better without a fault or a new need behind it."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.5"
+   ],
+   "prompt": "Why is Software Configuration Management (SCM) needed?",
+   "answer": "Because without control, changes made by many people to the same code waste an enormous amount of time.\n- Changes to requirements drive the design, and design changes affect the code.\n- Problems without control: simultaneous updates, shared code, common code, versions.\n- Typical signs: a fully tested program does not work, or a difficult bug that was fixed reappears.\nKey: SCM keeps control of what changes, so that fixed things stay fixed."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.5"
+   ],
+   "prompt": "Which questions should configuration management be able to answer?",
+   "answer": "What the software consists of right now, and what has happened to it.\n- What is the current software configuration, and what is its status?\n- How are changes to the configuration controlled?\n- What changes have been made to the software?\n- Do anyone else's changes affect this software?\n- What tests go together with this version?\nKey: configuration management knows the current state, its changes and its matching tests."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.5"
+   ],
+   "prompt": "What is a baseline in configuration control?",
+   "answer": "The **baseline** is the one official copy of the code: an approved version for all to work on.\n- There is only one official copy.\n- Changes to the baseline must be approved.\n- A change is authorized, implemented, validated and approved, and then the baseline is updated.\n- It is not the same as version management.\n- In versioning tools it appears as a label or a tag.\nKey: the baseline is the approved state that changes only through approved changes."
+  },
+  {
+   "course": "Z7005E",
+   "sources": [
+    "5.5"
+   ],
+   "prompt": "Revision, branch, merge, trunk: what does each versioning term mean?",
+   "answer": "They name the saved states of a project and the lines of work between them.\n- **Revision**: saved changes.\n- **Branch**: the main project is branched to allow simultaneous development.\n- **Merge**: a point where branches are joined to form a new baseline.\n- **Trunk** (Subversion) or **master** (Git): the main branch of the project.\nKey: revisions are saved changes, branches split the work, a merge joins it again on the main branch."
+  }
+ ]
+}
