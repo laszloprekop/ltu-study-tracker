@@ -291,7 +291,8 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
 @keyframes pluck{to{transform:scale(.05); opacity:0}}
 .fcard.pluck{animation:pluck .36s cubic-bezier(.5,0,.75,0) forwards; pointer-events:none; z-index:5; position:relative}
 @media (prefers-reduced-motion:reduce){ .fcard.pluck{animation:none} }
-.fc-q,.fc-a{min-height:0; overflow-y:auto; scrollbar-width:thin; overscroll-behavior:contain}
+/* no overscroll-behavior here: it would also stop the page scrolling over a card whose text fits */
+.fc-q,.fc-a{min-height:0; overflow-y:auto; scrollbar-width:thin}
 .fc-q{flex:1 1 auto; display:flex; align-items:safe center; font-family:Archivo,sans-serif; font-size:20px; font-weight:700; line-height:1.3; color:var(--ink)}
 .fc-a{flex:1 1 auto; font-size:13.5px; line-height:1.4; color:var(--ink)}
 .fc-a p{margin:0 0 6px} .fc-a ul,.fc-a ol{margin:0 0 6px; padding-left:18px} .fc-a li{margin:2px 0}
