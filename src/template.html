@@ -513,12 +513,19 @@ section{margin-bottom:30px}
 
 /* ---------- Rows ---------- */
 .rows{padding:6px 16px 10px}
-/* A day heading is a separator: name, free time, a rule to the right edge, Plan. Today's is the playhead. */
+/* A day heading is a separator: name, free time, a rule to the right edge, Plan. Today's is the playhead.
+   In a week it reaches left across the rail and its name peeks out of the card. */
 .dayhead{display:flex; align-items:center; gap:10px; min-height:22px; margin:20px 0 6px; font-size:11.5px; line-height:18px; letter-spacing:.06em; text-transform:uppercase; font-weight:600; color:var(--muted); scroll-margin-top:calc(var(--top-h, 70px) + 16px)}
 .dayhead:first-child,.ann + .dayhead{margin-top:6px}
 .dayhead > *{flex:0 0 auto}
 .dayhead .ic{display:block; width:14px; height:14px}
 .dayhead .dh-l{white-space:nowrap}
+.week .dayhead{position:relative; z-index:2; margin-left:calc(-16px - var(--rail) - 14px)}
+.week .dayhead .dh-lead{flex:0 0 calc(var(--rail) + 20px); display:flex; align-items:center; gap:10px; min-width:0}
+.week .dayhead .dh-l{padding:2px 10px; background:var(--surface-2); box-shadow:0 0 0 1px var(--line), 0 0 0 3px var(--bg)}
+.week .dayhead.today .dh-l{box-shadow:0 0 0 3px var(--bg)}
+/* the first day's name lies over the top of the rail, so the rail's own lines start below it */
+@media (min-width:681px){ .week:not(.collapsed) .rail{padding-top:46px} }
 .dayhead .dh-rule{flex:1 1 16px; min-width:16px; height:1px; background:var(--line)}
 .dayhead .free{display:inline-flex; align-items:center; gap:5px; font-weight:500; text-transform:none; letter-spacing:0; color:var(--muted); white-space:nowrap}
 .dayhead.today{color:var(--ink)}
@@ -1106,6 +1113,9 @@ body.colored table.all tr:not(.done) .tt{color:var(--cc)}
   .wo-d{flex:1 1 0}
   .wo-l{flex-basis:auto}
   .dayhead{flex-wrap:wrap; gap:4px 10px}
+  .week .dayhead{margin-left:-26px}
+  .week .dayhead .dh-lead{flex-basis:auto}
+  .week .dayhead .dh-lead .dh-rule{display:none}
   .row .when{flex-basis:64px}
   .settings,.progress{margin-left:0}
 }
@@ -1838,7 +1848,7 @@ function weekRows(t, days, span, mon, today){
   var out = "";
   days.forEach(function(x){
     var open = state.weekDay === x.d, rowsHtml = x.rows.map(function(r){ return row(r); }).join("");
-    out += '<div class="dayhead' + (x.d === today ? ' today" id="today' : '') + '" data-date="' + x.d + '"><span class="dh-l">' + (x.d === today ? 'Today \u00B7 ' : '') + esc(fullDay(x.d)) + '</span><span class="free"></span><span class="dh-rule"></span>' +
+    out += '<div class="dayhead' + (x.d === today ? ' today" id="today' : '') + '" data-date="' + x.d + '"><span class="dh-lead"><span class="dh-l">' + (x.d === today ? 'Today \u00B7 ' : '') + esc(x.d === today ? longDay(x.d) : fullDay(x.d)) + '</span><span class="dh-rule"></span></span><span class="free"></span><span class="dh-rule"></span>' +
       '<button type="button" class="plan" data-plan="' + x.d + '" aria-expanded="' + open + '">' + ic(open ? "x" : "clock", "sm") + (open ? 'Close the plan' : 'Plan') + '</button></div>';
     out += open ? renderDayPlan(t, x.d, '<div class="dp-sec"><h4>' + ic("clipboard-text") + 'This day</h4>' + (rowsHtml ? '<div class="rows">' + rowsHtml + '</div>' : '<div class="none">No sessions or deadlines.</div>') + '</div>')
       : dayStrip(x, span, today) + rowsHtml;

@@ -202,7 +202,8 @@ the working hours, widened to the hour around anything outside them. Hovering a 
 row and shows its details; the course filter hides other courses' blocks.
 
 A day heading is a separator line: the day, its free time, a rule to the right edge and **Plan**,
-all centred on one line. Today's heading is the playhead (`#today`, where the Today button
+all centred on one line. It reaches left across the rail and its name peeks out of the card, over
+the rail's own lines when they meet (the rail's lines start below the first day's name). Today's heading is the playhead (`#today`, where the Today button
 scrolls): its name sits in a filled label and its rule is thicker, in the accent colour.
 
 A click on a strip, or on **Plan** in the day heading, unfolds that day into its Day Plan in place
