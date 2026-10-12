@@ -89,6 +89,20 @@ function calm([lo, hi], H, C, floors, dark, ratio = 4.5) {
   return oklch(dark ? hi : lo, H, C);
 }
 
+// Now is the role for what is current or pressed (Today, the main buttons, a selected filter). Its
+// container is the solid accent with the accent's own "on" text, in every palette: the strongest pair
+// a palette has, as Neon always had it, while the course and alert containers stay as calm as the
+// palette makes them.
+function solidNow(v) { v["now-container"] = v.now; v["on-now-container"] = v["on-now"]; }
+// The edge of what is current: the Now accent run as light along a metal edge (base, a shining spot,
+// base, a shadow, base), for the template's edged frame. Every palette has this one.
+function nowEdge(v, dark) {
+  const { L, C, H: h } = rgbToOklch(v.now), pc = (l, c) => (l * 100).toFixed(1) + "% " + c.toFixed(3) + " " + h.toFixed(0);
+  const base = pc(L, C), hi = pc(Math.min(0.97, L + (dark ? 0.14 : 0.24)), C * 0.8), lo = pc(Math.max(0.12, L - (dark ? 0.26 : 0.16)), C * 0.9);
+  v["edge-now"] = "oklch(" + base + "), oklch(" + hi + ") 18%, oklch(" + base + ") 38%, oklch(" + lo + ") 68%, oklch(" + base + ")";
+  v["edge-now-b"] = "oklch(" + base + ")";
+}
+
 // ---- Neon ----
 const H = {
   magenta: rgbToOklch("#f020a0").H, green: rgbToOklch("#00f030").H, cyan: rgbToOklch("#30a0b0").H,
@@ -127,6 +141,7 @@ function neon(dark) {
   v["box-lift"] = dark ? "drop-shadow(0 0 1px rgba(0,228,253,.22)) drop-shadow(0 0 8px rgba(0,228,253,.07))" : "drop-shadow(0 1px 2px rgba(0,0,32,.08)) drop-shadow(0 4px 10px rgba(10,20,50,.05))";
   v["card-lift"] = dark ? "drop-shadow(0 0 10px rgba(0,228,253,.16)) drop-shadow(0 6px 14px rgba(0,228,253,.10))" : "drop-shadow(0 8px 12px rgba(10,20,50,.13)) drop-shadow(0 1px 2px rgba(10,20,50,.10))";
   v["pop-lift"] = dark ? "drop-shadow(0 0 14px rgba(0,228,253,.24)) drop-shadow(0 8px 24px rgba(0,228,253,.14)) drop-shadow(0 0 1px rgba(0,228,253,.6))" : "drop-shadow(0 10px 24px rgba(10,20,50,.22)) drop-shadow(0 2px 4px rgba(10,20,50,.14))";
+  nowEdge(v, dark);
   return v;
 }
 
@@ -155,6 +170,8 @@ function ice(dark) {
   const role = (k, h, c) => { v[k] = text(h, c); v["on-" + k] = dark ? v.bg : "#ffffff"; v[k + "-container"] = container(h); v["on-" + k + "-container"] = onContainer(h, c + 0.01, v[k + "-container"]); v[k + "-soft"] = soft(h); };
   iceCourses.forEach((h, i) => role("c" + (i + 1), h, 0.055));
   role("alert", I.rust, 0.07); role("now", I.heather, 0.055);
+  // Now stands out: the solid heather, and a wash with enough heather in it to show as a highlight
+  solidNow(v); v["now-soft"] = oklch(dark ? 0.33 : 0.925, I.heather, dark ? 0.045 : 0.035);
   v.ok = text(I.pine, 0.055);
   v["ann-container"] = container(I.sky); v["on-ann-container"] = onContainer(I.sky, 0.06, v["ann-container"]);
   v.shadow = dark ? "0 1px 3px rgba(0,0,0,.45)" : "0 1px 3px rgba(30,40,45,.10)";
@@ -163,6 +180,7 @@ function ice(dark) {
   v["box-lift"] = dark ? "drop-shadow(0 0 1px rgba(205,225,239,.16)) drop-shadow(0 0 8px rgba(205,225,239,.06))" : "drop-shadow(0 1px 3px rgba(30,40,45,.10))";
   v["card-lift"] = dark ? "drop-shadow(0 0 1px rgba(205,225,239,.22)) drop-shadow(0 0 10px rgba(205,225,239,.10)) drop-shadow(0 6px 14px rgba(205,225,239,.06))" : "drop-shadow(0 8px 12px rgba(30,40,45,.10)) drop-shadow(0 1px 2px rgba(30,40,45,.08))";
   v["pop-lift"] = dark ? "drop-shadow(0 0 1px rgba(205,225,239,.40)) drop-shadow(0 0 14px rgba(205,225,239,.16)) drop-shadow(0 8px 24px rgba(205,225,239,.10))" : "drop-shadow(0 10px 24px rgba(30,40,45,.18)) drop-shadow(0 2px 4px rgba(30,40,45,.12))";
+  nowEdge(v, dark);
   return v;
 }
 
@@ -201,6 +219,8 @@ function navy(dark) {
   // and its group background goes further, to 10%, so the cards above it keep a trace more warmth
   if (dark) v["c2-container"] = container(NV.gold, 0.1);
   role("alert", NV.brick, 0.07); role("now", NV.blue, 0.07);
+  // Now stands out: the solid blue, and a wash with enough blue in it to show as a highlight
+  solidNow(v); v["now-soft"] = oklch(dark ? 0.31 : 0.93, NV.blue, dark ? 0.055 : 0.032);
   v.ok = text(NV.pine, 0.05);
   // Announcements in the blue family (the dusty to pale blue strips of the board), a step off c1's hue
   v["ann-container"] = container(243); v["on-ann-container"] = onContainer(243, 0.07, v["ann-container"]);
@@ -219,6 +239,7 @@ function navy(dark) {
   v["edge-gold"] = edge(...gold); v["edge-gold-b"] = "oklch(" + gold[0] + ")";
   v["edge-blue"] = edge(...blue); v["edge-blue-b"] = "oklch(" + blue[0] + ")";
   v["pop-lift"] = dark ? "drop-shadow(0 12px 28px oklch(6% 0.025 262 / .65)) drop-shadow(0 2px 6px oklch(6% 0.025 262 / .5))" : "drop-shadow(0 10px 24px oklch(24% 0.055 258 / .16)) drop-shadow(0 2px 4px oklch(24% 0.055 258 / .10))";
+  nowEdge(v, dark);
   return v;
 }
 
@@ -233,6 +254,7 @@ function block(v, indent) {
     line([["box-lift", v["box-lift"]]]),
     line([["card-lift", v["card-lift"]]]),
     line([["pop-lift", v["pop-lift"]]]),
+    line([["edge-now", v["edge-now"]], ["edge-now-b", v["edge-now-b"]]]),
     ...(v["edge-gold"] ? [line([["edge-gold", v["edge-gold"]]]), line([["edge-gold-b", v["edge-gold-b"]], ["edge-blue-b", v["edge-blue-b"]]]), line([["edge-blue", v["edge-blue"]]]),
       line([["edge-c1", "var(--edge-blue)"], ["edge-c1-b", "var(--edge-blue-b)"], ["edge-c2", "var(--edge-gold)"], ["edge-c2-b", "var(--edge-gold-b)"]])] : [])
   ].join("\n");

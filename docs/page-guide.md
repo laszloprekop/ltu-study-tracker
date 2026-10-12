@@ -121,6 +121,13 @@ frames. Navy's announcements are blue. The favicon follows the palette: Ice and 
 gold (`applyFavicon`, an inline SVG). Which element takes which level
 is set in one place, the "Lift" rules in `src/template.html`; a new floating element is added there.
 
+The Now role (Today, the main buttons, a selected filter or toggle, the `expected` tag) is the one
+that stands out in every palette: its container is the solid accent with the accent's own "on"
+text (`solidNow` in `tools/palette.mjs`), as Neon always had it, and Ice and Navy give `--now-soft`
+enough chroma to show as a highlight. The course and alert containers stay as calm as the palette
+makes them. Every palette also defines `--edge-now` and `--edge-now-b` (`nowEdge`): the Now accent as
+an edged frame, used around today's row in the Week Overview.
+
 Colour roles follow Material Design 3. Each accent role X (`c1` to `c5`, `alert`, `now`) has
 `--X` (text and strokes on the surfaces), `--on-X` (text on a solid `--X`), `--X-container` (the fill
 for chips, tags, selected controls and map nodes) and `--on-X-container` (text on that fill), plus
@@ -219,8 +226,8 @@ handlers which day the open plan shows.
 The week rail stays in view while the week scrolls (`.rail-in`, sticky under the page header, whose
 height is kept in `--top-h`) and holds the **Week Overview**: a small strip per day, events as
 bars in the course colour (a Planned Block is outlined, a calendar event hatched). A bar goes to
-its row, a day letter to its day. Today's row is marked: its letters sit in a filled label and its
-strip is ringed in the accent colour. As a left column the rail shows only the week number, the
+its row, a day letter to its day. Today's row is marked: the whole row (letters and
+strip) sits in an edged frame in the Now accent, on a wash of it. As a left column the rail shows only the week number, the
 week's flag and the overview; the dates, the hours of work, the free hours and "this week" show in the
 folded line and on narrow screens. Folding a week with the caret leaves one line: the rail's numbers
 and the same day strips side by side. Below 680 px the rail is a row above the week and does not
