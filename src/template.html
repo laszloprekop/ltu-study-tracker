@@ -525,7 +525,8 @@ section{margin-bottom:30px}
 .week .dayhead .dh-l{padding:2px 10px; background:var(--surface-2); box-shadow:0 0 0 1px var(--line), 0 0 0 3px var(--bg)}
 .week .dayhead.today .dh-l{box-shadow:0 0 0 3px var(--bg)}
 /* the first day's name lies over the top of the rail, so the rail's own lines start below it */
-@media (min-width:681px){ .week:not(.collapsed) .rail{padding-top:46px} }
+/* as a left column the rail keeps the week number, its flag and the overview; dates, hours and "this week" show in the folded line */
+@media (min-width:681px){ .week:not(.collapsed) .rail{padding-top:46px} .week:not(.collapsed) .rail .dates,.week:not(.collapsed) .rail .load,.week:not(.collapsed) .rail .nowflag{display:none} .week:not(.collapsed) .wo{margin-top:8px} }
 .dayhead .dh-rule{flex:1 1 16px; min-width:16px; height:1px; background:var(--line)}
 .dayhead .free{display:inline-flex; align-items:center; gap:5px; font-weight:500; text-transform:none; letter-spacing:0; color:var(--muted); white-space:nowrap}
 .dayhead.today{color:var(--ink)}
