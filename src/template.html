@@ -1436,7 +1436,7 @@ function calRow(r){
   var times = r.time ? ' data-start="' + esc(r.time) + '" data-end="' + esc(r.end || "") + '"' : '';
   var tag = calTag(r.label);
   var feeds = r.target ? '<a class="tag feeds" href="' + esc(r.target.url) + '" target="_blank" rel="noopener" title="This event is for this assessment">for ' + esc(shortTitle(r.target.title).split(",")[0]) + '</a>' : '';
-  return '<div class="row session cal"' + (r.code ? ' style="' + colorVars(r.code) + '" data-course="' + r.code + '"' : '') + times + '>' + when(r, {}) +
+  return '<div class="row session cal"' + (r.code ? ' style="' + colorVars(r.code) + '" data-course="' + r.code + '"' : '') + ' data-link="' + esc(r.key) + '"' + times + '>' + when(r, {}) +
     '<span class="body"><span class="block"><span class="t">' + ic("calendar-dot", "kic") + '<span class="tt">' + esc(r.title) + '</span>' + tag + feeds + '</span>' +
     (r.location && !/^https?:/.test(r.location) ? '<span class="why">' + esc(r.location) + '</span>' : '') + '</span></span></div>';
 }
@@ -1808,7 +1808,7 @@ function stripBoxes(ev){ return ev.filter(function(e){ return e.kind !== "due"; 
 function stripCls(e){ return (e.kind === "planned" ? " planned" : "") + (e.cal ? " cal" : "") + (e.done ? " done" : ""); }
 function stripTip(e, d){
   return longDay(d) + ", " + (e.kind === "due" ? fmtT(e.s) + " due" : fmtT(e.s) + "\u2013" + fmtT(e.e)) + (e.code ? " \u00B7 " + label(e.code) : "") + "\n" + e.title +
-    (e.kind === "planned" ? "\nPlanned Block" + (e.done ? ", done" : "") : e.cal ? "\nCalendar event" : "") + (e.why ? "\n" + e.why : "");
+    (e.kind === "planned" ? "\nPlanned Block" + (e.done ? ", done" : "") : e.cal ? "\nFrom your calendar" + (e.label ? ": " + e.label : "") : "") + (e.why ? "\n" + e.why : "");
 }
 function stripAttrs(e, d){ return (e.code ? ' data-course="' + esc(e.code) + '"' : '') + ' data-evlink="' + esc(e.link || "") + '" data-evday="' + d + '" title="' + esc(stripTip(e, d)) + '"'; }
 // One line per day, a quarter hour per tick. A click unfolds the day into its Day Plan.
