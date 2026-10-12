@@ -526,6 +526,10 @@ section{margin-bottom:30px}
 .week .dayhead .dh-lead{flex:0 0 calc(var(--rail) + 20px); display:flex; align-items:center; gap:10px; min-width:0}
 .week .dayhead .dh-l{padding:2px 10px; background:var(--surface-2); box-shadow:0 0 0 1px var(--line), 0 0 0 3px var(--bg)}
 .week .dayhead.today .dh-l{box-shadow:0 0 0 3px var(--bg)}
+/* the pointer passes through a day's name to the rail under it; the rail's block comes to the front while pointed at */
+.week .dayhead{pointer-events:none}
+.week .dayhead .free,.week .dayhead .plan{pointer-events:auto}
+.week:not(.collapsed) .rail-in:hover,.week:not(.collapsed) .rail-in:focus-within{z-index:3; background:var(--surface-2); box-shadow:0 0 0 8px var(--surface-2)}
 /* the first day's name lies over the top of the rail, so the rail's own lines start below it */
 /* as a left column the rail keeps the week number, its flag and the overview; dates, hours and "this week" show in the folded line */
 @media (min-width:681px){ .week:not(.collapsed) .rail{padding-top:46px} .week:not(.collapsed) .rail .dates,.week:not(.collapsed) .rail .load,.week:not(.collapsed) .rail .nowflag{display:none} .week:not(.collapsed) .wo{margin-top:8px} }
