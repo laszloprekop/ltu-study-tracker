@@ -319,8 +319,16 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
 .fc-foot{display:flex; flex-wrap:wrap; align-items:center; gap:6px; font-size:11.5px; color:var(--muted)}
 .fc-due{margin-left:auto; font-weight:700}
 .fc-rate{display:flex; gap:4px} .fc-rate button{flex:1 1 0; min-width:0; padding:6px 2px; font-size:12.5px}
-/* a framed box paints its fill and frame from --fill and --frame; background and border-color do nothing on it */
-.cardsview .fc-rate .again{color:var(--on-alert-container); --fill:var(--alert-container); --frame:var(--alert-container); --edge:initial}
+/* The four ratings are graded from the alert colour (Again) to the ok colour (Easy), two steps between
+   them along the hue wheel (OKLCH, so red passes amber and yellow-green on its way to green). Each is
+   a quiet button: a wash of its grade as the fill, the grade on its frame and icon, ordinary text.
+   A framed box paints from --fill and --frame; background and border-color do nothing on it. */
+.cardsview .fc-rate button{--g:var(--ok); color:var(--ink); --fill:color-mix(in oklab, var(--g) 18%, var(--surface)); --frame:color-mix(in oklab, var(--g) 60%, var(--surface)); --edge:initial}
+.cardsview .fc-rate button .ic{fill:var(--g)}
+.cardsview .fc-rate button[data-rate="1"]{--g:var(--alert)}
+.cardsview .fc-rate button[data-rate="2"]{--g:color-mix(in oklch, var(--alert) 64%, var(--ok))}
+.cardsview .fc-rate button[data-rate="3"]{--g:color-mix(in oklch, var(--alert) 30%, var(--ok))}
+.cardsview .fc-rate button:hover{--fill:color-mix(in oklab, var(--g) 30%, var(--surface))}
 .fc-rate button,.ck-b button{display:inline-flex; align-items:center; justify-content:center; gap:4px}
 /* four ratings share a narrow card: icon over the word, never a broken word */
 .fc-rate button{flex-direction:column; gap:1px; white-space:nowrap; font-size:12px; line-height:1.2}
@@ -373,7 +381,7 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
 .cardsview button{font:inherit; font-size:13px; font-weight:700; color:var(--on-now-container); --fill:var(--now-container); --frame:var(--now-container); padding:5px 12px; cursor:pointer}
 .cardsview button.plain{color:var(--ink); --fill:transparent; --frame:var(--muted); --edge:initial}
 /* the edged frame (Navy) on the main actions and the four ratings, not on the compact actions below them */
-.cardsview button[data-settle="keep"],.cardsview .fc-rate button{--edge:var(--edge-blue); --edge-b:var(--edge-blue-b)}
+.cardsview button[data-settle="keep"]{--edge:var(--edge-blue); --edge-b:var(--edge-blue-b)}
 .cardsview button:disabled{opacity:.4; cursor:default}
 .cardsview .cklist li{padding:8px 10px; border:1px solid var(--line); background:var(--surface)}
 .cardsview .ck-p{font-weight:700; margin:4px 0 2px} .cardsview .ck-a{white-space:pre-wrap} .cardsview .ck-s{color:var(--muted); font-size:12.5px; margin-top:4px}

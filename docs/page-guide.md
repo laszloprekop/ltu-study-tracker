@@ -128,6 +128,11 @@ enough chroma to show as a highlight. The course and alert containers stay as ca
 makes them. Every palette also defines `--edge-now` and `--edge-now-b` (`nowEdge`): the Now accent as
 an edged frame, used around today's row in the Week Overview.
 
+The four ratings on a Card's back (Again, Hard, Good, Easy) are graded from `--alert` to `--ok`, the
+two between them mixed along the hue wheel in OKLCH, so every palette gives its own red, amber,
+yellow-green and green. They are quiet buttons: a wash of the grade as the fill, the grade on the
+frame and icon, ordinary text.
+
 Colour roles follow Material Design 3. Each accent role X (`c1` to `c5`, `alert`, `now`) has
 `--X` (text and strokes on the surfaces), `--on-X` (text on a solid `--X`), `--X-container` (the fill
 for chips, tags, selected controls and map nodes) and `--on-X-container` (text on that fill), plus
