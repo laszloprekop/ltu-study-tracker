@@ -701,7 +701,9 @@ a.tag.feeds:hover{text-decoration:underline}
 .wo-d{display:flex; align-items:center; gap:5px; min-width:0}
 .wo-l{flex:0 0 26px; padding:0; border:0; background:transparent; font:600 10.5px "IBM Plex Mono",monospace; color:var(--muted); cursor:pointer; text-align:left; white-space:nowrap}
 .wo-l:hover,.wo-l:focus-visible{color:var(--ink); outline:0; text-decoration:underline}
-.wo-d.today .wo-l{color:var(--now)}
+/* today in the overview: the day's letters in the playhead's filled label, its strip ringed in the accent colour */
+.wo-d.today .wo-l{color:var(--on-now-container); background:var(--now-container); font-weight:700; text-align:center}
+.wo-d.today .wo-t{box-shadow:0 0 0 1px var(--surface-2), 0 0 0 3px var(--now); background:color-mix(in oklch, var(--now) 22%, transparent)}
 .wo-t{position:relative; flex:1 1 auto; min-width:0; height:12px; cursor:pointer; background:color-mix(in oklch, var(--ink) 9%, transparent)}
 .wo-e{position:absolute; min-width:2px; background:var(--cc, var(--muted)); box-shadow:0 0 0 1px var(--surface-2)}
 .wo-e.planned{background:color-mix(in oklch, var(--cc, var(--now)) 35%, var(--surface-2)); box-shadow:inset 0 0 0 1px var(--cc, var(--now))}

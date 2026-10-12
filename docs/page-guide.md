@@ -219,7 +219,8 @@ handlers which day the open plan shows.
 The week rail stays in view while the week scrolls (`.rail-in`, sticky under the page header, whose
 height is kept in `--top-h`) and holds the **Week Overview**: a small strip per day, events as
 bars in the course colour (a Planned Block is outlined, a calendar event hatched). A bar goes to
-its row, a day letter to its day. As a left column the rail shows only the week number, the
+its row, a day letter to its day. Today's row is marked: its letters sit in a filled label and its
+strip is ringed in the accent colour. As a left column the rail shows only the week number, the
 week's flag and the overview; the dates, the hours of work, the free hours and "this week" show in the
 folded line and on narrow screens. Folding a week with the caret leaves one line: the rail's numbers
 and the same day strips side by side. Below 680 px the rail is a row above the week and does not
