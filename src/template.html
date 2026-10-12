@@ -390,7 +390,7 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
 .dp-line.hour{opacity:1}
 .dp-line span{position:absolute; left:-44px; top:-8px; font-size:11px; color:var(--muted); font-family:"IBM Plex Mono",monospace}
 /* the wave is as bright as the fill of a block in a day strip, so free time reads no louder than taken time */
-.dp-grid,.ds{--free-wave:color-mix(in oklch, var(--now) 32%, var(--surface))}
+.dp-grid,.ds{--free-wave:color-mix(in oklab, var(--now) 32%, var(--surface))}
 /* free time carries a wavy line: down the left edge of the timetable, along the foot of a day strip */
 .dp-free{position:absolute; left:0; right:0; background:transparent}
 .dp-free::before{content:""; position:absolute; left:0; top:0; bottom:0; width:6px; background:var(--free-wave); -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 6 8' preserveAspectRatio='none'%3E%3Cpath d='M3 0Q6 2 3 4Q0 6 3 8' fill='none' stroke='%23000' stroke-width='1.5'/%3E%3C/svg%3E") 0 0/6px 7.5px repeat-y; mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 6 8' preserveAspectRatio='none'%3E%3Cpath d='M3 0Q6 2 3 4Q0 6 3 8' fill='none' stroke='%23000' stroke-width='1.5'/%3E%3C/svg%3E") 0 0/6px 7.5px repeat-y}
@@ -680,14 +680,17 @@ a.tag.feeds:hover{text-decoration:underline}
 .quick .faces{vertical-align:0}
 .quick .faces .ph{width:16px; height:16px}
 
-/* ---------- Day strips and the week overview (Week by week) ---------- */
+/* ---------- Day strips and the week overview (Week by week) ----------
+   A course's colour is mixed into the surface in OKLab, so its hue stays what the palette gave it: in
+   OKLCH a gold mixed into a navy surface turns green on the way. A block's fill is strong enough to
+   stand apart from free time, which is the plain strip with a wave along its middle. */
 .ds{position:relative; margin:4px 0 20px; cursor:pointer; background-color:var(--surface-2); background-image:repeating-linear-gradient(to right, color-mix(in oklch, var(--line) 70%, transparent) 0 1px, transparent 1px var(--q))}
-.ds:hover{background-color:color-mix(in oklch, var(--now-soft) 45%, var(--surface-2))}
+.ds:hover{background-color:color-mix(in oklab, var(--now-soft) 45%, var(--surface-2))}
 .ds-h{position:absolute; top:0; bottom:0; border-left:1px solid color-mix(in oklch, var(--muted) 55%, transparent)}
 .ds-h span{position:absolute; bottom:-15px; left:-7px; font:10px "IBM Plex Mono",monospace; font-style:normal; color:var(--muted)}
-.ds-free{position:absolute; bottom:-5px; height:6px; background:var(--free-wave); -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 6' preserveAspectRatio='none'%3E%3Cpath d='M0 3Q2 0 4 3Q6 6 8 3' fill='none' stroke='%23000' stroke-width='1.5'/%3E%3C/svg%3E") 0 0/7.5px 6px repeat-x; mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 6' preserveAspectRatio='none'%3E%3Cpath d='M0 3Q2 0 4 3Q6 6 8 3' fill='none' stroke='%23000' stroke-width='1.5'/%3E%3C/svg%3E") 0 0/7.5px 6px repeat-x}
-.ds-b{position:absolute; box-sizing:border-box; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; padding:2px 5px; font-size:11.5px; line-height:16px; background:color-mix(in oklch, var(--cc, var(--muted)) 26%, var(--surface)); color:var(--ink); border-left:4px solid var(--cc, var(--muted)); box-shadow:0 0 0 1px var(--surface-2)}
-.ds-b.planned{background:color-mix(in oklch, var(--now-soft) 70%, var(--surface)); border-left-color:var(--now)}
+.ds-free{position:absolute; top:50%; margin-top:-3px; height:6px; background:var(--free-wave); -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 6' preserveAspectRatio='none'%3E%3Cpath d='M0 3Q2 0 4 3Q6 6 8 3' fill='none' stroke='%23000' stroke-width='1.5'/%3E%3C/svg%3E") 0 0/7.5px 6px repeat-x; mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 6' preserveAspectRatio='none'%3E%3Cpath d='M0 3Q2 0 4 3Q6 6 8 3' fill='none' stroke='%23000' stroke-width='1.5'/%3E%3C/svg%3E") 0 0/7.5px 6px repeat-x}
+.ds-b{position:absolute; box-sizing:border-box; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; padding:2px 5px; font-size:11.5px; line-height:16px; background:color-mix(in oklab, var(--cc, var(--muted)) 42%, var(--surface)); color:var(--ink); border-left:4px solid var(--cc, var(--muted)); box-shadow:0 0 0 1px var(--surface-2)}
+.ds-b.planned{background:color-mix(in oklab, var(--now) 30%, var(--surface)); border-left-color:var(--now)}
 .ds-b.cal{background:repeating-linear-gradient(135deg, var(--surface) 0 8px, var(--surface-2) 8px 11px)}
 .ds-b.done{opacity:.5; text-decoration:line-through}
 .ds-due{position:absolute; top:-3px; bottom:-3px; width:3px; margin-left:-3px; background:var(--cc, var(--alert))}
@@ -718,7 +721,7 @@ a.tag.feeds:hover{text-decoration:underline}
     linear-gradient(to bottom, var(--edge-now)) 0 0 / var(--w) 100% no-repeat, linear-gradient(to bottom, var(--edge-now)) 100% 0 / var(--w) 100% no-repeat, var(--now-soft)}
 .wo-t{position:relative; flex:1 1 auto; min-width:0; height:12px; cursor:pointer; background:color-mix(in oklch, var(--ink) 9%, transparent)}
 .wo-e{position:absolute; min-width:2px; background:var(--cc, var(--muted)); box-shadow:0 0 0 1px var(--surface-2)}
-.wo-e.planned{background:color-mix(in oklch, var(--cc, var(--now)) 35%, var(--surface-2)); box-shadow:inset 0 0 0 1px var(--cc, var(--now))}
+.wo-e.planned{background:color-mix(in oklab, var(--cc, var(--now)) 35%, var(--surface-2)); box-shadow:inset 0 0 0 1px var(--cc, var(--now))}
 .wo-e.cal{background:repeating-linear-gradient(135deg, var(--muted) 0 2px, transparent 2px 4px)}
 .wo-e.due{top:-2px !important; height:auto !important; bottom:-2px; width:2px; margin-left:-2px; background:var(--cc, var(--alert)); box-shadow:none}
 .wo-e.done{opacity:.4}

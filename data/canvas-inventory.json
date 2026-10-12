@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-30T20:03:44.007Z",
+ "generatedAt": "2026-10-12T11:43:22.481Z",
  "courses": {
   "Z7005E": {
    "canvasId": 613,
@@ -2468,10 +2468,10 @@
        "url": "https://ltuedu.instructure.com/courses/614/modules/items/19927",
        "indent": 1,
        "req": "must_mark_done",
-       "words": 2340,
-       "videos": 4,
-       "files": 7,
-       "minutes": 70
+       "words": 2372,
+       "videos": 8,
+       "files": 12,
+       "minutes": 120
       },
       {
        "id": 19929,
@@ -2556,10 +2556,10 @@
        "url": "https://ltuedu.instructure.com/courses/614/modules/items/19937",
        "indent": 1,
        "req": "must_mark_done",
-       "words": 2336,
-       "videos": 4,
-       "files": 7,
-       "minutes": 70
+       "words": 2361,
+       "videos": 7,
+       "files": 11,
+       "minutes": 105
       },
       {
        "id": 19938,
@@ -2571,10 +2571,10 @@
        "url": "https://ltuedu.instructure.com/courses/614/modules/items/19938",
        "indent": 1,
        "req": "must_mark_done",
-       "words": 2529,
-       "videos": 3,
-       "files": 7,
-       "minutes": 60
+       "words": 2550,
+       "videos": 6,
+       "files": 11,
+       "minutes": 95
       },
       {
        "id": 19940,
@@ -2965,7 +2965,7 @@
        "url": "https://ltuedu.instructure.com/courses/614/modules/items/19984",
        "indent": 1,
        "req": "must_view",
-       "words": 916,
+       "words": 947,
        "videos": 0,
        "files": 5,
        "minutes": 5
@@ -3010,7 +3010,7 @@
        "submission": "online_upload",
        "due": "2026-09-25",
        "dueTime": "23:59",
-       "words": 356,
+       "words": 367,
        "videos": 0,
        "files": 13,
        "minutes": null
@@ -3030,7 +3030,7 @@
        "submission": "online_upload",
        "due": "2026-10-02",
        "dueTime": "23:59",
-       "words": 945,
+       "words": 956,
        "videos": 0,
        "files": 14,
        "minutes": null
@@ -3050,7 +3050,7 @@
        "submission": "online_upload",
        "due": "2026-10-16",
        "dueTime": "23:59",
-       "words": 520,
+       "words": 531,
        "videos": 1,
        "files": 15,
        "minutes": null
@@ -3084,7 +3084,7 @@
        "submission": "online_upload",
        "due": "2026-10-30",
        "dueTime": "23:59",
-       "words": 802,
+       "words": 813,
        "videos": 0,
        "files": 12,
        "minutes": null
@@ -3104,7 +3104,7 @@
        "submission": "online_upload",
        "due": "2026-11-06",
        "dueTime": "23:59",
-       "words": 593,
+       "words": 604,
        "videos": 0,
        "files": 12,
        "minutes": null
@@ -3124,7 +3124,7 @@
        "submission": "online_upload",
        "due": "2026-11-13",
        "dueTime": "23:59",
-       "words": 517,
+       "words": 528,
        "videos": 0,
        "files": 12,
        "minutes": null
@@ -3445,6 +3445,20 @@
      "posted": "2026-09-28",
      "url": "https://ltuedu.instructure.com/courses/614/discussion_topics/4087",
      "text": "Dear All, Welcome to Week 3 of Z0025E Computer Networks! This week we return to our scheduled lectures on Zoom and continue with the Application Layer before beginning our study of the Transport Layer . We will cover Lecture 4 and Lecture 5 , building on the self-paced material from last week. We also have Lab 2 on Friday . Please remember to sign up for a lab assessment session in Canvas before Friday . Week 3 Outlook 🎓 Monday, 28 September – Lecture 4 (09:00–10:30, Zoom). We will continue with the Application Layer, focusing on Web and HTTP, P2P applications, video streaming, and Content Di"
+    },
+    {
+     "id": 4089,
+     "title": "Welcome to Week 4",
+     "posted": "2026-10-05",
+     "url": "https://ltuedu.instructure.com/courses/614/discussion_topics/4089",
+     "text": "Dear All, Welcome to Week 4 of Z0025E Computer Networks! This week we will finish our study of the Transport Layer and begin the Network Layer . We have two scheduled lectures on Zoom: Lecture 6 on Monday and Lecture 8 on Tuesday . Lecture 7 is self-paced and should be completed independently in Canvas. There is no lab assessment session this week . Week 4 Outlook Monday, 5 October – Lecture 6 (09:00–10:30, Zoom). We will continue with TCP, focusing on TCP flow control, congestion control, and the evolution of transport-layer functionality . Tuesday, 6 October – Lecture 8 (09:00–10:30, Zoom). "
+    },
+    {
+     "id": 4110,
+     "title": "Welcome to Week 5!",
+     "posted": "2026-10-12",
+     "url": "https://ltuedu.instructure.com/courses/614/discussion_topics/4110",
+     "text": "Dear All, Welcome to Week 5 of Z0025E Computer Networks! This week, we will continue our exploration of the Network Layer, with two lectures (L9 and L10) and our third laboratory assessment session (Lab 3). All lectures and laboratory sessions will take place via Zoom. Please refer to Canvas for the Zoom link and relevant course materials. Week 5 Outlook Monday, 12 October – L9 (09:00–10:30, Zoom). We will continue our discussion of the Network Layer, focusing on IP protocols, generalized forwarding, and middleboxes. Tuesday, 13 October – L10 (09:00–10:30, Zoom). We will move on to the Network"
     }
    ]
   }

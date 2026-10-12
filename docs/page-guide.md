@@ -233,8 +233,10 @@ folded line and on narrow screens. Folding a week with the caret leaves one line
 and the same day strips side by side. Below 680 px the rail is a row above the week and does not
 stick.
 
-Free time carries a wavy line: down the left edge of the Day Plan's timetable, along the foot of a
-Day Strip.
+Free time carries a wavy line: down the left edge of the Day Plan's timetable, along the middle of a
+Day Strip. A block in a strip is filled with its course colour mixed 42% into the surface, in OKLab
+so the hue stays the palette's (gold stays gold on navy), which sets it apart from the plain strip
+of free time in every palette.
 
 ## Overlapping times in the Day Planner
 

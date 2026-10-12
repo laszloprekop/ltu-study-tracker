@@ -106,10 +106,10 @@ const SESSIONS_LP2 = [
   S("Z0025E", "2026-09-28", "09:00", "10:30", "lecture", "Lecture 4, web and HTTP, P2P, video streaming", { ref: "2.4", status: "confirmed" }),
   S("Z0025E", "2026-09-30", "13:00", "14:30", "lecture", "Lecture 5, reliable data transfer and TCP", { ref: "3.2", status: "confirmed" }),
   S("Z0025E", "2026-10-02", "13:00", "15:00", "lab", "Lab 2 session, Packet Tracer skills 1 to 5", { ref: "9.5", why: "Attend the group's booked assessment session. Sign up in Canvas before Friday (announced 28 Sep)." }),
-  S("Z0025E", "2026-10-05", "09:00", "10:30", "lecture", "Lecture 6, TCP flow and congestion control", { ref: "3.3", status: "expected" }),
-  S("Z0025E", "2026-10-06", "09:00", "10:30", "lecture", "Lecture 8, network layer, inside a router, IP", { ref: "4.2", status: "expected" }),
-  S("Z0025E", "2026-10-12", "09:00", "10:30", "lecture", "Lecture 9, NAT, IPv6, generalized forwarding", { ref: "4.3", status: "expected" }),
-  S("Z0025E", "2026-10-13", "09:00", "10:30", "lecture", "Lecture 10, the control plane and routing algorithms", { ref: "5.2", status: "expected" }),
+  S("Z0025E", "2026-10-05", "09:00", "10:30", "lecture", "Lecture 6, TCP flow and congestion control", { ref: "3.3", status: "confirmed" }),
+  S("Z0025E", "2026-10-06", "09:00", "10:30", "lecture", "Lecture 8, network layer, inside a router, IP", { ref: "4.2", status: "confirmed" }),
+  S("Z0025E", "2026-10-12", "09:00", "10:30", "lecture", "Lecture 9, NAT, IPv6, generalized forwarding", { ref: "4.3", status: "confirmed" }),
+  S("Z0025E", "2026-10-13", "09:00", "10:30", "lecture", "Lecture 10, the control plane and routing algorithms", { ref: "5.2", status: "confirmed" }),
   S("Z0025E", "2026-10-16", "13:00", "15:00", "lab", "Lab 3 session, subnetting, Packet Tracer skills 6 to 7", { ref: "9.6" }),
   S("Z0025E", "2026-10-26", "09:00", "10:30", "lecture", "Lecture 11, OSPF, BGP and OpenFlow", { ref: "5.3", status: "expected" }),
   S("Z0025E", "2026-10-27", "09:00", "10:30", "lecture", "Lecture 13, the link layer", { ref: "6.2", status: "expected" }),
@@ -156,7 +156,7 @@ const TASKS_LP2 = [
   T("w39-prep", "Z7005E", "2026-09-21", "Draft interview questions and set up the portfolio skeleton", "Use the appendix structure, so interview answers land in the right section."),
   T("w39-writeup", "Z7005E", "2026-09-23", "Write up the interview findings the same afternoon", "Actors, user requirements, anything the expert ruled out."),
   T("w39-build", "Z7005E", "2026-09-24", "Portfolio build day", "Use cases and diagrams, cost/value/risk table with IDs and dependencies, storyboards, UI proposal, activity, module, class, sequence and state diagrams, a test plan covering white box and black box."),
-  T("w42-book3", "Z0025E", "2026-10-12", "Book a Lab 3 assessment slot on sheet 9.2", "Session Friday 16 Oct. 8 slots for 8 groups. The sheet heading says 13:00 but the slots start at 09:00, and the Homepage says 13:00 to 15:00: ask the teacher before booking.", [["Sign-up sheet", SIGNUP]], "must"),
+  T("w42-book3", "Z0025E", "2026-10-12", "Book a Lab 3 assessment slot on sheet 9.2", "Session Friday 16 Oct, 13:00 to 15:00. 8 slots of 15 minutes for 8 groups.", [["Sign-up sheet", SIGNUP]], "must"),
   T("w44-book4", "Z0025E", "2026-10-26", "Book a Lab 4 assessment slot on sheet 9.2", "Session Friday 30 Oct from 10:00. 8 slots for 8 groups.", [["Sign-up sheet", SIGNUP]], "must"),
   T("w45-book5", "Z0025E", "2026-11-02", "Book a Lab 5 assessment slot on sheet 9.2", "Session Friday 6 Nov from 13:00. 8 slots for 8 groups.", [["Sign-up sheet", SIGNUP]], "must"),
   T("w46-book6", "Z0025E", "2026-11-09", "Book a Lab 6 assessment slot on sheet 9.2", "Session Friday 13 Nov from 13:00. 8 slots for 8 groups.", [["Sign-up sheet", SIGNUP]], "must"),
@@ -239,6 +239,8 @@ export const BOOKINGS = [
 // tied to a row: "d:<course>:<assignment id>" or a session "s:<course>:<date>:<start>". For a
 // deadline, the page uses the earliest value not yet past until settled names the source to trust.
 // From the teacher reports in docs/reports/; source URLs are Canvas pages or files.
+// Read again on 2026-10-12: the Z0025E ones are gone (9.1 Lab Overview, the Lab Signup Sheet and
+// L00 Course Introduction.pdf were corrected); the Z7005E ones below still stand.
 export const DISAGREEMENTS = [
   { about: "d:Z7005E:3024", fact: "deadline", values: [
     { source: "Canvas assignment and the Schema", date: "2026-11-25", time: "17:00" },
@@ -248,21 +250,7 @@ export const DISAGREEMENTS = [
     { source: "Laboration 5 text", says: "deadline 24 September, 17:00" }] },
   { about: "s:Z7005E:2026-10-22:10:30", fact: "length", values: [
     { source: "Schema", says: "10:30 to 12:00" },
-    { source: "Workshop 2 page (3.3)", says: "about 3 hours of steps" }] },
-  { about: "s:Z0025E:2026-10-16:13:00", fact: "time", values: [
-    { source: "Homepage", says: "13:00 to 15:00" },
-    { source: "Lab Signup Sheet heading", says: "13:00" },
-    { source: "Lab Signup Sheet slots", says: "09:00 to 11:00" }] },
-  { about: "d:Z0025E:3030", fact: "deadline", values: [
-    { source: "Canvas", date: "2026-10-23", time: "23:59" },
-    { source: "L00 Course Introduction.pdf (2025 schedule)", date: "2026-11-14", time: "23:59" }] },
-  { about: "d:Z0025E:3031", fact: "deadline", values: [
-    { source: "Canvas", date: "2026-11-20", time: "23:59" },
-    { source: "L00 Course Introduction.pdf (2025 schedule)", date: "2026-12-12", time: "23:59" }] },
-  ...[["3043", "2026-10-16", "13:00"], ["3044", "2026-10-30", "10:00"], ["3045", "2026-11-06", "13:00"], ["3040", "2026-11-13", "13:00"]].map(([id, date, time]) => (
-    { about: "d:Z0025E:" + id, fact: "deadline", values: [
-      { source: "Canvas assignment", date, time: "23:59" },
-      { source: "9.1 Lab Overview: submit before your scheduled lab assessment", date, time }] }))
+    { source: "Workshop 2 page (3.3)", says: "about 3 hours of steps" }] }
 ];
 
 // Where the tracker has moved (release 1, step 6). null keeps the claude.ai page as it is. Set it to
