@@ -206,6 +206,10 @@ all centred on one line. It reaches left across the rail and its name peeks out 
 the rail's own lines when they meet (the rail's lines start below the first day's name). Today's heading is the playhead (`#today`, where the Today button
 scrolls): its name sits in a filled label and its rule is thicker, in the accent colour.
 
+MUST work that is not done carries red in every one of these: a red line along the foot of its
+block (Day Strip, Week Overview, the Day Plan's timetable) and a red dot on its deadline mark. A
+Planned Block takes it from the task or material item it stands for (`refMust`).
+
 A click on a strip, or on **Plan** in the day heading, unfolds that day into its Day Plan in place
 (`state.weekDay`, one day at a time, not saved): the same editable timetable as the Day Planner
 view (`renderDayPlan`), with the day's rows beside it. `planDay()` tells the place and drop

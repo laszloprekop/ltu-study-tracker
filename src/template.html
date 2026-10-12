@@ -680,6 +680,15 @@ a.tag.feeds:hover{text-decoration:underline}
 .ds-due{position:absolute; top:-3px; bottom:-3px; width:3px; margin-left:-3px; background:var(--cc, var(--alert))}
 .ds-now{position:absolute; top:-4px; bottom:-4px; width:2px; margin-left:-1px; background:var(--now); z-index:2}
 .ds-hl{outline:2px solid var(--now); outline-offset:2px}
+/* MUST that is not done: a red line along the foot of its block, a red dot on its deadline mark */
+.ds-b.must{box-shadow:0 0 0 1px var(--surface-2), inset 0 -3px 0 var(--alert)}
+.wo-e.must{box-shadow:0 0 0 1px var(--surface-2), inset 0 -3px 0 var(--alert)}
+.dp-block.must{box-shadow:inset 0 -3px 0 var(--alert)}
+.dp-block.must.over{box-shadow:0 0 0 2px var(--surface), inset 0 -3px 0 var(--alert)}
+.ds-due.must::before,.wo-e.due.must::before{content:""; position:absolute; left:50%; top:-3px; width:7px; height:7px; margin-left:-3.5px; border-radius:50%; background:var(--alert)}
+.wo-e.due.must{box-shadow:none}
+.wo-e.due.must::before{top:-2px; width:5px; height:5px; margin-left:-2.5px}
+.dp-due.must span::before{content:""; display:inline-block; width:7px; height:7px; margin-right:5px; border-radius:50%; background:var(--alert)}
 .dayhead .plan{display:inline-flex; align-items:center; gap:5px; font:inherit; font-size:11.5px; line-height:18px; font-weight:700; text-transform:none; letter-spacing:0; color:var(--on-now-container); background:var(--now-container); border:0; padding:2px 9px; cursor:pointer}
 .dayhead .plan:focus-visible{outline:2px solid var(--now); outline-offset:2px}
 .week .dayplan{margin:4px 0 10px}
@@ -1801,13 +1810,20 @@ function applyPinUi(){
 /* ---------- Views ---------- */
 /* ---------- Day strips and the week overview ---------- */
 // A day's times in Week by week: sessions, deadlines and Planned Blocks from the same data as the Day Plan.
+// Whether a Planned Block stands for MUST work that is not done yet: a task or a material item.
+function refMust(t, ref){
+  if (!ref || isDone(ref)) return false;
+  var p = ref.split(":");
+  if (p[0] === "m") { var it = items(p[1]).find(function(i){ return String(i.id) === p[2]; }); return !!it && itemLevel(p[1], it) === "must"; }
+  var r = taskRows(t).find(function(x){ return x.id === ref; }); return !!r && r.level === "must";
+}
 function planDay(){ return state.view === "week" ? state.weekDay : state.day || todayIso(); }
-function weekDays(wr, mon){
+function weekDays(t, wr, mon){
   var out = [];
   for (var i = 0; i < 7; i++) {
     var d = addDays(mon, i), rs = wr.filter(function(r){ return r.date === d; }), pl = plannedOn(d);
     if (i >= 5 && !rs.length && !pl.length && d !== todayIso()) continue;
-    out.push({ d: d, rows: rs, ev: fixedFrom(rs, d).concat(pl.map(function(b){ var s = toMin(b.start); return { s: s, e: s + b.mins, title: b.title, code: b.code, kind: "planned", link: b.ref || "", done: !!(b.ref && isDone(b.ref)) }; })) });
+    out.push({ d: d, rows: rs, ev: fixedFrom(rs, d).concat(pl.map(function(b){ var s = toMin(b.start); return { s: s, e: s + b.mins, title: b.title, code: b.code, kind: "planned", link: b.ref || "", done: !!(b.ref && isDone(b.ref)), must: refMust(t, b.ref) }; })) });
   }
   return out;
 }
@@ -1820,9 +1836,9 @@ function stripSpan(days){
 // Overlapping times go into lanes, first free one in start order. Sets .lane, returns the lane count.
 function stripLanes(boxes){ var lanes = []; boxes.forEach(function(b){ var i = 0; while (i < lanes.length && lanes[i] > b.s) i++; lanes[i] = b.e; b.lane = i; }); return Math.max(1, lanes.length); }
 function stripBoxes(ev){ return ev.filter(function(e){ return e.kind !== "due"; }).sort(function(p, q){ return p.s - q.s || q.e - p.e; }); }
-function stripCls(e){ return (e.kind === "planned" ? " planned" : "") + (e.cal ? " cal" : "") + (e.done ? " done" : ""); }
+function stripCls(e){ return (e.kind === "planned" ? " planned" : "") + (e.cal ? " cal" : "") + (e.done ? " done" : "") + (e.must ? " must" : ""); }
 function stripTip(e, d){
-  return longDay(d) + ", " + (e.kind === "due" ? fmtT(e.s) + " due" : fmtT(e.s) + "\u2013" + fmtT(e.e)) + (e.code ? " \u00B7 " + label(e.code) : "") + "\n" + e.title +
+  return longDay(d) + ", " + (e.kind === "due" ? fmtT(e.s) + " due" : fmtT(e.s) + "\u2013" + fmtT(e.e)) + (e.code ? " \u00B7 " + label(e.code) : "") + (e.must ? " \u00B7 MUST" : "") + "\n" + e.title +
     (e.kind === "planned" ? "\nPlanned Block" + (e.done ? ", done" : "") : e.cal ? "\nFrom your calendar" + (e.label ? ": " + e.label : "") : "") + (e.why ? "\n" + e.why : "");
 }
 function stripAttrs(e, d){ return (e.code ? ' data-course="' + esc(e.code) + '"' : '') + ' data-evlink="' + esc(e.link || "") + '" data-evday="' + d + '" title="' + esc(stripTip(e, d)) + '"'; }
@@ -1833,7 +1849,7 @@ function dayStrip(x, span, today){
   for (var m = span[0]; m <= span[1]; m += 60) h += '<i class="ds-h" style="left:' + pc(at(m)) + '"><span>' + fmtT(m).slice(0, 2) + '</span></i>';
   freeOn(boxes.map(function(b){ return [b.s, b.e]; })).forEach(function(w){ h += '<i class="ds-free" style="left:' + pc(at(w[0])) + '; width:' + pc(at(w[1]) - at(w[0])) + '" title="Free ' + fmtT(w[0]) + '\u2013' + fmtT(w[1]) + '"></i>'; });
   boxes.forEach(function(b){ h += '<div class="ds-b' + stripCls(b) + '"' + stripAttrs(b, x.d) + ' style="left:' + pc(at(b.s)) + '; width:' + pc(at(b.e) - at(b.s)) + '; top:' + (b.lane * LH + 1) + 'px; height:' + (LH - 2) + 'px' + (b.code ? '; ' + colorVars(b.code) : '') + '"><b>' + fmtT(b.s) + '</b> ' + esc(shortTitle(b.title)) + '</div>'; });
-  x.ev.forEach(function(e){ if (e.kind === "due") h += '<i class="ds-due"' + stripAttrs(e, x.d) + ' style="left:' + pc(at(e.s)) + (e.code ? '; ' + colorVars(e.code) : '') + '"></i>'; });
+  x.ev.forEach(function(e){ if (e.kind === "due") h += '<i class="ds-due' + (e.must ? ' must' : '') + '"' + stripAttrs(e, x.d) + ' style="left:' + pc(at(e.s)) + (e.code ? '; ' + colorVars(e.code) : '') + '"></i>'; });
   if (x.d === today) h += '<i class="ds-now" data-a="' + span[0] + '" data-w="' + W + '" title="Now" hidden></i>';
   return '<div class="ds" data-plan="' + x.d + '" title="Plan this day: opens its Day Plan here" style="height:' + n * LH + 'px; --q:' + (SLOT / W * 100).toFixed(4) + '%">' + h + '</div>';
 }
@@ -1843,7 +1859,7 @@ function weekOverview(days, span, today){
   return '<div class="wo">' + days.map(function(x){
     var boxes = stripBoxes(x.ev), n = stripLanes(boxes), h = "";
     boxes.forEach(function(b){ h += '<i class="wo-e' + stripCls(b) + '"' + stripAttrs(b, x.d) + ' style="left:' + pc(at(b.s)) + '; width:' + pc(at(b.e) - at(b.s)) + '; top:' + pc(b.lane / n * 100) + '; height:' + pc(100 / n) + (b.code ? '; ' + colorVars(b.code) : '') + '"></i>'; });
-    x.ev.forEach(function(e){ if (e.kind === "due") h += '<i class="wo-e due"' + stripAttrs(e, x.d) + ' style="left:' + pc(at(e.s)) + (e.code ? '; ' + colorVars(e.code) : '') + '"></i>'; });
+    x.ev.forEach(function(e){ if (e.kind === "due") h += '<i class="wo-e due' + (e.must ? ' must' : '') + '"' + stripAttrs(e, x.d) + ' style="left:' + pc(at(e.s)) + (e.code ? '; ' + colorVars(e.code) : '') + '"></i>'; });
     return '<div class="wo-d' + (x.d === today ? ' today' : '') + '"><button type="button" class="wo-l" data-evday="' + x.d + '" title="Go to ' + esc(fullDay(x.d)) + '">' + esc(dayLabel(x.d).split(" ")[0].slice(0, 2)) + '</button><span class="wo-t" data-evday="' + x.d + '">' + h + '</span></div>';
   }).join("") + '</div>';
 }
@@ -1884,7 +1900,7 @@ function renderWeekView(t){
     var wa = anns.filter(function(a){ return a.posted >= mon && a.posted < next; });
     var isNow = mon === curMon, flag = t.weekFlags[mon];
     var mins = wb.reduce(function(s, b){ return s + matMinutes(b.items); }, 0) + wr.reduce(function(s, r){ return s + (r.est || 0); }, 0);
-    var days = weekDays(wr, mon), span = stripSpan(days);
+    var days = weekDays(t, wr, mon), span = stripSpan(days);
     var body = '<div class="rows">' + wa.map(function(a){ return annBlock(a, a.code); }).join("") + weekRows(t, days, span, mon, today) + wb.map(function(b){ return matBlock(b); }).join("") + '</div>';
     var collapsed = state.weeks[mon] === false;
     return '<div class="card week' + (isNow ? ' now' : '') + (collapsed ? ' collapsed' : '') + '" id="week-' + t.id + '-' + i + '" data-week="' + mon + '">' +
@@ -2125,8 +2141,8 @@ function fixedOn(t, d){ return fixedFrom(withCalendar(t, timeline(t)).filter(fun
 function fixedFrom(rows, d){
   var out = [];
   rows.forEach(function(r){
-    if (r.kind === "session" && r.time) { var s = toMin(r.time), e = r.end ? toMin(r.end) : s + 60; out.push({ s: s, e: Math.max(e, s + SLOT), title: r.title, code: r.code, cal: !!r.cal, label: r.label, kind: "fixed", link: r.id || r.key || "", why: r.why || "" }); }
-    else if (r.kind === "deadline" && r.time) out.push({ s: toMin(r.time), e: toMin(r.time), title: r.title.replace(/ due \d\d:\d\d$/, ""), code: r.code, kind: "due", link: r.id || r.key || "", why: r.why || "" });
+    if (r.kind === "session" && r.time) { var s = toMin(r.time), e = r.end ? toMin(r.end) : s + 60; out.push({ s: s, e: Math.max(e, s + SLOT), title: r.title, code: r.code, cal: !!r.cal, label: r.label, kind: "fixed", link: r.id || r.key || "", why: r.why || "", must: r.level === "must" && !(r.id && isDone(r.id)) }); }
+    else if (r.kind === "deadline" && r.time) out.push({ s: toMin(r.time), e: toMin(r.time), title: r.title.replace(/ due \d\d:\d\d$/, ""), code: r.code, kind: "due", link: r.id || r.key || "", why: r.why || "", must: r.level === "must" && !(r.id && isDone(r.id)) });
   });
   ((state.bookings && state.bookings.bookings) || []).forEach(function(b){ if (b.mine && b.date === d) { var s = toMin(b.mine); out.push({ s: s, e: s + SLOT, title: "Lab session with the teacher (your slot)", code: b.id.split(":")[0], kind: "fixed" }); } });
   return out;
@@ -2200,11 +2216,11 @@ function renderDayPlan(t, d, beside){
   var lay = dpLayout(boxes.map(function(f){ return { s: f.s, e: f.e }; }).concat(planned.map(function(b){ var s = toMin(b.start); return { s: s, e: s + b.mins }; })));
   fixed.forEach(function(f){
     var l = f.kind === "due" ? null : lay[boxes.indexOf(f)];
-    if (f.kind === "due") grid += '<div class="dp-due" style="top:' + top(Math.min(f.s, last)) + 'px' + (f.code ? '; ' + colorVars(f.code) : '') + '"><span>' + esc(fmtT(f.s) + " due: " + f.title) + '</span></div>';
-    else grid += '<div class="dp-block' + (f.cal ? ' cal' : '') + (l.z ? ' over' : '') + '" style="top:' + (top(f.s) + 1) + 'px; height:' + (Math.max(H, top(f.e) - top(f.s)) - 2) + 'px' + dpPlace(l) + (f.code ? '; ' + colorVars(f.code) : '') + '"><b>' + esc(fmtT(f.s) + "\u2013" + fmtT(f.e)) + '</b> ' + esc(f.title) + (f.cal ? ' ' + calTag(f.label) : '') + '</div>';
+    if (f.kind === "due") grid += '<div class="dp-due' + (f.must ? ' must' : '') + '" style="top:' + top(Math.min(f.s, last)) + 'px' + (f.code ? '; ' + colorVars(f.code) : '') + '"><span>' + esc(fmtT(f.s) + " due: " + f.title) + '</span></div>';
+    else grid += '<div class="dp-block' + (f.cal ? ' cal' : '') + (f.must ? ' must' : '') + (l.z ? ' over' : '') + '" style="top:' + (top(f.s) + 1) + 'px; height:' + (Math.max(H, top(f.e) - top(f.s)) - 2) + 'px' + dpPlace(l) + (f.code ? '; ' + colorVars(f.code) : '') + '"><b>' + esc(fmtT(f.s) + "\u2013" + fmtT(f.e)) + '</b> ' + esc(f.title) + (f.cal ? ' ' + calTag(f.label) : '') + '</div>';
   });
   planned.forEach(function(b, i){ var s = toMin(b.start), done = b.ref && isDone(b.ref), l = lay[nfix + i];
-    grid += '<div class="dp-block planned' + (done ? ' done' : '') + (l.z ? ' over' : '') + '" draggable="true" data-pid="' + esc(b.pid) + '" data-mins="' + b.mins + '" title="Drag to move it; drop it on the list to unplace it" style="top:' + (top(s) + 1) + 'px; height:' + (Math.max(H, b.mins / SLOT * H) - 2) + 'px' + dpPlace(l) + (b.code ? '; ' + colorVars(b.code) : '') + '"><b>' + esc(fmtT(s) + "\u2013" + fmtT(s + b.mins)) + '</b> ' + esc(b.title) + '<button type="button" class="dp-x" data-unplan="' + esc(b.pid) + '" title="Remove from the plan" aria-label="Remove from the plan">' + ic("x") + '</button></div>'; });
+    grid += '<div class="dp-block planned' + (done ? ' done' : '') + (refMust(t, b.ref) ? ' must' : '') + (l.z ? ' over' : '') + '" draggable="true" data-pid="' + esc(b.pid) + '" data-mins="' + b.mins + '" title="Drag to move it; drop it on the list to unplace it" style="top:' + (top(s) + 1) + 'px; height:' + (Math.max(H, b.mins / SLOT * H) - 2) + 'px' + dpPlace(l) + (b.code ? '; ' + colorVars(b.code) : '') + '"><b>' + esc(fmtT(s) + "\u2013" + fmtT(s + b.mins)) + '</b> ' + esc(b.title) + '<button type="button" class="dp-x" data-unplan="' + esc(b.pid) + '" title="Remove from the plan" aria-label="Remove from the plan">' + ic("x") + '</button></div>'; });
   var list = items.length ? items.slice(0, 24).map(function(it){
     var h = hintFor(it, wins);
     return '<li draggable="true" data-ref="' + esc(it.ref) + '" data-mins="' + it.mins + '" style="' + colorVars(it.code) + '">' + chip(it.code) + '<span class="tt">' + esc(it.title) + '</span> <small>' + it.mins + ' min</small>' +
