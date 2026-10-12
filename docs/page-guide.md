@@ -201,6 +201,10 @@ today's. Overlapping times go into lanes. All strips of a week share one hour ax
 the working hours, widened to the hour around anything outside them. Hovering a block outlines its
 row and shows its details; the course filter hides other courses' blocks.
 
+A day heading is a separator line: the day, its free time, a rule to the right edge and **Plan**,
+all centred on one line. Today's heading is the playhead (`#today`, where the Today button
+scrolls): its name sits in a filled label and its rule is thicker, in the accent colour.
+
 A click on a strip, or on **Plan** in the day heading, unfolds that day into its Day Plan in place
 (`state.weekDay`, one day at a time, not saved): the same editable timetable as the Day Planner
 view (`renderDayPlan`), with the day's rows beside it. `planDay()` tells the place and drop

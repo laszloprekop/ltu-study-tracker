@@ -513,10 +513,18 @@ section{margin-bottom:30px}
 
 /* ---------- Rows ---------- */
 .rows{padding:6px 16px 10px}
-.dayhead{display:flex; flex-wrap:wrap; align-items:baseline; gap:4px 10px; font-size:11.5px; letter-spacing:.06em; text-transform:uppercase; font-weight:600; color:var(--muted); padding:12px 0 2px; margin-top:8px}
-.dayhead:first-child,.ann + .dayhead,.playhead + .dayhead{border-top:0; margin-top:0}
-.dayhead.today{color:var(--now)}
-.dayhead .free{display:inline-flex; align-items:center; gap:5px; font-weight:500; text-transform:none; letter-spacing:0; color:var(--muted)}
+/* A day heading is a separator: name, free time, a rule to the right edge, Plan. Today's is the playhead. */
+.dayhead{display:flex; align-items:center; gap:10px; min-height:22px; margin:20px 0 6px; font-size:11.5px; line-height:18px; letter-spacing:.06em; text-transform:uppercase; font-weight:600; color:var(--muted); scroll-margin-top:calc(var(--top-h, 70px) + 16px)}
+.dayhead:first-child,.ann + .dayhead{margin-top:6px}
+.dayhead > *{flex:0 0 auto}
+.dayhead .ic{display:block; width:14px; height:14px}
+.dayhead .dh-l{white-space:nowrap}
+.dayhead .dh-rule{flex:1 1 16px; min-width:16px; height:1px; background:var(--line)}
+.dayhead .free{display:inline-flex; align-items:center; gap:5px; font-weight:500; text-transform:none; letter-spacing:0; color:var(--muted); white-space:nowrap}
+.dayhead.today{color:var(--ink)}
+.dayhead.today .dh-l{padding:2px 10px; font-weight:700; color:var(--on-now-container); background:var(--now-container)}
+.dayhead.today .dh-rule{height:2px; background:var(--now)}
+.dayhead.today .free{color:var(--ink)}
 .dayhead .free b{font-weight:600; color:var(--ok)}
 .row{display:flex; gap:11px; align-items:flex-start; padding:7px 0}
 .row .when{flex:0 0 78px; font-size:12.5px; color:var(--muted); padding-top:2px; line-height:1.35}
@@ -662,7 +670,7 @@ a.tag.feeds:hover{text-decoration:underline}
 .ds-due{position:absolute; top:-3px; bottom:-3px; width:3px; margin-left:-3px; background:var(--cc, var(--alert))}
 .ds-now{position:absolute; top:-4px; bottom:-4px; width:2px; margin-left:-1px; background:var(--now); z-index:2}
 .ds-hl{outline:2px solid var(--now); outline-offset:2px}
-.dayhead .plan{margin-left:auto; display:inline-flex; align-items:center; gap:5px; font:inherit; font-size:11.5px; font-weight:700; text-transform:none; letter-spacing:0; color:var(--on-now-container); background:var(--now-container); border:0; padding:2px 9px; cursor:pointer}
+.dayhead .plan{display:inline-flex; align-items:center; gap:5px; font:inherit; font-size:11.5px; line-height:18px; font-weight:700; text-transform:none; letter-spacing:0; color:var(--on-now-container); background:var(--now-container); border:0; padding:2px 9px; cursor:pointer}
 .dayhead .plan:focus-visible{outline:2px solid var(--now); outline-offset:2px}
 .week .dayplan{margin:4px 0 10px}
 .week .rail-in{position:sticky; top:calc(var(--top-h, 70px) + 12px)}
@@ -705,10 +713,6 @@ a.tag.feeds:hover{text-decoration:underline}
 .flag{display:inline-block; margin-top:8px; font-size:10.5px; letter-spacing:.07em; text-transform:uppercase; color:var(--on-alert-container); background:var(--alert-container); padding:2px 6px; font-weight:600}
 .flag.nowflag{color:var(--on-now-container); background:var(--now-container)}
 .week .quiet{padding:14px 16px; color:var(--muted); font-size:13.5px}
-/* The Today playhead reaches left across the rail and peeks out of the card */
-.playhead{position:relative; z-index:2; display:flex; align-items:center; margin:12px 0 6px calc(-16px - var(--rail) - 14px)}
-.playhead .phl{flex:0 0 auto; font-size:11px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:var(--on-now-container); background:var(--now-container); padding:3px 10px; box-shadow:0 0 0 3px var(--bg)}
-.playhead::after{content:""; flex:1 1 auto; height:2px; background:var(--now)}
 
 /* Announcements and material blocks inside a week */
 .ann{display:flex; gap:8px; align-items:flex-start; margin:8px 0 2px; padding:8px 12px; background:var(--ann-container); color:var(--on-ann-container); font-size:13px}
@@ -1101,7 +1105,7 @@ body.colored table.all tr:not(.done) .tt{color:var(--cc)}
   .wo{flex-direction:row; flex:1 1 100%; gap:8px; margin-top:0}
   .wo-d{flex:1 1 0}
   .wo-l{flex-basis:auto}
-  .playhead{margin-left:-26px}
+  .dayhead{flex-wrap:wrap; gap:4px 10px}
   .row .when{flex-basis:64px}
   .settings,.progress{margin-left:0}
 }
@@ -1588,8 +1592,6 @@ function annBlock(a, code){
   return '<div class="ann" data-course="' + code + '" data-link="' + esc(link) + '">' + ic("megaphone") + '<div><span class="k">From the teacher, ' + esc(longDay(a.posted)) + '</span>' + chip(code) +
     '<a href="' + esc(a.url) + '" target="_blank" rel="noopener">' + esc(a.title) + ext(a.url) + '</a>' + (a.text ? ' <span class="why" style="display:inline">' + esc(a.text.slice(0, 220)) + (a.text.length > 220 ? "\u2026" : "") + '</span>' : '') + '</div>' + rowCtl(null, link, code, a.title) + '</div>';
 }
-// Rows of one week, grouped under day headings, with the Today playhead in the current week.
-function playhead(today){ return '<div class="playhead" id="today"><span class="phl">Today \u00B7 ' + esc(longDay(today)) + '</span></div>'; }
 
 /* ---------- Links: every view and every row has an address (docs/plan/links.md) ---------- */
 // #/<view>[/<target>...][/answer]?term=<id>&course=<code>. An address wins over the remembered view;
@@ -1791,7 +1793,7 @@ function weekDays(wr, mon){
   var out = [];
   for (var i = 0; i < 7; i++) {
     var d = addDays(mon, i), rs = wr.filter(function(r){ return r.date === d; }), pl = plannedOn(d);
-    if (i >= 5 && !rs.length && !pl.length) continue;
+    if (i >= 5 && !rs.length && !pl.length && d !== todayIso()) continue;
     out.push({ d: d, rows: rs, ev: fixedFrom(rs, d).concat(pl.map(function(b){ var s = toMin(b.start); return { s: s, e: s + b.mins, title: b.title, code: b.code, kind: "planned", link: b.ref || "", done: !!(b.ref && isDone(b.ref)) }; })) });
   }
   return out;
@@ -1833,16 +1835,14 @@ function weekOverview(days, span, today){
   }).join("") + '</div>';
 }
 function weekRows(t, days, span, mon, today){
-  var next = addDays(mon, 7), placed = today < mon || today >= next, out = "";
+  var out = "";
   days.forEach(function(x){
-    if (!placed && x.d >= today) { out += playhead(today); placed = true; }
     var open = state.weekDay === x.d, rowsHtml = x.rows.map(function(r){ return row(r); }).join("");
-    out += '<div class="dayhead' + (x.d === today ? ' today' : '') + '" data-date="' + x.d + '">' + esc(fullDay(x.d)) + '<span class="free"></span>' +
+    out += '<div class="dayhead' + (x.d === today ? ' today" id="today' : '') + '" data-date="' + x.d + '"><span class="dh-l">' + (x.d === today ? 'Today \u00B7 ' : '') + esc(fullDay(x.d)) + '</span><span class="free"></span><span class="dh-rule"></span>' +
       '<button type="button" class="plan" data-plan="' + x.d + '" aria-expanded="' + open + '">' + ic(open ? "x" : "clock", "sm") + (open ? 'Close the plan' : 'Plan') + '</button></div>';
     out += open ? renderDayPlan(t, x.d, '<div class="dp-sec"><h4>' + ic("clipboard-text") + 'This day</h4>' + (rowsHtml ? '<div class="rows">' + rowsHtml + '</div>' : '<div class="none">No sessions or deadlines.</div>') + '</div>')
       : dayStrip(x, span, today) + rowsHtml;
   });
-  if (!placed) out += playhead(today);
   return out;
 }
 // The needle on today's strip, moved once a minute.
@@ -3165,7 +3165,7 @@ function freeWindows(busy){
 }
 function busyAfter(head){
   var busy = [], n = head.nextElementSibling;
-  while (n && !n.classList.contains("dayhead") && !n.classList.contains("playhead") && !n.classList.contains("mat")) {
+  while (n && !n.classList.contains("dayhead") && !n.classList.contains("mat")) {
     (n.classList.contains("dayplan") ? Array.prototype.slice.call(n.querySelectorAll(".row[data-start]")) : [n]).forEach(function(r){
       if (!r.hidden && r.dataset.start) { var s = toMin(r.dataset.start), e = toMin(r.dataset.end); if (s != null) busy.push([s, e != null ? e : s + 60]); }
     });
@@ -3177,7 +3177,7 @@ function longest(wins){ return wins.reduce(function(a, w){ return (w[1] - w[0]) 
 function freeText(wins){
   if (!wins.length) return "no free time in working hours";
   var best = longest(wins), total = wins.reduce(function(s, w){ return s + w[1] - w[0]; }, 0);
-  return ic("users-three", "sm") + "free " + wins.map(function(w){ var s = fmtT(w[0]) + "\u2013" + fmtT(w[1]); return w === best && wins.length > 1 ? '<b title="Longest window, best for group work">' + s + '</b>' : s; }).join(", ") + " \u00B7 " + fmtH(total);
+  return ic("users-three", "sm") + "<span>free " + wins.map(function(w){ var s = fmtT(w[0]) + "\u2013" + fmtT(w[1]); return w === best && wins.length > 1 ? '<b title="Longest window, best for group work">' + s + '</b>' : s; }).join(", ") + " \u00B7 " + fmtH(total) + "</span>";
 }
 // Free time comes from the sessions on screen, so a course filter changes it.
 function applyFree(){
@@ -3211,7 +3211,7 @@ function applyFilter(){
   // day headings with nothing visible under them go too
   document.querySelectorAll(".dayhead").forEach(function(h){
     var n = h.nextElementSibling, any = false;
-    while (n && !n.classList.contains("dayhead") && !n.classList.contains("playhead") && !n.classList.contains("mat")) { if (!n.hidden) any = true; n = n.nextElementSibling; }
+    while (n && !n.classList.contains("dayhead") && !n.classList.contains("mat")) { if (!n.hidden) any = true; n = n.nextElementSibling; }
     h.hidden = !any;
   });
   document.querySelectorAll(".week").forEach(function(w){
