@@ -319,7 +319,8 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
 .fc-foot{display:flex; flex-wrap:wrap; align-items:center; gap:6px; font-size:11.5px; color:var(--muted)}
 .fc-due{margin-left:auto; font-weight:700}
 .fc-rate{display:flex; gap:4px} .fc-rate button{flex:1 1 0; min-width:0; padding:6px 2px; font-size:12.5px}
-.fc-rate .again{color:var(--on-alert-container); background:var(--alert-container); border-color:var(--alert-container)}
+/* a framed box paints its fill and frame from --fill and --frame; background and border-color do nothing on it */
+.cardsview .fc-rate .again{color:var(--on-alert-container); --fill:var(--alert-container); --frame:var(--alert-container); --edge:initial}
 .fc-rate button,.ck-b button{display:inline-flex; align-items:center; justify-content:center; gap:4px}
 /* four ratings share a narrow card: icon over the word, never a broken word */
 .fc-rate button{flex-direction:column; gap:1px; white-space:nowrap; font-size:12px; line-height:1.2}
