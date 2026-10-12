@@ -105,6 +105,16 @@ One Student's day across all their Courses in 15-minute slots: sessions, deadlin
 Events, Bookings and the Free Slots between them. The view the tracker exists for.
 _Avoid_: Agenda, schedule, today view
 
+**Day Strip**:
+A Day Plan drawn as one line across the Week by week view: the same times, read only. Opening it
+shows the Day Plan itself.
+_Avoid_: Timeline (the Map view's rail), mini calendar
+
+**Week Overview**:
+The Day Strips of one week in small, in the week's rail: what the week holds at a glance, and a
+way to each of its rows.
+_Avoid_: Week header, heatmap
+
 **Booking**:
 A session that only takes place once a group claims a time in it, such as a lab assessment slot on
 a signup sheet. It moves through Not open yet, Open, Due, Urgent, and Claimed; the warning grows

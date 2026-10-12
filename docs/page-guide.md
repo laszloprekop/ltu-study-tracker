@@ -192,6 +192,30 @@ week and day views, remembered per viewer) that no session occupies, with the lo
 as the best candidate. The week rail sums the free hours Monday to Friday; the Day Planner view lists the day's free
 time beside the timetable. Only sessions on screen count, so filtering to one course frees its time.
 
+## Day strips and the week overview in Week by week
+
+Every day of a week (Monday to Friday, and a weekend day that has something on it) has a heading
+and under it a **Day Strip**: one line across the page, a quarter hour per tick, with the day's
+sessions, Planned Blocks, deadlines (a vertical mark in the course colour) and a needle for now on
+today's. Overlapping times go into lanes. All strips of a week share one hour axis (`stripSpan`):
+the working hours, widened to the hour around anything outside them. Hovering a block outlines its
+row and shows its details; the course filter hides other courses' blocks.
+
+A click on a strip, or on **Plan** in the day heading, unfolds that day into its Day Plan in place
+(`state.weekDay`, one day at a time, not saved): the same editable timetable as the Day Planner
+view (`renderDayPlan`), with the day's rows beside it. `planDay()` tells the place and drop
+handlers which day the open plan shows.
+
+The week rail stays in view while the week scrolls (`.rail-in`, sticky under the page header, whose
+height is kept in `--top-h`) and holds the **Week Overview**: a small strip per day, events as
+bars in the course colour (a Planned Block is outlined, a calendar event hatched). A bar goes to
+its row, a day letter to its day. Folding a week with the caret leaves one line: the rail's numbers
+and the same day strips side by side. Below 680 px the rail is a row above the week and does not
+stick.
+
+Free time carries a wavy line: down the left edge of the Day Plan's timetable, along the foot of a
+Day Strip.
+
 ## Overlapping times in the Day Planner
 
 Blocks whose times overlap share the row the way Google Calendar does it (`dpLayout`, tested by

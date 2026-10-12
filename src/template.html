@@ -380,7 +380,9 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
 .dp-line{position:absolute; left:0; right:0; border-top:1px solid var(--line); opacity:.45}
 .dp-line.hour{opacity:1}
 .dp-line span{position:absolute; left:-44px; top:-8px; font-size:11px; color:var(--muted); font-family:"IBM Plex Mono",monospace}
-.dp-free{position:absolute; left:0; right:0; background:transparent; border-left:3px dashed color-mix(in oklch, var(--now) 45%, transparent)}
+/* free time carries a wavy line: down the left edge of the timetable, along the foot of a day strip */
+.dp-free{position:absolute; left:0; right:0; background:transparent}
+.dp-free::before{content:""; position:absolute; left:0; top:0; bottom:0; width:6px; background:color-mix(in oklch, var(--now) 70%, transparent); -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 6 8' preserveAspectRatio='none'%3E%3Cpath d='M3 0Q6 2 3 4Q0 6 3 8' fill='none' stroke='%23000' stroke-width='1.5'/%3E%3C/svg%3E") 0 0/6px 7.5px repeat-y; mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 6 8' preserveAspectRatio='none'%3E%3Cpath d='M3 0Q6 2 3 4Q0 6 3 8' fill='none' stroke='%23000' stroke-width='1.5'/%3E%3C/svg%3E") 0 0/6px 7.5px repeat-y}
 body.dragging .dp-free{background:color-mix(in oklch, var(--now-soft) 55%, transparent)}
 .dp-free:hover{background:var(--now-soft)}
 body.dragging .dp-free:hover{background:color-mix(in oklch, var(--now-soft) 55%, transparent)}
@@ -647,8 +649,41 @@ a.tag.feeds:hover{text-decoration:underline}
 .quick .faces{vertical-align:0}
 .quick .faces .ph{width:16px; height:16px}
 
+/* ---------- Day strips and the week overview (Week by week) ---------- */
+.ds{position:relative; margin:4px 0 20px; cursor:pointer; background-color:var(--surface-2); background-image:repeating-linear-gradient(to right, color-mix(in oklch, var(--line) 70%, transparent) 0 1px, transparent 1px var(--q))}
+.ds:hover{background-color:color-mix(in oklch, var(--now-soft) 45%, var(--surface-2))}
+.ds-h{position:absolute; top:0; bottom:0; border-left:1px solid color-mix(in oklch, var(--muted) 55%, transparent)}
+.ds-h span{position:absolute; bottom:-15px; left:-7px; font:10px "IBM Plex Mono",monospace; font-style:normal; color:var(--muted)}
+.ds-free{position:absolute; bottom:-5px; height:6px; background:color-mix(in oklch, var(--now) 70%, transparent); -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 6' preserveAspectRatio='none'%3E%3Cpath d='M0 3Q2 0 4 3Q6 6 8 3' fill='none' stroke='%23000' stroke-width='1.5'/%3E%3C/svg%3E") 0 0/7.5px 6px repeat-x; mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 6' preserveAspectRatio='none'%3E%3Cpath d='M0 3Q2 0 4 3Q6 6 8 3' fill='none' stroke='%23000' stroke-width='1.5'/%3E%3C/svg%3E") 0 0/7.5px 6px repeat-x}
+.ds-b{position:absolute; box-sizing:border-box; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; padding:2px 5px; font-size:11.5px; line-height:16px; background:color-mix(in oklch, var(--cc, var(--muted)) 26%, var(--surface)); color:var(--ink); border-left:4px solid var(--cc, var(--muted)); box-shadow:0 0 0 1px var(--surface-2)}
+.ds-b.planned{background:color-mix(in oklch, var(--now-soft) 70%, var(--surface)); border-left-color:var(--now)}
+.ds-b.cal{background:repeating-linear-gradient(135deg, var(--surface) 0 8px, var(--surface-2) 8px 11px)}
+.ds-b.done{opacity:.5; text-decoration:line-through}
+.ds-due{position:absolute; top:-3px; bottom:-3px; width:3px; margin-left:-3px; background:var(--cc, var(--alert))}
+.ds-now{position:absolute; top:-4px; bottom:-4px; width:2px; margin-left:-1px; background:var(--now); z-index:2}
+.ds-hl{outline:2px solid var(--now); outline-offset:2px}
+.dayhead .plan{margin-left:auto; display:inline-flex; align-items:center; gap:5px; font:inherit; font-size:11.5px; font-weight:700; text-transform:none; letter-spacing:0; color:var(--on-now-container); background:var(--now-container); border:0; padding:2px 9px; cursor:pointer}
+.dayhead .plan:focus-visible{outline:2px solid var(--now); outline-offset:2px}
+.week .dayplan{margin:4px 0 10px}
+.week .rail-in{position:sticky; top:calc(var(--top-h, 70px) + 12px)}
+.wo{display:flex; flex-direction:column; gap:4px; margin-top:12px}
+.wo-d{display:flex; align-items:center; gap:5px; min-width:0}
+.wo-l{flex:0 0 26px; padding:0; border:0; background:transparent; font:600 10.5px "IBM Plex Mono",monospace; color:var(--muted); cursor:pointer; text-align:left; white-space:nowrap}
+.wo-l:hover,.wo-l:focus-visible{color:var(--ink); outline:0; text-decoration:underline}
+.wo-d.today .wo-l{color:var(--now)}
+.wo-t{position:relative; flex:1 1 auto; min-width:0; height:12px; cursor:pointer; background:color-mix(in oklch, var(--ink) 9%, transparent)}
+.wo-e{position:absolute; min-width:2px; background:var(--cc, var(--muted)); box-shadow:0 0 0 1px var(--surface-2)}
+.wo-e.planned{background:color-mix(in oklch, var(--cc, var(--now)) 35%, var(--surface-2)); box-shadow:inset 0 0 0 1px var(--cc, var(--now))}
+.wo-e.cal{background:repeating-linear-gradient(135deg, var(--muted) 0 2px, transparent 2px 4px)}
+.wo-e.due{top:-2px !important; height:auto !important; bottom:-2px; width:2px; margin-left:-2px; background:var(--cc, var(--alert)); box-shadow:none}
+.wo-e.done{opacity:.4}
+.wo-e:hover{box-shadow:0 0 0 2px var(--ink); z-index:2}
+.week.collapsed .rail-in{display:contents}
+.week.collapsed .wo{flex-direction:row; flex:1 1 380px; gap:12px; margin-top:0}
+.week.collapsed .wo-d{flex:1 1 0}
+
 /* ---------- Week cards ---------- */
-.weeks{--rail:132px; display:flex; flex-direction:column; gap:var(--gap)}
+.weeks{--rail:150px; display:flex; flex-direction:column; gap:var(--gap)}
 .week{display:grid; grid-template-columns:var(--rail) minmax(0,1fr); gap:0; scroll-margin-top:130px}
 /* the current week: a 2px ring in the accent colour, drawn behind the surface with the same cut corner */
 .week.now{--bw:2px; --frame:var(--now); --edge:var(--edge-gold); --edge-b:var(--edge-gold-b)}
@@ -1062,6 +1097,10 @@ body.colored table.all tr:not(.done) .tt{color:var(--cc)}
   .week{grid-template-columns:1fr}
   .week .rail{ --bev:12px; clip-path:var(--cut); display:flex; flex-wrap:wrap; gap:4px 12px; align-items:baseline; padding:12px 16px}
   .week .rail .dates,.week .rail .load,.flag{margin-top:0}
+  .week .rail-in{display:contents}
+  .wo{flex-direction:row; flex:1 1 100%; gap:8px; margin-top:0}
+  .wo-d{flex:1 1 0}
+  .wo-l{flex-basis:auto}
   .playhead{margin-left:-26px}
   .row .when{flex-basis:64px}
   .settings,.progress{margin-left:0}
@@ -1176,7 +1215,7 @@ body.colored table.all tr:not(.done) .tt{color:var(--cc)}
 /* ---------- Helpers ---------- */
 const P = DATA.plan, INV = DATA.inventory, COURSES = P.COURSES, TEACHERS = P.TEACHERS, TERMS = P.TERMS, PROGRESS = DATA.progress || null;
 const LS = { hours: "ltu-plan-hours", drillGoal: "ltu-plan-drill-goal", planned: "ltu-plan-planned", openedCounts: "ltu-plan-opened-counts", groups: "ltu-plan-groups", canvasCache: "ltu-plan-canvas-cache", movedFolded: "ltu-plan-moved-folded", exportedAt: "ltu-plan-exported-at", unlocked: "ltu-plan-unlocked", ticks: "ltu-plan-ticks", tickAt: "ltu-plan-tick-at", muted: "ltu-plan-muted", filter: "ltu-plan-filter", term: "ltu-plan-term", view: "ltu-plan-view", open: "ltu-plan-open", weeks: "ltu-plan-weeks", size: "ltu-plan-size", ping: "ltu-plan-ping", colored: "ltu-plan-colored", theme: "ltu-plan-theme", palette: "ltu-plan-palette", cardsHidden: "ltu-plan-cards-hidden-shown", cardTrust: "ltu-plan-card-trust", mapOpen: "ltu-plan-map-open", mapPos: "ltu-plan-map-pos", mapAll: "ltu-plan-map-all", mapHops: "ltu-plan-map-hops", mapMode: "ltu-plan-map-mode", railSlim: "ltu-plan-map-rail", snaps: "ltu-plan-snaps", pins: "ltu-plan-pins", legacy: "lp2-shared-ticks" };
-const state = { checked: {}, tickAt: {}, planned: {}, cards: null, cardsLoading: false, drill: null, drillGoal: "event", cal: null, calLinks: null, calErr: null, bookings: null, canvas: null, canvasErr: null, openedCounts: true, groups: {}, exportedAt: null, unlocked: false, muted: {}, filter: "all", term: null, view: "week", day: null, open: {}, weeks: {}, size: 100, ping: true, colored: true, theme: "system", palette: "ice", hours: { start: "09:00", end: "17:00" }, mapOpen: null, mapSel: null, mapSels: [], mapAll: false, mapHops: 5, mapMode: "select", railSlim: false };
+const state = { weekDay: null, checked: {}, tickAt: {}, planned: {}, cards: null, cardsLoading: false, drill: null, drillGoal: "event", cal: null, calLinks: null, calErr: null, bookings: null, canvas: null, canvasErr: null, openedCounts: true, groups: {}, exportedAt: null, unlocked: false, muted: {}, filter: "all", term: null, view: "week", day: null, open: {}, weeks: {}, size: 100, ping: true, colored: true, theme: "system", palette: "ice", hours: { start: "09:00", end: "17:00" }, mapOpen: null, mapSel: null, mapSels: [], mapAll: false, mapHops: 5, mapMode: "select", railSlim: false };
 let store = null, saveTimer = null;
 
 function esc(s){ return String(s == null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
@@ -1550,17 +1589,6 @@ function annBlock(a, code){
     '<a href="' + esc(a.url) + '" target="_blank" rel="noopener">' + esc(a.title) + ext(a.url) + '</a>' + (a.text ? ' <span class="why" style="display:inline">' + esc(a.text.slice(0, 220)) + (a.text.length > 220 ? "\u2026" : "") + '</span>' : '') + '</div>' + rowCtl(null, link, code, a.title) + '</div>';
 }
 // Rows of one week, grouped under day headings, with the Today playhead in the current week.
-function groupedRows(wr, mon, today){
-  var next = addDays(mon, 7), out = "", placed = today < mon || today >= next, i = 0;
-  while (i < wr.length) {
-    var d = wr[i].date, group = [];
-    while (i < wr.length && wr[i].date === d) group.push(wr[i++]);
-    if (!placed && d >= today) { out += playhead(today); placed = true; }
-    out += '<div class="dayhead' + (d === today ? ' today' : '') + '" data-date="' + d + '">' + esc(fullDay(d)) + '<span class="free"></span></div>' + group.map(function(r){ return row(r); }).join("");
-  }
-  if (!placed) out += playhead(today);
-  return out;
-}
 function playhead(today){ return '<div class="playhead" id="today"><span class="phl">Today \u00B7 ' + esc(longDay(today)) + '</span></div>'; }
 
 /* ---------- Links: every view and every row has an address (docs/plan/links.md) ---------- */
@@ -1630,13 +1658,7 @@ function focusTarget(){
     moved = !!el;
   }
   if (!el) { toast("This item has moved or no longer exists."); return; }
-  for (var a = el; a && a.id !== "termbody"; a = a.parentElement) {
-    if (a.hidden) a.hidden = false;
-    if (a.classList.contains("collapsed")) a.classList.remove("collapsed");
-    if (a.tagName === "DETAILS" && !a.open) { a.dataset.routeOpened = "1"; a.open = true; }
-  }
-  el.scrollIntoView({ block: "center" });
-  el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash");
+  reveal(el);
   if (moved) toast("That session has moved. This is the course's session in the same week.");
   else if (el.classList.contains("muted")) toast("You hid this.", el.dataset.id ? '<button type="button" data-mute="' + esc(el.dataset.id) + '" data-toastclose="1">Unhide</button>' : "");
 }
@@ -1762,6 +1784,83 @@ function applyPinUi(){
 }
 
 /* ---------- Views ---------- */
+/* ---------- Day strips and the week overview ---------- */
+// A day's times in Week by week: sessions, deadlines and Planned Blocks from the same data as the Day Plan.
+function planDay(){ return state.view === "week" ? state.weekDay : state.day || todayIso(); }
+function weekDays(wr, mon){
+  var out = [];
+  for (var i = 0; i < 7; i++) {
+    var d = addDays(mon, i), rs = wr.filter(function(r){ return r.date === d; }), pl = plannedOn(d);
+    if (i >= 5 && !rs.length && !pl.length) continue;
+    out.push({ d: d, rows: rs, ev: fixedFrom(rs, d).concat(pl.map(function(b){ var s = toMin(b.start); return { s: s, e: s + b.mins, title: b.title, code: b.code, kind: "planned", link: b.ref || "", done: !!(b.ref && isDone(b.ref)) }; })) });
+  }
+  return out;
+}
+// The hours a week's strips share: the working hours, widened to the hour around anything outside them.
+function stripSpan(days){
+  var a = toMin(state.hours.start), b = toMin(state.hours.end); if (a == null || b == null || b <= a) { a = 540; b = 1020; }
+  days.forEach(function(x){ x.ev.forEach(function(e){ if (e.kind !== "due") { a = Math.min(a, e.s); b = Math.max(b, e.e); } }); });
+  return [Math.max(360, Math.floor(a / 60) * 60), Math.min(1440, Math.ceil(b / 60) * 60)];
+}
+// Overlapping times go into lanes, first free one in start order. Sets .lane, returns the lane count.
+function stripLanes(boxes){ var lanes = []; boxes.forEach(function(b){ var i = 0; while (i < lanes.length && lanes[i] > b.s) i++; lanes[i] = b.e; b.lane = i; }); return Math.max(1, lanes.length); }
+function stripBoxes(ev){ return ev.filter(function(e){ return e.kind !== "due"; }).sort(function(p, q){ return p.s - q.s || q.e - p.e; }); }
+function stripCls(e){ return (e.kind === "planned" ? " planned" : "") + (e.cal ? " cal" : "") + (e.done ? " done" : ""); }
+function stripTip(e, d){
+  return longDay(d) + ", " + (e.kind === "due" ? fmtT(e.s) + " due" : fmtT(e.s) + "\u2013" + fmtT(e.e)) + (e.code ? " \u00B7 " + label(e.code) : "") + "\n" + e.title +
+    (e.kind === "planned" ? "\nPlanned Block" + (e.done ? ", done" : "") : e.cal ? "\nCalendar event" : "") + (e.why ? "\n" + e.why : "");
+}
+function stripAttrs(e, d){ return (e.code ? ' data-course="' + esc(e.code) + '"' : '') + ' data-evlink="' + esc(e.link || "") + '" data-evday="' + d + '" title="' + esc(stripTip(e, d)) + '"'; }
+// One line per day, a quarter hour per tick. A click unfolds the day into its Day Plan.
+function dayStrip(x, span, today){
+  var W = span[1] - span[0], at = function(m){ return (Math.max(span[0], Math.min(span[1], m)) - span[0]) / W * 100; }, pc = function(v){ return v.toFixed(3) + "%"; };
+  var boxes = stripBoxes(x.ev), n = stripLanes(boxes), LH = 22, h = "";
+  for (var m = span[0]; m <= span[1]; m += 60) h += '<i class="ds-h" style="left:' + pc(at(m)) + '"><span>' + fmtT(m).slice(0, 2) + '</span></i>';
+  freeOn(boxes.map(function(b){ return [b.s, b.e]; })).forEach(function(w){ h += '<i class="ds-free" style="left:' + pc(at(w[0])) + '; width:' + pc(at(w[1]) - at(w[0])) + '" title="Free ' + fmtT(w[0]) + '\u2013' + fmtT(w[1]) + '"></i>'; });
+  boxes.forEach(function(b){ h += '<div class="ds-b' + stripCls(b) + '"' + stripAttrs(b, x.d) + ' style="left:' + pc(at(b.s)) + '; width:' + pc(at(b.e) - at(b.s)) + '; top:' + (b.lane * LH + 1) + 'px; height:' + (LH - 2) + 'px' + (b.code ? '; ' + colorVars(b.code) : '') + '"><b>' + fmtT(b.s) + '</b> ' + esc(shortTitle(b.title)) + '</div>'; });
+  x.ev.forEach(function(e){ if (e.kind === "due") h += '<i class="ds-due"' + stripAttrs(e, x.d) + ' style="left:' + pc(at(e.s)) + (e.code ? '; ' + colorVars(e.code) : '') + '"></i>'; });
+  if (x.d === today) h += '<i class="ds-now" data-a="' + span[0] + '" data-w="' + W + '" title="Now" hidden></i>';
+  return '<div class="ds" data-plan="' + x.d + '" title="Plan this day: opens its Day Plan here" style="height:' + n * LH + 'px; --q:' + (SLOT / W * 100).toFixed(4) + '%">' + h + '</div>';
+}
+// The week at a glance in the rail: a small strip per day, coloured by course. Folded, the days sit in one line.
+function weekOverview(days, span, today){
+  var W = span[1] - span[0], at = function(m){ return (Math.max(span[0], Math.min(span[1], m)) - span[0]) / W * 100; }, pc = function(v){ return v.toFixed(2) + "%"; };
+  return '<div class="wo">' + days.map(function(x){
+    var boxes = stripBoxes(x.ev), n = stripLanes(boxes), h = "";
+    boxes.forEach(function(b){ h += '<i class="wo-e' + stripCls(b) + '"' + stripAttrs(b, x.d) + ' style="left:' + pc(at(b.s)) + '; width:' + pc(at(b.e) - at(b.s)) + '; top:' + pc(b.lane / n * 100) + '; height:' + pc(100 / n) + (b.code ? '; ' + colorVars(b.code) : '') + '"></i>'; });
+    x.ev.forEach(function(e){ if (e.kind === "due") h += '<i class="wo-e due"' + stripAttrs(e, x.d) + ' style="left:' + pc(at(e.s)) + (e.code ? '; ' + colorVars(e.code) : '') + '"></i>'; });
+    return '<div class="wo-d' + (x.d === today ? ' today' : '') + '"><button type="button" class="wo-l" data-evday="' + x.d + '" title="Go to ' + esc(fullDay(x.d)) + '">' + esc(dayLabel(x.d).split(" ")[0].slice(0, 2)) + '</button><span class="wo-t" data-evday="' + x.d + '">' + h + '</span></div>';
+  }).join("") + '</div>';
+}
+function weekRows(t, days, span, mon, today){
+  var next = addDays(mon, 7), placed = today < mon || today >= next, out = "";
+  days.forEach(function(x){
+    if (!placed && x.d >= today) { out += playhead(today); placed = true; }
+    var open = state.weekDay === x.d, rowsHtml = x.rows.map(function(r){ return row(r); }).join("");
+    out += '<div class="dayhead' + (x.d === today ? ' today' : '') + '" data-date="' + x.d + '">' + esc(fullDay(x.d)) + '<span class="free"></span>' +
+      '<button type="button" class="plan" data-plan="' + x.d + '" aria-expanded="' + open + '">' + ic(open ? "x" : "clock", "sm") + (open ? 'Close the plan' : 'Plan') + '</button></div>';
+    out += open ? renderDayPlan(t, x.d, '<div class="dp-sec"><h4>' + ic("clipboard-text") + 'This day</h4>' + (rowsHtml ? '<div class="rows">' + rowsHtml + '</div>' : '<div class="none">No sessions or deadlines.</div>') + '</div>')
+      : dayStrip(x, span, today) + rowsHtml;
+  });
+  if (!placed) out += playhead(today);
+  return out;
+}
+// The needle on today's strip, moved once a minute.
+function placeNow(){
+  var n = new Date(), m = n.getHours() * 60 + n.getMinutes();
+  document.querySelectorAll(".ds-now").forEach(function(el){ var a = Number(el.dataset.a), w = Number(el.dataset.w); el.hidden = m < a || m > a + w; el.style.left = ((m - a) / w * 100).toFixed(3) + "%"; });
+}
+setInterval(placeNow, 60000);
+// Shows an element whatever folds it, and marks it. Nothing it opens is saved.
+function reveal(el){
+  for (var a = el; a && a.id !== "termbody"; a = a.parentElement) {
+    if (a.hidden) a.hidden = false;
+    if (a.classList.contains("collapsed")) a.classList.remove("collapsed");
+    if (a.tagName === "DETAILS" && !a.open) { a.dataset.routeOpened = "1"; a.open = true; }
+  }
+  el.scrollIntoView({ block: "center" });
+  el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash");
+}
 function renderWeekView(t){
   var rows = withCalendar(t, timeline(t)), blocks = studyBlocks(t), weeks = weeksOf(t), today = todayIso(), curMon = monday(today);
   var anns = t.courses.reduce(function(a, c){ return a.concat(announcements(c).map(function(x){ return Object.assign({ code: c }, x); })); }, []);
@@ -1772,20 +1871,19 @@ function renderWeekView(t){
     var wa = anns.filter(function(a){ return a.posted >= mon && a.posted < next; });
     var isNow = mon === curMon, flag = t.weekFlags[mon];
     var mins = wb.reduce(function(s, b){ return s + matMinutes(b.items); }, 0) + wr.reduce(function(s, r){ return s + (r.est || 0); }, 0);
-    var body = wr.length || wb.length || wa.length
-      ? '<div class="rows">' + wa.map(function(a){ return annBlock(a, a.code); }).join("") + groupedRows(wr, mon, today) + wb.map(function(b){ return matBlock(b); }).join("") + '</div>'
-      : '<div class="quiet">Nothing scheduled.</div>';
+    var days = weekDays(wr, mon), span = stripSpan(days);
+    var body = '<div class="rows">' + wa.map(function(a){ return annBlock(a, a.code); }).join("") + weekRows(t, days, span, mon, today) + wb.map(function(b){ return matBlock(b); }).join("") + '</div>';
     var collapsed = state.weeks[mon] === false;
     return '<div class="card week' + (isNow ? ' now' : '') + (collapsed ? ' collapsed' : '') + '" id="week-' + t.id + '-' + i + '" data-week="' + mon + '">' +
-      '<div class="rail"><div class="wk mono"><button type="button" class="fold" data-fold="' + mon + '" aria-label="Fold or unfold the week">' + ic("caret-down") + '</button>v' + isoWeek(mon) + '</div><div class="dates">' + esc(weekDates(mon)) + '</div>' +
+      '<div class="rail"><div class="rail-in"><div class="wk mono"><button type="button" class="fold" data-fold="' + mon + '" aria-label="Fold or unfold the week">' + ic("caret-down") + '</button>v' + isoWeek(mon) + '</div><div class="dates">' + esc(weekDates(mon)) + '</div>' +
       (mins ? '<div class="load" title="Rough time for this week: the material estimates plus the effort the course states for its hand-ins">' + ic("hourglass-medium", "sm") + '<b class="hv">' + fmtMin(mins) + '</b> of work</div>' : '') +
       '<div class="load freeh" title="Working hours not taken by sessions, Monday to Friday"></div>' +
       '<div class="left"></div>' +
-      (isNow ? '<div class="flag nowflag">' + ic("flag", "sm") + 'this week</div>' : '') + (flag ? '<div class="flag">' + ic("flag", "sm") + esc(flag) + '</div>' : '') + '</div>' + body + '</div>';
+      (isNow ? '<div class="flag nowflag">' + ic("flag", "sm") + 'this week</div>' : '') + (flag ? '<div class="flag">' + ic("flag", "sm") + esc(flag) + '</div>' : '') + weekOverview(days, span, today) + '</div></div>' + body + '</div>';
   }).join("");
   var jump = document.getElementById("jump"), idx = weeks.indexOf(curMon);
   jump.hidden = idx < 0;
-  return '<section><div class="sechead"><h2>Week by week</h2><span class="note">MUST items carry a red stripe. Sessions have no box, they are attended. The caret by a week number folds it.</span></div><div class="weeks">' + html + '</div></section>';
+  return '<section><div class="sechead"><h2>Week by week</h2><span class="note">MUST items carry a red stripe. Sessions have no box, they are attended. The strip under a day opens its plan. The caret by a week number folds it to one line.</span></div><div class="weeks">' + html + '</div></section>';
 }
 /* ---------- Cards (release 4) ---------- */
 // The name a shared Card Set (or one Source's cards) goes by: course code and title.
@@ -2009,11 +2107,13 @@ function mergePlanned(inc){
 }
 function plannedOn(d){ return Object.keys(state.planned).map(function(k){ return Object.assign({ pid: k }, state.planned[k]); }).filter(function(b){ return !b.gone && b.date === d; }); }
 function plannedRefs(){ var out = {}; Object.keys(state.planned).forEach(function(k){ var b = state.planned[k]; if (!b.gone && b.ref) out[b.ref] = b; }); return out; }
-function fixedOn(t, d){
-  var rows = withCalendar(t, timeline(t)).filter(function(r){ return r.date === d; }), out = [];
+function fixedOn(t, d){ return fixedFrom(withCalendar(t, timeline(t)).filter(function(r){ return r.date === d; }), d); }
+// rows: that day's rows. link is the row a block stands for (its data-link), so a strip can point at it.
+function fixedFrom(rows, d){
+  var out = [];
   rows.forEach(function(r){
-    if (r.kind === "session" && r.time) { var s = toMin(r.time), e = r.end ? toMin(r.end) : s + 60; out.push({ s: s, e: Math.max(e, s + SLOT), title: r.title, code: r.code, cal: !!r.cal, label: r.label, kind: "fixed" }); }
-    else if (r.kind === "deadline" && r.time) out.push({ s: toMin(r.time), e: toMin(r.time), title: r.title.replace(/ due \d\d:\d\d$/, ""), code: r.code, kind: "due" });
+    if (r.kind === "session" && r.time) { var s = toMin(r.time), e = r.end ? toMin(r.end) : s + 60; out.push({ s: s, e: Math.max(e, s + SLOT), title: r.title, code: r.code, cal: !!r.cal, label: r.label, kind: "fixed", link: r.id || r.key || "", why: r.why || "" }); }
+    else if (r.kind === "deadline" && r.time) out.push({ s: toMin(r.time), e: toMin(r.time), title: r.title.replace(/ due \d\d:\d\d$/, ""), code: r.code, kind: "due", link: r.id || r.key || "", why: r.why || "" });
   });
   ((state.bookings && state.bookings.bookings) || []).forEach(function(b){ if (b.mine && b.date === d) { var s = toMin(b.mine); out.push({ s: s, e: s + SLOT, title: "Lab session with the teacher (your slot)", code: b.id.split(":")[0], kind: "fixed" }); } });
   return out;
@@ -3066,7 +3166,9 @@ function freeWindows(busy){
 function busyAfter(head){
   var busy = [], n = head.nextElementSibling;
   while (n && !n.classList.contains("dayhead") && !n.classList.contains("playhead") && !n.classList.contains("mat")) {
-    if (!n.hidden && n.dataset.start) { var s = toMin(n.dataset.start), e = toMin(n.dataset.end); if (s != null) busy.push([s, e != null ? e : s + 60]); }
+    (n.classList.contains("dayplan") ? Array.prototype.slice.call(n.querySelectorAll(".row[data-start]")) : [n]).forEach(function(r){
+      if (!r.hidden && r.dataset.start) { var s = toMin(r.dataset.start), e = toMin(r.dataset.end); if (s != null) busy.push([s, e != null ? e : s + 60]); }
+    });
     n = n.nextElementSibling;
   }
   return busy;
@@ -3113,11 +3215,12 @@ function applyFilter(){
     h.hidden = !any;
   });
   document.querySelectorAll(".week").forEach(function(w){
-    var visible = Array.prototype.filter.call(w.querySelectorAll(".row, .mat, .ann"), function(r){ return !r.hidden; });
+    var visible = Array.prototype.filter.call(w.querySelectorAll(".row, .mat, .ann, .ds, .dayplan"), function(r){ return !r.hidden; });
     var rowsEl = w.querySelector(".rows"), q = w.querySelector(".quiet");
     if (rowsEl) { rowsEl.hidden = visible.length === 0; if (!q && !visible.length) { q = document.createElement("div"); q.className = "quiet"; q.textContent = "Nothing scheduled."; w.appendChild(q); } else if (q && visible.length) q.remove(); }
   });
   applyFree();
+  placeNow();
   applyState();
 }
 function applyState(){
@@ -3714,10 +3817,19 @@ document.addEventListener("click", function(e){
     }
     return;
   }
+  // Week by week: an event in the week overview goes to its row, a day strip or Plan unfolds the day's plan
+  var ev = e.target.closest && e.target.closest(".wo [data-evday]");
+  if (ev) {
+    var wk = ev.closest(".week"), lk = ev.dataset.evlink, tg = (lk && wk.querySelector('.rows [data-link="' + cssq(lk) + '"]')) || wk.querySelector('.dayhead[data-date="' + ev.dataset.evday + '"]');
+    if (tg) reveal(tg);
+    return;
+  }
+  var pd = e.target.closest && e.target.closest("[data-plan]");
+  if (pd) { state.weekDay = state.weekDay === pd.dataset.plan ? null : pd.dataset.plan; renderTerm(); var ph = document.querySelector('.dayhead[data-date="' + pd.dataset.plan + '"]'); if (ph && state.weekDay) ph.scrollIntoView({ block: "nearest" }); return; }
   var pl = e.target.closest && e.target.closest("button[data-place], button[data-unplan]");
   if (pl) {
     if (pl.dataset.unplan) { state.planned[pl.dataset.unplan] = { gone: true, at: new Date().toISOString() }; save(); renderTerm(); }
-    else placeItem(pl.dataset.place, pl.dataset.at, state.day || todayIso());
+    else placeItem(pl.dataset.place, pl.dataset.at, planDay());
     return;
   }
   var cab = e.target.closest && e.target.closest("button[data-cal], button[data-cal-remove]");
@@ -3885,6 +3997,19 @@ document.addEventListener("dragstart", function(e){
 // and the browser then fires dragend on that detached element, which never reaches the document.
 function dpEnd(){ document.body.classList.remove("dragging"); document.querySelectorAll(".dp-block.moving").forEach(function(x){ x.classList.remove("moving"); }); dpPreview(null); dpDrag = null; }
 document.addEventListener("dragend", dpEnd);
+document.addEventListener("mouseover", function(e){
+  var b = e.target.closest && e.target.closest("[data-evlink]"), old = document.querySelectorAll(".ds-hl");
+  if (!old.length && !b) return;
+  old.forEach(function(x){ x.classList.remove("ds-hl"); });
+  var w = b && b.dataset.evlink && b.closest(".week:not(.collapsed)");
+  if (w) w.querySelectorAll('.rows [data-link="' + cssq(b.dataset.evlink) + '"]').forEach(function(x){ x.classList.add("ds-hl"); });
+});
+(function(){
+  var top = document.querySelector("header.top"); if (!top) return;
+  var set = function(){ document.documentElement.style.setProperty("--top-h", top.offsetHeight + "px"); };
+  if (window.ResizeObserver) new ResizeObserver(set).observe(top);
+  set();
+})();
 document.addEventListener("dragover", function(e){
   if (!dpDrag) return;
   var c = e.target.closest && e.target.closest(".dp-free");
@@ -3893,7 +4018,7 @@ document.addEventListener("dragover", function(e){
 });
 document.addEventListener("drop", function(e){
   if (!dpDrag) return;
-  var drag = dpDrag, d = state.day || todayIso(), c = e.target.closest && e.target.closest(".dp-free");
+  var drag = dpDrag, d = planDay(), c = e.target.closest && e.target.closest(".dp-free");
   dpEnd();
   if (!c && drag.pid && e.target.closest && e.target.closest(".dp-side")) { e.preventDefault(); state.planned[drag.pid] = { gone: true, at: new Date().toISOString() }; save(); renderTerm(); return; }
   if (!c) return;
