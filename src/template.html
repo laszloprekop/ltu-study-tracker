@@ -207,7 +207,10 @@ button{font:inherit}
 
 /* ---------- Header ---------- */
 /* the sticky header frosts what scrolls under it: the page colour, partly see-through, over a blur, across the full width */
-header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; background:color-mix(in oklch, var(--bg) 72%, transparent); -webkit-backdrop-filter:blur(14px) saturate(1.3); backdrop-filter:blur(14px) saturate(1.3); margin-inline:calc(-1 * var(--gutter)); padding-inline:var(--gutter); padding-block:10px 8px; margin-bottom:12px; display:flex; flex-direction:column; gap:8px}
+/* Glass: anything the page can scroll under (the header, a popup hanging from it, a menu, the toast,
+   the bug form, a day's name over the rail) is a little see-through and blurs what lies behind it. */
+:root{--glass:blur(12px) saturate(1.3)}
+header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; background:color-mix(in oklch, var(--bg) 72%, transparent); -webkit-backdrop-filter:var(--glass); backdrop-filter:var(--glass); margin-inline:calc(-1 * var(--gutter)); padding-inline:var(--gutter); padding-block:10px 8px; margin-bottom:12px; display:flex; flex-direction:column; gap:8px}
 #asof.stale{color:var(--c4); font-weight:600}
 .moved{--rad:#ff6a00; font-family:Archivo,"Arial Narrow",sans-serif; font-stretch:72%; margin:0 0 var(--gap); background:var(--rad); color:#000; border:2px solid #000; box-shadow:0 0 0 3px var(--rad), 0 6px 24px rgba(255,106,0,.35)}
 .moved .mv-head{display:flex; align-items:center; gap:12px; padding:10px 14px}
@@ -495,7 +498,7 @@ h1{font-size:20px; letter-spacing:-.015em; margin-right:6px}
 .pop summary{list-style:none; display:inline-flex; align-items:center; gap:5px; font-size:12.5px; font-weight:600; color:var(--muted); background:var(--surface); padding:5px 8px; cursor:pointer}
 .pop summary::-webkit-details-marker{display:none}
 .pop[open] summary{color:var(--on-now-container); background:var(--now-container); border-color:var(--now-container)}
-.pop .panel{position:absolute; right:0; top:calc(100% + 6px); z-index:30; background:var(--surface); padding:10px 12px; width:max-content; font-size:12.5px; color:var(--muted)}
+.pop .panel{position:absolute; right:0; top:calc(100% + 6px); z-index:30; --fill:color-mix(in oklch, var(--surface) 86%, transparent); --frame:transparent; -webkit-backdrop-filter:var(--glass); backdrop-filter:var(--glass); padding:10px 12px; width:max-content; font-size:12.5px; color:var(--muted)}
 .pop .panel p{margin:0 0 6px}
 .pop.about .panel{width:min(540px, calc(100vw - 32px)); white-space:normal; font-size:13px; line-height:1.5; padding:14px 16px}
 .pop.about .panel h3{font-size:14px; color:var(--ink); margin-bottom:6px}
@@ -526,7 +529,7 @@ section{margin-bottom:30px}
    dark mode. A filter, not a box-shadow, so it follows the cut corner of the shape layers. */
 .card{filter:var(--box-lift)}
 .fc-face{filter:var(--card-lift)}
-.pop .panel,.rowmenu{filter:var(--pop-lift)}
+.pop .panel{filter:var(--pop-lift)}
 .empty{padding:22px 18px; color:var(--muted)}
 .empty h3{color:var(--ink); font-size:15px; margin-bottom:6px}
 .empty p{margin:0; max-width:62ch}
@@ -542,19 +545,19 @@ section{margin-bottom:30px}
 .dayhead .dh-l{white-space:nowrap}
 .week .dayhead{position:relative; z-index:2; margin-left:calc(-16px - var(--rail) - 14px)}
 .week .dayhead .dh-lead{flex:0 0 calc(var(--rail) + 20px); display:flex; align-items:center; gap:10px; min-width:0}
-.week .dayhead .dh-l{padding:2px 10px; background:var(--surface-2); box-shadow:0 0 0 1px var(--line), 0 0 0 3px var(--bg)}
+.week .dayhead .dh-l{padding:2px 10px; background:color-mix(in oklch, var(--surface-2) 78%, transparent); -webkit-backdrop-filter:var(--glass); backdrop-filter:var(--glass); box-shadow:0 0 0 1px var(--line), 0 0 0 3px var(--bg)}
 .week .dayhead.today .dh-l{box-shadow:0 0 0 3px var(--bg)}
 /* the pointer passes through a day's name to the rail under it; the rail's block comes to the front while pointed at */
 .week .dayhead{pointer-events:none}
 .week .dayhead .free,.week .dayhead .plan{pointer-events:auto}
-.week:not(.collapsed) .rail-in:hover,.week:not(.collapsed) .rail-in:focus-within{z-index:3; background:var(--surface-2); box-shadow:0 0 0 8px var(--surface-2)}
+.week:not(.collapsed) .rail-in:hover,.week:not(.collapsed) .rail-in:focus-within{z-index:3; background:color-mix(in oklch, var(--surface-2) 80%, transparent); -webkit-backdrop-filter:var(--glass); backdrop-filter:var(--glass)}
 /* the first day's name lies over the top of the rail, so the rail's own lines start below it */
 /* as a left column the rail keeps the week number, its flag and the overview; dates, hours and "this week" show in the folded line */
 @media (min-width:681px){ .week:not(.collapsed) .rail{padding-top:46px} .week:not(.collapsed) .rail .dates,.week:not(.collapsed) .rail .load,.week:not(.collapsed) .rail .nowflag{display:none} .week:not(.collapsed) .wo{margin-top:8px} }
 .dayhead .dh-rule{flex:1 1 16px; min-width:16px; height:1px; background:var(--line)}
 .dayhead .free{display:inline-flex; align-items:center; gap:5px; font-weight:500; text-transform:none; letter-spacing:0; color:var(--muted); white-space:nowrap}
 .dayhead.today{color:var(--ink)}
-.dayhead.today .dh-l{padding:2px 10px; font-weight:700; color:var(--on-now-container); background:var(--now-container)}
+.dayhead.today .dh-l{padding:2px 10px; font-weight:700; color:var(--on-now-container); background:color-mix(in oklch, var(--now-container) 86%, transparent)}
 .dayhead.today .dh-rule{height:2px; background:var(--now)}
 .dayhead.today .free{color:var(--ink)}
 .dayhead .free b{font-weight:600; color:var(--ok)}
@@ -604,14 +607,14 @@ a.tag.feeds:hover{text-decoration:underline}
 .muted .mute.more{color:var(--muted)}
 .ann .mute.more{margin-left:auto; color:inherit}
 /* the row menu (Share, Hide) and the short note a Link or a share leaves */
-.rowmenu{position:absolute; z-index:40; display:flex; flex-direction:column; min-width:180px; padding:4px; background:var(--surface); color:var(--ink); border:1px solid var(--line)}
+.rowmenu{position:absolute; z-index:40; display:flex; flex-direction:column; min-width:180px; padding:4px; background:color-mix(in oklch, var(--surface) 86%, transparent); -webkit-backdrop-filter:var(--glass); backdrop-filter:var(--glass); color:var(--ink); border:1px solid var(--line); box-shadow:0 10px 24px rgba(0,0,0,.2)}
 .rowmenu[hidden]{display:none}
 .rowmenu button{display:flex; align-items:center; gap:8px; padding:8px 10px; border:0; background:none; color:inherit; font:inherit; font-size:13px; text-align:left; cursor:pointer}
 .rowmenu button:hover,.rowmenu button:focus-visible{background:var(--surface-2); outline:none}
-.toast{position:fixed; z-index:50; left:50%; bottom:max(16px, env(safe-area-inset-bottom)); transform:translateX(-50%); display:flex; align-items:center; gap:10px; max-width:calc(100vw - 32px); padding:10px 14px; background:var(--ink); color:var(--surface); font-size:13px; overflow-wrap:anywhere; box-shadow:0 6px 20px rgba(0,0,0,.25)}
+.toast{position:fixed; z-index:50; left:50%; bottom:max(16px, env(safe-area-inset-bottom)); transform:translateX(-50%); display:flex; align-items:center; gap:10px; max-width:calc(100vw - 32px); padding:10px 14px; background:color-mix(in oklch, var(--ink) 84%, transparent); -webkit-backdrop-filter:var(--glass); backdrop-filter:var(--glass); color:var(--surface); font-size:13px; overflow-wrap:anywhere; box-shadow:0 6px 20px rgba(0,0,0,.25)}
 .toast[hidden]{display:none}
 /* The bug report form: slides up in the bottom right corner, over the page, which stays usable */
-.bug{position:fixed; z-index:45; right:max(16px, env(safe-area-inset-right)); bottom:max(16px, env(safe-area-inset-bottom)); width:min(380px, calc(100vw - 32px)); max-height:calc(100dvh - 32px); overflow:auto; box-sizing:border-box; margin:0; padding:14px 16px 16px; display:grid; gap:5px; background:var(--surface); color:var(--ink); border:1px solid var(--muted); box-shadow:0 10px 30px rgba(0,0,0,.3); font-size:13px;
+.bug{position:fixed; z-index:45; right:max(16px, env(safe-area-inset-right)); bottom:max(16px, env(safe-area-inset-bottom)); width:min(380px, calc(100vw - 32px)); max-height:calc(100dvh - 32px); overflow:auto; box-sizing:border-box; margin:0; padding:14px 16px 16px; display:grid; gap:5px; background:color-mix(in oklch, var(--surface) 88%, transparent); -webkit-backdrop-filter:var(--glass); backdrop-filter:var(--glass); color:var(--ink); border:1px solid var(--muted); box-shadow:0 10px 30px rgba(0,0,0,.3); font-size:13px;
   transform:translateY(calc(100% + 32px)); visibility:hidden; transition:transform .22s ease, visibility 0s .22s}
 .bug.open{transform:none; visibility:visible; transition:transform .22s ease}
 @media (prefers-reduced-motion:reduce){ .bug,.bug.open{transition:none} }
@@ -717,7 +720,7 @@ a.tag.feeds:hover{text-decoration:underline}
 .dayhead .plan{display:inline-flex; align-items:center; gap:5px; font:inherit; font-size:11.5px; line-height:18px; font-weight:700; text-transform:none; letter-spacing:0; color:var(--on-now-container); background:var(--now-container); border:0; padding:2px 9px; cursor:pointer}
 .dayhead .plan:focus-visible{outline:2px solid var(--now); outline-offset:2px}
 .week .dayplan{margin:4px 0 10px}
-.week .rail-in{position:sticky; top:calc(var(--top-h, 70px) + 12px)}
+.week .rail-in{position:sticky; top:calc(var(--top-h, 70px) + 4px); margin:-8px; padding:8px}
 .wo{display:flex; flex-direction:column; gap:4px; margin-top:12px}
 .wo-d{display:flex; align-items:center; gap:5px; min-width:0}
 .wo-l{flex:0 0 26px; padding:0; border:0; background:transparent; font:600 10.5px "IBM Plex Mono",monospace; color:var(--muted); cursor:pointer; text-align:left; white-space:nowrap}
@@ -891,7 +894,7 @@ body.mapview #termbody section{flex:1 1 auto; min-height:0; margin-bottom:12px; 
 .rz button:disabled{opacity:.3; cursor:default}
 .rz button .ic{width:16px; height:16px}
 .rz-lbl{font-size:10px; font-weight:600; color:var(--muted); text-align:center; margin-top:4px; letter-spacing:.04em; white-space:nowrap}
-.rail-tip{position:absolute; z-index:6; left:44px; transform:translateY(-50%); background:var(--ink); color:var(--bg); font-size:12px; line-height:1.3; padding:4px 9px; pointer-events:none; max-width:min(360px, 60vw); box-shadow:var(--shadow)}
+.rail-tip{position:absolute; z-index:6; left:44px; transform:translateY(-50%); background:color-mix(in oklch, var(--ink) 84%, transparent); -webkit-backdrop-filter:var(--glass); backdrop-filter:var(--glass); color:var(--bg); font-size:12px; line-height:1.3; padding:4px 9px; pointer-events:none; max-width:min(360px, 60vw); box-shadow:var(--shadow)}
 .rail-tip.below{transform:none}
 .rail-tip b{display:block; font-size:11px; font-weight:600; opacity:.75}
 .map > .card{min-height:0; display:flex; flex-direction:column}

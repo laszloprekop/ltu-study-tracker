@@ -91,6 +91,16 @@ Every link into Canvas ends with the external-link mark. Row 2: view, course fil
 Today, and one progress block (deadlines and tasks, material, and on the hosted app Cards not due
 for review yet). The course filter applies to every view, the Cards view included.
 
+## Glass
+
+Anything the page can scroll under is a little see-through and blurs what lies behind it, with one
+recipe, `--glass` (`backdrop-filter`): the header, a popup panel hanging from it, the row menu, the
+toast, the bug report form, the map's slim rail, legend and tip, a day's name where it passes over
+the Week Overview, and the Week Overview itself while it is pointed at. A new fixed, sticky or
+floating box takes a `color-mix(..., transparent)` background and `backdrop-filter:var(--glass)`.
+On a framed box the see-through colour goes in `--fill`, and `--frame` is `transparent` when the
+box has no border (`--bw:0`), because the frame layer lies under the whole fill.
+
 ## Palettes
 
 `tools/palette.mjs` generates every colour (`npm run palette` writes them between the
