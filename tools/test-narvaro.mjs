@@ -141,25 +141,23 @@ test("the copied table has the same cells, the teachers spanning H to K", () => 
   assert.match(html, /<td colspan="4" style="background:#ffff00;white-space:nowrap">Josef Hallberg, Chen-Wei Yang<\/td>/);
   assert.match(nv.narvaroPlain(m), /^Närvarorapportering Programmerare Fullstack\n\nNamn: A Student\nLärare: Josef Hallberg, Chen-Wei Yang\nVecka: 42\n\nMåndag:\ta\n/);
 });
-test("Copy Day/Activity: the shape Google Sheets copies a day column beside an activity column", () => {
-  // week 41 of the sheet it was made for, as Sheets copied it (B to H: the day, the activity merged C:H)
+test("Copy Day/Activity: a column of activities, the same number of rows each day", () => {
+  // week 42 as it went into the programme sheet, three rows a day
   const week = [
-    ["Z0025E NET: Lecture 6 (TCP flow control and congestion control)", "Z7005E PVT: Group task - Lab 2 Evaluating software design with SOLID principles, finished and submitted"],
-    ["Z0025E NET: Lecture 8 (network layer, inside a router and IP format)", "Z7005E PVT: Group task - Lab 3 Identifying design patterns in real-world projects"],
-    ["Z7005E PVT: Group task - Lab 3 Identifying design patterns, continued", "Z0025E NET: Self paced learning - Lecture 7 (transport-layer services, multiplexing and UDP) with forum post"],
-    ["Z7005E PVT: Group task - Lab 3 Identifying design patterns, finished and submitted", "Z0025E NET: Self paced learning - Module 3 quiz, Module 4 overview"],
-    ["Z7005E PVT: Self paced learning - Software quality attributes (module 4.2)", "Z7005E PVT: Group task - Lab 4 Understanding software design, started (due Thu 15 Oct)"]];
-  const names = ["Måndag", "Tisdag", "Onsdag", "Torsdag", "Fredag"], T = "\t";
-  const want = week.map((lines, i) => '"' + names[i] + "\n2026-10-0" + (5 + i) + '"' + T + lines[0] + T.repeat(5) + "\n" + T + lines[1] + T.repeat(5) + "\n" + T.repeat(6)).join("\n");
-  const m = nv.narvaroModel({ mon: "2026-10-05", style: "compact", teachers: "", days: week.map(l => l.join("\n")) }, "");
-  assert.equal(nv.narvaroDayRows(m), want);
+    ["Z0025E NET: Lecture 9 (NAT, IPv6, generalized forwarding), 09:00–10:30", "Z0025E NET: Book a Lab 3 assessment slot on sheet 9.2", "Z0025E NET: Self-study"],
+    ["Z0025E NET: Lecture 10 (the control plane and routing algorithms), 09:00–10:30", "Z0025E NET: Self-study"],
+    ["Z7005E PVT: Self-study and group work, Lab 4 (Understanding software design)"],
+    ["Z7005E PVT: Self-study and group work, Lab 4 (Understanding software design), due 17:00"],
+    ["Z7005E PVT: Lecture 14 (unit testing and refactoring), 09:15–10:30", "Z0025E NET: Lab 3 session (subnetting, Packet Tracer skills 6 to 7), 13:00–15:00", "Z0025E NET: Lab 3 report, due 23:59"]];
+  const m = nv.narvaroModel({ mon: "2026-10-12", style: "detailed", teachers: "", days: week.map(l => l.join("\n")) }, "");
+  const want = week.map(l => l.concat(["", "", ""]).slice(0, 3).join("\n")).join("\n");
+  assert.equal(nv.narvaroDayRows(m, 3), want);
+  assert.equal(nv.narvaroDayRows(m, 3).split("\n").length, 15);
 });
-test("Copy Day/Activity: an empty day keeps its row, a quote is quoted", () => {
-  const m = nv.narvaroModel({ mon: "2026-10-12", style: "short", teachers: "", days: ["", 'Read "Clean Code"\twith tabs', "c", "d", "e"] }, "");
-  const rows = nv.narvaroDayRows(m).split("\n");
-  assert.equal(rows[0], '"Måndag');
-  assert.equal(rows[1], '2026-10-12"' + "\t" + "\t".repeat(5));
-  assert.equal(rows[4], '2026-10-13"\t"Read ""Clean Code"" with tabs"' + "\t".repeat(5));
+test("Copy Day/Activity: lines past the block join its last row; quotes and tabs are made safe", () => {
+  const m = nv.narvaroModel({ mon: "2026-10-12", style: "short", teachers: "", days: ["a\nb\nc\nd", 'Read "Clean Code"\twith tabs', "", "x", "y"] }, "");
+  assert.deepEqual(nv.narvaroDayRows(m, 2).split("\n"), ["a", "b; c; d", '"Read ""Clean Code"" with tabs"', "", "", "", "x", "", "y", ""]);
+  assert.deepEqual(nv.narvaroDayRows(m, 1).split("\n"), ["a; b; c; d", '"Read ""Clean Code"" with tabs"', "", "x", "y"]);
 });
 console.log(n + " passed");
 

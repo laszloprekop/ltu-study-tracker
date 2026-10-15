@@ -288,11 +288,12 @@ and puts the lines under one another. **Download Excel file** writes it as an .x
 claude.ai through the `downloads` capability when the artifact has it (it does not yet), else a plain
 download the sandbox may drop, which the message says. **Copy table** puts the same sheet on
 the clipboard as an HTML table with the template's merges, widths, sizes, bold and yellow, plus plain
-text for anywhere else (`copyRich`). **Copy Day/Activity** copies only the days, as plain text in the
-shape Google Sheets copies a sheet with a day column beside an activity column merged across six
-cells (`narvaroDayRows`): the day and its date in one quoted cell, a row per line, the day on its first
-row only, a row of empty cells after each day. Without HTML on the clipboard the paste keeps the
-sheet's own formatting. `npm test` runs `tools/test-narvaro.mjs`; with `--write <dir>` it
+text for anywhere else (`copyRich`). **Copy Day/Activity** copies only the activities, as plain text in one
+column for a sheet of one's own where each day is a block of the same number of rows (`narvaroDayRows`):
+a row per line, every day padded with empty rows to **Rows per day** (default 3, remembered in the
+browser), the lines past it joined into the day's last row with semicolons. Pasted at Monday's first
+activity cell, each line lands in its row's first cell, so the sheet's merges and its day labels
+(often formulas) stay. Without HTML on the clipboard the paste keeps the sheet's own formatting. `npm test` runs `tools/test-narvaro.mjs`; with `--write <dir>` it
 also writes a sample file per style and language.
 
 ## Overlapping times in the Day Planner

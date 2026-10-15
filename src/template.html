@@ -414,13 +414,15 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
 .nv-head{display:grid; grid-template-columns:minmax(0, 1fr) minmax(0, 2fr) auto; gap:var(--gap); align-items:end; margin:0 0 14px}
 .nv-f{display:flex; flex-direction:column; gap:4px; min-width:0}
 .nv-wk b{display:block; font-size:15px; padding:5px 0 6px; color:var(--ink)}
-.nvpanel input[type=text],.nvpanel textarea{font:inherit; font-size:13px; line-height:1.45; color:var(--ink); padding:6px 8px; width:100%}
+.nvpanel input[type=text],.nvpanel input[type=number],.nvpanel textarea{font:inherit; font-size:13px; line-height:1.45; color:var(--ink); padding:6px 8px; width:100%}
 .nvpanel textarea{display:block; resize:vertical; min-height:34px; overflow:hidden}
 .nv-days{display:grid; gap:8px}
 .nv-day{display:grid; grid-template-columns:120px minmax(0, 1fr); gap:10px; align-items:start}
 .nv-dl{display:flex; flex-direction:column; padding-top:7px}
 .nv-dl small{margin:0}
-.nv-acts{display:flex; flex-wrap:wrap; gap:8px; margin:14px 0 0}
+.nv-acts{display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin:14px 0 0}
+.nv-rows{display:inline-flex; align-items:center; gap:6px; font-size:12.5px; color:var(--muted)}
+.nvpanel .nv-rows input[type=number]{width:56px; padding:5px 6px}
 .nv-msg{margin:8px 0 0; font-size:12.5px; font-weight:600}
 .nvpanel .note{margin:8px 0 0; font-size:12.5px; color:var(--muted)}
 @media (max-width:680px){ .nv-head{grid-template-columns:minmax(0, 1fr) auto} .nv-head .nv-f:nth-child(2){grid-column:1 / -1; grid-row:2} .nv-day{grid-template-columns:1fr; gap:3px} .nv-dl{flex-direction:row; align-items:baseline; gap:6px; padding-top:0} }
@@ -1088,7 +1090,7 @@ svg.focus .ge.tl.hl{opacity:.5; stroke-width:1.4}
 @property --edge-b{syntax:'*'; inherits:false}
 *,::before,::after{--cut:polygon(0 0, calc(100% - var(--bev, 6px)) 0, 100% var(--bev, 6px), 100% 100%, 0 100%)}
 /* 1. Cut: the element itself is clipped and paints its own background. */
-.legend-g,.ann,.seg,.pop summary,.gtools button,.gtools .reach,.detail .multi button,.dayctl input[type=date],.dayctl button,.hours input[type=time],.rail-tip,.tag,.lvl,.chip,.flag,.links a,.quick a,.rail-list .ev,.playhead .phl,.dp-block,.chain,.cvmark.both,.dp-items li button,.cardsview select,.cardsview textarea,.cardsview .fld,.cvcard input[type=password],.cvcard input[type=number],.cvcard input[type=url],.cvcard input[type=text],.cvcard input.secret,.prog textarea,.prog select,.pp-row input[type=time],.nvpanel input[type=text],.nvpanel textarea{clip-path:var(--cut)}
+.legend-g,.ann,.seg,.pop summary,.gtools button,.gtools .reach,.detail .multi button,.dayctl input[type=date],.dayctl button,.hours input[type=time],.rail-tip,.tag,.lvl,.chip,.flag,.links a,.quick a,.rail-list .ev,.playhead .phl,.dp-block,.chain,.cvmark.both,.dp-items li button,.cardsview select,.cardsview textarea,.cardsview .fld,.cvcard input[type=password],.cvcard input[type=number],.cvcard input[type=url],.cvcard input[type=text],.cvcard input.secret,.prog textarea,.prog select,.pp-row input[type=time],.nvpanel input[type=text],.nvpanel input[type=number],.nvpanel textarea{clip-path:var(--cut)}
 .legend-g,.pp-card{--bev:10px}
 .ann{--bev:8px}
 .tag,.lvl,.chip,.flag,.links a{--bev:4px}
@@ -1125,7 +1127,7 @@ svg.focus .ge.tl.hl{opacity:.5; stroke-width:1.4}
 /* 3. Framed control: an input, select or textarea cannot hold ::before or ::after, so it is cut
    directly and framed by its own border in the solid --frame-c; the cut's diagonal is a thin stripe
    in the same colour. Its fill is --fill (a colour). */
-.cardsview select,.cardsview textarea,.cardsview .fld,.cvcard input[type=password],.cvcard input[type=number],.cvcard input[type=url],.cvcard input[type=text],.cvcard input.secret,.prog textarea,.prog select,.pp-row input[type=time],.nvpanel input[type=text],.nvpanel textarea{border:var(--bw, 1px) solid var(--frame-c, var(--muted));
+.cardsview select,.cardsview textarea,.cardsview .fld,.cvcard input[type=password],.cvcard input[type=number],.cvcard input[type=url],.cvcard input[type=text],.cvcard input.secret,.prog textarea,.prog select,.pp-row input[type=time],.nvpanel input[type=text],.nvpanel input[type=number],.nvpanel textarea{border:var(--bw, 1px) solid var(--frame-c, var(--muted));
   background:linear-gradient(to bottom left, transparent 50%, var(--frame-c, var(--muted)) 50%, var(--frame-c, var(--muted)) calc(50% + var(--bw, 1px)), transparent calc(50% + var(--bw, 1px))) 100% 0 / var(--bev, 6px) var(--bev, 6px) no-repeat border-box, var(--fill, var(--surface))}
 
 @media (max-width:900px){ body.mapview{overflow:auto} body.mapview .wrap{height:auto} .map,.map.rail-slim{grid-template-columns:1fr; height:auto} .map .rail-list{max-height:220px} .gwrap{height:50vh} .detail{max-height:60vh}
@@ -2156,7 +2158,8 @@ function narvaroPanel(t, mon){
     '<label class="nv-f"><span>Teachers<small>L\u00e4rare</small></span><input type="text" id="nv-teachers" value="' + esc(dr.teachers) + '"></label><span class="nv-f nv-wk"><span>Week<small>Vecka</small></span><b class="mono">' + wk + '</b></span></div>' +
     '<div class="nv-days">' + days + '</div>' +
     '<div class="nv-acts"><button type="button" data-nvxlsx="1">' + ic("file-xls", "sm") + 'Download Excel file</button><button type="button" data-nvcopy="1" title="The whole sheet as a table: paste it at A1 of an empty sheet in Google Sheets or Excel">' + ic("copy", "sm") + 'Copy table</button>' +
-    '<button type="button" data-nvdays="1" title="Only the days and their lines, a row per line, the day and its date in the first cell: for a sheet of your own with a day column and an activity column">' + ic("list-checks", "sm") + 'Copy Day/Activity</button>' +
+    '<button type="button" data-nvdays="1" title="Only the activities, a row per line, the same number of rows for every day: paste at Monday\'s first activity cell of a sheet with a block of rows per day">' + ic("list-checks", "sm") + 'Copy Day/Activity</button>' +
+    '<label class="nv-rows" title="How many rows each day has in your sheet; lines past it join into the day\'s last row">Rows per day <input type="number" id="nv-rows" min="1" max="12" value="' + nvDayRows() + '"></label>' +
     '<button type="button" class="plain" data-nvredo="1" title="Write the draft again from the week as it is now; your edits go">' + ic("arrow-counter-clockwise", "sm") + 'Draft again from the week</button></div>' +
     '<p class="nv-msg" id="nv-msg" role="status" hidden></p>' +
     (at ? '<p class="note">Your edited draft, last changed ' + esc(longDay(iso(at))) + ' ' + String(at.getHours()).padStart(2, "0") + ':' + String(at.getMinutes()).padStart(2, "0") + '. <b>Draft again</b> brings in what changed in the week since.</p>' : '') +
@@ -2275,16 +2278,18 @@ function narvaroHtml(g){
 function narvaroPlain(m){
   return [m.title, "", "Namn: " + m.name, "L\u00e4rare: " + m.teachers, "Vecka: " + m.week, ""].concat(m.days.map(function(x){ return x.label + "\t" + x.lines.join("\n\t"); })).join("\n") + "\n";
 }
-// The days alone, for a sheet of one's own with a day column beside an activity column, in the shape
-// Google Sheets copies such a sheet: the day and its date in one cell, the activity in the next with
-// the five cells its merge covers after it, a row per line, the day only on its first row, a row of
-// empty cells after each day. Tab-separated; a cell with a line break or a quote is quoted.
-var NV_ACT_SPAN = 6;
-function nvCell(s){ s = String(s).replace(/\t/g, " "); return /[\n"]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; }
-function narvaroDayRows(m){
-  var after = new Array(NV_ACT_SPAN).join("\t"), blank = new Array(NV_ACT_SPAN + 1).join("\t");
-  return m.days.map(function(x, i){
-    return (x.lines.length ? x.lines : [""]).map(function(l, j){ return (j ? "" : nvCell(NV_DAYS[i] + "\n" + x.d)) + "\t" + nvCell(l) + after; }).join("\n") + "\n" + blank;
+// The activities alone, for a sheet of one's own where each day is a block of the same number of rows
+// (the day merged down beside them, often a formula): one column, a row per line, every day padded
+// with empty rows to its block, the lines past the block joined into its last row. Pasted at Monday's
+// first activity cell, each line goes into its own row's first cell, so the sheet's merges and day
+// labels stay. A cell with a quote is quoted, as Google Sheets reads it.
+function nvCell(s){ s = String(s).replace(/[\t\n]/g, " "); return /"/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; }
+function nvDayRows(){ var n = Number(nvStore().dayRows); return n >= 1 && n <= 12 ? Math.floor(n) : 3; }
+function narvaroDayRows(m, per){
+  return m.days.map(function(x){
+    var lines = x.lines.slice(0, per - 1).concat(x.lines.length >= per ? [x.lines.slice(per - 1).join("; ")] : []);
+    while (lines.length < per) lines.push("");
+    return lines.map(nvCell).join("\n");
   }).join("\n");
 }
 // Copies text, with HTML beside it when there is a table. The copy event works inside a sandboxed frame, where the Clipboard The copy event works inside a sandboxed frame, where the Clipboard
@@ -4164,7 +4169,7 @@ function renderInfoView(name){
       cards.push(infoCard("calendar-dot", "Add a calendar", "Your group's calendar appears among the sessions, marked with its name.\n1. Google Calendar: **Settings**, the calendar, **Secret address in iCal format**. Copy it.\n2. Profile menu, **Your calendars**, paste, **Add**.\nKey: only you can see your links."));
     }
     cards.push(infoCard("books", "Study cards", "- Click a card to **turn it over**.\n- Rate how well you knew it: **Again**, **Hard**, **Good**, **Easy**.\n- Spaced repetition brings it back just before you would forget it, and plans it so you know it on the day of the lab or exam.\n- **Check** a classmate's card if it is right; **Something is wrong** hides it until it is fixed.\nWhen you write a card: `- ` makes a list, backticks make `code`, two stars make a **term**, and a line starting `Key:` is the one thing to remember."));
-    cards.push(infoCard("clipboard-text", "N\u00e4rvaro report", "Every Friday the programme wants to know what each day of the week held, by noon.\n1. Week by week, the Friday row **N\u00e4rvaro report**: **Draft it from this week**.\n2. Pick a style: **Detailed** (a line per activity), **Compact** (a line per day) or **Short** (a few words), in English or Swedish.\n3. Add your name, check every day, take out anything private.\n4. **Download Excel file**, or **Copy table** and paste at A1 of an empty sheet, or **Copy Day/Activity** for only the days and their lines, to paste into a sheet of your own. Email it.\nKey: the draft comes from the sessions, your calendar, your planned blocks and what you ticked that day."));
+    cards.push(infoCard("clipboard-text", "N\u00e4rvaro report", "Every Friday the programme wants to know what each day of the week held, by noon.\n1. Week by week, the Friday row **N\u00e4rvaro report**: **Draft it from this week**.\n2. Pick a style: **Detailed** (a line per activity), **Compact** (a line per day) or **Short** (a few words), in English or Swedish.\n3. Add your name, check every day, take out anything private.\n4. **Download Excel file**, or **Copy table** and paste at A1 of an empty sheet, or **Copy Day/Activity** for only the activities, a set number of rows per day, to paste into a sheet of your own. Email it.\nKey: the draft comes from the sessions, your calendar, your planned blocks and what you ticked that day."));
     cards.push(infoCard("calendar-check", "Lab bookings", "Shown on the booking task and in a strip at the top.\n- **Not booked**: there is still time.\n- **Book this week**: the session is a week or less away.\n- **Book now**: two days or less, or one free slot left.\n- **Booked 09:15**: your group has that slot.\nKey: your group number comes from Canvas; set it by hand in the profile menu if it is wrong."));
     cards.push(infoCard("warning", "Where the data comes from", "- Deadlines and modules: **Canvas**, read every hour on the site.\n- Session times: the course schedule pages.\n- Minutes: rough estimates from page length and videos.\n- All times are **Stockholm time**.\nKey: when this page and Canvas disagree, Canvas is right. Places where the course's own sources disagree are marked."));
   } else if (name === "privacy") {
@@ -4324,7 +4329,8 @@ document.addEventListener("click", function(e){
     return;
   }
   if (b.dataset.nvdays) {
-    copyRich(null, narvaroDayRows(m)).then(function(){ nvMsg("Copied the days and their lines. In your sheet, click Monday's cell in the day column and paste."); },
+    var per = nvDayRows();
+    copyRich(null, narvaroDayRows(m, per)).then(function(){ nvMsg("Copied " + per * 5 + " rows, " + per + " a day. In your sheet, click Monday's first activity cell and paste."); },
       function(){ nvMsg("This browser did not let the page copy. Download the Excel file instead."); });
     b.focus();
     return;
@@ -4338,6 +4344,7 @@ var nvTimer = null;
 document.addEventListener("input", function(e){
   var el = e.target, dr = state.nvDraft; if (!el || !dr || !el.closest || !el.closest(".nvpanel")) return;
   if (el.id === "nv-name") { var st = nvStore(); st.name = el.value.slice(0, 120); nvPut(st); return; }
+  if (el.id === "nv-rows") { var sr = nvStore(), n = Number(el.value); if (n >= 1 && n <= 12) { sr.dayRows = Math.floor(n); nvPut(sr); } return; }
   if (el.id === "nv-teachers") dr.teachers = el.value;
   else if (el.dataset.nvday) { dr.days[Number(el.dataset.nvday)] = el.value; nvFit(el); }
   else return;
