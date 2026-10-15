@@ -286,9 +286,13 @@ after Friday. With one line a day it is the template cell for cell; Detailed add
 and puts the lines under one another. **Download Excel file** writes it as an .xlsx without a library
 (`narvaroXlsx`, a zip stored without compression, `zipStore`): on the hosted app as a plain download, on
 claude.ai through the `downloads` capability when the artifact has it (it does not yet), else a plain
-download the sandbox may drop, which the message says. **Copy for Google Sheets** puts the same sheet on
+download the sandbox may drop, which the message says. **Copy table** puts the same sheet on
 the clipboard as an HTML table with the template's merges, widths, sizes, bold and yellow, plus plain
-text for anywhere else (`copyRich`). `npm test` runs `tools/test-narvaro.mjs`; with `--write <dir>` it
+text for anywhere else (`copyRich`). **Copy Day/Activity** copies only the days, as plain text in the
+shape Google Sheets copies a sheet with a day column beside an activity column merged across six
+cells (`narvaroDayRows`): the day and its date in one quoted cell, a row per line, the day on its first
+row only, a row of empty cells after each day. Without HTML on the clipboard the paste keeps the
+sheet's own formatting. `npm test` runs `tools/test-narvaro.mjs`; with `--write <dir>` it
 also writes a sample file per style and language.
 
 ## Overlapping times in the Day Planner

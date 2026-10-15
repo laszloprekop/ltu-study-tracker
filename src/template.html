@@ -2155,7 +2155,8 @@ function narvaroPanel(t, mon){
     '<div class="nv-head"><label class="nv-f"><span>Name<small>Namn</small></span><input type="text" id="nv-name" autocomplete="name" placeholder="Your name" value="' + esc(st.name || "") + '"></label>' +
     '<label class="nv-f"><span>Teachers<small>L\u00e4rare</small></span><input type="text" id="nv-teachers" value="' + esc(dr.teachers) + '"></label><span class="nv-f nv-wk"><span>Week<small>Vecka</small></span><b class="mono">' + wk + '</b></span></div>' +
     '<div class="nv-days">' + days + '</div>' +
-    '<div class="nv-acts"><button type="button" data-nvxlsx="1">' + ic("file-xls", "sm") + 'Download Excel file</button><button type="button" data-nvcopy="1">' + ic("copy", "sm") + 'Copy for Google Sheets</button>' +
+    '<div class="nv-acts"><button type="button" data-nvxlsx="1">' + ic("file-xls", "sm") + 'Download Excel file</button><button type="button" data-nvcopy="1" title="The whole sheet as a table: paste it at A1 of an empty sheet in Google Sheets or Excel">' + ic("copy", "sm") + 'Copy table</button>' +
+    '<button type="button" data-nvdays="1" title="Only the days and their lines, a row per line, the day and its date in the first cell: for a sheet of your own with a day column and an activity column">' + ic("list-checks", "sm") + 'Copy Day/Activity</button>' +
     '<button type="button" class="plain" data-nvredo="1" title="Write the draft again from the week as it is now; your edits go">' + ic("arrow-counter-clockwise", "sm") + 'Draft again from the week</button></div>' +
     '<p class="nv-msg" id="nv-msg" role="status" hidden></p>' +
     (at ? '<p class="note">Your edited draft, last changed ' + esc(longDay(iso(at))) + ' ' + String(at.getHours()).padStart(2, "0") + ':' + String(at.getMinutes()).padStart(2, "0") + '. <b>Draft again</b> brings in what changed in the week since.</p>' : '') +
@@ -2168,7 +2169,7 @@ function narvaroPanel(t, mon){
 // 1, columns from 0 (A); s names the cell's look (NV_XF, NV_CSS).
 function narvaroModel(dr, name){
   return { title: NV.title, name: name || "", teachers: dr.teachers || "", week: isoWeek(dr.mon), wide: dr.style === "detailed", notes: NV.notes,
-    days: dr.days.map(function(text, i){ return { label: NV_DAYS[i] + (dr.style === "detailed" ? " " + addDays(dr.mon, i) : ":"), lines: text.split("\n").map(function(s){ return s.trim(); }).filter(Boolean) }; }) };
+    days: dr.days.map(function(text, i){ return { d: addDays(dr.mon, i), label: NV_DAYS[i] + (dr.style === "detailed" ? " " + addDays(dr.mon, i) : ":"), lines: text.split("\n").map(function(s){ return s.trim(); }).filter(Boolean) }; }) };
 }
 function narvaroGrid(m){
   var rows = {}, heights = { 1: 24, 3: 18.75 }, merges = [[3, 7, 3, 10]], r = 6;
@@ -2274,16 +2275,29 @@ function narvaroHtml(g){
 function narvaroPlain(m){
   return [m.title, "", "Namn: " + m.name, "L\u00e4rare: " + m.teachers, "Vecka: " + m.week, ""].concat(m.days.map(function(x){ return x.label + "\t" + x.lines.join("\n\t"); })).join("\n") + "\n";
 }
-// Copies HTML and text together. The copy event works inside a sandboxed frame, where the Clipboard
-// API may be refused; the Clipboard API is the second try.
+// The days alone, for a sheet of one's own with a day column beside an activity column, in the shape
+// Google Sheets copies such a sheet: the day and its date in one cell, the activity in the next with
+// the five cells its merge covers after it, a row per line, the day only on its first row, a row of
+// empty cells after each day. Tab-separated; a cell with a line break or a quote is quoted.
+var NV_ACT_SPAN = 6;
+function nvCell(s){ s = String(s).replace(/\t/g, " "); return /[\n"]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; }
+function narvaroDayRows(m){
+  var after = new Array(NV_ACT_SPAN).join("\t"), blank = new Array(NV_ACT_SPAN + 1).join("\t");
+  return m.days.map(function(x, i){
+    return (x.lines.length ? x.lines : [""]).map(function(l, j){ return (j ? "" : nvCell(NV_DAYS[i] + "\n" + x.d)) + "\t" + nvCell(l) + after; }).join("\n") + "\n" + blank;
+  }).join("\n");
+}
+// Copies text, with HTML beside it when there is a table. The copy event works inside a sandboxed frame, where the Clipboard The copy event works inside a sandboxed frame, where the Clipboard
+// API may be refused; the Clipboard API is the second try. Without HTML a paste keeps the sheet's own look.
 function copyRich(html, text){
-  var ok = false, ta = document.createElement("textarea"), on = function(e){ if (!e.clipboardData) return; e.clipboardData.setData("text/html", html); e.clipboardData.setData("text/plain", text); e.preventDefault(); ok = true; };
+  var ok = false, ta = document.createElement("textarea"), on = function(e){ if (!e.clipboardData) return; if (html) e.clipboardData.setData("text/html", html); e.clipboardData.setData("text/plain", text); e.preventDefault(); ok = true; };
   ta.value = text; ta.setAttribute("readonly", ""); ta.style.cssText = "position:fixed; top:0; left:0; width:1px; height:1px; opacity:0";
   document.body.appendChild(ta); ta.select(); document.addEventListener("copy", on);
   try { document.execCommand("copy"); } catch (e) {}
   document.removeEventListener("copy", on); ta.remove();
   if (ok) return Promise.resolve();
-  if (navigator.clipboard && navigator.clipboard.write && window.ClipboardItem) return navigator.clipboard.write([new ClipboardItem({ "text/html": new Blob([html], { type: "text/html" }), "text/plain": new Blob([text], { type: "text/plain" }) })]);
+  var kinds = { "text/plain": new Blob([text], { type: "text/plain" }) }; if (html) kinds["text/html"] = new Blob([html], { type: "text/html" });
+  if (navigator.clipboard && navigator.clipboard.write && window.ClipboardItem) return navigator.clipboard.write([new ClipboardItem(kinds)]);
   return Promise.reject(new Error("no clipboard"));
 }
 // Hands the viewer a file. On claude.ai through the downloads capability when the page has it, else a
@@ -4150,7 +4164,7 @@ function renderInfoView(name){
       cards.push(infoCard("calendar-dot", "Add a calendar", "Your group's calendar appears among the sessions, marked with its name.\n1. Google Calendar: **Settings**, the calendar, **Secret address in iCal format**. Copy it.\n2. Profile menu, **Your calendars**, paste, **Add**.\nKey: only you can see your links."));
     }
     cards.push(infoCard("books", "Study cards", "- Click a card to **turn it over**.\n- Rate how well you knew it: **Again**, **Hard**, **Good**, **Easy**.\n- Spaced repetition brings it back just before you would forget it, and plans it so you know it on the day of the lab or exam.\n- **Check** a classmate's card if it is right; **Something is wrong** hides it until it is fixed.\nWhen you write a card: `- ` makes a list, backticks make `code`, two stars make a **term**, and a line starting `Key:` is the one thing to remember."));
-    cards.push(infoCard("clipboard-text", "N\u00e4rvaro report", "Every Friday the programme wants to know what each day of the week held, by noon.\n1. Week by week, the Friday row **N\u00e4rvaro report**: **Draft it from this week**.\n2. Pick a style: **Detailed** (a line per activity), **Compact** (a line per day) or **Short** (a few words), in English or Swedish.\n3. Add your name, check every day, take out anything private.\n4. **Download Excel file**, or **Copy for Google Sheets** and paste at A1 of an empty sheet. Email it.\nKey: the draft comes from the sessions, your calendar, your planned blocks and what you ticked that day."));
+    cards.push(infoCard("clipboard-text", "N\u00e4rvaro report", "Every Friday the programme wants to know what each day of the week held, by noon.\n1. Week by week, the Friday row **N\u00e4rvaro report**: **Draft it from this week**.\n2. Pick a style: **Detailed** (a line per activity), **Compact** (a line per day) or **Short** (a few words), in English or Swedish.\n3. Add your name, check every day, take out anything private.\n4. **Download Excel file**, or **Copy table** and paste at A1 of an empty sheet, or **Copy Day/Activity** for only the days and their lines, to paste into a sheet of your own. Email it.\nKey: the draft comes from the sessions, your calendar, your planned blocks and what you ticked that day."));
     cards.push(infoCard("calendar-check", "Lab bookings", "Shown on the booking task and in a strip at the top.\n- **Not booked**: there is still time.\n- **Book this week**: the session is a week or less away.\n- **Book now**: two days or less, or one free slot left.\n- **Booked 09:15**: your group has that slot.\nKey: your group number comes from Canvas; set it by hand in the profile menu if it is wrong."));
     cards.push(infoCard("warning", "Where the data comes from", "- Deadlines and modules: **Canvas**, read every hour on the site.\n- Session times: the course schedule pages.\n- Minutes: rough estimates from page length and videos.\n- All times are **Stockholm time**.\nKey: when this page and Canvas disagree, Canvas is right. Places where the course's own sources disagree are marked."));
   } else if (name === "privacy") {
@@ -4289,7 +4303,7 @@ document.addEventListener("click", function(e){
 
 // The Narvaro report draft: open and close it, its style and language, write it again, download, copy.
 document.addEventListener("click", function(e){
-  var b = e.target.closest && e.target.closest("[data-narvaro],[data-nvstyle],[data-nvlang],[data-nvredo],[data-nvxlsx],[data-nvcopy]"); if (!b) return;
+  var b = e.target.closest && e.target.closest("[data-narvaro],[data-nvstyle],[data-nvlang],[data-nvredo],[data-nvxlsx],[data-nvcopy],[data-nvdays]"); if (!b) return;
   var t = term(), dr = state.nvDraft;
   if (b.dataset.narvaro) {
     state.nvOpen = state.nvOpen === b.dataset.narvaro ? null : b.dataset.narvaro; renderTerm();
@@ -4309,10 +4323,16 @@ document.addEventListener("click", function(e){
     b.focus();
     return;
   }
+  if (b.dataset.nvdays) {
+    copyRich(null, narvaroDayRows(m)).then(function(){ nvMsg("Copied the days and their lines. In your sheet, click Monday's cell in the day column and paste."); },
+      function(){ nvMsg("This browser did not let the page copy. Download the Excel file instead."); });
+    b.focus();
+    return;
+  }
   var file = "N\u00e4rvarorapport vecka " + m.week + (m.name ? " " + m.name.replace(/[\\/:*?"<>|]+/g, "").trim() : "") + ".xlsx";
   saveBlob(file, new Blob([narvaroXlsx(g, "vecka" + m.week)], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" })).then(function(how){
-    nvMsg(how === "saved" ? "Saved as " + file + ". Email it by Friday " + NV.due + "." : "If no file arrived, this page cannot save files here: use Copy for Google Sheets, or the tracker at " + (P.MOVED_TO || "its own site") + ".");
-  }, function(err){ nvMsg(err && err.code === "declined" ? "Not saved." : "This page cannot save files here. Use Copy for Google Sheets instead."); });
+    nvMsg(how === "saved" ? "Saved as " + file + ". Email it by Friday " + NV.due + "." : "If no file arrived, this page cannot save files here: use Copy table, or the tracker at " + (P.MOVED_TO || "its own site") + ".");
+  }, function(err){ nvMsg(err && err.code === "declined" ? "Not saved." : "This page cannot save files here. Use Copy table instead."); });
 });
 var nvTimer = null;
 document.addEventListener("input", function(e){

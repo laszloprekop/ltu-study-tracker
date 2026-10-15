@@ -18,7 +18,7 @@ const iso = d => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0
 const addDays = (x, n) => { const d = new Date(x + "T00:00:00"); d.setDate(d.getDate() + n); return iso(d); };
 const isoWeek = x => { const d = new Date(x + "T00:00:00Z"); d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7)); const y = new Date(Date.UTC(d.getUTCFullYear(), 0, 1)); return Math.ceil(((d - y) / 864e5 + 1) / 7); };
 const nv = new Function("P", "COURSES", "TEACHERS", "esc", "addDays", "isoWeek",
-  src.slice(a, b) + "; return { narvaroLines, narvaroTeachers, narvaroModel, narvaroGrid, narvaroXlsx, narvaroHtml, narvaroPlain, crc32 };")(
+  src.slice(a, b) + "; return { narvaroLines, narvaroTeachers, narvaroModel, narvaroGrid, narvaroXlsx, narvaroHtml, narvaroPlain, narvaroDayRows, crc32 };")(
   { PROGRAMME }, COURSES, TEACHERS, esc, addDays, isoWeek);
 
 let n = 0;
@@ -140,6 +140,26 @@ test("the copied table has the same cells, the teachers spanning H to K", () => 
   assert.equal((html.match(/<tr/g) || []).length, 23);
   assert.match(html, /<td colspan="4" style="background:#ffff00;white-space:nowrap">Josef Hallberg, Chen-Wei Yang<\/td>/);
   assert.match(nv.narvaroPlain(m), /^Närvarorapportering Programmerare Fullstack\n\nNamn: A Student\nLärare: Josef Hallberg, Chen-Wei Yang\nVecka: 42\n\nMåndag:\ta\n/);
+});
+test("Copy Day/Activity: the shape Google Sheets copies a day column beside an activity column", () => {
+  // week 41 of the sheet it was made for, as Sheets copied it (B to H: the day, the activity merged C:H)
+  const week = [
+    ["Z0025E NET: Lecture 6 (TCP flow control and congestion control)", "Z7005E PVT: Group task - Lab 2 Evaluating software design with SOLID principles, finished and submitted"],
+    ["Z0025E NET: Lecture 8 (network layer, inside a router and IP format)", "Z7005E PVT: Group task - Lab 3 Identifying design patterns in real-world projects"],
+    ["Z7005E PVT: Group task - Lab 3 Identifying design patterns, continued", "Z0025E NET: Self paced learning - Lecture 7 (transport-layer services, multiplexing and UDP) with forum post"],
+    ["Z7005E PVT: Group task - Lab 3 Identifying design patterns, finished and submitted", "Z0025E NET: Self paced learning - Module 3 quiz, Module 4 overview"],
+    ["Z7005E PVT: Self paced learning - Software quality attributes (module 4.2)", "Z7005E PVT: Group task - Lab 4 Understanding software design, started (due Thu 15 Oct)"]];
+  const names = ["Måndag", "Tisdag", "Onsdag", "Torsdag", "Fredag"], T = "\t";
+  const want = week.map((lines, i) => '"' + names[i] + "\n2026-10-0" + (5 + i) + '"' + T + lines[0] + T.repeat(5) + "\n" + T + lines[1] + T.repeat(5) + "\n" + T.repeat(6)).join("\n");
+  const m = nv.narvaroModel({ mon: "2026-10-05", style: "compact", teachers: "", days: week.map(l => l.join("\n")) }, "");
+  assert.equal(nv.narvaroDayRows(m), want);
+});
+test("Copy Day/Activity: an empty day keeps its row, a quote is quoted", () => {
+  const m = nv.narvaroModel({ mon: "2026-10-12", style: "short", teachers: "", days: ["", 'Read "Clean Code"\twith tabs', "c", "d", "e"] }, "");
+  const rows = nv.narvaroDayRows(m).split("\n");
+  assert.equal(rows[0], '"Måndag');
+  assert.equal(rows[1], '2026-10-12"' + "\t" + "\t".repeat(5));
+  assert.equal(rows[4], '2026-10-13"\t"Read ""Clean Code"" with tabs"' + "\t".repeat(5));
 });
 console.log(n + " passed");
 
