@@ -136,6 +136,19 @@ _Avoid_: Gap, availability
 Unplaced work a Student has put into a Free Slot. Part of their Personal Layer.
 _Avoid_: Appointment, booking (a Booking is claimed with the teacher)
 
+**Närvaro Report**:
+The weekly attendance report the programme asks of every Student: what each weekday held, on the
+programme's own spreadsheet template, emailed to its coordinator by Friday noon. Shown every Friday in
+the week view, with a Tick. Belongs to the programme, not to a Course.
+_Avoid_: Attendance export, timesheet
+
+**Närvaro Report Draft**:
+The page's first version of one week's Närvaro Report, written from that week's sessions, Calendar
+Events, Planned Blocks, hand-ins, tasks and Ticks, in a style (Detailed, Compact, Short) and a
+language (English, Swedish). The Student edits it, then downloads it as the template or copies it.
+Part of the Personal Layer, kept only in the Student's browser.
+_Avoid_: Export, report preview
+
 **Disagreement**:
 Two sources in one Course giving different values for the same fact, such as a deadline in Canvas
 and another in a PDF. Shown with a warning and every source until the Maintainer settles it; for a

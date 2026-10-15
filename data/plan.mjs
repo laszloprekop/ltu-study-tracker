@@ -23,9 +23,10 @@ const BOOKING = "https://doodle.com/sign-up-sheet/participate/b49a3fa3-19ad-4030
 const SIGNUP = "https://ltuedu.instructure.com/courses/614/modules/items/19985";
 
 // prefix: label before the code on chips. color: slot 1 to 5. canvasId: null until the course exists in Canvas.
+// sv: the course's Swedish name, as the programme knows it; the Närvaro Report uses it.
 export const COURSES = {
   Z7005E: {
-    name: "Programvaruteknik", prefix: "PVT", color: 1, canvasId: 613, zoom: ZOOM_SE,
+    name: "Programvaruteknik", sv: "Programvaruteknik", prefix: "PVT", color: 1, canvasId: 613, zoom: ZOOM_SE,
     teachers: ["josef-hallberg"],
     quick: [
       ["Schema", "https://ltuedu.instructure.com/courses/613/pages/schema"],
@@ -51,7 +52,7 @@ export const COURSES = {
     ]
   },
   Z0025E: {
-    name: "Computer Networks", prefix: "NET", color: 2, canvasId: 614, zoom: ZOOM_NET,
+    name: "Computer Networks", sv: "Datorkommunikation", prefix: "NET", color: 2, canvasId: 614, zoom: ZOOM_NET,
     teachers: ["chen-wei-yang"],
     quick: [
       ["Course home", "https://ltuedu.instructure.com/courses/614"],
@@ -269,7 +270,23 @@ export const PROGRAMME = {
     { title: "Teoristudier", en: "Theory studies, the courses on this page", who: "Luleå tekniska universitet", start: "2026-09-17", end: "2027-02-17", length: "21 weeks" },
     { title: "Arbetsplatsförlagt lärande (APL)", en: "Workplace learning", who: "A workplace, mostly in northern Sweden", start: "2027-02-18", end: "2027-03-18", length: "29 days or more" }
   ],
-  note: "Full time, daytime, Monday to Friday. The theory parts are remote."
+  note: "Full time, daytime, Monday to Friday. The theory parts are remote.",
+  // The Närvaro Report: what each weekday held, sent by Friday noon, on the programme's own template
+  // ("Närvarorapportering Programmerare (1).xlsx", from the programme's coordinator). The week view
+  // shows it every Friday and drafts it from the week. notes: the template's lines under the days,
+  // word for word; mark: the line the template highlights in yellow.
+  narvaro: {
+    title: "Närvarorapportering Programmerare Fullstack",
+    due: "12:00",
+    notes: [
+      ["Vid veckodagarna skriver ni vad ni gjort under dagen(tex vilken kurs eller uppgift). ",
+        "Fyll även i det gulmarkerade(Ert namn, lärarens namn och vecka). ",
+        "Närvarorapporten mejlar ni till mig jeanette.rudstrom@ltubusiness.se senast fredag förmiddag!"],
+      ["När ni är sjuk eller hemma för vård av barn anmäler ni det  till samma mejladress innan eller senast samma morgon.",
+        "Det är viktigt att ni gör det på förmiddagen så det blir inrapporterat och ni får ersättning.",
+        { mark: "OBS! frånvarorapporteringen måste göras varje dag du är sjuk eller hemma för vård av barn" }]
+    ]
+  }
 };
 
 export const MOVED_TO = "https://ltu-studytracker.dentaku.se";

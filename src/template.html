@@ -396,6 +396,34 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
 .dayplan h3 .ic{color:var(--muted); align-self:center}
 .dayplan h3 .sum{font-weight:400; color:var(--muted); font-size:12.5px}
 .dayplan .dp{display:grid; grid-template-columns:minmax(0, 3fr) minmax(240px, 2fr); gap:var(--gap)}
+/* Narvaro Report: the Friday row's button, and the draft unfolded under it */
+.row.narvaro .nv-act{display:flex; flex-wrap:wrap; gap:6px; margin-top:6px}
+.row.narvaro .nv-open,.nv-acts button{display:inline-flex; align-items:center; gap:6px; font:inherit; font-size:13px; font-weight:700; padding:6px 14px; cursor:pointer;
+  color:var(--on-now-container); --fill:var(--now-container); --frame:var(--now-container); --edge:var(--edge-blue); --edge-b:var(--edge-blue-b)}
+.row.narvaro .nv-open{font-size:12.5px; padding:4px 10px}
+/* an outlined button: the frame layer lies under the whole fill, so the fill is the surface, not transparent */
+.row.narvaro .nv-open[aria-expanded="false"],.nv-acts button.plain{color:var(--ink); --fill:var(--surface); --frame:var(--muted); --edge:initial}
+.nvpanel{padding:12px 16px 14px; margin:4px 0 var(--gap)}
+.nvpanel h3{display:flex; align-items:baseline; flex-wrap:wrap; gap:2px 10px; font-size:13.5px; margin:0 0 12px}
+.nvpanel h3 .ic{color:var(--muted); align-self:center}
+.nvpanel h3 .sum{font-weight:400; color:var(--muted); font-size:12.5px}
+.nv-opts{display:flex; flex-wrap:wrap; align-items:center; gap:8px 12px; margin:0 0 12px}
+.nv-opts .seg{background:var(--surface-2)}
+.nv-k,.nv-f > span,.nv-dl{font-size:11.5px; letter-spacing:.06em; text-transform:uppercase; font-weight:600; color:var(--muted)}
+.nv-f small,.nv-dl small{font-weight:400; letter-spacing:0; text-transform:none; margin-left:6px}
+.nv-head{display:grid; grid-template-columns:minmax(0, 1fr) minmax(0, 2fr) auto; gap:var(--gap); align-items:end; margin:0 0 14px}
+.nv-f{display:flex; flex-direction:column; gap:4px; min-width:0}
+.nv-wk b{display:block; font-size:15px; padding:5px 0 6px; color:var(--ink)}
+.nvpanel input[type=text],.nvpanel textarea{font:inherit; font-size:13px; line-height:1.45; color:var(--ink); padding:6px 8px; width:100%}
+.nvpanel textarea{display:block; resize:vertical; min-height:34px; overflow:hidden}
+.nv-days{display:grid; gap:8px}
+.nv-day{display:grid; grid-template-columns:120px minmax(0, 1fr); gap:10px; align-items:start}
+.nv-dl{display:flex; flex-direction:column; padding-top:7px}
+.nv-dl small{margin:0}
+.nv-acts{display:flex; flex-wrap:wrap; gap:8px; margin:14px 0 0}
+.nv-msg{margin:8px 0 0; font-size:12.5px; font-weight:600}
+.nvpanel .note{margin:8px 0 0; font-size:12.5px; color:var(--muted)}
+@media (max-width:680px){ .nv-head{grid-template-columns:minmax(0, 1fr) auto} .nv-head .nv-f:nth-child(2){grid-column:1 / -1; grid-row:2} .nv-day{grid-template-columns:1fr; gap:3px} .nv-dl{flex-direction:row; align-items:baseline; gap:6px; padding-top:0} }
 @media (max-width:760px){ .dayplan .dp{grid-template-columns:1fr} }
 .dp-grid{position:relative; margin-left:44px}
 .dp-line{position:absolute; left:0; right:0; border-top:1px solid var(--line); opacity:.45}
@@ -493,7 +521,7 @@ h1{font-size:20px; letter-spacing:-.015em; margin-right:6px}
 .seg.tools button{padding-inline:8px}
 .seg.tools .lbl + button{border-left:0}
 .seg.tools button[aria-pressed="true"]{color:var(--on-now-container); background:var(--now-container)}
-.seg button:focus-visible,.jump:focus-visible,.terms button:focus-visible,input:focus-visible,.dayctl button:focus-visible,.mute:focus-visible,.fold:focus-visible,summary:focus-visible{outline:2px solid var(--now); outline-offset:-2px}
+.seg button:focus-visible,.jump:focus-visible,.terms button:focus-visible,input:focus-visible,.nvpanel textarea:focus-visible,.dayctl button:focus-visible,.mute:focus-visible,.fold:focus-visible,summary:focus-visible{outline:2px solid var(--now); outline-offset:-2px}
 .pop{position:relative}
 .pop summary{list-style:none; display:inline-flex; align-items:center; gap:5px; font-size:12.5px; font-weight:600; color:var(--muted); background:var(--surface); padding:5px 8px; cursor:pointer}
 .pop summary::-webkit-details-marker{display:none}
@@ -1060,7 +1088,7 @@ svg.focus .ge.tl.hl{opacity:.5; stroke-width:1.4}
 @property --edge-b{syntax:'*'; inherits:false}
 *,::before,::after{--cut:polygon(0 0, calc(100% - var(--bev, 6px)) 0, 100% var(--bev, 6px), 100% 100%, 0 100%)}
 /* 1. Cut: the element itself is clipped and paints its own background. */
-.legend-g,.ann,.seg,.pop summary,.gtools button,.gtools .reach,.detail .multi button,.dayctl input[type=date],.dayctl button,.hours input[type=time],.rail-tip,.tag,.lvl,.chip,.flag,.links a,.quick a,.rail-list .ev,.playhead .phl,.dp-block,.chain,.cvmark.both,.dp-items li button,.cardsview select,.cardsview textarea,.cardsview .fld,.cvcard input[type=password],.cvcard input[type=number],.cvcard input[type=url],.cvcard input[type=text],.cvcard input.secret,.prog textarea,.prog select,.pp-row input[type=time]{clip-path:var(--cut)}
+.legend-g,.ann,.seg,.pop summary,.gtools button,.gtools .reach,.detail .multi button,.dayctl input[type=date],.dayctl button,.hours input[type=time],.rail-tip,.tag,.lvl,.chip,.flag,.links a,.quick a,.rail-list .ev,.playhead .phl,.dp-block,.chain,.cvmark.both,.dp-items li button,.cardsview select,.cardsview textarea,.cardsview .fld,.cvcard input[type=password],.cvcard input[type=number],.cvcard input[type=url],.cvcard input[type=text],.cvcard input.secret,.prog textarea,.prog select,.pp-row input[type=time],.nvpanel input[type=text],.nvpanel textarea{clip-path:var(--cut)}
 .legend-g,.pp-card{--bev:10px}
 .ann{--bev:8px}
 .tag,.lvl,.chip,.flag,.links a{--bev:4px}
@@ -1074,12 +1102,12 @@ svg.focus .ge.tl.hl{opacity:.5; stroke-width:1.4}
    drop-shadow filter follows the shape. Cards and popups have no visible frame (--bw:0).
    position:relative comes in :where(), with no weight, so a box placed absolutely (a popup panel,
    the slim rail) keeps its own position. */
-:where(.card,.pop .panel,.fc-body,.cardsview button,.pop .prog button,.cvcard button,.dp-items li,.disagreements .copyrep,.acct-delete button,.tgl,.infonav button,.infoview .plain,.moved button,.bkstrip,.bkstage,.chain .pdate.doby){position:relative}
-.card,.pop .panel,.fc-body,.cardsview button,.pop .prog button,.cvcard button,.dp-items li,.disagreements .copyrep,.acct-delete button,.tgl,.infonav button,.infoview .plain,.moved button,.bkstrip,.bkstage,.chain .pdate.doby{isolation:isolate; background:none; border-style:solid; border-color:transparent;
+:where(.card,.pop .panel,.fc-body,.cardsview button,.pop .prog button,.cvcard button,.dp-items li,.disagreements .copyrep,.acct-delete button,.tgl,.infonav button,.infoview .plain,.moved button,.bkstrip,.bkstage,.chain .pdate.doby,.row.narvaro .nv-open,.nv-acts button){position:relative}
+.card,.pop .panel,.fc-body,.cardsview button,.pop .prog button,.cvcard button,.dp-items li,.disagreements .copyrep,.acct-delete button,.tgl,.infonav button,.infoview .plain,.moved button,.bkstrip,.bkstage,.chain .pdate.doby,.row.narvaro .nv-open,.nv-acts button{isolation:isolate; background:none; border-style:solid; border-color:transparent;
   border-width:var(--bw-t, var(--bw, 1px)) var(--bw, 1px) var(--bw, 1px) var(--bw-l, var(--bw, 1px))}
-.card::before,.pop .panel::before,.fc-body::before,.cardsview button::before,.pop .prog button::before,.cvcard button::before,.dp-items li::before,.disagreements .copyrep::before,.acct-delete button::before,.tgl::before,.infonav button::before,.infoview .plain::before,.moved button::before,.bkstrip::before,.bkstage::before,.chain .pdate.doby::before,.card::after,.pop .panel::after,.fc-body::after,.cardsview button::after,.pop .prog button::after,.cvcard button::after,.dp-items li::after,.disagreements .copyrep::after,.acct-delete button::after,.tgl::after,.infonav button::after,.infoview .plain::after,.moved button::after,.bkstrip::after,.bkstage::after,.chain .pdate.doby::after{content:""; position:absolute; z-index:-1; pointer-events:none;
+.card::before,.pop .panel::before,.fc-body::before,.cardsview button::before,.pop .prog button::before,.cvcard button::before,.dp-items li::before,.disagreements .copyrep::before,.acct-delete button::before,.tgl::before,.infonav button::before,.infoview .plain::before,.moved button::before,.bkstrip::before,.bkstage::before,.chain .pdate.doby::before,.row.narvaro .nv-open::before,.nv-acts button::before,.card::after,.pop .panel::after,.fc-body::after,.cardsview button::after,.pop .prog button::after,.cvcard button::after,.dp-items li::after,.disagreements .copyrep::after,.acct-delete button::after,.tgl::after,.infonav button::after,.infoview .plain::after,.moved button::after,.bkstrip::after,.bkstage::after,.chain .pdate.doby::after,.row.narvaro .nv-open::after,.nv-acts button::after{content:""; position:absolute; z-index:-1; pointer-events:none;
   --bev:inherit; --bw:inherit; --bw-t:inherit; --bw-l:inherit; --frame:inherit; --fill:inherit; --edge:inherit; --edge-b:inherit}
-.card::before,.pop .panel::before,.fc-body::before,.cardsview button::before,.pop .prog button::before,.cvcard button::before,.dp-items li::before,.disagreements .copyrep::before,.acct-delete button::before,.tgl::before,.infonav button::before,.infoview .plain::before,.moved button::before,.bkstrip::before,.bkstage::before,.chain .pdate.doby::before{inset:calc(-1 * var(--bw-t, var(--bw, 1px))) calc(-1 * var(--bw, 1px)) calc(-1 * var(--bw, 1px)) calc(-1 * var(--bw-l, var(--bw, 1px)));
+.card::before,.pop .panel::before,.fc-body::before,.cardsview button::before,.pop .prog button::before,.cvcard button::before,.dp-items li::before,.disagreements .copyrep::before,.acct-delete button::before,.tgl::before,.infonav button::before,.infoview .plain::before,.moved button::before,.bkstrip::before,.bkstage::before,.chain .pdate.doby::before,.row.narvaro .nv-open::before,.nv-acts button::before{inset:calc(-1 * var(--bw-t, var(--bw, 1px))) calc(-1 * var(--bw, 1px)) calc(-1 * var(--bw, 1px)) calc(-1 * var(--bw-l, var(--bw, 1px)));
   /* A box with --edge (a gradient's colour stops) and --edge-b (its base colour) gets an edged frame:
      the same gradient along every side, left to right on the top and bottom, top to bottom on the
      sides, each as wide as that side's border; the base fills the rest, so the cut's diagonal and the
@@ -1088,7 +1116,7 @@ svg.focus .ge.tl.hl{opacity:.5; stroke-width:1.4}
   --edge-layers:linear-gradient(to right, var(--edge)) 0 0 / 100% var(--bw-t, var(--bw, 1px)) no-repeat, linear-gradient(to right, var(--edge)) 0 100% / 100% var(--bw, 1px) no-repeat,
     linear-gradient(to bottom, var(--edge)) 0 0 / var(--bw-l, var(--bw, 1px)) 100% no-repeat, linear-gradient(to bottom, var(--edge)) 100% 0 / var(--bw, 1px) 100% no-repeat, var(--edge-b);
   background:var(--edge-layers, var(--frame, var(--line))); clip-path:var(--cut)}
-.card::after,.pop .panel::after,.fc-body::after,.cardsview button::after,.pop .prog button::after,.cvcard button::after,.dp-items li::after,.disagreements .copyrep::after,.acct-delete button::after,.tgl::after,.infonav button::after,.infoview .plain::after,.moved button::after,.bkstrip::after,.bkstage::after,.chain .pdate.doby::after{inset:0; background:var(--fill, var(--surface));
+.card::after,.pop .panel::after,.fc-body::after,.cardsview button::after,.pop .prog button::after,.cvcard button::after,.dp-items li::after,.disagreements .copyrep::after,.acct-delete button::after,.tgl::after,.infonav button::after,.infoview .plain::after,.moved button::after,.bkstrip::after,.bkstage::after,.chain .pdate.doby::after,.row.narvaro .nv-open::after,.nv-acts button::after{inset:0; background:var(--fill, var(--surface));
   --bev-in:max(0px, calc(var(--bev, 6px) + var(--bw, 1px) * 1.4142 - var(--bw, 1px) - var(--bw-t, var(--bw, 1px))));
   clip-path:polygon(0 0, calc(100% - var(--bev-in)) 0, 100% var(--bev-in), 100% 100%, 0 100%)}
 .card,.pop .panel{--bw:0px; --bev:12px}
@@ -1097,7 +1125,7 @@ svg.focus .ge.tl.hl{opacity:.5; stroke-width:1.4}
 /* 3. Framed control: an input, select or textarea cannot hold ::before or ::after, so it is cut
    directly and framed by its own border in the solid --frame-c; the cut's diagonal is a thin stripe
    in the same colour. Its fill is --fill (a colour). */
-.cardsview select,.cardsview textarea,.cardsview .fld,.cvcard input[type=password],.cvcard input[type=number],.cvcard input[type=url],.cvcard input[type=text],.cvcard input.secret,.prog textarea,.prog select,.pp-row input[type=time]{border:var(--bw, 1px) solid var(--frame-c, var(--muted));
+.cardsview select,.cardsview textarea,.cardsview .fld,.cvcard input[type=password],.cvcard input[type=number],.cvcard input[type=url],.cvcard input[type=text],.cvcard input.secret,.prog textarea,.prog select,.pp-row input[type=time],.nvpanel input[type=text],.nvpanel textarea{border:var(--bw, 1px) solid var(--frame-c, var(--muted));
   background:linear-gradient(to bottom left, transparent 50%, var(--frame-c, var(--muted)) 50%, var(--frame-c, var(--muted)) calc(50% + var(--bw, 1px)), transparent calc(50% + var(--bw, 1px))) 100% 0 / var(--bev, 6px) var(--bev, 6px) no-repeat border-box, var(--fill, var(--surface))}
 
 @media (max-width:900px){ body.mapview{overflow:auto} body.mapview .wrap{height:auto} .map,.map.rail-slim{grid-template-columns:1fr; height:auto} .map .rail-list{max-height:220px} .gwrap{height:50vh} .detail{max-height:60vh}
@@ -1273,8 +1301,8 @@ body.colored table.all tr:not(.done) .tt{color:var(--cc)}
 
 /* ---------- Helpers ---------- */
 const P = DATA.plan, INV = DATA.inventory, COURSES = P.COURSES, TEACHERS = P.TEACHERS, TERMS = P.TERMS, PROGRESS = DATA.progress || null;
-const LS = { hours: "ltu-plan-hours", drillGoal: "ltu-plan-drill-goal", planned: "ltu-plan-planned", openedCounts: "ltu-plan-opened-counts", groups: "ltu-plan-groups", canvasCache: "ltu-plan-canvas-cache", movedFolded: "ltu-plan-moved-folded", exportedAt: "ltu-plan-exported-at", unlocked: "ltu-plan-unlocked", ticks: "ltu-plan-ticks", tickAt: "ltu-plan-tick-at", muted: "ltu-plan-muted", filter: "ltu-plan-filter", term: "ltu-plan-term", view: "ltu-plan-view", open: "ltu-plan-open", weeks: "ltu-plan-weeks", size: "ltu-plan-size", ping: "ltu-plan-ping", colored: "ltu-plan-colored", theme: "ltu-plan-theme", palette: "ltu-plan-palette", cardsHidden: "ltu-plan-cards-hidden-shown", cardTrust: "ltu-plan-card-trust", mapOpen: "ltu-plan-map-open", mapPos: "ltu-plan-map-pos", mapAll: "ltu-plan-map-all", mapHops: "ltu-plan-map-hops", mapMode: "ltu-plan-map-mode", railSlim: "ltu-plan-map-rail", snaps: "ltu-plan-snaps", pins: "ltu-plan-pins", legacy: "lp2-shared-ticks" };
-const state = { weekDay: null, checked: {}, tickAt: {}, planned: {}, cards: null, cardsLoading: false, drill: null, drillGoal: "event", cal: null, calLinks: null, calErr: null, bookings: null, canvas: null, canvasErr: null, openedCounts: true, groups: {}, exportedAt: null, unlocked: false, muted: {}, filter: "all", term: null, view: "week", day: null, open: {}, weeks: {}, size: 100, ping: true, colored: true, theme: "system", palette: "ice", hours: { start: "09:00", end: "17:00" }, mapOpen: null, mapSel: null, mapSels: [], mapAll: false, mapHops: 5, mapMode: "select", railSlim: false };
+const LS = { hours: "ltu-plan-hours", drillGoal: "ltu-plan-drill-goal", planned: "ltu-plan-planned", openedCounts: "ltu-plan-opened-counts", groups: "ltu-plan-groups", canvasCache: "ltu-plan-canvas-cache", movedFolded: "ltu-plan-moved-folded", exportedAt: "ltu-plan-exported-at", unlocked: "ltu-plan-unlocked", ticks: "ltu-plan-ticks", tickAt: "ltu-plan-tick-at", muted: "ltu-plan-muted", filter: "ltu-plan-filter", term: "ltu-plan-term", view: "ltu-plan-view", open: "ltu-plan-open", weeks: "ltu-plan-weeks", size: "ltu-plan-size", ping: "ltu-plan-ping", colored: "ltu-plan-colored", theme: "ltu-plan-theme", palette: "ltu-plan-palette", cardsHidden: "ltu-plan-cards-hidden-shown", cardTrust: "ltu-plan-card-trust", mapOpen: "ltu-plan-map-open", mapPos: "ltu-plan-map-pos", mapAll: "ltu-plan-map-all", mapHops: "ltu-plan-map-hops", mapMode: "ltu-plan-map-mode", railSlim: "ltu-plan-map-rail", snaps: "ltu-plan-snaps", pins: "ltu-plan-pins", narvaro: "ltu-plan-narvaro", legacy: "lp2-shared-ticks" };
+const state = { weekDay: null, nvOpen: null, nvDraft: null, checked: {}, tickAt: {}, planned: {}, cards: null, cardsLoading: false, drill: null, drillGoal: "event", cal: null, calLinks: null, calErr: null, bookings: null, canvas: null, canvasErr: null, openedCounts: true, groups: {}, exportedAt: null, unlocked: false, muted: {}, filter: "all", term: null, view: "week", day: null, open: {}, weeks: {}, size: 100, ping: true, colored: true, theme: "system", palette: "ice", hours: { start: "09:00", end: "17:00" }, mapOpen: null, mapSel: null, mapSels: [], mapAll: false, mapHops: 5, mapMode: "select", railSlim: false };
 let store = null, saveTimer = null;
 
 function esc(s){ return String(s == null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
@@ -1486,7 +1514,7 @@ function calRows(t){
 }
 function withCalendar(t, rows){
   if (!state.cal) return rows;
-  return rows.concat(calRows(t)).sort(function(a, b){ return a.date.localeCompare(b.date) || String(a.time || "").localeCompare(String(b.time || "")) || (a.kind === "session" ? -1 : 1); });
+  return rows.concat(calRows(t)).sort(byWhen);
 }
 // The tag on an event from a Calendar Link: the calendar's name (the one typed when it was added, else the
 // feed's own), "yours" when it has none.
@@ -1558,10 +1586,10 @@ function prepOf(t, ke){
 }
 function prepReady(p){ return isDone(p.id); }
 
+// Rows by day, then time; at the same time a session comes first.
+function byWhen(a, b){ return a.date.localeCompare(b.date) || String(a.time || "").localeCompare(String(b.time || "")) || (a.kind === "session" ? -1 : 1); }
 function timeline(t){
-  var rows = deadlineRows(t).concat(sessionRows(t)).concat(taskRows(t));
-  rows.sort(function(a, b){ return a.date.localeCompare(b.date) || String(a.time || "").localeCompare(String(b.time || "")) || (a.kind === "session" ? -1 : 1); });
-  return rows;
+  return deadlineRows(t).concat(sessionRows(t)).concat(taskRows(t)).sort(byWhen);
 }
 // Endangered: unfinished, not muted, and due today or in the next six days (overdue counts too),
 // or MUST material of the current week or an earlier one. Nothing further ahead pulses.
@@ -1591,7 +1619,7 @@ function hostClass(id, extra){ return (extra || "") + (id && isDone(id) ? " done
 function when(r, opts){
   opts = opts || {};
   var top = opts.withDay ? dayLabel(r.date) : "";
-  var t = r.kind === "session" ? (r.time ? r.time + (r.end ? "\u2013" + r.end : "") : "any time") : r.kind === "deadline" ? r.time : "";
+  var t = r.kind === "session" ? (r.time ? r.time + (r.end ? "\u2013" + r.end : "") : "any time") : r.kind === "deadline" || r.kind === "narvaro" ? r.time : "";
   return '<span class="when mono">' + (top ? esc(top) + (t ? " " : "") : "") + esc(t) + '</span>';
 }
 function rowIcon(r){
@@ -1602,6 +1630,7 @@ function rowIcon(r){
 function row(r, opts){
   opts = opts || {};
   if (r.cal) return calRow(r);
+  if (r.kind === "narvaro") return narvaroRowHtml(r);
   var tags = "";
   if (r.disagree) tags += '<span class="tag disagree" title="' + esc(disagreeText(r.disagree)) + '">' + ic("warning", "sm") + 'sources disagree</span>';
   if (r.status === "expected") tags += '<span class="tag expected" title="Date from the Homepage timetable, lecture number from module order. Not yet named by the teacher.">' + ic("hourglass-medium", "sm") + 'expected</span>';
@@ -1789,6 +1818,7 @@ function renamePin(id, name){
 // What a row id names now, from the plan and Canvas data of any term; null once it is gone.
 function rowTitle(id){
   var p = String(id).split(":"), code = p[1];
+  if (/^t:narvaro-\d{4}-\d\d-\d\d$/.test(id)) return { title: "N\u00e4rvaro report, " + longDay(id.slice(10)), code: "" };
   if (p[0] === "a") { var a = announcements(code).find(function(x){ return String(x.id) === p[2]; }); return a ? { title: a.title, code: code } : null; }
   if (p[0] === "m") { var it = items(code).find(function(i){ return String(i.id) === p[2]; }); return it ? { title: (it.number ? it.number + " " : "") + it.title, code: code } : null; }
   var cache = rowTitle.rows || (rowTitle.rows = TERMS.reduce(function(a, t){ return a.concat(timeline(t)); }, []));
@@ -1899,11 +1929,13 @@ function weekOverview(days, span, today){
 function weekRows(t, days, span, mon, today){
   var out = "";
   days.forEach(function(x){
-    var open = state.weekDay === x.d, rowsHtml = x.rows.map(function(r){ return row(r); }).join("");
+    // the Narvaro report draft unfolds under its row, or under the Day Plan when the day is open
+    var nvp = function(r){ return r.kind === "narvaro" && state.nvOpen === r.mon ? narvaroPanel(t, r.mon) : ""; };
+    var open = state.weekDay === x.d, rowsHtml = x.rows.map(function(r){ return row(r) + (open ? "" : nvp(r)); }).join("");
     out += '<div class="dayhead' + (x.d === today ? ' today" id="today' : '') + '" data-date="' + x.d + '"><span class="dh-lead"><span class="dh-l">' + (x.d === today ? 'Today \u00B7 ' : '') + esc(x.d === today ? longDay(x.d) : fullDay(x.d)) + '</span><span class="dh-rule"></span></span><span class="free"></span><span class="dh-rule"></span>' +
       '<button type="button" class="plan" data-plan="' + x.d + '" aria-expanded="' + open + '">' + ic(open ? "x" : "clock", "sm") + (open ? 'Close the plan' : 'Plan') + '</button></div>';
     out += open ? renderDayPlan(t, x.d, '<div class="dp-sec"><h4>' + ic("clipboard-text") + 'This day</h4>' + (rowsHtml ? '<div class="rows">' + rowsHtml + '</div>' : '<div class="none">No sessions or deadlines.</div>') + '</div>')
-      : dayStrip(x, span, today) + rowsHtml;
+      + x.rows.map(nvp).join("") : dayStrip(x, span, today) + rowsHtml;
   });
   return out;
 }
@@ -1928,7 +1960,8 @@ function renderWeekView(t){
   var anns = t.courses.reduce(function(a, c){ return a.concat(announcements(c).map(function(x){ return Object.assign({ code: c }, x); })); }, []);
   var html = weeks.map(function(mon, i){
     var next = addDays(mon, 7);
-    var wr = rows.filter(function(r){ return r.date >= mon && r.date < next; });
+    var wr = rows.filter(function(r){ return r.date >= mon && r.date < next; }), nv = narvaroRow(t, mon);
+    if (nv) wr = wr.concat([nv]).sort(byWhen);
     var wb = blocks.filter(function(b){ return b.week === mon; });
     var wa = anns.filter(function(a){ return a.posted >= mon && a.posted < next; });
     var isNow = mon === curMon, flag = t.weekFlags[mon];
@@ -1946,6 +1979,331 @@ function renderWeekView(t){
   var jump = document.getElementById("jump"), idx = weeks.indexOf(curMon);
   jump.hidden = idx < 0;
   return '<section><div class="sechead"><h2>Week by week</h2><span class="note">MUST items carry a red stripe. Sessions have no box, they are attended. The strip under a day opens its plan. The caret by a week number folds it to one line.</span></div><div class="weeks">' + html + '</div></section>';
+}
+/* ---------- Narvaro Report (CONTEXT.md) ---------- */
+// The programme asks every Student, by Friday noon, what each weekday held (PROGRAMME.narvaro). The
+// week view shows it on every Friday with a tick box; its button unfolds a Narvaro report draft in
+// place: written from the week in one of three styles, in English or Swedish, edited by the Student,
+// then downloaded as the programme's Excel template or copied as a table for Google Sheets. Nothing is
+// sent from the page. Week by week only, like the Calendar Events, and not counted in the progress.
+var NV = (P.PROGRAMME && P.PROGRAMME.narvaro) || null, NV_DAYS = ["M\u00e5ndag", "Tisdag", "Onsdag", "Torsdag", "Fredag"];
+function narvaroRow(t, mon){
+  var fri = addDays(mon, 4), pg = P.PROGRAMME;
+  if (!NV || !t.courses.length || fri < pg.start || fri > pg.end) return null;
+  return { kind: "narvaro", level: "must", id: "t:narvaro-" + fri, code: "", date: fri, time: NV.due, mon: mon, title: "N\u00e4rvaro report due " + NV.due,
+    why: "What each day of this week held, on the programme's template, emailed by Friday noon. Draft it here from the week, check it, then download or copy it." };
+}
+// Only this week's and later reports pulse or carry red: a past Friday left unticked is not news.
+function narvaroRowHtml(r){
+  var open = state.nvOpen === r.mon, live = r.date >= monday(todayIso());
+  var text = '<span class="t"><span class="chip" style="' + colorVars("") + '" title="' + esc(P.PROGRAMME.name) + '">Programme</span>' + lvl("must") + ic("clipboard-text", "kic") + '<span class="tt">' + esc(r.title) + '</span></span><span class="why">' + esc(r.why) + '</span>';
+  return '<div class="' + hostClass(r.id, "row task narvaro lvl-must" + (live && endangeredRow(r) ? " endangered" : "")) + '" data-id="' + esc(r.id) + '" data-link="' + esc(r.id) + '">' + when(r) + box(r.id) +
+    '<span class="body"><label for="' + esc(r.id) + '">' + text + '</label><span class="nv-act"><button type="button" class="nv-open" data-narvaro="' + r.mon + '" aria-expanded="' + open + '">' + ic(open ? "x" : "pencil-simple", "sm") + (open ? "Close the draft" : "Draft it from this week") + '</button></span></span>' +
+    rowCtl(r.id, r.id, "Programme", r.title) + '</div>';
+}
+
+// What each weekday held, Monday to Friday: the day's sessions and Calendar Events, the Student's
+// Planned Blocks, the hand-ins and tasks dated that day, and what they ticked done that day. A hand-in
+// or task ticked done on another weekday of the same week counts on the day it was ticked. Muted
+// items are left out.
+function narvaroItems(t, mon){
+  var fri = addDays(mon, 4), days = [0, 1, 2, 3, 4].map(function(i){ return { d: addDays(mon, i), items: [] }; }), seen = {};
+  var put = function(d, it){ var x = days.find(function(y){ return y.d === d; }); if (x) x.items.push(it); };
+  var tickDay = function(id){ var at = state.checked[id] && state.tickAt[id]; if (!at) return null; var d = iso(new Date(at)); return d >= mon && d <= fri ? d : null; };
+  var work = function(r, done){ return { kind: r.kind === "task" ? "task" : "handin", akind: r.akind, code: r.code, time: r.time, title: r.title.replace(/ (due|close) \d\d:\d\d$/, ""), done: done }; };
+  days.forEach(function(x){ plannedOn(x.d).forEach(function(b){
+    if (b.ref) { if (state.muted[b.ref]) return; seen[b.ref] = 1; }
+    x.items.push({ kind: "planned", code: b.code, time: b.start, end: addMinutes(b.start, b.mins), title: b.title, material: /^m:/.test(b.ref || ""), done: !!(b.ref && isDone(b.ref)) });
+  }); });
+  withCalendar(t, timeline(t)).forEach(function(r){
+    if (r.date < mon || r.date > fri || state.muted[r.id || r.key] || (r.id && seen[r.id])) return;
+    if (r.kind === "session") put(r.date, { kind: r.cal ? "cal" : "session", skind: r.skind, code: r.code, time: r.time, end: r.end, title: r.title });
+    else { seen[r.id] = 1; put(tickDay(r.id) || r.date, work(r, isDone(r.id))); }
+  });
+  var byId = {}; deadlineRows(t).concat(taskRows(t)).forEach(function(r){ byId[r.id] = r; });
+  Object.keys(state.checked).forEach(function(id){
+    var d = !seen[id] && !state.muted[id] && !/^t:narvaro-/.test(id) && tickDay(id); if (!d) return;
+    var p = id.split(":");
+    if (p[0] === "m") { var it = items(p[1]).find(function(i){ return String(i.id) === p[2]; }); if (it) put(d, { kind: "material", code: p[1], title: (it.number ? it.number + " " : "") + it.title, done: true }); }
+    else if (byId[id]) put(d, work(byId[id], true));
+  });
+  days.forEach(function(x){ x.items.sort(function(a, b){ return (a.time || "99").localeCompare(b.time || "99"); }); });
+  return days;
+}
+
+// The words of the draft. Titles from the Course Plan and Canvas stay as they are; only the frame is
+// translated. Swedish takes the singular before numbers ("forelasning 8 och 10", lecture 8 and 10), as students write it.
+var NV_WORDS = {
+  en: { lecture: ["lecture", "lectures"], workshop: ["workshop", "workshops"], lab: ["lab session", "lab sessions"], interview: ["interview", "interviews"], seminar: ["seminar", "seminars"], exam: ["exam", "exams"],
+    and: "and", self: "self-study", Self: "Self-study", group: "group work", empty: "Self-study and group work", handin: "hand-in", submitted: "submitted", due: "due", workOn: "work on",
+    done: "done", taken: "taken", open: "open until", quizzes: "module quizzes", lab1: "lab" },
+  sv: { lecture: ["f\u00f6rel\u00e4sning", "f\u00f6rel\u00e4sning"], workshop: ["workshop", "workshop"], lab: ["labbredovisning", "labbredovisning"], interview: ["intervju", "intervju"], seminar: ["seminarium", "seminarium"], exam: ["examination", "examination"],
+    and: "och", self: "sj\u00e4lvstudier", Self: "Sj\u00e4lvstudier", group: "grupparbete", empty: "Sj\u00e4lvstudier, grupparbeten", handin: "inl\u00e4mning", submitted: "inl\u00e4mnad", due: "inl\u00e4mning senast", workOn: "arbete med",
+    done: "klar", taken: "genomf\u00f6rd", open: "\u00f6ppen till", quizzes: "modulquiz", lab1: "labb" }
+};
+// "Lecture 9, NAT, IPv6" is the head "Lecture 9" and the topic "NAT, IPv6".
+function nvSplit(title){ var i = title.indexOf(", "); return i < 0 ? [title, ""] : [title.slice(0, i), title.slice(i + 2)]; }
+function nvList(xs, L){ return xs.length < 2 ? xs.join("") : xs.slice(0, -1).join(", ") + " " + L.and + " " + xs[xs.length - 1]; }
+function nvTag(code){ var k = COURSES[code]; return k ? code + (k.prefix ? " " + k.prefix : "") : ""; }
+function nvCourse(code){ var k = COURSES[code]; return k ? k.sv || k.name : ""; }
+function nvHead(head, lang){ return lang === "sv" ? head.replace(/^Lecture (\d+)$/, "F\u00f6rel\u00e4sning $1").replace(/^Lab (\d+) session$/, "Redovisning Lab $1") : head; }
+function nvLab(title){ return nvSplit(title)[0].replace(/ report$/, ""); }
+function nvTime(it){ return it.time ? it.time + (it.end ? "\u2013" + it.end : "") : ""; }
+function nvHandin(it, L, lang){
+  if (it.akind === "exam" || it.akind === "quiz") return it.title + ", " + (it.done ? (it.akind === "exam" ? L.taken : L.done) : L.open + " " + it.time);
+  var hs = nvSplit(it.title);
+  return nvHead(hs[0], lang) + (hs[1] ? " (" + hs[1] + ")" : "") + ", " + (it.done ? L.submitted : L.due + " " + it.time);
+}
+// Detailed: one line per activity, with its course, topic, time and whether a hand-in went in.
+function nvDetailed(items, L, lang){
+  var out = [], mat = {}, order = [];
+  items.forEach(function(it){
+    var pre = it.code && nvTag(it.code) ? nvTag(it.code) + ": " : "", tm = nvTime(it), hs;
+    if (it.kind === "session") { hs = nvSplit(it.title); out.push(pre + nvHead(hs[0], lang) + (hs[1] ? " (" + hs[1] + ")" : "") + (tm ? ", " + tm : "")); }
+    else if (it.kind === "cal") out.push(pre + it.title + (tm ? ", " + tm : ""));
+    else if (it.kind === "planned") out.push(pre + (it.material ? L.Self + ", " : "") + it.title + (tm ? ", " + tm : ""));
+    else if (it.kind === "handin") out.push(pre + nvHandin(it, L, lang));
+    else if (it.kind === "task") out.push(pre + it.title + (it.done ? ", " + L.done : ""));
+    else if (it.kind === "material") { if (!mat[it.code]) { mat[it.code] = []; order.push(it.code); } mat[it.code].push(it.title); }
+  });
+  order.forEach(function(c){ out.push((nvTag(c) ? nvTag(c) + ": " : "") + L.Self + ": " + mat[c].join("; ")); });
+  return out;
+}
+// The items of one day per course, in the order the courses come up; work without a course goes last.
+function nvByCourse(items){
+  var groups = [];
+  items.forEach(function(it){ var c = it.code || "", g = groups.find(function(x){ return x.c === c; }); if (!g) groups.push(g = { c: c, items: [] }); g.items.push(it); });
+  return groups.filter(function(g){ return g.c; }).concat(groups.filter(function(g){ return !g.c; }));
+}
+// Compact: one line per day, the courses with what they held and its numbers.
+function nvCompact(items, L, lang){
+  return nvByCourse(items).map(function(g){
+    var parts = [], part = function(key, text){ var p = parts.find(function(x){ return x.key === key; }); if (!p) parts.push(p = { key: key, text: text, nums: [] }); return p; };
+    g.items.forEach(function(it){
+      if (it.kind === "session") { var n = /\d+/.exec(nvSplit(it.title)[0]), p = part("s:" + it.skind, null); p.skind = it.skind; if (n && p.nums.indexOf(n[0]) < 0) p.nums.push(n[0]); }
+      else if (it.kind === "handin") { var x = nvLab(it.title); part("h:" + x, it.akind === "quiz" ? L.quizzes : it.akind === "exam" ? x : it.done ? (lang === "sv" ? L.handin + " " + x : x + " " + L.submitted) : L.workOn + " " + x); }
+      else if (it.kind === "task" || (it.kind === "planned" && !it.material)) part("t:" + it.title, nvSplit(it.title)[0]);
+      else if (it.kind === "cal") part("c:" + it.title, it.title);
+      else part("self", L.self);
+    });
+    var text = parts.map(function(p){
+      if (!p.skind) return p.text;
+      var w = L[p.skind] || [p.skind, p.skind], list = nvList(p.nums, L);
+      if (p.skind === "lab" && p.nums.length) return lang === "sv" ? "redovisning Lab " + list : "Lab " + list + " " + (p.nums.length > 1 ? "sessions" : "session");
+      return w[p.nums.length > 1 ? 1 : 0] + (list ? " " + list : "");
+    }).join(", ");
+    return g.c ? nvCourse(g.c) + ": " + text : text;
+  }).join("; ");
+}
+// Short: a few words per day, the courses and the kinds of work.
+function nvShort(items, L){
+  return nvByCourse(items).map(function(g){
+    var words = [];
+    g.items.forEach(function(it){
+      var w = it.kind === "session" ? (it.skind === "lab" ? L.lab1 : (L[it.skind] || [it.skind])[0]) : it.kind === "handin" ? (it.akind === "exam" ? L.exam[0] : L.handin) : it.kind === "task" || it.kind === "cal" || (it.kind === "planned" && !it.material) ? L.group : L.self;
+      if (words.indexOf(w) < 0) words.push(w);
+    });
+    return (g.c ? nvCourse(g.c) + " " : "") + nvList(words, L);
+  }).join(" + ");
+}
+function narvaroLines(items, style, lang){
+  var L = NV_WORDS[lang] || NV_WORDS.en;
+  if (!items.length) return [L.empty];
+  return style === "short" ? [nvShort(items, L)] : style === "compact" ? [nvCompact(items, L, lang)] : nvDetailed(items, L, lang);
+}
+function narvaroTeachers(t, style){
+  return t.courses.map(function(c){
+    var who = ((COURSES[c] || {}).teachers || []).map(function(k){ return (TEACHERS[k] || {}).name; }).filter(Boolean).join(", ");
+    return who && style === "detailed" ? nvCourse(c) + " " + c + ": " + who : who;
+  }).filter(Boolean).join(", ");
+}
+
+// The draft of one week. Kept per viewer in this browser (LS.narvaro): the name, the style and language
+// last chosen, and the edited drafts of the last eight weeks. Never with the account, never shared.
+// A draft nobody edited is written again from the week each time it is shown.
+function nvStore(){ var s = lsJson(LS.narvaro); return s && typeof s === "object" ? s : {}; }
+function nvPut(st){ lsSet(LS.narvaro, JSON.stringify(st)); }
+function narvaroFresh(t, mon, style, lang){
+  return { mon: mon, style: style, lang: lang, teachers: narvaroTeachers(t, style), days: narvaroItems(t, mon).map(function(x){ return narvaroLines(x.items, style, lang).join("\n"); }) };
+}
+function narvaroDraft(t, mon){
+  var dr = state.nvDraft;
+  if (dr && dr.mon === mon && dr.edited) return dr;
+  var st = nvStore(), kept = st.weeks && st.weeks[mon];
+  state.nvDraft = kept && kept.days && kept.days.length === 5 ? { mon: mon, style: kept.style, lang: kept.lang, teachers: kept.teachers || "", days: kept.days, edited: true, at: kept.at }
+    : narvaroFresh(t, mon, st.style || "detailed", st.lang || "en");
+  return state.nvDraft;
+}
+function narvaroKeep(){
+  var dr = state.nvDraft, st = nvStore(); if (!dr) return;
+  st.weeks = st.weeks || {};
+  if (dr.edited) { dr.at = new Date().toISOString(); st.weeks[dr.mon] = { style: dr.style, lang: dr.lang, teachers: dr.teachers, days: dr.days, at: dr.at }; }
+  else delete st.weeks[dr.mon];
+  Object.keys(st.weeks).sort().slice(0, -8).forEach(function(k){ delete st.weeks[k]; });
+  st.style = dr.style; st.lang = dr.lang; nvPut(st);
+}
+function narvaroPanel(t, mon){
+  var dr = narvaroDraft(t, mon), st = nvStore(), wk = isoWeek(mon);
+  var seg = function(attr, cur, label, opts){ return '<span class="seg" role="group" aria-label="' + label + '">' + opts.map(function(o){ return '<button type="button" data-' + attr + '="' + o[0] + '" aria-pressed="' + (cur === o[0]) + '" title="' + esc(o[2]) + '">' + esc(o[1]) + '</button>'; }).join("") + '</span>'; };
+  var days = dr.days.map(function(text, i){
+    return '<label class="nv-day"><span class="nv-dl">' + esc(NV_DAYS[i]) + '<small>' + esc(longDay(addDays(mon, i))) + '</small></span><textarea data-nvday="' + i + '" rows="' + Math.max(1, Math.min(10, text.split("\n").length)) + '">' + esc(text) + '</textarea></label>';
+  }).join("");
+  var at = dr.at ? new Date(dr.at) : null;
+  return '<div class="card nvpanel" data-nvweek="' + mon + '"><h3>' + ic("clipboard-text") + 'N\u00e4rvaro report draft<span class="sum">vecka ' + wk + ', ' + esc(dayLabel(mon) + ' to ' + longDay(addDays(mon, 4))) + '</span></h3>' +
+    '<div class="nv-opts"><span class="nv-k">Style</span>' + seg("nvstyle", dr.style, "Style", [["detailed", "Detailed", "One line per activity: the course, what it was, its topic and time, and whether a hand-in went in"], ["compact", "Compact", "One line per day: the courses and what they held, with numbers"], ["short", "Short", "A few words per day: the courses and the kinds of work"]]) +
+    '<span class="nv-k">Language</span>' + seg("nvlang", dr.lang, "Language", [["en", "English", "Course Plan titles stay as they are"], ["sv", "Svenska", "The frame in Swedish; course material titles stay as they are"]]) + '</div>' +
+    '<div class="nv-head"><label class="nv-f"><span>Name<small>Namn</small></span><input type="text" id="nv-name" autocomplete="name" placeholder="Your name" value="' + esc(st.name || "") + '"></label>' +
+    '<label class="nv-f"><span>Teachers<small>L\u00e4rare</small></span><input type="text" id="nv-teachers" value="' + esc(dr.teachers) + '"></label><span class="nv-f nv-wk"><span>Week<small>Vecka</small></span><b class="mono">' + wk + '</b></span></div>' +
+    '<div class="nv-days">' + days + '</div>' +
+    '<div class="nv-acts"><button type="button" data-nvxlsx="1">' + ic("file-xls", "sm") + 'Download Excel file</button><button type="button" data-nvcopy="1">' + ic("copy", "sm") + 'Copy for Google Sheets</button>' +
+    '<button type="button" class="plain" data-nvredo="1" title="Write the draft again from the week as it is now; your edits go">' + ic("arrow-counter-clockwise", "sm") + 'Draft again from the week</button></div>' +
+    '<p class="nv-msg" id="nv-msg" role="status" hidden></p>' +
+    (at ? '<p class="note">Your edited draft, last changed ' + esc(longDay(iso(at))) + ' ' + String(at.getHours()).padStart(2, "0") + ':' + String(at.getMinutes()).padStart(2, "0") + '. <b>Draft again</b> brings in what changed in the week since.</p>' : '') +
+    '<p class="note">Written from the week: its sessions, your calendar events and planned blocks, the hand-ins and tasks of each day, and what you ticked done that day. Muted items are left out. One line in a box is one row in the sheet. Check it and take out anything private. A new style or language writes it again. The draft and your name stay in this browser; nothing is sent from here. Email the file by Friday ' + esc(NV.due) + '.</p></div>';
+}
+
+// The sheet as cells, laid out like the programme's template: the title, the three yellow fields, each
+// day's label with its lines under one another and a blank row after, then the template's notes. For a
+// one-line day this is the template cell for cell (days in A6 to A14, notes from A17). Rows count from
+// 1, columns from 0 (A); s names the cell's look (NV_XF, NV_CSS).
+function narvaroModel(dr, name){
+  return { title: NV.title, name: name || "", teachers: dr.teachers || "", week: isoWeek(dr.mon), wide: dr.style === "detailed", notes: NV.notes,
+    days: dr.days.map(function(text, i){ return { label: NV_DAYS[i] + (dr.style === "detailed" ? " " + addDays(dr.mon, i) : ":"), lines: text.split("\n").map(function(s){ return s.trim(); }).filter(Boolean) }; }) };
+}
+function narvaroGrid(m){
+  var rows = {}, heights = { 1: 24, 3: 18.75 }, merges = [[3, 7, 3, 10]], r = 6;
+  var put = function(row, c, v, s){ (rows[row] = rows[row] || []).push({ c: c, v: v, s: s || "" }); };
+  put(1, 0, m.title, "title");
+  put(3, 0, "Namn:", "label"); [1, 2, 3, 4].forEach(function(c){ put(3, c, c === 1 ? m.name : "", "field"); });
+  var wrap = m.teachers.length > 34;
+  put(3, 6, "L\u00e4rare:", "label"); [7, 8, 9, 10].forEach(function(c){ put(3, c, c === 7 ? m.teachers : "", wrap ? "fieldwrap" : "field"); });
+  if (wrap) heights[3] = Math.max(18.75, Math.ceil(m.teachers.length / 34) * 15);
+  put(3, 12, "Vecka:", "label"); put(3, 13, m.week, "field");
+  m.days.forEach(function(x){
+    put(r, 0, x.label, "label"); heights[r] = 18.75;
+    x.lines.forEach(function(l, j){ put(r + j, 1, l, "text"); });
+    r += Math.max(1, x.lines.length) + 1;
+  });
+  r += 1;
+  m.notes.forEach(function(group){
+    group.forEach(function(n){ if (typeof n === "string") put(r, 0, n, "note"); else for (var c = 0; c < 9; c++) put(r, c, c ? "" : n.mark, "mark"); r++; });
+    r++;
+  });
+  return { rows: rows, heights: heights, merges: merges, last: r - 2, colA: m.wide ? 24 : 10 };
+}
+var NV_XF = { "": 0, text: 0, label: 1, title: 2, field: 3, note: 4, mark: 5, fieldwrap: 6 };
+var NV_CSS = { text: "white-space:nowrap", label: "font-size:14pt;white-space:nowrap", title: "font-size:18pt;white-space:nowrap", field: "background:#ffff00;white-space:nowrap", fieldwrap: "background:#ffff00;white-space:normal;vertical-align:top", note: "font-weight:bold;white-space:nowrap", mark: "font-weight:bold;background:#ffff00;white-space:nowrap" };
+function nvCol(c){ return String.fromCharCode(65 + c); }
+function xmlEsc(s){ return String(s).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+// An .xlsx is a zip of XML parts. This one has the five Excel needs: the sheet with its cells inline
+// (no shared strings), the template's fonts and yellow fill, the workbook, and how they connect.
+function narvaroXlsx(g, sheetName){
+  var NS = 'xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"', REL = "http://schemas.openxmlformats.org/officeDocument/2006/relationships", HEAD = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n';
+  var data = Object.keys(g.rows).map(Number).sort(function(a, b){ return a - b; }).map(function(r){
+    return '<row r="' + r + '"' + (g.heights[r] ? ' ht="' + g.heights[r] + '" customHeight="1"' : '') + '>' + g.rows[r].slice().sort(function(a, b){ return a.c - b.c; }).map(function(x){
+      var at = ' r="' + nvCol(x.c) + r + '" s="' + (NV_XF[x.s] || 0) + '"';
+      return typeof x.v === "number" ? '<c' + at + '><v>' + x.v + '</v></c>' : x.v === "" ? '<c' + at + '/>' : '<c' + at + ' t="inlineStr"><is><t xml:space="preserve">' + xmlEsc(x.v) + '</t></is></c>';
+    }).join("") + '</row>';
+  }).join("");
+  var font = function(extra){ return '<font>' + extra + '<name val="Aptos Narrow"/><family val="2"/></font>'; };
+  var xf = function(f, fill, extra){ return '<xf numFmtId="0" fontId="' + f + '" fillId="' + fill + '" borderId="0" xfId="0"' + (f ? ' applyFont="1"' : '') + (fill ? ' applyFill="1"' : '') + (extra ? ' applyAlignment="1">' + extra + '</xf>' : '/>'); };
+  var enc = new TextEncoder(), parts = [
+    ["[Content_Types].xml", HEAD + '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/>' +
+      '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>' +
+      '<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>'],
+    ["_rels/.rels", HEAD + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="' + REL + '/officeDocument" Target="xl/workbook.xml"/></Relationships>'],
+    ["xl/workbook.xml", HEAD + '<workbook ' + NS + ' xmlns:r="' + REL + '"><sheets><sheet name="' + xmlEsc(sheetName) + '" sheetId="1" r:id="rId1"/></sheets></workbook>'],
+    ["xl/_rels/workbook.xml.rels", HEAD + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="' + REL + '/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="' + REL + '/styles" Target="styles.xml"/></Relationships>'],
+    ["xl/styles.xml", HEAD + '<styleSheet ' + NS + '><fonts count="4">' + font('<sz val="11"/>') + font('<sz val="14"/>') + font('<sz val="18"/>') + font('<b/><sz val="11"/>') + '</fonts>' +
+      '<fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FFFFFF00"/><bgColor indexed="64"/></patternFill></fill></fills>' +
+      '<borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>' +
+      '<cellXfs count="7">' + xf(0, 0) + xf(1, 0) + xf(2, 0) + xf(0, 2) + xf(3, 0) + xf(3, 2) + xf(0, 2, '<alignment vertical="top" wrapText="1"/>') + '</cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>'],
+    ["xl/worksheets/sheet1.xml", HEAD + '<worksheet ' + NS + ' xmlns:r="' + REL + '"><dimension ref="A1:N' + g.last + '"/><sheetViews><sheetView tabSelected="1" workbookViewId="0"/></sheetViews><sheetFormatPr defaultRowHeight="15"/>' +
+      '<cols><col min="1" max="1" width="' + g.colA + '" customWidth="1"/></cols><sheetData>' + data + '</sheetData>' +
+      '<mergeCells count="' + g.merges.length + '">' + g.merges.map(function(x){ return '<mergeCell ref="' + nvCol(x[1]) + x[0] + ':' + nvCol(x[3]) + x[2] + '"/>'; }).join("") + '</mergeCells>' +
+      '<pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3"/><pageSetup paperSize="9" orientation="landscape"/></worksheet>']
+  ];
+  return zipStore(parts.map(function(p){ return [p[0], enc.encode(p[1])]; }));
+}
+// A zip archive with every file stored as it is (no compression), which every spreadsheet program reads.
+var CRC_T = null;
+function crc32(b){
+  if (!CRC_T) { CRC_T = []; for (var n = 0; n < 256; n++) { var c = n; for (var k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; CRC_T[n] = c >>> 0; } }
+  var x = 0xFFFFFFFF; for (var i = 0; i < b.length; i++) x = CRC_T[(x ^ b[i]) & 255] ^ (x >>> 8);
+  return (x ^ 0xFFFFFFFF) >>> 0;
+}
+function zipStore(files){
+  var u16 = function(v){ return [v & 255, (v >>> 8) & 255]; }, u32 = function(v){ return [v & 255, (v >>> 8) & 255, (v >>> 16) & 255, (v >>> 24) & 255]; };
+  var enc = new TextEncoder(), chunks = [], central = [], off = 0;
+  files.forEach(function(f){
+    var name = enc.encode(f[0]), data = f[1], crc = crc32(data);
+    // version 2.0, UTF-8 names, stored, 1 Jan 1980 00:00
+    var common = [].concat(u16(20), u16(0x0800), u16(0), u16(0), u16(0x21), u32(crc), u32(data.length), u32(data.length), u16(name.length), u16(0));
+    var local = [].concat(u32(0x04034b50), common);
+    chunks.push(Uint8Array.from(local), name, data);
+    central.push(Uint8Array.from([].concat(u32(0x02014b50), u16(20), common, u16(0), u16(0), u16(0), u32(0), u32(off))), name);
+    off += local.length + name.length + data.length;
+  });
+  var size = central.reduce(function(s, c){ return s + c.length; }, 0);
+  var all = chunks.concat(central, [Uint8Array.from([].concat(u32(0x06054b50), u16(0), u16(0), u16(files.length), u16(files.length), u32(size), u32(off), u16(0)))]);
+  var out = new Uint8Array(all.reduce(function(s, c){ return s + c.length; }, 0)), at = 0;
+  all.forEach(function(c){ out.set(c, at); at += c.length; });
+  return out;
+}
+// The same sheet as an HTML table: Google Sheets and Excel paste a table cell for cell, with its merges,
+// sizes, bold and yellow. Pasted at A1 of an empty sheet it gives the template's layout.
+function narvaroHtml(g){
+  var span = {};
+  g.merges.forEach(function(x){ span[x[0] + ":" + x[1]] = x[3] - x[1] + 1; for (var c = x[1] + 1; c <= x[3]; c++) span[x[0] + ":" + c] = 0; });
+  // the template's column widths (Excel's 8.43 characters is 64 px), fixed, so long lines run over the empty cells as in a sheet
+  var cols = "", w = 0;
+  for (var c0 = 0; c0 < 14; c0++) { var px = c0 ? 64 : Math.round(g.colA * 7.2); cols += '<col width="' + px + '">'; w += px; }
+  var html = '<meta charset="utf-8"><table style="border-collapse:collapse; table-layout:fixed; width:' + w + 'px; font-family:\'Aptos Narrow\', Arial, sans-serif; font-size:11pt"><colgroup>' + cols + '</colgroup>';
+  for (var r = 1; r <= g.last; r++) {
+    var cells = {}; (g.rows[r] || []).forEach(function(x){ cells[x.c] = x; });
+    html += '<tr style="height:' + (g.heights[r] || 15) + 'pt">';
+    for (var c = 0; c < 14; c++) {
+      var k = r + ":" + c, x = cells[c]; if (span[k] === 0) continue;
+      html += '<td' + (span[k] ? ' colspan="' + span[k] + '"' : '') + (x && NV_CSS[x.s] ? ' style="' + NV_CSS[x.s] + '"' : '') + '>' + (x ? esc(String(x.v)) : '') + '</td>';
+    }
+    html += '</tr>';
+  }
+  return html + '</table>';
+}
+// Plain text, for where a table does not paste: an email, a chat.
+function narvaroPlain(m){
+  return [m.title, "", "Namn: " + m.name, "L\u00e4rare: " + m.teachers, "Vecka: " + m.week, ""].concat(m.days.map(function(x){ return x.label + "\t" + x.lines.join("\n\t"); })).join("\n") + "\n";
+}
+// Copies HTML and text together. The copy event works inside a sandboxed frame, where the Clipboard
+// API may be refused; the Clipboard API is the second try.
+function copyRich(html, text){
+  var ok = false, ta = document.createElement("textarea"), on = function(e){ if (!e.clipboardData) return; e.clipboardData.setData("text/html", html); e.clipboardData.setData("text/plain", text); e.preventDefault(); ok = true; };
+  ta.value = text; ta.setAttribute("readonly", ""); ta.style.cssText = "position:fixed; top:0; left:0; width:1px; height:1px; opacity:0";
+  document.body.appendChild(ta); ta.select(); document.addEventListener("copy", on);
+  try { document.execCommand("copy"); } catch (e) {}
+  document.removeEventListener("copy", on); ta.remove();
+  if (ok) return Promise.resolve();
+  if (navigator.clipboard && navigator.clipboard.write && window.ClipboardItem) return navigator.clipboard.write([new ClipboardItem({ "text/html": new Blob([html], { type: "text/html" }), "text/plain": new Blob([text], { type: "text/plain" }) })]);
+  return Promise.reject(new Error("no clipboard"));
+}
+// Hands the viewer a file. On claude.ai through the downloads capability when the page has it, else a
+// plain browser download (the hosted app, a file opened locally). "maybe": a sandbox may drop it unseen.
+function saveBlob(name, blob){
+  var plain = function(){ var a = document.createElement("a"), u = URL.createObjectURL(blob); a.href = u; a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(function(){ URL.revokeObjectURL(u); }, 60000); };
+  if (hostedApp() || !window.claude || !window.claude.use) { plain(); return Promise.resolve("saved"); }
+  return window.claude.use("downloads").then(function(dl){
+    if (!dl) { plain(); return "maybe"; }
+    return dl.save({ filename: name, data: blob }).then(function(){ return "saved"; });
+  });
+}
+// A day's box is as tall as its text, wrapped lines included.
+function nvFit(ta){ ta.style.height = "auto"; ta.style.height = (ta.scrollHeight + 2) + "px"; }
+function nvFitAll(){ document.querySelectorAll(".nvpanel textarea").forEach(nvFit); }
+function nvMsg(text){ var m = document.getElementById("nv-msg"); if (m) { m.textContent = text || ""; m.hidden = !text; } }
+function nvRefresh(focusSel){
+  var p = document.querySelector(".nvpanel"); if (!p || !state.nvOpen) return;
+  p.outerHTML = narvaroPanel(term(), state.nvOpen); nvFitAll();
+  var f = focusSel && document.querySelector(".nvpanel " + focusSel); if (f) f.focus();
 }
 /* ---------- Cards (release 4) ---------- */
 // The name a shared Card Set (or one Source's cards) goes by: course code and title.
@@ -2176,6 +2534,7 @@ function fixedFrom(rows, d){
   rows.forEach(function(r){
     if (r.kind === "session" && r.time) { var s = toMin(r.time), e = r.end ? toMin(r.end) : s + 60; out.push({ s: s, e: Math.max(e, s + SLOT), title: r.title, code: r.code, cal: !!r.cal, label: r.label, kind: "fixed", link: r.id || r.key || "", why: r.why || "", must: r.level === "must" && !(r.id && isDone(r.id)) }); }
     else if (r.kind === "deadline" && r.time) out.push({ s: toMin(r.time), e: toMin(r.time), title: r.title.replace(/ due \d\d:\d\d$/, ""), code: r.code, kind: "due", link: r.id || r.key || "", why: r.why || "", must: r.level === "must" && !(r.id && isDone(r.id)) });
+    else if (r.kind === "narvaro") out.push({ s: toMin(r.time), e: toMin(r.time), title: "N\u00e4rvaro report", code: "", kind: "due", link: r.id, why: "", must: r.date >= monday(todayIso()) && !isDone(r.id) && !state.muted[r.id] });
   });
   ((state.bookings && state.bookings.bookings) || []).forEach(function(b){ if (b.mine && b.date === d) { var s = toMin(b.mine); out.push({ s: s, e: s + SLOT, title: "Lab session with the teacher (your slot)", code: b.id.split(":")[0], kind: "fixed" }); } });
   return out;
@@ -2395,6 +2754,7 @@ function renderTerm(){
   if (state.view !== "week") document.getElementById("jump").hidden = true;
   document.getElementById("termbody").innerHTML = body;
   if (state.view === "map") bindMap(t);
+  if (state.nvOpen) nvFitAll();
   if (state.view === "map" && state.routeMap) { var rk = state.routeMap; state.routeMap = null; gotoKey(t, rk); }
   renderProfile();
   if (!state.cards && !state.cardsLoading) loadCards();
@@ -3790,11 +4150,12 @@ function renderInfoView(name){
       cards.push(infoCard("calendar-dot", "Add a calendar", "Your group's calendar appears among the sessions, marked with its name.\n1. Google Calendar: **Settings**, the calendar, **Secret address in iCal format**. Copy it.\n2. Profile menu, **Your calendars**, paste, **Add**.\nKey: only you can see your links."));
     }
     cards.push(infoCard("books", "Study cards", "- Click a card to **turn it over**.\n- Rate how well you knew it: **Again**, **Hard**, **Good**, **Easy**.\n- Spaced repetition brings it back just before you would forget it, and plans it so you know it on the day of the lab or exam.\n- **Check** a classmate's card if it is right; **Something is wrong** hides it until it is fixed.\nWhen you write a card: `- ` makes a list, backticks make `code`, two stars make a **term**, and a line starting `Key:` is the one thing to remember."));
+    cards.push(infoCard("clipboard-text", "N\u00e4rvaro report", "Every Friday the programme wants to know what each day of the week held, by noon.\n1. Week by week, the Friday row **N\u00e4rvaro report**: **Draft it from this week**.\n2. Pick a style: **Detailed** (a line per activity), **Compact** (a line per day) or **Short** (a few words), in English or Swedish.\n3. Add your name, check every day, take out anything private.\n4. **Download Excel file**, or **Copy for Google Sheets** and paste at A1 of an empty sheet. Email it.\nKey: the draft comes from the sessions, your calendar, your planned blocks and what you ticked that day."));
     cards.push(infoCard("calendar-check", "Lab bookings", "Shown on the booking task and in a strip at the top.\n- **Not booked**: there is still time.\n- **Book this week**: the session is a week or less away.\n- **Book now**: two days or less, or one free slot left.\n- **Booked 09:15**: your group has that slot.\nKey: your group number comes from Canvas; set it by hand in the profile menu if it is wrong."));
     cards.push(infoCard("warning", "Where the data comes from", "- Deadlines and modules: **Canvas**, read every hour on the site.\n- Session times: the course schedule pages.\n- Minutes: rough estimates from page length and videos.\n- All times are **Stockholm time**.\nKey: when this page and Canvas disagree, Canvas is right. Places where the course's own sources disagree are marked."));
   } else if (name === "privacy") {
     cards.push(infoCard("lock-key", "What is stored", "Only when you **sign in** with Google:\n- your **name and email** from Google,\n- your **ticks**, muted items and planned blocks,\n- your **calendar links**, cards and card reviews,\n- your **group number**, as Canvas names it.\nKey: without signing in, nothing about you is stored on the server."));
-    cards.push(infoCard("eye-slash", "Never stored", "- Your **Canvas token**: it stays in your browser and only passes through on its way to Canvas.\n- Your grades or anyone's submissions.\n- Names from the lab signup sheet: only group numbers are read."));
+    cards.push(infoCard("eye-slash", "Never stored", "- Your **Canvas token**: it stays in your browser and only passes through on its way to Canvas.\n- Your grades or anyone's submissions.\n- Names from the lab signup sheet: only group numbers are read.\n- Your **N\u00e4rvaro report** drafts and the name on them: they stay in your browser."));
     cards.push(infoCard("users-three", "Who can see what", "- Your ticks, links and reviews: **only you**.\n- Your group's answer cards: **your group**.\n- Shared cards and the course plan: every signed-in student.\nKey: these rules live in the database itself, so a bug in the page cannot break them."));
     cards.push('<div class="card infocard span2"><h3>' + ic("shield-check") + 'How it is protected</h3>' + infoList(APP_INFO.privacy, "ul") + '</div>');
     cards.push(infoCard("prohibit", "Delete it", "Signed in, the profile menu has **Delete my account and ticks**. One more click confirms.\n- Everything above that belongs to you is removed from the server.\n- Ticks in your browser stay until you clear them."));
@@ -3926,6 +4287,42 @@ document.addEventListener("click", function(e){
   state.unlocked = b.dataset.moved === "unlock"; lsSet(LS.unlocked, state.unlocked ? "1" : "0"); renderMoved();
 });
 
+// The Narvaro report draft: open and close it, its style and language, write it again, download, copy.
+document.addEventListener("click", function(e){
+  var b = e.target.closest && e.target.closest("[data-narvaro],[data-nvstyle],[data-nvlang],[data-nvredo],[data-nvxlsx],[data-nvcopy]"); if (!b) return;
+  var t = term(), dr = state.nvDraft;
+  if (b.dataset.narvaro) {
+    state.nvOpen = state.nvOpen === b.dataset.narvaro ? null : b.dataset.narvaro; renderTerm();
+    var at = document.querySelector('[data-narvaro="' + b.dataset.narvaro + '"]'); if (at) { at.focus(); if (state.nvOpen) (document.querySelector(".nvpanel") || at).scrollIntoView({ block: "nearest" }); }
+    return;
+  }
+  if (!dr) return;
+  if (b.dataset.nvstyle || b.dataset.nvlang || b.dataset.nvredo) {
+    state.nvDraft = narvaroFresh(t, dr.mon, b.dataset.nvstyle || dr.style, b.dataset.nvlang || dr.lang); narvaroKeep();
+    nvRefresh(b.dataset.nvstyle ? '[data-nvstyle="' + b.dataset.nvstyle + '"]' : b.dataset.nvlang ? '[data-nvlang="' + b.dataset.nvlang + '"]' : "[data-nvredo]");
+    return;
+  }
+  var m = narvaroModel(dr, nvStore().name), g = narvaroGrid(m);
+  if (b.dataset.nvcopy) {
+    copyRich(narvaroHtml(g), narvaroPlain(m)).then(function(){ nvMsg("Copied. In Google Sheets or Excel, click cell A1 of an empty sheet and paste: it comes in as the template. Anywhere else it pastes as text."); },
+      function(){ nvMsg("This browser did not let the page copy. Download the Excel file instead."); });
+    b.focus();
+    return;
+  }
+  var file = "N\u00e4rvarorapport vecka " + m.week + (m.name ? " " + m.name.replace(/[\\/:*?"<>|]+/g, "").trim() : "") + ".xlsx";
+  saveBlob(file, new Blob([narvaroXlsx(g, "vecka" + m.week)], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" })).then(function(how){
+    nvMsg(how === "saved" ? "Saved as " + file + ". Email it by Friday " + NV.due + "." : "If no file arrived, this page cannot save files here: use Copy for Google Sheets, or the tracker at " + (P.MOVED_TO || "its own site") + ".");
+  }, function(err){ nvMsg(err && err.code === "declined" ? "Not saved." : "This page cannot save files here. Use Copy for Google Sheets instead."); });
+});
+var nvTimer = null;
+document.addEventListener("input", function(e){
+  var el = e.target, dr = state.nvDraft; if (!el || !dr || !el.closest || !el.closest(".nvpanel")) return;
+  if (el.id === "nv-name") { var st = nvStore(); st.name = el.value.slice(0, 120); nvPut(st); return; }
+  if (el.id === "nv-teachers") dr.teachers = el.value;
+  else if (el.dataset.nvday) { dr.days[Number(el.dataset.nvday)] = el.value; nvFit(el); }
+  else return;
+  dr.edited = true; clearTimeout(nvTimer); nvTimer = setTimeout(narvaroKeep, 400);
+});
 // Old tick ids from earlier page versions map onto the new ones.
 function migrate(checked){
   var out = {};

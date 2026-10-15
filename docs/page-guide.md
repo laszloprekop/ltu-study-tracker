@@ -253,6 +253,44 @@ Day Strip. A block in a strip is filled with its course colour mixed 42% into th
 so the hue stays the palette's (gold stays gold on navy), which sets it apart from the plain strip
 of free time in every palette.
 
+## The Närvaro Report on Fridays
+
+The programme wants, every Friday by noon, what each weekday held, on its own Excel template
+(`PROGRAMME.narvaro` in `data/plan.mjs`). Week by week shows a **Närvaro report** row on every Friday
+of the programme's weeks at its due time, with a tick box, a due mark on Friday's Day Strip and in the
+Week Overview. It belongs to the programme, so the course filter never hides it, and it is not counted
+in the progress block. Only this week's and later ones pulse or carry red.
+
+**Draft it from this week** unfolds the Närvaro report draft under the row (`state.nvOpen`, not saved),
+written by `narvaroItems` and `narvaroLines`:
+
+- Each day takes its sessions and Calendar Events, the Student's Planned Blocks, the hand-ins and
+  tasks dated that day, and the material, tasks and hand-ins ticked done that day (`tickAt`). A
+  hand-in or task ticked on another weekday of the same week moves to the day it was ticked. Muted
+  items are left out; a day with nothing says self-study and group work.
+- **Detailed**: a line per activity: course code and prefix, the session's head and topic, its time,
+  whether a hand-in went in, the material ticked that day per course. **Compact**: a line per day, each
+  course by its Swedish name with what it held and the numbers (lectures 8 and 10). **Short**: a few
+  words per day (lecture, lab, hand-in, self-study, group work). Teachers come with their courses in
+  Detailed, as names only otherwise.
+- **English** or **Svenska** translates only the frame (lecture, föreläsning; submitted, inlämnad).
+  Titles from the Course Plan and Canvas stay as they are.
+
+Every day is a box to edit; one line is one row in the sheet. The name, the style and language last
+chosen and the edited drafts of the last eight weeks stay in the browser (`ltu-plan-narvaro`), never
+with the account. A new style or language, or **Draft again from the week**, writes the draft anew.
+
+`narvaroGrid` lays the sheet out like the template: the title in A1, Namn, Lärare and Vecka in row 3
+with their yellow cells, the days from A6 with a blank row after each, the template's notes three rows
+after Friday. With one line a day it is the template cell for cell; Detailed adds the date to each day
+and puts the lines under one another. **Download Excel file** writes it as an .xlsx without a library
+(`narvaroXlsx`, a zip stored without compression, `zipStore`): on the hosted app as a plain download, on
+claude.ai through the `downloads` capability when the artifact has it (it does not yet), else a plain
+download the sandbox may drop, which the message says. **Copy for Google Sheets** puts the same sheet on
+the clipboard as an HTML table with the template's merges, widths, sizes, bold and yellow, plus plain
+text for anywhere else (`copyRich`). `npm test` runs `tools/test-narvaro.mjs`; with `--write <dir>` it
+also writes a sample file per style and language.
+
 ## Overlapping times in the Day Planner
 
 Blocks whose times overlap share the row the way Google Calendar does it (`dpLayout`, tested by
@@ -282,5 +320,6 @@ content and a section 30 px above the next.
 ## Tick boxes
 
 Ids: `d:<course>:<assignmentId>` (deadline), `d:<course>:quizzes:<date>` (quizzes closing
-together), `t:<taskId>` (task), `m:<course>:<itemId>` (material). `LEGACY_IDS` maps the ids of
+together), `t:<taskId>` (task), `t:narvaro-<Friday's date>` (a week's Närvaro Report),
+`m:<course>:<itemId>` (material). `LEGACY_IDS` maps the ids of
 earlier page versions so nobody loses progress. Ticks are private per viewer.

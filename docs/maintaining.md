@@ -67,6 +67,10 @@ After `npm run update`, publish `ltu-study-tracker.html` to the artifact URL abo
 - **Study week:** the Monday, the course, refs to the material for that week, and why.
 - **Task:** a to-do Canvas does not list. Its `id` is the tick box key, so never rename one.
 - **Notes:** advice attached to a Canvas deadline, keyed `course:assignmentId`.
+- **Närvaro Report:** `PROGRAMME.narvaro` holds what the programme's template says: its title, the
+  hour it is due on Friday and the notes under the days, word for word. A course's `sv` is the
+  Swedish name the report uses. When the coordinator sends a new template, compare it cell by cell
+  with `narvaroGrid` in the template and `node tools/test-narvaro.mjs`.
 - **Needs:** what an assessment tests, keyed `course:assignmentId`, as refs. A rule already
   covers the obvious cases (see below); `NEEDS_LP2` holds what the structure cannot say: the
   midterm ranges, Lab 3's IP lectures, the home exam's two videos.
