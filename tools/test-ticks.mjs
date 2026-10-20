@@ -14,10 +14,10 @@ const grab = name => {
   for (; ; i++) { if (src[i] === "{") d++; else if (src[i] === "}" && --d === 0) break; }
   return src.slice(s, i + 1);
 };
-const code = ["migrate", "migrateAt", "setTick", "mergeTicks", "mergePlanned"].map(grab).join("\n");
+const code = ["migrateIds", "migrate", "migrateAt", "setTick", "mergeTicks", "mergePlanned"].map(grab).join("\n");
 const make = (checked = {}, tickAt = {}, planned = {}) => {
   const state = { checked: { ...checked }, tickAt: { ...tickAt }, planned: { ...planned } };
-  const P = { LEGACY_IDS: { "w42-lab3": "d:Z0025E:3043" } };
+  const P = { LEGACY_IDS: { "w42-lab3": "d:Z0025E:3043", "t:w43-m1-kc": ["t:z0025e-kc-1.1", "t:z0025e-kc-1.2"] } };
   const f = new Function("state", "P", code + "; return { setTick, mergeTicks, mergePlanned };")(state, P);
   return { state, ...f };
 };
@@ -51,6 +51,14 @@ test("old ids map to new ones, times included", () => {
   assert.equal(t.mergeTicks({ "w42-lab3": true }, { "w42-lab3": T1 }), 1);
   assert.equal(t.state.checked["d:Z0025E:3043"], true);
   assert.equal(t.state.tickAt["d:Z0025E:3043"], T1);
+});
+test("an old id that stands for several new ones ticks each of them", () => {
+  const t = make();
+  assert.equal(t.mergeTicks({ "t:w43-m1-kc": true }, { "t:w43-m1-kc": T1 }), 2);
+  assert.equal(t.state.checked["t:z0025e-kc-1.1"], true);
+  assert.equal(t.state.checked["t:z0025e-kc-1.2"], true);
+  assert.equal(t.state.tickAt["t:z0025e-kc-1.2"], T1);
+  assert.equal(t.state.checked["t:w43-m1-kc"], undefined);
 });
 test("setTick notes the time of a clear", () => {
   const t = make({ "t:a": true });

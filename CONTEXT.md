@@ -81,6 +81,13 @@ session, self-organised group sessions, Card drills. Prep can carry its own dead
 and still be Prep. One Prep item may feed several Key Events, and may even fall after one.
 _Avoid_: Baggage, prerequisite, material
 
+**Prep Plan**:
+What to practise for one Key Event, laid out by module and topic, each thing with its own tick: the
+checks and problems the Course material links, the module quizzes, the questions the pages hold, and a
+Card deck per topic. The pages themselves come as compact links. Written in the Course Plan from what
+the teacher names (for Midterm 1, the Week 6 announcement and the Midterm Overview).
+_Avoid_: Revision list, study plan, checklist
+
 **Chain**:
 A Key Event together with all the Prep that feeds it, followed back as far as it goes. Shared Prep
 belongs to several Chains at once.

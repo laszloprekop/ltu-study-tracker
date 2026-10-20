@@ -76,10 +76,9 @@ show what a session's page depends on (its `prep`), dotted red edges what an ass
 week's material. Right: details of the chosen event or node, with the tick box, mute, Canvas links
 and everything connected to it. On opening, today's first event is selected, or the next one coming up. The caret in the rail heading folds it to a thin timeline over the map's left edge. One continuous timeline of the whole study period in three zoom levels (scroll over it, or the +/- at its foot): one row per day, per hour, or per quarter hour; zooming keeps the moment under the pointer in place and the rest of the period stays around it, drag to slide the window; the band is 07:00 to 19:00 plus a "later" row for the 23:59 deadlines. Every event is a stack of squares, one per row it covers, coloured by course (hollow when ticked, ringed in cyan when selected); at the study-period level a day's events stack as half-height bars in one column, zoomed in overlaps sit in the next lane. The strip is built once at quarter-hour grain and a zoom level is only a height rule per row: zooming out sets rows to zero height, zooming in grows them back, so the transition is heights tweening and nothing appears or disappears. Runs of empty rows collapse to a zig-zag labelled with the time they stand for. A cyan line marks now. Hover or focus shows the date and title, a click selects it. The map widens underneath. Remembered per viewer. Shift-click (or Cmd/Ctrl-click) adds to or removes from the selection; every selected chain lights, the details show the last one picked with a count and a Clear button. The selection is shared: a node lights the events that point at it
 (and, lighter, the sessions that need it first, or every event inside a module), an event lights
-its node. Which modules are open is remembered per viewer. Link chips everywhere are icons (Zoom,
-recording, submit, module, page, booking, download) with the label on hover, except on a revision
-list (`R` in the plan), where each chip also shows its name: a question mark for a textbook
-Knowledge Check, a pencil for a textbook problem.
+its node. Which modules are open is remembered per viewer. Link buttons everywhere are icons (Zoom,
+recording, submit, module, page, booking, download, the deadline a task feeds) with the label on
+hover.
 
 ## Header and settings
 
@@ -164,6 +163,17 @@ calendar event of the Student's own (calendar), and on Cards AI draft (robot), g
 (seal), group answer (people), not checked yet (dashed circle). The barbell means Cards everywhere:
 the Cards view, a Prepare chip, a card count. Icons inside labels are 12 px.
 
+**Actions and decorations.** An icon is either a decoration or an action, and looks it. Decorations
+(course chip, MUST or NICE, the kind icon, tags such as "for Midterm 1", the Canvas status) are flat,
+12 to 16 px and sit in the text. Actions (a link out, Hide or the row menu, a card drill) are framed
+buttons (`.act`, the same frame as the Cards buttons) at least 32 px square, 40 px on a touch screen
+(`pointer:coarse`). An action never sits inside a line of text, so it cannot push lines apart: a
+row's links go in the bar under its text (`.acts`), its own controls (Open in Canvas, Hide, the ⋯
+menu) in the column at its right (`.rctl`). A "for ..." tag is only a label; the deadline it names is
+the target button in the bar. What Canvas tracks for a material item is a word in its meta line
+("Canvas: view", "done in Canvas"); the Status mark beside a tick box shows nothing for "not done in
+Canvas yet", which is the plain state.
+
 Contrast: `tools/contrast-scan.js` audits the visible text; to cover a whole view, run it with the
 on-screen test removed, once per view, palette and theme. SVG text on map shapes is checked against
 the shape's own fill, with transitions off (a background tab pauses them).
@@ -206,7 +216,27 @@ Card Set, a Cards chip in front opens it. Cards exist on the hosted app only, so
 page every link goes to Canvas; the hosted app loads the Cards when the page opens. Ticked items are
 struck through, the line counts what is ticked and the minutes left, and it fades when everything
 is ready. Grouped deadlines (the quizzes all due on one day) have no line; their quizzes carry it in
-the material blocks.
+the material blocks. An assessment with a Prep Plan (below) shows its Card Set chip and one chip that
+opens the plan, with how much of it is done.
+
+## Prep Plans
+
+An exam can have a **Prep Plan** (`PREP_LP2` in the plan, `prepBlock` in the template): a block at the
+top of its week (and under the cards in Today) that lists what to practise, module by module, then
+topic by topic. A topic is a textbook section. The plan and each of its modules fold away, remembered
+per viewer; a folded plan leaves the week's "left" count, for anyone who would rather not have it. Each module starts with its pages as compact chips
+(**Read**: Study Guide, the lectures, the end-of-module checklist) and a line with the module quiz and
+each lecture page's Check Your Understanding questions. Each topic then has its Knowledge Check, the
+textbook problems the lecture pages give for it, and, on the hosted app, a barbell button that drills
+the topic's Cards; the module heading has one for all of the module's Cards. Each thing to practise is
+a chip with its own tick and its link, in the course colour until ticked, then muted and struck
+through; the counts beside the plan and each module follow the ticks. The quiz chip shares its tick
+with the quiz in the material list, and Canvas counts it too. A topic's Cards are the Cards made from
+the module's pages whose question matches the topic's pattern (`cards`); `node tools/test-prep.mjs`
+checks that every card drafted from a module's pages lands in one of its topics. The Cards view keeps
+a topic deck in its address (`#/cards/set/prep:Z0025E:3030:1:1.4`), so it can be shared. Ticks made
+on a day go into that day's Närvaro draft as one line ("Midterm 1 prep: Knowledge Checks (DNS),
+problems (DNS Basics)").
 
 ## Free time for group work
 
@@ -328,5 +358,11 @@ content and a section 30 px above the next.
 
 Ids: `d:<course>:<assignmentId>` (deadline), `d:<course>:quizzes:<date>` (quizzes closing
 together), `t:<taskId>` (task), `t:narvaro-<Friday's date>` (a week's Närvaro Report),
-`m:<course>:<itemId>` (material). `LEGACY_IDS` maps the ids of
-earlier page versions so nobody loses progress. Ticks are private per viewer.
+`m:<course>:<itemId>` (material), and in a Prep Plan `t:<course>-kc-<topic>`, `t:<course>-ia-<problem
+id>`, `t:<course>-cyu-<item number>` (course in lower case). `LEGACY_IDS` maps the ids of earlier page
+versions so nobody loses progress; an old id may map to several new ones (the Midterm 1 revision
+tasks of 20 Oct became one tick per item each listed). Ticks are private per viewer.
+
+The box is drawn by the page (`appearance:none`), 16 px, not by the browser: a native box is painted
+at its own size and snapped to whole pixels, so the ping ring, centred on the element, could sit off
+the box drawn. Both are now one box 4 px apart all round.

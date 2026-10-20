@@ -135,7 +135,7 @@ const STUDY_LP2 = [
   { week: "2026-10-05", course: "Z0025E", refs: ["3.4", "3.5", "4.1"], why: "Lecture 7 is self-paced with a forum post, then the module 3 quiz." },
   { week: "2026-10-12", course: "Z0025E", refs: ["4.4", "4.5", "5.1", "9.7"], why: "Close module 4 before Midterm 1. The subnet video helps with Lab 3." },
   { week: "2026-10-12", course: "Z7005E", refs: ["4.2"], why: "Software quality attributes. Lab 4 (15 Oct) and Lecture 13 (23 Oct) build on this block." },
-  { week: "2026-10-19", course: "Z0025E", refs: ["10.1", "10.2"], why: "No lectures this week (announced 19 Oct). Midterm 1 on Friday covers modules 1 to 4: open book, individual, any time during the day. The tasks list each module's Knowledge Checks and problems, one module a day." },
+  { week: "2026-10-19", course: "Z0025E", refs: ["10.1", "10.2"], why: "No lectures this week (announced 19 Oct). Midterm 1 on Friday covers modules 1 to 4: open book, individual, any time during the day. What to practise is in Midterm 1 prep at the top of the week." },
   { week: "2026-10-26", course: "Z0025E", refs: ["5.4", "5.5", "5.6", "6.1"], why: "Lecture 12 is self-paced with a forum post." },
   { week: "2026-10-26", course: "Z7005E", refs: ["4.3"], why: "Listed by the Schema as week 44 self-study." },
   { week: "2026-11-02", course: "Z0025E", refs: ["6.3", "6.4", "7.1"] },
@@ -147,13 +147,9 @@ const STUDY_LP2 = [
 // Hand-written to-dos that Canvas does not list. id must stay stable: it is the tick box key.
 // level: "must" when skipping it costs the course, otherwise "nice".
 const T = (id, course, date, title, why, links, level) => ({ id, course, date, title, why, links, level: level || "nice" });
-// A revision list: its links are what the task is about, so the page shows each one by name.
-const R = (...a) => Object.assign(T(...a), { named: true });
-const ITEM = id => `https://ltuedu.instructure.com/courses/614/modules/items/${id}`;
 // The textbook's (Kurose and Ross) Knowledge Checks and interactive problems, which the Z0025E lecture pages link.
 const KC = (chapter, section) => `https://gaia.cs.umass.edu/kurose_ross/knowledgechecks/problem.php?c=${chapter}&s=${section}`;
 const IA = name => `https://gaia.cs.umass.edu/kurose_ross/interactive/${name}.php`;
-const KC_WHY = "The Midterm Overview (10.1) calls these the base of the midterm question bank. Know why each wrong option is wrong, not only which one is right.";
 const TASKS_LP2 = [
   T("t-tools", "Z0025E", "2026-09-14", "Install Wireshark and Cisco Packet Tracer 8.0", "Packet Tracer 6.3, 7.2 and 8.0 are the confirmed versions, newer builds have broken the lab files before. Needed from Lab 2.",
     [["Wireshark", "https://www.wireshark.org/"], ["Packet Tracer versions", "https://www.computernetworkingnotes.com/ccna-study-guide/download-packet-tracer-for-windows-and-linux.html"]], "must"),
@@ -169,51 +165,6 @@ const TASKS_LP2 = [
   T("w45-book5", "Z0025E", "2026-11-02", "Book a Lab 5 assessment slot on sheet 9.2", "Session Friday 6 Nov from 13:00. 8 slots for 8 groups.", [["Sign-up sheet", SIGNUP]], "must"),
   T("w46-book6", "Z0025E", "2026-11-09", "Book a Lab 6 assessment slot on sheet 9.2", "Session Friday 13 Nov from 13:00. 8 slots for 8 groups.", [["Sign-up sheet", SIGNUP]], "must"),
   T("w43-rev", "Z0025E", "2026-10-19", "Revise for Midterm 1 with the quizzes already taken", "At least 75 points needed."),
-  // Midterm 1 revision, one module a day, from the Week 6 announcement (19 Oct) and 10.1 Midterm Overview:
-  // Study Guides and slides, Check Your Understanding, the Knowledge Checks and the To-Do problems.
-  R("w43-m1-review", "Z0025E", "2026-10-19", "Module 1 review: Study Guide, slides L01 and L02, Check Your Understanding",
-    "Internet architecture, protocol layers, network core and performance. The Study Guide is on the overview page; the slides and the Check Your Understanding questions are on each lecture page. Answer each question before opening its explanation.",
-    [["1.1 Study Guide", ITEM(19903)], ["1.3 Lecture 1", ITEM(19906)], ["1.4 Lecture 2", ITEM(19908)], ["1.6 You should now be able to", ITEM(19912)]]),
-  R("w43-m1-kc", "Z0025E", "2026-10-19", "Module 1 Knowledge Checks (6)", KC_WHY,
-    [["What is the Internet?", KC(1, 1)], ["The Network Edge", KC(1, 2)], ["Protocol Layers and Their Service Models", KC(1, 5)],
-     ["The Network Core", KC(1, 3)], ["Performance", KC(1, 4)], ["Network Under Attack", KC(1, 6)]]),
-  R("w43-m1-prob", "Z0025E", "2026-10-19", "Module 1 problems (5)",
-    "Delay and throughput sums. Solve each one before opening the worked solution.",
-    [["Circuit Switching", IA("circuit_switching")], ["One-hop Transmission Delay", IA("one-hop-delay")], ["Queuing Delay", IA("qdelay")],
-     ["End-to-End Delay", IA("end-end-delay")], ["End-to-End Throughput", IA("end-end-throughput-simple")]]),
-  R("w43-m2-review", "Z0025E", "2026-10-20", "Module 2 review: Study Guide, slides L03 and L04, Check Your Understanding",
-    "Network applications, HTTP, e-mail, DNS, P2P and content distribution. Study Guide on the overview page, slides and Check Your Understanding on each lecture page.",
-    [["2.1 Study Guide", ITEM(19914)], ["2.3 Lecture 3", ITEM(19918)], ["2.4 Lecture 4", ITEM(19916)], ["2.6 You should now be able to", ITEM(19922)]]),
-  R("w43-m2-kc", "Z0025E", "2026-10-20", "Module 2 Knowledge Checks (6)", KC_WHY,
-    [["Principles of Network Applications", KC(2, 1)], ["Email", KC(2, 3)], ["DNS", KC(2, 4)], ["Socket Programming", KC(2, 7)],
-     ["Web and HTTP", KC(2, 2)], ["Video Streaming and Content Distribution Networks", KC(2, 6)]]),
-  R("w43-m2-prob", "Z0025E", "2026-10-20", "Module 2 problems (7)",
-    "Draw the message sequence for DNS, SMTP and HTTP. For caching and P2P, find the resource that limits the speed before calculating.",
-    [["DNS Basics", IA("dns")], ["DNS: Iterative vs Recursive Query", IA("dns_query")], ["Electronic Mail and SMTP", IA("smtp")],
-     ["HTTP GET", IA("http-get")], ["HTTP RESPONSE", IA("http-response")], ["Browser Cache", IA("browser_caching")],
-     ["Client-server vs P2P file distribution delays", IA("CS_vs_P2P_download")]]),
-  R("w43-m3-review", "Z0025E", "2026-10-21", "Module 3 review: Study Guide, slides L05 to L07, Check Your Understanding",
-    "UDP, reliable data transfer, TCP and congestion control. Study Guide on the overview page, slides and Check Your Understanding on each lecture page.",
-    [["3.1 Study Guide", ITEM(19924)], ["3.2 Lecture 5", ITEM(19926)], ["3.3 Lecture 6", ITEM(19927)], ["3.4 Lecture 7", ITEM(19929)], ["3.5 You should now be able to", ITEM(19933)]]),
-  R("w43-m3-kc", "Z0025E", "2026-10-21", "Module 3 Knowledge Checks (8)", KC_WHY,
-    [["Principles of Reliable Data Transfer", KC(3, 4)], ["Connection-oriented Transport: TCP", KC(3, 5)],
-     ["Principles of Congestion Control", KC(3, 6)], ["TCP Congestion Control", KC(3, 7)], ["Evolution of Transport Layer Functionality", KC(3, 8)],
-     ["Introduction and Transport-layer Services", KC(3, 1)], ["Multiplexing and Demultiplexing", KC(3, 2)], ["Connectionless Transport: UDP", KC(3, 3)]]),
-  R("w43-m3-prob", "Z0025E", "2026-10-21", "Module 3 problems (8)",
-    "Draw sender and receiver side by side and trace segments, ACKs, losses and retransmissions. Sketch cwnd over time for the congestion problem. Mind the wraparound carry in the checksum.",
-    [["rdt 3.0", IA("rdt30")], ["TCP sequence and ACK numbers, with segment loss", IA("tcp_segloss")], ["TCP RTT and timeout", IA("TCP_RTT")],
-     ["TCP retransmissions", IA("tcp_retrans")], ["TCP congestion window evolution", IA("tcp_evolution")],
-     ["Internet Checksum", IA("internet_checksum")], ["UDP Mux and Demux", IA("UDP_Mux_Demux")], ["TCP Mux and Demux", IA("TCP_Mux_Demux")]]),
-  R("w43-m4-review", "Z0025E", "2026-10-22", "Module 4 review: Study Guide, slides L08 and L09, Check Your Understanding",
-    "Routers, IP, addressing, forwarding, NAT, IPv6, SDN and middleboxes. Study Guide on the overview page, slides and Check Your Understanding on each lecture page.",
-    [["4.1 Study Guide", ITEM(19935)], ["4.2 Lecture 8", ITEM(19937)], ["4.3 Lecture 9", ITEM(19938)], ["4.5 You should now be able to", ITEM(19942)]]),
-  R("w43-m4-kc", "Z0025E", "2026-10-22", "Module 4 Knowledge Checks (5)", KC_WHY,
-    [["Network layer Overview", KC(4, 1)], ["What's inside a router?", KC(4, 2)], ["The IP Protocol", KC(4, 3)],
-     ["Generalized Forwarding", KC(4, 4)], ["Middleboxes", KC(4, 5)]]),
-  R("w43-m4-prob", "Z0025E", "2026-10-22", "Module 4 problems (5)",
-    "Follow one packet: which header fields are read or changed, and which table or rule decides. For scheduling, take one departure at a time.",
-    [["Packet Scheduling", IA("scheduling")], ["Subnet Addressing", IA("subnet_addressing")], ["Network Address Translation", IA("nat")],
-     ["IPv6 Tunneling and Encapsulation", IA("ip_tunneling")], ["OpenFlow Flow Tables", IA("openflow")]]),
   T("w44-pull", "Z7005E", "2026-10-26", "Free week: pull Lab 6 and Lab 7 forward", "Week 45 is the worst week of the course. Work done here is work you will not do then."),
   T("w46-exam", "Z7005E", "2026-11-09", "Start the home exam", "Two free weeks. Watch the two AI videos first, the Schema asks for that."),
   T("w48-book", "Z7005E", "2026-11-26", "Book the oral examination slot", "The booking link is published after the home exam deadline.", [["Schema page", "https://ltuedu.instructure.com/courses/613/pages/schema"]], "must")
@@ -222,10 +173,7 @@ const TASKS_LP2 = [
 // Which deadline a task feeds, keyed by task id. A task that feeds a deadline inherits MUST.
 const TASK_FOR = {
   "t-msg": "Z7005E:3013", "w39-prep": "Z7005E:3013", "w39-writeup": "Z7005E:3013", "w39-build": "Z7005E:3013",
-  "w39-gh": "Z7005E:3020", "w42-book3": "Z0025E:3043", "w44-book4": "Z0025E:3044", "w45-book5": "Z0025E:3045", "w46-book6": "Z0025E:3040", "w43-rev": "Z0025E:3030",
-  "w43-m1-review": "Z0025E:3030", "w43-m1-kc": "Z0025E:3030", "w43-m1-prob": "Z0025E:3030", "w43-m2-review": "Z0025E:3030", "w43-m2-kc": "Z0025E:3030", "w43-m2-prob": "Z0025E:3030",
-  "w43-m3-review": "Z0025E:3030", "w43-m3-kc": "Z0025E:3030", "w43-m3-prob": "Z0025E:3030", "w43-m4-review": "Z0025E:3030", "w43-m4-kc": "Z0025E:3030", "w43-m4-prob": "Z0025E:3030",
-  "w44-pull": "Z7005E:3022", "w46-exam": "Z7005E:3024"
+  "w39-gh": "Z7005E:3020", "w42-book3": "Z0025E:3043", "w44-book4": "Z0025E:3044", "w45-book5": "Z0025E:3045", "w46-book6": "Z0025E:3040", "w43-rev": "Z0025E:3030", "w44-pull": "Z7005E:3022", "w46-exam": "Z7005E:3024"
 };
 TASKS_LP2.forEach(t => { if (TASK_FOR[t.id]) t.for = TASK_FOR[t.id]; });
 
@@ -256,6 +204,75 @@ const NEEDS_LP2 = {
   "Z7005E:3024": ["5.3", "5.4"]                 // Home exam: the two AI videos the Schema asks for. What else it tests is not stated in Canvas.
 };
 
+// Exam prep by topic (CONTEXT.md, Prep Plan): what to practise for one exam, module by module and
+// topic by topic, each with its own tick. A topic is a textbook section: its Knowledge Check, the
+// textbook problems the lecture pages give for it, and its Cards (cards: a pattern on the card's
+// question, among the Cards made from the module's pages). material, quiz and cyu are refs: the
+// pages to read, the module quiz, the lecture pages whose Check Your Understanding questions to redo.
+// Tick ids come from these: t:<course>-kc-<topic key>, t:<course>-ia-<problem id>, t:<course>-cyu-<ref
+// number>, and the quiz's own module item. Never rename a topic key or a problem id.
+// Source: the Week 6 announcement (19 Oct) and 10.1 Midterm Overview; the topics follow the textbook
+// sections the Knowledge Checks are written for, and the problems sit where the lecture pages put them.
+const PB = (title, id) => ({ title, id, url: IA(id) });
+const PREP_LP2 = [
+  { for: "Z0025E:3030", course: "Z0025E", week: "2026-10-19", title: "Midterm 1 prep",
+    why: "Modules 1 to 4, open book, any time on Friday. The Midterm Overview (10.1) calls the Knowledge Checks the base of the midterm question bank: know why each wrong option is wrong, not only which one is right. Solve each problem before opening its solution.",
+    modules: [
+      { n: "1", title: "Internet foundations", material: ["1.1", "1.3", "1.4", "1.6"], quiz: "1.5", cyu: ["1.3", "1.4"], topics: [
+        { key: "1.1", title: "What is the Internet?", check: KC(1, 1), cards: "What is the Internet|main components|network protocol" },
+        { key: "1.2", title: "The network edge", check: KC(1, 2), cards: "Network Edge|access network|edge versus" },
+        { key: "1.3", title: "The network core", check: KC(1, 3), problems: [PB("Circuit Switching", "circuit_switching")],
+          cards: "Network Core|circuit|store-and-forward|end system to another|edge versus" },
+        { key: "1.4", title: "Delay, loss and throughput", check: KC(1, 4),
+          problems: [PB("One-hop Transmission Delay", "one-hop-delay"), PB("Queuing Delay", "qdelay"), PB("End-to-End Delay", "end-end-delay"), PB("End-to-End Throughput", "end-end-throughput-simple")],
+          cards: "Performance|delay|throughput|queu|traceroute" },
+        { key: "1.5", title: "Protocol layers and their service models", check: KC(1, 5), cards: "Protocol Layers|layer|encapsulation" },
+        { key: "1.6", title: "Networks under attack", check: KC(1, 6), cards: "Under Attack|security|sniffing|spoofing" }
+      ] },
+      { n: "2", title: "Application layer", material: ["2.1", "2.3", "2.4", "2.6"], quiz: "2.5", cyu: ["2.3", "2.4"], topics: [
+        { key: "2.1", title: "Principles of network applications", check: KC(2, 1),
+          cards: "Principles of Network Applications|client-server versus|right process|from the transport layer|TCP service versus UDP service|application-layer protocol" },
+        { key: "2.2", title: "The Web and HTTP", check: KC(2, 2),
+          problems: [PB("HTTP GET", "http-get"), PB("HTTP RESPONSE", "http-response"), PB("Browser Cache", "browser_caching")],
+          cards: "HTTP|cookie|web cache|conditional GET|status codes|browser" },
+        { key: "2.3", title: "Email: SMTP and IMAP", check: KC(2, 3), problems: [PB("Electronic Mail and SMTP", "smtp")], cards: "e-?mail|SMTP|IMAP" },
+        { key: "2.4", title: "DNS", check: KC(2, 4), problems: [PB("DNS Basics", "dns"), PB("DNS: Iterative vs Recursive Query", "dns_query")], cards: "DNS" },
+        { key: "2.5", title: "Peer-to-peer file distribution", problems: [PB("Client-server vs P2P file distribution delays", "CS_vs_P2P_download")], cards: "P2P|peer-to-peer" },
+        { key: "2.6", title: "Video streaming and CDNs", check: KC(2, 6), cards: "video|DASH|CDN" },
+        { key: "2.7", title: "Socket programming", check: KC(2, 7), cards: "socket" }
+      ] },
+      { n: "3", title: "Transport layer", material: ["3.1", "3.2", "3.3", "3.4@Discussion", "3.5"], quiz: "3.4@Assignment", cyu: ["3.2", "3.3", "3.4@Discussion"], topics: [
+        { key: "3.1", title: "Transport-layer services", check: KC(3, 1), cards: "Transport-layer Services|transport layer give|would you pick UDP" },
+        { key: "3.2", title: "Multiplexing and demultiplexing", check: KC(3, 2),
+          problems: [PB("UDP Mux and Demux", "UDP_Mux_Demux"), PB("TCP Mux and Demux", "TCP_Mux_Demux")], cards: "multiplexing|Mux|demultiplex" },
+        { key: "3.3", title: "UDP", check: KC(3, 3), problems: [PB("Internet Checksum", "internet_checksum")],
+          cards: "Connectionless Transport|Internet Checksum|UDP segment header|UDP's lack|would you pick UDP" },
+        { key: "3.4", title: "Principles of reliable data transfer", check: KC(3, 4), problems: [PB("rdt 3.0", "rdt30")],
+          cards: "reliable data transfer|rdt|Go-Back-N|stop-and-wait" },
+        { key: "3.5", title: "TCP: segments, timers, reliability", check: KC(3, 5),
+          problems: [PB("TCP sequence and ACK numbers, with segment loss", "tcp_segloss"), PB("TCP RTT and timeout", "TCP_RTT"), PB("TCP retransmissions", "tcp_retrans")],
+          cards: "Connection-oriented Transport|TCP sequence|TCP RTT|TCP retransmissions|three-way handshake|three messages|segment was lost|reliable, in-order|flow control stop" },
+        { key: "3.6", title: "Principles of congestion control", check: KC(3, 6),
+          cards: "Principles of Congestion Control|congestion happen|Flow control versus congestion|network is congested" },
+        { key: "3.7", title: "TCP congestion control", check: KC(3, 7), problems: [PB("TCP congestion window evolution", "tcp_evolution")],
+          cards: "TCP Congestion Control|congestion window|CUBIC|AIMD|duplicate ACK|throughput a TCP" },
+        { key: "3.8", title: "Evolution of the transport layer: QUIC", check: KC(3, 8), cards: "Evolution of Transport|QUIC" }
+      ] },
+      { n: "4", title: "Network layer: data plane", material: ["4.1", "4.2", "4.3", "4.5"], quiz: "4.4", cyu: ["4.2", "4.3"], topics: [
+        { key: "4.1", title: "Network layer overview", check: KC(4, 1), cards: "network layer|forwarding and routing|control plane|best-effort" },
+        { key: "4.2", title: "Inside a router", check: KC(4, 2), problems: [PB("Packet Scheduling", "scheduling")],
+          cards: "router has|router's|input port|output port|switching fabric|head-of-the-line|scheduling|WFQ|FCFS|tail drop|TCAM|longest prefix|neutrality|components does a router|arriving at a router" },
+        { key: "4.3", title: "IP: addressing, DHCP, NAT, IPv6", check: KC(4, 3),
+          problems: [PB("Subnet Addressing", "subnet_addressing"), PB("Network Address Translation", "nat"), PB("IPv6 Tunneling and Encapsulation", "ip_tunneling")],
+          cards: "IPv4|IPv6|IP address|subnet|CIDR|DHCP|\\bNAT\\b|tunnel|address block|aggregation|TTL|IP protocol" },
+        { key: "4.4", title: "Generalized forwarding and OpenFlow", check: KC(4, 4), problems: [PB("OpenFlow Flow Tables", "openflow")],
+          cards: "Generalized Forwarding|match\\+action|OpenFlow|flow table" },
+        { key: "4.5", title: "Middleboxes and the IP hourglass", check: KC(4, 5),
+          cards: "middlebox|whitebox|NFV|end-to-end argument|hourglass|thin waist|RFC 1958|intelligence in the telephone" }
+      ] }
+    ] }
+];
+
 export const TERMS = [
   {
     id: "ht26-lp2", label: "LP2", period: "Autumn 2026, week 38 to week 49",
@@ -271,12 +288,12 @@ export const TERMS = [
       { c: "Z7005E", html: "<strong>Two hours of exercise a week.</strong> The Z7005E Schema puts it in the plan, so treat it as scheduled." },
       { html: "<strong>Check the Canvas calendar every Monday.</strong> Z7005E lists weeks 44, 46 and 47 as empty and Z0025E says to expect changes, so sessions can appear in either course." }
     ],
-    sessions: SESSIONS_LP2, study: STUDY_LP2, tasks: TASKS_LP2, notes: NOTES_LP2, needs: NEEDS_LP2
+    sessions: SESSIONS_LP2, study: STUDY_LP2, tasks: TASKS_LP2, notes: NOTES_LP2, needs: NEEDS_LP2, prep: PREP_LP2
   },
   {
     id: "vt27-lp3", label: "LP3", period: "Spring 2027", start: "2027-01-11", end: "2027-03-21",
     courses: [], upcoming: "The courses for this study period are not in Canvas yet. They will be added here once their schedules are published.",
-    weekFlags: {}, rhythm: [], sessions: [], study: [], tasks: [], notes: {}, needs: {}
+    weekFlags: {}, rhythm: [], sessions: [], study: [], tasks: [], notes: {}, needs: {}, prep: []
   }
 ];
 
@@ -352,5 +369,19 @@ export const LEGACY_IDS = {
   "w41-lab3": "d:Z7005E:3019", "w42-lab4": "d:Z7005E:3020", "w42-lab3": "d:Z0025E:3043", "w43-lab5": "d:Z7005E:3021",
   "w43-mid1": "d:Z0025E:3030", "w44-lab4": "d:Z0025E:3044", "w45-lab6": "d:Z7005E:3022", "w45-lab7": "d:Z7005E:3023",
   "w45-lab5": "d:Z0025E:3045", "w46-lab6": "d:Z0025E:3040", "w47-mid2": "d:Z0025E:3031", "w48-exam": "d:Z7005E:3024",
-  "w49-quiz": "d:Z0025E:quizzes:2026-12-02"
+  "w49-quiz": "d:Z0025E:quizzes:2026-12-02",
+  // The Midterm 1 revision tasks of 20 Oct, one per module and kind, became Midterm 1 prep's items:
+  // a tick on one becomes a tick on each item it stood for.
+  "t:w43-m1-review": ["t:z0025e-cyu-1.3", "t:z0025e-cyu-1.4"],
+  "t:w43-m1-kc": ["t:z0025e-kc-1.1", "t:z0025e-kc-1.2", "t:z0025e-kc-1.3", "t:z0025e-kc-1.4", "t:z0025e-kc-1.5", "t:z0025e-kc-1.6"],
+  "t:w43-m1-prob": ["t:z0025e-ia-circuit_switching", "t:z0025e-ia-one-hop-delay", "t:z0025e-ia-qdelay", "t:z0025e-ia-end-end-delay", "t:z0025e-ia-end-end-throughput-simple"],
+  "t:w43-m2-review": ["t:z0025e-cyu-2.3", "t:z0025e-cyu-2.4"],
+  "t:w43-m2-kc": ["t:z0025e-kc-2.1", "t:z0025e-kc-2.2", "t:z0025e-kc-2.3", "t:z0025e-kc-2.4", "t:z0025e-kc-2.6", "t:z0025e-kc-2.7"],
+  "t:w43-m2-prob": ["t:z0025e-ia-dns", "t:z0025e-ia-dns_query", "t:z0025e-ia-smtp", "t:z0025e-ia-http-get", "t:z0025e-ia-http-response", "t:z0025e-ia-browser_caching", "t:z0025e-ia-CS_vs_P2P_download"],
+  "t:w43-m3-review": ["t:z0025e-cyu-3.2", "t:z0025e-cyu-3.3", "t:z0025e-cyu-3.4"],
+  "t:w43-m3-kc": ["t:z0025e-kc-3.1", "t:z0025e-kc-3.2", "t:z0025e-kc-3.3", "t:z0025e-kc-3.4", "t:z0025e-kc-3.5", "t:z0025e-kc-3.6", "t:z0025e-kc-3.7", "t:z0025e-kc-3.8"],
+  "t:w43-m3-prob": ["t:z0025e-ia-rdt30", "t:z0025e-ia-tcp_segloss", "t:z0025e-ia-TCP_RTT", "t:z0025e-ia-tcp_retrans", "t:z0025e-ia-tcp_evolution", "t:z0025e-ia-internet_checksum", "t:z0025e-ia-UDP_Mux_Demux", "t:z0025e-ia-TCP_Mux_Demux"],
+  "t:w43-m4-review": ["t:z0025e-cyu-4.2", "t:z0025e-cyu-4.3"],
+  "t:w43-m4-kc": ["t:z0025e-kc-4.1", "t:z0025e-kc-4.2", "t:z0025e-kc-4.3", "t:z0025e-kc-4.4", "t:z0025e-kc-4.5"],
+  "t:w43-m4-prob": ["t:z0025e-ia-scheduling", "t:z0025e-ia-subnet_addressing", "t:z0025e-ia-nat", "t:z0025e-ia-ip_tunneling", "t:z0025e-ia-openflow"]
 };

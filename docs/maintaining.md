@@ -66,8 +66,14 @@ After `npm run update`, publish `ltu-study-tracker.html` to the artifact URL abo
   lecture number is predicted from module order, `confirmed` once an announcement names it).
 - **Study week:** the Monday, the course, refs to the material for that week, and why.
 - **Task:** a to-do Canvas does not list. Its `id` is the tick box key, so never rename one.
-  `R(...)` takes the same arguments for a revision list, whose links are the point of the task
-  (the Midterm 1 Knowledge Checks and problems): the page shows each link by name, not as an icon.
+- **Prep Plan:** `PREP_LP2`, what to practise for one exam (`for: "course:assignmentId"`), shown in
+  the week given. Per module: `material`, `quiz` and `cyu` as refs (each must match exactly one item,
+  so `3.4@Discussion`), and `topics`, each a textbook section with `key`, `title`, `check` (the
+  Knowledge Check's address), `problems` (`PB(title, id)`, the textbook's interactive problem) and
+  `cards`, a pattern on Card questions. The tick ids come from the topic keys, problem ids and ref
+  numbers, so never rename one; `LEGACY_IDS` may map an old id to a list of them. After drafting new
+  Cards for a module, run `node tools/test-prep.mjs`: it names any card that lands in no topic, and the
+  topic's pattern gets a word for it.
 - **Notes:** advice attached to a Canvas deadline, keyed `course:assignmentId`.
 - **Närvaro Report:** `PROGRAMME.narvaro` holds what the programme's template says: its title, the
   hour it is due on Friday and the notes under the days, word for word. A course's `sv` is the

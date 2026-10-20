@@ -58,6 +58,17 @@ export function checkPlan(inventory) {
       if (!isAssignment(code, id)) problems.push(`${term.id} needs ${key} names no Canvas assignment`);
       for (const r of refs) if (!refMatches(code, r).length) problems.push(`${term.id} needs ${key} ref "${r}" matches nothing`);
     }
+    for (const p of term.prep || []) {
+      const [code, id] = p.for.split(":"), where = `${term.id} prep for ${p.for}`;
+      if (code !== p.course || !isAssignment(code, id)) problems.push(`${where} names no Canvas assignment of ${p.course}`);
+      for (const m of p.modules) {
+        for (const r of [...m.material, ...m.cyu, m.quiz].filter(Boolean)) if (refMatches(code, r).length !== 1) problems.push(`${where} module ${m.n} ref "${r}" must match exactly one item`);
+        for (const tp of m.topics) {
+          try { new RegExp(tp.cards || "", "i"); } catch (e) { problems.push(`${where} topic ${tp.key}: cards is no valid pattern`); }
+          if (!tp.check && !(tp.problems || []).length) problems.push(`${where} topic ${tp.key} has nothing to practise`);
+        }
+      }
+    }
     const ids = new Set();
     for (const t of term.tasks) {
       if (ids.has(t.id)) problems.push(`duplicate task id ${t.id}`); ids.add(t.id);
@@ -65,6 +76,11 @@ export function checkPlan(inventory) {
     }
   }
   for (const [code, c] of Object.entries(COURSES)) for (const o of c.optional || []) for (const r of o.refs) if (!refMatches(code, r).length) problems.push(`${code} optional ref "${r}" matches nothing`);
+  // An old id may stand for several new ones (a revision task that became prep items); each must exist.
+  const prepIds = new Set(TERMS.flatMap(t => (t.prep || []).flatMap(p => p.modules.flatMap(m => [
+    ...m.cyu.map(r => `t:${p.course.toLowerCase()}-cyu-${r.split("@")[0]}`),
+    ...m.topics.flatMap(tp => [...(tp.check ? [`t:${p.course.toLowerCase()}-kc-${tp.key}`] : []), ...(tp.problems || []).map(x => `t:${p.course.toLowerCase()}-ia-${x.id}`)])]))));
+  for (const [from, to] of Object.entries(LEGACY_IDS)) if (Array.isArray(to)) for (const id of to) if (!prepIds.has(id)) problems.push(`LEGACY_IDS ${from} points at ${id}, which no prep has`);
   const taskIds = new Set(TERMS.flatMap(t => t.tasks.map(x => x.id)));
   const sessionKeys = new Set(TERMS.flatMap(t => t.sessions.map(x => `s:${x.course}:${x.date}:${x.start || ""}`)));
   for (const d of DISAGREEMENTS) {
