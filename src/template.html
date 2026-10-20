@@ -2138,7 +2138,7 @@ function narvaroRow(t, mon){
   var fri = addDays(mon, 4), pg = P.PROGRAMME;
   if (!NV || !t.courses.length || fri < pg.start || fri > pg.end) return null;
   return { kind: "narvaro", level: "must", id: "t:narvaro-" + fri, code: "", date: fri, time: NV.due, mon: mon, title: "N\u00e4rvaro report due " + NV.due,
-    why: "What each day of this week held, on the programme's template, emailed by Friday noon. Draft it here from the week, check it, then download or copy it." };
+    why: "What each day of this week held, on the programme's template, emailed by Friday noon. Draft it here from the week, check it, then " + (canDownload() ? "download or copy it." : "copy it.") };
 }
 // Only this week's and later reports pulse or carry red: a past Friday left unticked is not news.
 function narvaroRowHtml(r){
@@ -2313,7 +2313,7 @@ function narvaroPanel(t, mon){
     '<div class="nv-head"><label class="nv-f"><span>Name<small>Namn</small></span><input type="text" id="nv-name" autocomplete="name" placeholder="Your name" value="' + esc(st.name || "") + '"></label>' +
     '<label class="nv-f"><span>Teachers<small>L\u00e4rare</small></span><input type="text" id="nv-teachers" value="' + esc(dr.teachers) + '"></label><span class="nv-f nv-wk"><span>Week<small>Vecka</small></span><b class="mono">' + wk + '</b></span></div>' +
     '<div class="nv-days">' + days + '</div>' +
-    '<div class="nv-acts"><button type="button" data-nvxlsx="1">' + ic("file-xls", "sm") + 'Download Excel file</button><button type="button" data-nvcopy="1" title="The whole sheet as a table: paste it at A1 of an empty sheet in Google Sheets or Excel">' + ic("copy", "sm") + 'Copy table</button>' +
+    '<div class="nv-acts">' + (canDownload() ? '<button type="button" data-nvxlsx="1">' + ic("file-xls", "sm") + 'Download Excel file</button>' : '') + '<button type="button" data-nvcopy="1" title="The whole sheet as a table: paste it at A1 of an empty sheet in Google Sheets or Excel">' + ic("copy", "sm") + 'Copy table</button>' +
     '<button type="button" data-nvdays="1" title="Only the activities, a row per line, the same number of rows for every day: paste at Monday\'s first activity cell of a sheet with a block of rows per day">' + ic("list-checks", "sm") + 'Copy Day/Activity</button>' +
     '<label class="nv-rows" title="How many rows each day has in your sheet; lines past it join into the day\'s last row">Rows per day <input type="number" id="nv-rows" min="1" max="12" value="' + nvDayRows() + '"></label>' +
     '<button type="button" class="plain" data-nvredo="1" title="Write the draft again from the week as it is now; your edits go">' + ic("arrow-counter-clockwise", "sm") + 'Draft again from the week</button></div>' +
@@ -2461,15 +2461,13 @@ function copyRich(html, text){
   if (navigator.clipboard && navigator.clipboard.write && window.ClipboardItem) return navigator.clipboard.write([new ClipboardItem(kinds)]);
   return Promise.reject(new Error("no clipboard"));
 }
-// Hands the viewer a file. On claude.ai through the downloads capability when the page has it, else a
-// plain browser download (the hosted app, a file opened locally). "maybe": a sandbox may drop it unseen.
+// Files are offered only off claude.ai: on the hosted app and in a copy opened from disk. The claude.ai
+// page offers no download (its sandbox needs a capability it is not given); Copy table does the job there.
+function canDownload(){ return hostedApp() || !(window.claude && window.claude.use); }
+// Hands the viewer a file as a plain browser download.
 function saveBlob(name, blob){
-  var plain = function(){ var a = document.createElement("a"), u = URL.createObjectURL(blob); a.href = u; a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(function(){ URL.revokeObjectURL(u); }, 60000); };
-  if (hostedApp() || !window.claude || !window.claude.use) { plain(); return Promise.resolve("saved"); }
-  return window.claude.use("downloads").then(function(dl){
-    if (!dl) { plain(); return "maybe"; }
-    return dl.save({ filename: name, data: blob }).then(function(){ return "saved"; });
-  });
+  var a = document.createElement("a"), u = URL.createObjectURL(blob);
+  a.href = u; a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(function(){ URL.revokeObjectURL(u); }, 60000);
 }
 // A day's box is as tall as its text, wrapped lines included.
 function nvFit(ta){ ta.style.height = "auto"; ta.style.height = (ta.scrollHeight + 2) + "px"; }
@@ -4328,7 +4326,7 @@ function renderInfoView(name){
       cards.push(infoCard("calendar-dot", "Add a calendar", "Your group's calendar appears among the sessions, marked with its name.\n1. Google Calendar: **Settings**, the calendar, **Secret address in iCal format**. Copy it.\n2. Profile menu, **Your calendars**, paste, **Add**.\nKey: only you can see your links."));
     }
     cards.push(infoCard("books", "Study cards", "- Click a card to **turn it over**.\n- Rate how well you knew it: **Again**, **Hard**, **Good**, **Easy**.\n- Spaced repetition brings it back just before you would forget it, and plans it so you know it on the day of the lab or exam.\n- **Check** a classmate's card if it is right; **Something is wrong** hides it until it is fixed.\nWhen you write a card: `- ` makes a list, backticks make `code`, two stars make a **term**, and a line starting `Key:` is the one thing to remember."));
-    cards.push(infoCard("clipboard-text", "N\u00e4rvaro report", "Every Friday the programme wants to know what each day of the week held, by noon.\n1. Week by week, the Friday row **N\u00e4rvaro report**: **Draft it from this week**.\n2. Pick a style: **Detailed** (a line per activity), **Compact** (a line per day) or **Short** (a few words), in English or Swedish.\n3. Add your name, check every day, take out anything private.\n4. **Download Excel file**, or **Copy table** and paste at A1 of an empty sheet, or **Copy Day/Activity** for only the activities, a set number of rows per day, to paste into a sheet of your own. Email it.\nKey: the draft comes from the sessions, your calendar, your planned blocks and what you ticked that day."));
+    cards.push(infoCard("clipboard-text", "N\u00e4rvaro report", "Every Friday the programme wants to know what each day of the week held, by noon.\n1. Week by week, the Friday row **N\u00e4rvaro report**: **Draft it from this week**.\n2. Pick a style: **Detailed** (a line per activity), **Compact** (a line per day) or **Short** (a few words), in English or Swedish.\n3. Add your name, check every day, take out anything private.\n4. " + (canDownload() ? "**Download Excel file**, or " : "") + "**Copy table** and paste at A1 of an empty sheet, or **Copy Day/Activity** for only the activities, a set number of rows per day, to paste into a sheet of your own. Email it.\nKey: the draft comes from the sessions, your calendar, your planned blocks and what you ticked that day."));
     cards.push(infoCard("calendar-check", "Lab bookings", "Shown on the booking task and in a strip at the top.\n- **Not booked**: there is still time.\n- **Book this week**: the session is a week or less away.\n- **Book now**: two days or less, or one free slot left.\n- **Booked 09:15**: your group has that slot.\nKey: your group number comes from Canvas; set it by hand in the profile menu if it is wrong."));
     cards.push(infoCard("warning", "Where the data comes from", "- Deadlines and modules: **Canvas**, read every hour on the site.\n- Session times: the course schedule pages.\n- Minutes: rough estimates from page length and videos.\n- All times are **Stockholm time**.\nKey: when this page and Canvas disagree, Canvas is right. Places where the course's own sources disagree are marked."));
   } else if (name === "privacy") {
@@ -4483,7 +4481,7 @@ document.addEventListener("click", function(e){
   var m = narvaroModel(dr, nvStore().name), g = narvaroGrid(m);
   if (b.dataset.nvcopy) {
     copyRich(narvaroHtml(g), narvaroPlain(m)).then(function(){ nvMsg("Copied. In Google Sheets or Excel, click cell A1 of an empty sheet and paste: it comes in as the template. Anywhere else it pastes as text."); },
-      function(){ nvMsg("This browser did not let the page copy. Download the Excel file instead."); });
+      function(){ nvMsg("This browser did not let the page copy." + (canDownload() ? " Download the Excel file instead." : "")); });
     b.focus();
     return;
   }
@@ -4495,9 +4493,9 @@ document.addEventListener("click", function(e){
     return;
   }
   var file = "N\u00e4rvarorapport vecka " + m.week + (m.name ? " " + m.name.replace(/[\\/:*?"<>|]+/g, "").trim() : "") + ".xlsx";
-  saveBlob(file, new Blob([narvaroXlsx(g, "vecka" + m.week)], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" })).then(function(how){
-    nvMsg(how === "saved" ? "Saved as " + file + ". Email it by Friday " + NV.due + "." : "If no file arrived, this page cannot save files here: use Copy table, or the tracker at " + (P.MOVED_TO || "its own site") + ".");
-  }, function(err){ nvMsg(err && err.code === "declined" ? "Not saved." : "This page cannot save files here. Use Copy table instead."); });
+  if (!canDownload()) return;
+  saveBlob(file, new Blob([narvaroXlsx(g, "vecka" + m.week)], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }));
+  nvMsg("Saved as " + file + ". Email it by Friday " + NV.due + ".");
 });
 var nvTimer = null;
 document.addEventListener("input", function(e){
