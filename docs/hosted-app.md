@@ -13,8 +13,11 @@ lists everything. The lists live in one place in `src/template.html` (`APP_INFO`
 **What it does today**
 - Ticks on every device with a Google sign-in; no claude.ai account needed.
 - Two devices never undo each other: per task the later change wins, an untick included.
-- The Course Plan updates itself from Canvas every hour; the page shows when, and turns the line
-  amber if the last read is over three hours old.
+- The Course Plan updates itself from Canvas every hour (`course-plan-sync`, at 7 minutes past) and
+  once each time a new version starts (the Dockerfile's `CMD`), so a deploy's plan is stored within
+  a minute. Until then the app serves whichever plan was built last, the stored row or the one built
+  into the image (`newer` in `app/src/lib/tracker-page.ts`), so a deploy shows its plan at once. The
+  page shows when the plan was read, and turns the line amber if that is over three hours ago.
 - Without signing in it works like the claude.ai page: ticks stay in that browser.
 - With the Student's own Canvas token (kept in the browser, passed through, never stored): what
   Canvas has recorded beside each tick, and the Conflict sign for a ticked hand-in with no

@@ -4,7 +4,8 @@ import { join } from "node:path";
 // The tracker page is the same file the claude.ai artifact publishes. It reaches storage only
 // through window.claude.use("db") and use("user"); public/bridge.js provides both on top of
 // Supabase, so the page itself needs no change to run here. Its DATA (the Course Plan) comes from
-// the database row the hourly sync writes, else from the plan built into the image.
+// the database row the sync writes (at start and hourly), or from the plan built into the image when
+// that one is newer or the row cannot be read.
 
 const MARKER = "/*__DATA__*/";
 const PLAN_TTL_MS = 5 * 60 * 1000;
@@ -27,11 +28,20 @@ let shellHtml: string | null = null;
 let builtIn: unknown = null;
 let fromDb: { data: unknown; at: number } | null = null;
 
+// Whichever plan was built last. Right after a deploy the plan built into the image is newer than
+// the stored row, which still holds the plan of the version before; the sync the container starts
+// with (Dockerfile) then stores one built from it with live Canvas data, and that row wins again.
+function newer(a: unknown, b: unknown): unknown {
+  const built = (x: unknown) => String((x as { built?: string } | null)?.built ?? "");
+  return built(a) >= built(b) ? a : b;
+}
+
 // The synced plan, read with the public anon key (the row is readable by anyone, see the
 // course_plan policy). Cached for a few minutes; any failure falls back to the plan built in.
 async function coursePlan(): Promise<unknown> {
   const c = config();
-  if (fromDb && Date.now() - fromDb.at < PLAN_TTL_MS) return fromDb.data;
+  builtIn ??= JSON.parse(read("data.json"));
+  if (fromDb && Date.now() - fromDb.at < PLAN_TTL_MS) return newer(fromDb.data, builtIn);
   if (c) {
     try {
       const res = await fetch(`${c.supabaseUrl}/rest/v1/course_plan?id=eq.current&select=data`, {
@@ -41,11 +51,10 @@ async function coursePlan(): Promise<unknown> {
       });
       if (res.ok) {
         const rows = (await res.json()) as { data: unknown }[];
-        if (rows[0]?.data) { fromDb = { data: rows[0].data, at: Date.now() }; return rows[0].data; }
+        if (rows[0]?.data) { fromDb = { data: rows[0].data, at: Date.now() }; return newer(rows[0].data, builtIn); }
       }
     } catch { /* fall back below */ }
   }
-  builtIn ??= JSON.parse(read("data.json"));
   return builtIn;
 }
 

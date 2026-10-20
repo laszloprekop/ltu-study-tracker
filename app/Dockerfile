@@ -25,4 +25,7 @@ ENV HOSTNAME="0.0.0.0"
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
   CMD node -e "fetch('http://127.0.0.1:'+(process.env.PORT||3000)+'/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
 
-CMD ["node", "server.js"]
+# A new version syncs the Course Plan once as it starts, in the background, so the plan it carries
+# is stored with live Canvas data within a minute instead of at the next hourly run. A failed sync
+# stores nothing and keeps the last good plan; the server starts either way.
+CMD ["sh", "-c", "node scripts/sync.mjs & exec node server.js"]
