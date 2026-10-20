@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-10-12T11:43:22.481Z",
+ "generatedAt": "2026-10-20T07:02:28.744Z",
  "courses": {
   "Z7005E": {
    "canvasId": 613,
@@ -940,9 +940,9 @@
        "section": null,
        "url": "https://ltuedu.instructure.com/courses/613/modules/items/19687",
        "indent": 1,
-       "words": 677,
+       "words": 655,
        "videos": 0,
-       "files": 10,
+       "files": 9,
        "minutes": null
       },
       {
@@ -1557,8 +1557,8 @@
        "section": null,
        "url": "https://ltuedu.instructure.com/courses/613/modules/items/19733",
        "indent": 1,
-       "words": 8,
-       "videos": 2,
+       "words": 6,
+       "videos": 1,
        "files": 2,
        "minutes": null
       },
@@ -1576,9 +1576,9 @@
        "submission": "online_upload",
        "due": "2026-10-21",
        "dueTime": "17:00",
-       "words": 1252,
+       "words": 1377,
        "videos": 2,
-       "files": 4,
+       "files": 6,
        "statedMinutes": 480,
        "minutes": 480
       },
@@ -3459,6 +3459,13 @@
      "posted": "2026-10-12",
      "url": "https://ltuedu.instructure.com/courses/614/discussion_topics/4110",
      "text": "Dear All, Welcome to Week 5 of Z0025E Computer Networks! This week, we will continue our exploration of the Network Layer, with two lectures (L9 and L10) and our third laboratory assessment session (Lab 3). All lectures and laboratory sessions will take place via Zoom. Please refer to Canvas for the Zoom link and relevant course materials. Week 5 Outlook Monday, 12 October – L9 (09:00–10:30, Zoom). We will continue our discussion of the Network Layer, focusing on IP protocols, generalized forwarding, and middleboxes. Tuesday, 13 October – L10 (09:00–10:30, Zoom). We will move on to the Network"
+    },
+    {
+     "id": 4111,
+     "title": "Welcome to Week 6!",
+     "posted": "2026-10-19",
+     "url": "https://ltuedu.instructure.com/courses/614/discussion_topics/4111",
+     "text": "Hi everyone, This week is dedicated to Midterm 1, so there will be no scheduled lectures. Midterm 1 will be on Friday 23rd of october and can be taken anytime during the day. The midterm will assess your understanding of the concepts and topics covered in the lectures from Modules 1 to 4. To prepare for Midterm 1, I recommend that you: Review the lecture slides and study materials from Modules 1–4. Complete the Knowledge Checks provided in each lecture to test your understanding of the key concepts. Work through the problems listed under the To-Do sections of the lectures to practise applying "
     }
    ]
   }

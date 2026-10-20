@@ -1349,7 +1349,8 @@ function linkIcon(label, url){
   if (/module/i.test(l)) return "tree-structure";
   if (/book|sign-?up|doodle/i.test(l) || /doodle/.test(u)) return "calendar-check";
   if (/wireshark|packet tracer|download|install/i.test(l)) return "download-simple";
-  if (/quiz/i.test(l)) return "question";
+  if (/quiz/i.test(l) || /\/knowledgechecks\//.test(u)) return "question";
+  if (/\/kurose_ross\/interactive\//.test(u)) return "pencil-simple";
   if (/schema|schedule|calendar/i.test(l)) return "calendar";
   if (/page|lecture|brief|instructions|overview|\/pages\/|\/modules\/items\//i.test(l + " " + u)) return "book-open";
   return "link";
@@ -1492,7 +1493,7 @@ function taskRows(t){
     // a task that feeds a deadline is as important as the deadline
     var level = x.level === "must" || target ? "must" : "nice";
     var feeds = target ? { title: shortTitle(target.title).split(",")[0], date: target.due, url: target.url } : null;
-    return { kind: "task", level: level, id: "t:" + x.id, code: x.course, date: x.date, title: x.title, why: x.why || "", links: x.links || [], feeds: feeds };
+    return { kind: "task", level: level, id: "t:" + x.id, code: x.course, date: x.date, title: x.title, why: x.why || "", links: x.links || [], named: !!x.named, feeds: feeds };
   });
 }
 function studyBlocks(t){
@@ -1610,9 +1611,12 @@ function faces(code){
 // Links into Canvas end with the external-link mark, so it is clear they leave the page for Canvas.
 function isCanvas(url){ return /instructure\.com\//.test(url); }
 function ext(url){ return isCanvas(url) ? ic("arrow-square-out", "sm ext") : ""; }
-function links(list){
+// named: the links are what the row is about (a revision list), so each chip shows its label.
+function links(list, named){
   if (!list || !list.length) return "";
-  return '<span class="links">' + list.map(function(l){ var lab = l[0] + (isCanvas(l[1]) ? " (Canvas)" : ""); return '<a class="io" href="' + esc(l[1]) + '" target="_blank" rel="noopener" title="' + esc(lab) + '" aria-label="' + esc(lab) + '">' + ic(linkIcon(l[0], l[1])) + ext(l[1]) + '</a>'; }).join("") + '</span>';
+  return '<span class="links' + (named ? ' named' : '') + '">' + list.map(function(l){ var lab = l[0] + (isCanvas(l[1]) ? " (Canvas)" : "");
+    return named ? '<a href="' + esc(l[1]) + '" target="_blank" rel="noopener" title="' + esc(lab) + '">' + ic(linkIcon(l[0], l[1])) + esc(l[0]) + ext(l[1]) + '</a>'
+      : '<a class="io" href="' + esc(l[1]) + '" target="_blank" rel="noopener" title="' + esc(lab) + '" aria-label="' + esc(lab) + '">' + ic(linkIcon(l[0], l[1])) + ext(l[1]) + '</a>'; }).join("") + '</span>';
 }
 function lvl(level){ return '<span class="lvl ' + level + '">' + (level === "must" ? ic("warning-diamond", "sm") + "MUST" : ic("sparkle", "sm") + "NICE") + '</span>'; }
 function box(id){ return '<span class="box"><span class="ring"></span><input type="checkbox" id="' + esc(id) + '"></span>'; }
@@ -1646,7 +1650,7 @@ function row(r, opts){
   var cls = "row " + r.kind + " lvl-" + r.level + (r.id && endangeredRow(r) ? " endangered" : "");
   var times = r.kind === "session" && r.time ? ' data-start="' + esc(r.time) + '" data-end="' + esc(r.end || "") + '"' : '';
   return '<div class="' + hostClass(r.id, cls) + '" style="' + colorVars(r.code) + '" data-course="' + r.code + '"' + (r.id ? ' data-id="' + esc(r.id) + '"' : '') + ' data-link="' + esc(r.id || r.key) + '"' + times + '>' +
-    when(r, opts) + (r.id ? box(r.id) : '') + '<span class="body">' + inner + prep + (r.kind === "deadline" && /^d:[^:]+:\d+$/.test(r.id || "") ? prepareLine(r.code, Number(r.id.split(":")[2])) : '') + links(r.links) + '</span>' + rowCtl(r.id, r.id || r.key, r.code, r.stitle || r.title) + '</div>';
+    when(r, opts) + (r.id ? box(r.id) : '') + '<span class="body">' + inner + prep + (r.kind === "deadline" && /^d:[^:]+:\d+$/.test(r.id || "") ? prepareLine(r.code, Number(r.id.split(":")[2])) : '') + links(r.links, r.named) + '</span>' + rowCtl(r.id, r.id || r.key, r.code, r.stitle || r.title) + '</div>';
 }
 function creq(code, i){
   if (!i.req) return '<span class="creq none" aria-hidden="true">' + ic("circle-dashed") + '</span>';
@@ -3314,7 +3318,7 @@ function detailFor(t, key){
       (row.pts ? '<span>Points</span><b>' + esc(row.pts) + '</b>' : '') + (row.est ? '<span>Effort</span><b>' + fmtMin(row.est) + ' stated by the course</b>' : '') + '</div>';
     if (row.why) html += '<div class="why">' + esc(row.why) + '</div>';
     if (row.id) html += '<div class="act" data-id="' + esc(row.id) + '">' + box(row.id) + '<label for="' + esc(row.id) + '">Done</label>' + muteBtn(row.id) + '</div>';
-    html += links(row.links);
+    html += links(row.links, row.named);
     if (row.prep && row.prep.length) html += '<div class="sec">Watch before it</div><ul class="rel">' + row.prep.map(function(i){ return '<li><button type="button" data-goto="' + esc(nodeIdOf(row.code, i)) + '">' + esc((i.number || "") + " " + i.title) + '</button></li>'; }).join("") + '</ul>';
     var nid = rowNodeId(t, row); if (nid && !node) node = findNode(mapRoots, nid);
     if (node) html += '<div class="sec">In Canvas</div>';

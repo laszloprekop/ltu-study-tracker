@@ -66,6 +66,8 @@ After `npm run update`, publish `ltu-study-tracker.html` to the artifact URL abo
   lecture number is predicted from module order, `confirmed` once an announcement names it).
 - **Study week:** the Monday, the course, refs to the material for that week, and why.
 - **Task:** a to-do Canvas does not list. Its `id` is the tick box key, so never rename one.
+  `R(...)` takes the same arguments for a revision list, whose links are the point of the task
+  (the Midterm 1 Knowledge Checks and problems): the page shows each link by name, not as an icon.
 - **Notes:** advice attached to a Canvas deadline, keyed `course:assignmentId`.
 - **Närvaro Report:** `PROGRAMME.narvaro` holds what the programme's template says: its title, the
   hour it is due on Friday and the notes under the days, word for word. A course's `sv` is the
