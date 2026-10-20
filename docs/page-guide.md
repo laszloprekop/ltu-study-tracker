@@ -316,10 +316,11 @@ with the account. A new style or language, or **Draft again from the week**, wri
 with their yellow cells, the days from A6 with a blank row after each, the template's notes three rows
 after Friday. With one line a day it is the template cell for cell; Detailed adds the date to each day
 and puts the lines under one another. **Download Excel file** writes it as an .xlsx without a library
-(`narvaroXlsx`, a zip stored without compression, `zipStore`) as a plain download, on the hosted app and
-in a copy opened from disk only (`canDownload`). The claude.ai page offers no download: its sandbox
-would need the `downloads` capability, which the artifact is not given, so there the button, its
-mention in the row and in Help are left out and Copy table does the job. **Copy table** puts the same sheet on
+(`narvaroXlsx`, a zip stored without compression, `zipStore`), on the hosted app only (`canDownload`):
+its bridge saves it as a plain download (`window.claude.use("filesave")`, `app/public/bridge.js`). The
+claude.ai page offers no download and holds no save code (its sandbox would need the `downloads`
+capability, which the artifact is not given), so there the button, its mention in the row and in Help
+are left out and Copy table does the job. **Copy table** puts the same sheet on
 the clipboard as an HTML table with the template's merges, widths, sizes, bold and yellow, plus plain
 text for anywhere else (`copyRich`). **Copy Day/Activity** copies only the activities, as plain text in one
 column for a sheet of one's own where each day is a block of the same number of rows (`narvaroDayRows`):

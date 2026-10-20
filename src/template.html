@@ -2461,14 +2461,9 @@ function copyRich(html, text){
   if (navigator.clipboard && navigator.clipboard.write && window.ClipboardItem) return navigator.clipboard.write([new ClipboardItem(kinds)]);
   return Promise.reject(new Error("no clipboard"));
 }
-// Files are offered only off claude.ai: on the hosted app and in a copy opened from disk. The claude.ai
-// page offers no download (its sandbox needs a capability it is not given); Copy table does the job there.
-function canDownload(){ return hostedApp() || !(window.claude && window.claude.use); }
-// Hands the viewer a file as a plain browser download.
-function saveBlob(name, blob){
-  var a = document.createElement("a"), u = URL.createObjectURL(blob);
-  a.href = u; a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(function(){ URL.revokeObjectURL(u); }, 60000);
-}
+// Files are offered on the hosted app only, saved by its bridge (use("filesave"), app/public/bridge.js).
+// The claude.ai page offers no download and holds no save code; Copy table does the job there.
+function canDownload(){ return hostedApp() && !!(window.claude && window.claude.use); }
 // A day's box is as tall as its text, wrapped lines included.
 function nvFit(ta){ ta.style.height = "auto"; ta.style.height = (ta.scrollHeight + 2) + "px"; }
 function nvFitAll(){ document.querySelectorAll(".nvpanel textarea").forEach(nvFit); }
@@ -4494,8 +4489,9 @@ document.addEventListener("click", function(e){
   }
   var file = "N\u00e4rvarorapport vecka " + m.week + (m.name ? " " + m.name.replace(/[\\/:*?"<>|]+/g, "").trim() : "") + ".xlsx";
   if (!canDownload()) return;
-  saveBlob(file, new Blob([narvaroXlsx(g, "vecka" + m.week)], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }));
-  nvMsg("Saved as " + file + ". Email it by Friday " + NV.due + ".");
+  var blob = new Blob([narvaroXlsx(g, "vecka" + m.week)], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+  window.claude.use("filesave").then(function(fs){ return fs.save(file, blob); })
+    .then(function(){ nvMsg("Saved as " + file + ". Email it by Friday " + NV.due + "."); }, function(){ nvMsg("The file could not be saved. Use Copy table instead."); });
 });
 var nvTimer = null;
 document.addEventListener("input", function(e){

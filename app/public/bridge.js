@@ -75,10 +75,22 @@
     },
   };
 
+  // A file for the viewer to save (the Närvaro report as .xlsx), as a plain browser download. Not part of
+  // the claude.ai runtime: the claude.ai page offers no downloads, so the page holds no save code itself.
+  var filesave = {
+    save: function (name, blob) {
+      var a = document.createElement("a"), u = URL.createObjectURL(blob);
+      a.href = u; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function () { URL.revokeObjectURL(u); }, 60000);
+      return Promise.resolve();
+    },
+  };
+
   window.claude = {
     use: function (name) {
       if (name === "canvas") return Promise.resolve(canvas);
       if (name === "feedback") return Promise.resolve(feedback);
+      if (name === "filesave") return Promise.resolve(filesave);
       return ready.then(function (session) {
         if (!session) return null;
         if (name === "user") return { id: function () { return Promise.resolve(session.user.id); } };
