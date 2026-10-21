@@ -188,7 +188,9 @@
   --edge-c1:var(--edge-blue); --edge-c1-b:var(--edge-blue-b); --edge-c2:var(--edge-gold); --edge-c2-b:var(--edge-gold-b);
 }
 /* palette:end */
-*{box-sizing:border-box; scrollbar-color:var(--line) transparent}
+/* Scrollbars are the system's own: no scrollbar-color or scrollbar-width anywhere (setting either swaps
+   them for drawn ones), so they take their light or dark look from color-scheme, which each theme sets. */
+*{box-sizing:border-box}
 :root[data-theme="light"]{color-scheme:light}
 /* hidden always wins: a class with its own display (the Bookings strip had display:flex) must not show an element meant to be hidden */
 [hidden]{display:none !important}
@@ -304,7 +306,7 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
 .fcard.pluck{animation:pluck .36s cubic-bezier(.5,0,.75,0) forwards; pointer-events:none; z-index:5; position:relative}
 @media (prefers-reduced-motion:reduce){ .fcard.pluck{animation:none} }
 /* no overscroll-behavior here: it would also stop the page scrolling over a card whose text fits */
-.fc-q,.fc-a{min-height:0; overflow-y:auto; scrollbar-width:thin}
+.fc-q,.fc-a{min-height:0; overflow-y:auto}
 .fc-q{flex:1 1 auto; display:flex; align-items:safe center; font-family:Archivo,sans-serif; font-size:20px; font-weight:700; line-height:1.3; color:var(--ink)}
 .fc-a{flex:1 1 auto; font-size:13.5px; line-height:1.4; color:var(--ink)}
 .fc-a p{margin:0 0 6px} .fc-a ul,.fc-a ol{margin:0 0 6px; padding-left:18px} .fc-a li{margin:2px 0}
