@@ -92,14 +92,16 @@ const SESSIONS_LP2 = [
   S("Z7005E", "2026-09-30", "09:15", "10:15", "workshop", "Workshop 3, design principles", { ref: "3.5.6", prep: ["2.3"] }),
   S("Z7005E", "2026-09-30", "10:30", "11:45", "workshop", "Workshop 4, design patterns", { ref: "3.6.7", prep: ["3.4", "3.5", "3.6"] }),
   S("Z7005E", "2026-10-16", "09:15", "10:30", "lecture", "Lecture 14, unit testing and refactoring", { ref: "5.1" }),
-  S("Z7005E", "2026-10-22", "09:15", "10:15", "lecture", "Lecture 11, sustainable system development", { ref: "3.2" }),
-  S("Z7005E", "2026-10-22", "10:30", "12:00", "workshop", "Workshop 2, sustainable system development", { ref: "3.3" }),
-  S("Z7005E", "2026-10-23", "09:15", "10:00", "lecture", "Lecture 13, concrete examples of quality attributes", { ref: "4.2.9" }),
-  S("Z7005E", "2026-10-23", "10:15", "12:00", "workshop", "Workshop 5, software architecture design", { ref: "4.2.10" }),
+  // On 22 Oct the course moved the sessions of 22 and 23 Oct to week 45 and made Lecture 13 a
+  // recording to watch before Workshop 5. The Schema's week 43 still lists the 22 Oct ones; its
+  // week 45 and the message to the course say they moved.
+  S("Z7005E", "2026-11-02", "13:00", "14:40", "workshop", "Workshop 5, software architecture design", { ref: "4.2.10", prep: ["4.2.9"], why: "Moved from 23 Oct. Lecture 13 is not held live: watch the short recording that covers it (4.2.9, about 18 minutes) before the workshop." }),
   S("Z7005E", "2026-11-05", "09:15", "12:00", "seminar", "Final seminars, group presentations and demos", { ref: "6.1" }),
-  S("Z7005E", "2026-11-05", "13:15", "14:00", "lecture", "Lecture 17, the software development life cycle", { ref: "5.5" }),
-  S("Z7005E", "2026-11-05", "14:15", "16:00", "lecture", "Lecture 18, what good code looks like", { ref: "5.6" }),
-  S("Z7005E", "2026-11-06", "09:15", "11:00", "workshop", "Workshop 6, refactoring a multi-user game", { ref: "5.7" }),
+  S("Z7005E", "2026-11-05", "13:20", "14:20", "lecture", "Lecture 18, what good code looks like", { ref: "5.6" }),
+  S("Z7005E", "2026-11-05", "14:30", "15:00", "lecture", "Lecture 11, sustainable system development", { ref: "3.2", why: "Moved from 22 Oct." }),
+  S("Z7005E", "2026-11-05", "15:10", "16:00", "lecture", "Lecture 17, the software development life cycle", { ref: "5.5" }),
+  S("Z7005E", "2026-11-06", "09:15", "10:25", "workshop", "Workshop 6, refactoring a multi-user game", { ref: "5.7" }),
+  S("Z7005E", "2026-11-06", "10:30", "12:00", "workshop", "Workshop 2, sustainable system development", { ref: "3.3", why: "Moved from 22 Oct." }),
   S("Z7005E", "2026-11-30", null, null, "exam", "Oral examination, individual, booked slot", { ref: "6.3", status: "expected", why: "Some time in week 49. The booking link is published after 25 Nov." }),
 
   // Z0025E, from the Homepage slot table. Lecture numbers by module order until an announcement confirms them.
@@ -134,10 +136,10 @@ const STUDY_LP2 = [
     why: "The Schema says to have watched 2.3 before Workshop 3 and 3.4 to 3.6 before Workshop 4, both on 30 Sep. It also lists them as week 42 self-study, so anything not done now goes there." },
   { week: "2026-10-05", course: "Z0025E", refs: ["3.4", "3.5", "4.1"], why: "Lecture 7 is self-paced with a forum post, then the module 3 quiz." },
   { week: "2026-10-12", course: "Z0025E", refs: ["4.4", "4.5", "5.1", "9.7"], why: "Close module 4 before Midterm 1. The subnet video helps with Lab 3." },
-  { week: "2026-10-12", course: "Z7005E", refs: ["4.2"], why: "Software quality attributes. Lab 4 (15 Oct) and Lecture 13 (23 Oct) build on this block." },
+  { week: "2026-10-12", course: "Z7005E", refs: ["4.2"], why: "Software quality attributes. Lab 4 (15 Oct) and Workshop 5 (2 Nov) build on this block." },
   { week: "2026-10-19", course: "Z0025E", refs: ["10.1", "10.2"], why: "No lectures this week (announced 19 Oct). Midterm 1 on Friday covers modules 1 to 4: open book, individual, any time during the day. What to practise is in Midterm 1 prep at the top of the week." },
   { week: "2026-10-26", course: "Z0025E", refs: ["5.4", "5.5", "5.6", "6.1"], why: "Lecture 12 is self-paced with a forum post." },
-  { week: "2026-10-26", course: "Z7005E", refs: ["4.3"], why: "Listed by the Schema as week 44 self-study." },
+  { week: "2026-10-26", course: "Z7005E", refs: ["4.3", "4.2.9"], why: "4.3 is listed by the Schema as week 44 self-study. 4.2.9 is the short recording of Lecture 13, to watch before Workshop 5 on Monday 2 Nov." },
   { week: "2026-11-02", course: "Z0025E", refs: ["6.3", "6.4", "7.1"] },
   { week: "2026-11-09", course: "Z0025E", refs: ["7.3", "7.4", "8.1"] },
   { week: "2026-11-16", course: "Z0025E", refs: ["8.4", "8.5", "10.4"], why: "Midterm 2 on Friday covers modules 5 to 8." },
@@ -185,7 +187,7 @@ const NOTES_LP2 = {
   "Z7005E:3023": "Due 09:00, then the final seminars follow at 09:15.",
   "Z7005E:3024": "Individual work, the only individual grade in this course before the oral.",
   "Z0025E:3042": "Session and deadline fall on the same day, so write as you go.",
-  "Z0025E:3030": "Open all day in the Midterms module, open book. At least 75 points needed here. If you also take Z7005E, sit it after the workshop.",
+  "Z0025E:3030": "Open all day in the Midterms module, open book. At least 75 points needed here. Z7005E has no sessions this week: it moved them to week 45 to leave time for this.",
   "Z0025E:3040": "Last lab. After this, only quizzes and the second midterm remain in Z0025E.",
   "Z0025E:3031": "Again a 75 point minimum, and the combined 150 has to be there.",
   "Z0025E:quizzes": "150 of 300 points needed. With the weekly rhythm, these points are already in the bag."
@@ -321,7 +323,7 @@ export const DISAGREEMENTS = [
   { about: "d:Z7005E:3021", fact: "deadline", values: [
     { source: "Canvas assignment and the Schema", date: "2026-10-21", time: "17:00" },
     { source: "Laboration 5 text", says: "deadline 24 September, 17:00" }] },
-  { about: "s:Z7005E:2026-10-22:10:30", fact: "length", values: [
+  { about: "s:Z7005E:2026-11-06:10:30", fact: "length", values: [
     { source: "Schema", says: "10:30 to 12:00" },
     { source: "Workshop 2 page (3.3)", says: "about 3 hours of steps" }] }
 ];
