@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-10-20T07:02:28.744Z",
+ "generatedAt": "2026-10-25T18:24:36.167Z",
  "courses": {
   "Z7005E": {
    "canvasId": 613,
@@ -34,7 +34,7 @@
        "section": null,
        "url": "https://ltuedu.instructure.com/courses/613/modules/items/19613",
        "indent": 0,
-       "words": 843,
+       "words": 878,
        "videos": 0,
        "files": 0,
        "minutes": 5
@@ -940,7 +940,7 @@
        "section": null,
        "url": "https://ltuedu.instructure.com/courses/613/modules/items/19687",
        "indent": 1,
-       "words": 655,
+       "words": 652,
        "videos": 0,
        "files": 9,
        "minutes": null
@@ -1473,8 +1473,8 @@
        "section": "Software architecture and design - Software Quality Attributes",
        "url": "https://ltuedu.instructure.com/courses/613/modules/items/19727",
        "indent": 1,
-       "words": 8,
-       "videos": 3,
+       "words": 6,
+       "videos": 1,
        "files": 2,
        "minutes": null
       },
@@ -1918,7 +1918,7 @@
        "url": "https://ltuedu.instructure.com/courses/614/modules/items/19877",
        "indent": 0,
        "req": "must_view",
-       "words": 449,
+       "words": 456,
        "videos": 0,
        "files": 5,
        "minutes": 5
@@ -2650,18 +2650,19 @@
        "minutes": 60
       },
       {
-       "id": 19948,
+       "id": 19952,
        "number": "5.3",
-       "title": "Lecture 11: The Network Layer - OSPF, BGP and OpenFlow",
-       "type": "Page",
-       "kind": "lecture",
-       "section": "Lectures",
-       "url": "https://ltuedu.instructure.com/courses/614/modules/items/19948",
+       "title": "Lecture 11:The Network Layer - OSPF, BGP and OpenFlow",
+       "type": "Discussion",
+       "kind": "selfpaced",
+       "section": "Self-Paced Lecture",
+       "url": "https://ltuedu.instructure.com/courses/614/modules/items/19952",
        "indent": 1,
-       "words": 2087,
+       "req": "must_contribute",
+       "words": 1587,
        "videos": 2,
-       "files": 7,
-       "minutes": 45
+       "files": 9,
+       "minutes": 40
       },
       {
        "id": 19953,
@@ -3179,6 +3180,9 @@
        "submission": "external_tool",
        "due": "2026-10-23",
        "dueTime": "23:59",
+       "words": 0,
+       "videos": 0,
+       "files": 0,
        "minutes": null
       },
       {
@@ -3466,6 +3470,13 @@
      "posted": "2026-10-19",
      "url": "https://ltuedu.instructure.com/courses/614/discussion_topics/4111",
      "text": "Hi everyone, This week is dedicated to Midterm 1, so there will be no scheduled lectures. Midterm 1 will be on Friday 23rd of october and can be taken anytime during the day. The midterm will assess your understanding of the concepts and topics covered in the lectures from Modules 1 to 4. To prepare for Midterm 1, I recommend that you: Review the lecture slides and study materials from Modules 1–4. Complete the Knowledge Checks provided in each lecture to test your understanding of the key concepts. Work through the problems listed under the To-Do sections of the lectures to practise applying "
+    },
+    {
+     "id": 4116,
+     "title": "Plan for next week - Self-paced Week (26-30 October)",
+     "posted": "2026-10-24",
+     "url": "https://ltuedu.instructure.com/courses/614/discussion_topics/4116",
+     "text": "Hi Everyone. Due to an unexpected change in my travel schedule, I will be away next week. As a result, all lectures next week will be conducted in a self-paced format , and there will be no live lecture sessions. Please work through the following lectures independently on Canvas under the self-paced section for module 5: 5.3 Lecture 11: The Network Layer – OSPF, BGP and OpenFlow 5.4 Lecture 12: ICMP and Network Management The lecture materials are available in their respective sections on Canvas. Please review the materials, complete the Knowledge Checks, and work through the activities in the"
     }
    ]
   }

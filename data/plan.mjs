@@ -114,14 +114,15 @@ const SESSIONS_LP2 = [
   S("Z0025E", "2026-10-12", "09:00", "10:30", "lecture", "Lecture 9, NAT, IPv6, generalized forwarding", { ref: "4.3", status: "confirmed" }),
   S("Z0025E", "2026-10-13", "09:00", "10:30", "lecture", "Lecture 10, the control plane and routing algorithms", { ref: "5.2", status: "confirmed" }),
   S("Z0025E", "2026-10-16", "13:00", "15:00", "lab", "Lab 3 session, subnetting, Packet Tracer skills 6 to 7", { ref: "9.6" }),
-  S("Z0025E", "2026-10-26", "09:00", "10:30", "lecture", "Lecture 11, OSPF, BGP and OpenFlow", { ref: "5.3", status: "expected" }),
-  S("Z0025E", "2026-10-27", "09:00", "10:30", "lecture", "Lecture 13, the link layer", { ref: "6.2", status: "expected" }),
-  S("Z0025E", "2026-10-30", "10:00", "12:00", "lab", "Lab 4 session, Packet Tracer skills 8 to 10", { ref: "9.8" }),
-  S("Z0025E", "2026-11-02", "09:00", "10:30", "lecture", "Lecture 14, wireless and mobile networks", { ref: "7.2", status: "expected" }),
-  S("Z0025E", "2026-11-03", "09:00", "10:30", "lecture", "Lecture 15, network security and cryptography", { ref: "8.2", status: "expected" }),
+  // Week 44 is self-paced (announcement of 24 Oct): the Homepage marks the 26 and 27 Oct slots
+  // "Lecture (Self-paced)" and the 30 Oct Lab 4 session cancelled. The announcement names Lectures
+  // 11 and 12 as that week's lectures, so the four November slots take Lectures 13 to 16 in module
+  // order and no spare slot is left.
+  S("Z0025E", "2026-11-02", "09:00", "10:30", "lecture", "Lecture 13, the link layer", { ref: "6.2", status: "expected", why: "Expected on 27 Oct until week 44 became self-paced." }),
+  S("Z0025E", "2026-11-03", "09:00", "10:30", "lecture", "Lecture 14, wireless and mobile networks", { ref: "7.2", status: "expected", why: "Expected on 2 Nov until week 44 became self-paced." }),
   S("Z0025E", "2026-11-06", "13:00", "15:00", "lab", "Lab 5 session, Packet Tracer skills 11 to 12", { ref: "9.9" }),
-  S("Z0025E", "2026-11-09", "09:00", "10:30", "lecture", "Lecture 16, email security, TLS, IPsec, wireless", { ref: "8.3", status: "expected" }),
-  S("Z0025E", "2026-11-10", "09:00", "10:30", "lecture", "Lecture, spare slot (13 slots, 12 lectures), probably review", { status: "expected" }),
+  S("Z0025E", "2026-11-09", "09:00", "10:30", "lecture", "Lecture 15, network security and cryptography", { ref: "8.2", status: "expected", why: "Expected on 3 Nov until week 44 became self-paced." }),
+  S("Z0025E", "2026-11-10", "09:00", "10:30", "lecture", "Lecture 16, email security, TLS, IPsec, wireless", { ref: "8.3", status: "expected", why: "Expected on 9 Nov until week 44 became self-paced." }),
   S("Z0025E", "2026-11-13", "13:00", "15:00", "lab", "Lab 6 session, Packet Tracer skills 13 to 14", { ref: "9.10" })
 ];
 
@@ -138,7 +139,8 @@ const STUDY_LP2 = [
   { week: "2026-10-12", course: "Z0025E", refs: ["4.4", "4.5", "5.1", "9.7"], why: "Close module 4 before Midterm 1. The subnet video helps with Lab 3." },
   { week: "2026-10-12", course: "Z7005E", refs: ["4.2"], why: "Software quality attributes. Lab 4 (15 Oct) and Workshop 5 (2 Nov) build on this block." },
   { week: "2026-10-19", course: "Z0025E", refs: ["10.1", "10.2"], why: "No lectures this week (announced 19 Oct). Midterm 1 on Friday covers modules 1 to 4: open book, individual, any time during the day. What to practise is in Midterm 1 prep at the top of the week." },
-  { week: "2026-10-26", course: "Z0025E", refs: ["5.4", "5.5", "5.6", "6.1"], why: "Lecture 12 is self-paced with a forum post." },
+  { week: "2026-10-26", course: "Z0025E", refs: ["5.3", "5.4", "5.5", "5.6", "6.1"],
+    why: "Self-paced week, no live lectures and no lab session (announced 24 Oct). Lectures 11 and 12 are done on your own: the material, the Knowledge Checks and the To-Do activities, and each needs a forum post." },
   { week: "2026-10-26", course: "Z7005E", refs: ["4.3", "4.2.9"], why: "4.3 is listed by the Schema as week 44 self-study. 4.2.9 is the short recording of Lecture 13, to watch before Workshop 5 on Monday 2 Nov." },
   { week: "2026-11-02", course: "Z0025E", refs: ["6.3", "6.4", "7.1"] },
   { week: "2026-11-09", course: "Z0025E", refs: ["7.3", "7.4", "8.1"] },
@@ -163,7 +165,6 @@ const TASKS_LP2 = [
   T("w39-writeup", "Z7005E", "2026-09-23", "Write up the interview findings the same afternoon", "Actors, user requirements, anything the expert ruled out."),
   T("w39-build", "Z7005E", "2026-09-24", "Portfolio build day", "Use cases and diagrams, cost/value/risk table with IDs and dependencies, storyboards, UI proposal, activity, module, class, sequence and state diagrams, a test plan covering white box and black box."),
   T("w42-book3", "Z0025E", "2026-10-12", "Book a Lab 3 assessment slot on sheet 9.2", "Session Friday 16 Oct, 13:00 to 15:00. 8 slots of 15 minutes for 8 groups.", [["Sign-up sheet", SIGNUP]], "must"),
-  T("w44-book4", "Z0025E", "2026-10-26", "Book a Lab 4 assessment slot on sheet 9.2", "Session Friday 30 Oct from 10:00. 8 slots for 8 groups.", [["Sign-up sheet", SIGNUP]], "must"),
   T("w45-book5", "Z0025E", "2026-11-02", "Book a Lab 5 assessment slot on sheet 9.2", "Session Friday 6 Nov from 13:00. 8 slots for 8 groups.", [["Sign-up sheet", SIGNUP]], "must"),
   T("w46-book6", "Z0025E", "2026-11-09", "Book a Lab 6 assessment slot on sheet 9.2", "Session Friday 13 Nov from 13:00. 8 slots for 8 groups.", [["Sign-up sheet", SIGNUP]], "must"),
   T("w43-rev", "Z0025E", "2026-10-19", "Revise for Midterm 1 with the quizzes already taken", "At least 75 points needed."),
@@ -175,7 +176,7 @@ const TASKS_LP2 = [
 // Which deadline a task feeds, keyed by task id. A task that feeds a deadline inherits MUST.
 const TASK_FOR = {
   "t-msg": "Z7005E:3013", "w39-prep": "Z7005E:3013", "w39-writeup": "Z7005E:3013", "w39-build": "Z7005E:3013",
-  "w39-gh": "Z7005E:3020", "w42-book3": "Z0025E:3043", "w44-book4": "Z0025E:3044", "w45-book5": "Z0025E:3045", "w46-book6": "Z0025E:3040", "w43-rev": "Z0025E:3030", "w44-pull": "Z7005E:3022", "w46-exam": "Z7005E:3024"
+  "w39-gh": "Z7005E:3020", "w42-book3": "Z0025E:3043", "w45-book5": "Z0025E:3045", "w46-book6": "Z0025E:3040", "w43-rev": "Z0025E:3030", "w44-pull": "Z7005E:3022", "w46-exam": "Z7005E:3024"
 };
 TASKS_LP2.forEach(t => { if (TASK_FOR[t.id]) t.for = TASK_FOR[t.id]; });
 
@@ -187,6 +188,7 @@ const NOTES_LP2 = {
   "Z7005E:3023": "Due 09:00, then the final seminars follow at 09:15.",
   "Z7005E:3024": "Individual work, the only individual grade in this course before the oral.",
   "Z0025E:3042": "Session and deadline fall on the same day, so write as you go.",
+  "Z0025E:3044": "The Friday lab session is cancelled (announced 24 Oct). Submit the report in Canvas; it is graded afterwards, with no assessment session.",
   "Z0025E:3030": "Open all day in the Midterms module, open book. At least 75 points needed here. Z7005E has no sessions this week: it moved them to week 45 to leave time for this.",
   "Z0025E:3040": "Last lab. After this, only quizzes and the second midterm remain in Z0025E.",
   "Z0025E:3031": "Again a 75 point minimum, and the combined 150 has to be there.",
@@ -305,7 +307,6 @@ export const TERMS = [
 const SIGNUP_DOC = "1S9Bi-W6wMoTd7FH7IqcS04B09B25Hml7PrTGBL33xuM";
 export const BOOKINGS = [
   { id: "Z0025E:lab3", course: "Z0025E", for: "Z0025E:3043", sheet: SIGNUP_DOC, section: "Lab3", task: "w42-book3" },
-  { id: "Z0025E:lab4", course: "Z0025E", for: "Z0025E:3044", sheet: SIGNUP_DOC, section: "Lab4", task: "w44-book4" },
   { id: "Z0025E:lab5", course: "Z0025E", for: "Z0025E:3045", sheet: SIGNUP_DOC, section: "Lab5", task: "w45-book5" },
   { id: "Z0025E:lab6", course: "Z0025E", for: "Z0025E:3040", sheet: SIGNUP_DOC, section: "Lab6", task: "w46-book6" }
 ];
@@ -372,6 +373,8 @@ export const LEGACY_IDS = {
   "w43-mid1": "d:Z0025E:3030", "w44-lab4": "d:Z0025E:3044", "w45-lab6": "d:Z7005E:3022", "w45-lab7": "d:Z7005E:3023",
   "w45-lab5": "d:Z0025E:3045", "w46-lab6": "d:Z0025E:3040", "w47-mid2": "d:Z0025E:3031", "w48-exam": "d:Z7005E:3024",
   "w49-quiz": "d:Z0025E:quizzes:2026-12-02",
+  // Canvas replaced the Lecture 11 page (5.3) with a self-paced discussion on 24 Oct.
+  "m:Z0025E:19948": "m:Z0025E:19952",
   // The Midterm 1 revision tasks of 20 Oct, one per module and kind, became Midterm 1 prep's items:
   // a tick on one becomes a tick on each item it stood for.
   "t:w43-m1-review": ["t:z0025e-cyu-1.3", "t:z0025e-cyu-1.4"],
