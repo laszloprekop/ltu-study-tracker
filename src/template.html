@@ -788,6 +788,11 @@ body:not(.noping) .endangered:not(.done):not(.muted) .box .ring{display:block}
 .dp-due.must span::before{content:""; display:inline-block; width:7px; height:7px; margin-right:5px; border-radius:50%; background:var(--alert)}
 .dayhead .plan{display:inline-flex; align-items:center; gap:5px; font:inherit; font-size:11.5px; line-height:18px; font-weight:700; text-transform:none; letter-spacing:0; color:var(--on-now-container); background:var(--now-container); border:0; padding:2px 9px; cursor:pointer}
 .dayhead .plan:focus-visible{outline:2px solid var(--now); outline-offset:2px}
+/* busyThen: the icon turns on the compositor, so it keeps turning while the page is redrawn */
+.busy{cursor:progress}
+.busy .ic{animation:busyspin .7s linear infinite; will-change:transform}
+@keyframes busyspin{to{transform:rotate(1turn)}}
+@media (prefers-reduced-motion:reduce){ .busy .ic{animation:none} }
 .week .dayplan{margin:4px 0 10px}
 .week .rail-in{position:sticky; top:calc(var(--top-h, 70px) + 4px); margin:-8px; padding:8px}
 .wo{display:flex; flex-direction:column; gap:4px; margin-top:12px}
@@ -3905,6 +3910,27 @@ function applyState(){
   document.getElementById("mbar").style.width = (all.mat[1] ? all.mat[0] / all.mat[1] * 100 : 0) + "%";
   document.querySelector(".progress").hidden = !all.work[1] && !all.mat[1];
 }
+// Run fn once the browser has drawn the next frame, so what a click changes shows at once and the
+// slower work after it does not hold the frame back.
+function afterPaint(fn){ requestAnimationFrame(function(){ setTimeout(fn, 0); }); }
+// A tick shows on its own rows straight away; the counts, week totals and the rest follow a frame
+// later, once for any number of ticks in between.
+function showTick(id){
+  document.querySelectorAll('[data-id="' + cssq(id) + '"]').forEach(function(host){
+    var b = host.querySelector('input[type=checkbox]');
+    if (b) b.checked = !!state.checked[id];
+    host.classList.toggle("done", !!isDone(id));
+  });
+}
+var stateSoon = false;
+function applyStateSoon(){ if (stateSoon) return; stateSoon = true; afterPaint(function(){ stateSoon = false; applyState(); }); }
+// A button whose work redraws the page spins first: its icon turns while the work runs, and further
+// clicks wait for it, so a second click cannot undo the first.
+function busyThen(btn, fn){
+  if (btn && btn.classList.contains("busy")) return;
+  if (btn) { btn.classList.add("busy"); btn.setAttribute("aria-busy", "true"); var u = btn.querySelector(".ic use"); if (u) u.setAttribute("href", "#i-circle-notch"); }
+  afterPaint(fn);
+}
 // Counts cover the whole term, not only the view on screen. Muted items are left out.
 function countTerm(t){
   var f = state.filter, work = [0, 0], mat = [0, 0];
@@ -4489,7 +4515,11 @@ document.addEventListener("click", function(e){
     return;
   }
   var pd = e.target.closest && e.target.closest("[data-plan]");
-  if (pd) { state.weekDay = state.weekDay === pd.dataset.plan ? null : pd.dataset.plan; renderTerm(); var ph = document.querySelector('.dayhead[data-date="' + pd.dataset.plan + '"]'); if (ph && state.weekDay) ph.scrollIntoView({ block: "nearest" }); return; }
+  if (pd) {
+    var pday = pd.dataset.plan, pbtn = document.querySelector('.dayhead[data-date="' + pday + '"] button.plan');
+    busyThen(pbtn, function(){ state.weekDay = state.weekDay === pday ? null : pday; renderTerm(); var ph = document.querySelector('.dayhead[data-date="' + pday + '"]'); if (ph && state.weekDay) ph.scrollIntoView({ block: "nearest" }); });
+    return;
+  }
   var pl = e.target.closest && e.target.closest("button[data-place], button[data-unplan]");
   if (pl) {
     if (pl.dataset.unplan) { state.planned[pl.dataset.unplan] = { gone: true, at: new Date().toISOString() }; save(); renderTerm(); }
@@ -4655,7 +4685,7 @@ document.addEventListener("change", function(e){
   if (b.type !== "checkbox") return;
   if (ticksLocked()) { b.checked = !b.checked; renderMoved(true); return; }
   setTick(b.id, b.checked);
-  applyState(); save();
+  showTick(b.id); save(); applyStateSoon();
 });
 document.addEventListener("click", function(e){
   var b = e.target.closest("button"); if (!b) return;

@@ -40,6 +40,10 @@ Back to the [README](../README.md).
   four parts with dates, from `PROGRAMME` in `data/plan.mjs`; the part under way is marked.
 ## Where progress lives
 
+A tick shows at once on every row that carries it; the counts, the week totals and the Canvas marks
+follow a frame later (`showTick`, then `applyStateSoon`), so the box never waits for the rest of the
+page.
+
 Ticks and muted items are saved in the viewer's browser (`localStorage` under the artifact's own
 origin, keys `ltu-plan-ticks`, `ltu-plan-muted`, `ltu-plan-snaps`) and, for a viewer signed in with
 an id from the owner's organisation, also in the artifact database at `data/users/<id>/progress`,
@@ -278,7 +282,10 @@ A day heading is a separator line: the day, its free time, a rule to the right e
 all centred on one line. It reaches left across the rail and its name peeks out of the card, over
 the rail's own lines when they meet (the rail's lines start below the first day's name). Pointing at the rail's block brings it in front of the
 day names (the pointer passes through a name). Today's heading is the playhead (`#today`, where the Today button
-scrolls): its name sits in a filled label and its rule is thicker, in the accent colour.
+scrolls): its name sits in a filled label and its rule is thicker, in the accent colour. A click on
+**Plan** (or on the day's strip) turns its icon into a spinner at once, while the page is redrawn with
+the plan open or closed; further clicks wait for it, so a second click cannot undo the first
+(`busyThen` in the template).
 
 MUST work that is not done carries red in every one of these: a red line along the foot of its
 block (Day Strip, Week Overview, the Day Plan's timetable) and a red dot on its deadline mark. A
