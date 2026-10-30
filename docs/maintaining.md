@@ -10,7 +10,8 @@ data/plan.mjs                 hand-written: study periods, courses, sessions, st
 data/canvas-inventory.json    generated: every module item, deadline and announcement from Canvas
 src/template.html             the page's markup, styles and rendering code
         |
-   tools/build.mjs  ->  ltu-study-tracker.html   (generated, do not edit, publish this)
+   tools/build.mjs  ->  ltu-study-tracker.html   (generated, do not edit, committed)
+                    ->  cache/artifact/index.html (the same page as a complete document: publish this)
 ```
 
 The page never calls Canvas itself. Viewers outside the author's claude.ai organisation have no
@@ -55,7 +56,10 @@ The shared page shows, for each material item, whether Canvas has a completion r
 (view, mark done, post, submit) as an empty box. Canvas only tells a person about their own
 completion, so the filled-in box exists only in the private build.
 
-After `npm run update`, publish `ltu-study-tracker.html` to the artifact URL above and commit.
+After `npm run update`, commit, then publish `cache/artifact/index.html` as `index.html` to the
+artifact URL above. The build writes that file: the page inside a complete document (doctype,
+viewport, the skeleton claude.ai's old Artifact tool used to add). The bare `ltu-study-tracker.html`
+has no doctype and would render in quirks mode on claude.ai; the hosted app wraps it itself.
 
 ## Editing the plan (`data/plan.mjs`)
 

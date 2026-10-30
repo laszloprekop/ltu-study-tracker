@@ -4,7 +4,7 @@
 // ltu-study-tracker.private.html, git-ignored, never the shared page. The pieces live in tools/lib/page.mjs,
 // which the app's hourly sync uses too.
 
-import { readFileSync, writeFileSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { checkPlan, buildData, shell, withData, readInventory } from "./lib/page.mjs";
 
@@ -29,3 +29,17 @@ for (const m of html.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/
 writeFileSync(root(outName), html);
 const kb = Math.round(Buffer.byteLength(html) / 1024);
 console.log(`Wrote ${outName} (${kb} KB)${isPrivate ? " with your Canvas completion state. Do not share this file." : ""}`);
+
+// The claude.ai page is published as one complete document: the page inside the skeleton claude.ai's
+// Artifact tool added at publish time up to version 180, kept the same so the page renders as before
+// (standards mode, the viewport, [hidden] always hiding). Publish this file, not the bare page
+// (docs/maintaining.md); the app wraps the page itself (app/src/lib/tracker-page.ts).
+const ARTIFACT_HEAD = '<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover">' +
+  '<style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}' +
+  'html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}' +
+  'img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>\n';
+if (!isPrivate) {
+  mkdirSync(root("cache/artifact"), { recursive: true });
+  writeFileSync(root("cache/artifact/index.html"), ARTIFACT_HEAD + html + "\n</body></html>");
+  console.log("Wrote cache/artifact/index.html (the page as a complete document, for claude.ai)");
+}

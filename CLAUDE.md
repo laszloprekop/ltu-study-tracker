@@ -2,9 +2,10 @@
 
 - `ltu-study-tracker.html` is generated. Edit `src/template.html` or `data/plan.mjs`, then
   `npm run build` (or `npm run update` to refresh Canvas data first). Never edit the output.
-- The page is published at https://claude.ai/artifact/Tkm4xHdppNkcTGJ3xsrgoU. Republish with
-  the Artifact tool and that `url`, never as a new artifact, and without `icon` or `capabilities`
-  (it declares `db` and `user`; omitting keeps them).
+- The page is published at https://claude.ai/artifact/Tkm4xHdppNkcTGJ3xsrgoU. Republish
+  `cache/artifact/index.html` (the build writes it: the page as a complete document) as `index.html`
+  to that artifact, never as a new artifact, and without `icon` or `capabilities` (it declares `db`
+  and `user`; omitting keeps them). Never publish the bare `ltu-study-tracker.html`: it has no doctype.
 - The page is shared with classmates. Keep the wording general: no personal notes, no "for you".
   Never bake in anyone's Canvas completion state, grades or submissions.
 - Ticks are per viewer: `data/users/<id>/progress` in the artifact db, localStorage as fallback.
