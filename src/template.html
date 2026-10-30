@@ -666,7 +666,8 @@ body:not(.noping) .endangered:not(.done):not(.muted) .box .ring{display:block}
    status) is flat and small and sits in the text. An action (a link out, Hide or the row menu, a card
    drill) is a framed button at least 32 px square, 40 px on a touch screen, and never sits inside a
    line of text, so it cannot push lines apart: links go in the bar under the text (.acts), the row's
-   own controls in the column at its right (.rctl). */
+   own controls in the column at its right (.rctl). The one exception is a material item's Open in
+   Canvas, right after its name: smaller, so it fits the line (.mat li .act.go). */
 .act{display:inline-flex; align-items:center; justify-content:center; gap:6px; min-width:32px; height:32px; padding:0 10px; font:inherit; font-size:12.5px; font-weight:600; line-height:1; white-space:nowrap; color:var(--ink); text-decoration:none; cursor:pointer; --bev:6px; --frame:var(--line); --fill:var(--surface-2)}
 .act > .ic{width:18px; height:18px; flex:0 0 auto; color:var(--muted)}
 .act:hover{--frame:var(--muted)}
@@ -906,7 +907,11 @@ body:not(.noping) .endangered:not(.done):not(.muted) .box .ring{display:block}
 @media (max-width:680px){ .ptopic{grid-template-columns:1fr; gap:4px} .ptn{padding-top:0} .pmod{margin-left:0} }
 .prepare.ready{opacity:.6}
 .mat li.done .prepare,.row.done .prepare{opacity:.6}
-/* Open in Canvas sits right after the item's name */
+/* Open in Canvas sits right after a material item's name, glued to its last word (glued()) so it never
+   wraps alone: 24 px tall, the WCAG 2.2 minimum target, so it fits the line and pushes no lines apart */
+.glue{white-space:nowrap}
+.mat li .act.go{height:24px; min-width:26px; padding:0 4px; margin:-2px 0 -2px 6px; vertical-align:middle; --bev:5px}
+.mat li .act.go > .ic{width:16px; height:16px}
 /* What Canvas tracks for an item, a word in the line under its title: a status, not a control */
 .kind .creq{cursor:help}
 .kind .creq.done{color:var(--ok)}
@@ -1828,16 +1833,22 @@ function creq(code, i){
   var title = "Canvas tracks this item: " + (REQ[i.req] || i.req) + (known ? (done ? ". Canvas counts it as done." : ". Not done in Canvas yet.") : ". Only Canvas knows whether it is done.");
   return '<span class="creq' + (done ? ' done' : '') + '" title="' + esc(title) + '">' + ic(done ? "check-circle" : "circle-dashed", "sm") + esc(done ? "done in Canvas" : "Canvas: " + (REQ[i.req] || i.req)) + '</span>';
 }
+// A title with something after its last word, kept on that word's line so it never wraps alone.
+function glued(title, after){
+  var m = /^([\s\S]*\s)?(\S+)$/.exec(String(title).trim());
+  return m ? esc(m[1] || "") + '<span class="glue">' + esc(m[2]) + after + '</span>' : esc(title) + after;
+}
 function matList(code, list, opts){
   opts = opts || {};
   return '<ul>' + list.map(function(i){
     var id = "m:" + code + ":" + i.id, level = itemLevel(code, i);
     var end = opts.week && level === "must" && endangeredItem(opts.week);
     var extra = creq(code, i) + (i.kind === "selfpaced" ? '<span title="A forum post is required">' + ic("chat-text", "sm") + 'post</span>' : '') + (i.minutes ? '<span title="Time it takes">' + ic("clock", "sm") + fmtMin(i.minutes) + '</span>' : '');
+    var go = '<a class="act io go" href="' + esc(i.url) + '" target="_blank" rel="noopener" title="Open in Canvas" aria-label="Open in Canvas">' + ic("arrow-square-out") + '</a>';
     return '<li class="' + hostClass(id, "lvl-" + level + (end ? " endangered" : "")) + '" style="' + colorVars(code) + '" data-course="' + code + '" data-id="' + id + '" data-link="' + id + '">' + box(id) +
       '<label for="' + id + '">' + lvl(level) + ic(KIND_ICON[i.kind] || "book-open", "kic") + (i.number ? '<span class="num mono">' + esc(i.number) + '</span>' : '') +
-      '<span class="tt" title="' + esc(KIND[i.kind] || i.kind) + '">' + esc(i.title) + '</span>' + (extra ? '<span class="kind">' + extra + '</span>' : '') + (i.assignmentId ? prepareLine(code, i.assignmentId) : '') + '</label>' +
-      rowCtl(id, id, code, i.title, '<a class="act io go" href="' + esc(i.url) + '" target="_blank" rel="noopener" title="Open in Canvas" aria-label="Open in Canvas">' + ic("arrow-square-out") + '</a>') + '</li>';
+      '<span class="tt" title="' + esc(KIND[i.kind] || i.kind) + '">' + glued(i.title, go) + '</span>' + (extra ? '<span class="kind">' + extra + '</span>' : '') + (i.assignmentId ? prepareLine(code, i.assignmentId) : '') + '</label>' +
+      rowCtl(id, id, code, i.title) + '</li>';
   }).join("") + '</ul>';
 }
 function isOpen(key){ return state.open[key] !== false; }
@@ -1930,11 +1941,10 @@ function toast(msg, extra){
   el.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(function(){ el.hidden = true; }, 6000);
 }
 // The control at the end of a row. On the hosted app: a menu (Share, Hide); elsewhere the plain Hide button.
-// The row's own controls, in the column at its right; lead: buttons that go first (a material item's Open in Canvas).
-function rowCtl(muteId, link, code, title, lead){
-  lead = lead || "";
-  if (!hostedApp()) return muteId || lead ? '<span class="rctl">' + lead + (muteId ? muteBtn(muteId) : "") + '</span>' : "";
-  return '<span class="rctl">' + lead + '<button type="button" class="act io ghost mute more" data-more="' + esc(link) + '"' + (muteId ? ' data-mid="' + esc(muteId) + '"' : '') + ' data-share="' + esc(code + ": " + title) + '" title="Share' + (muteId ? ' or hide' : '') + '" aria-label="More: share' + (muteId ? ', hide' : '') + '" aria-haspopup="menu">' + ic("dots-three") + '</button></span>';
+// The row's own controls, in the column at its right.
+function rowCtl(muteId, link, code, title){
+  if (!hostedApp()) return muteId ? '<span class="rctl">' + muteBtn(muteId) + '</span>' : "";
+  return '<span class="rctl"><button type="button" class="act io ghost mute more" data-more="' + esc(link) + '"' + (muteId ? ' data-mid="' + esc(muteId) + '"' : '') + ' data-share="' + esc(code + ": " + title) + '" title="Share' + (muteId ? ' or hide' : '') + '" aria-label="More: share' + (muteId ? ', hide' : '') + '" aria-haspopup="menu">' + ic("dots-three") + '</button></span>';
 }
 function openRowMenu(b){
   var m = document.getElementById("rowmenu"), mid = b.dataset.mid;

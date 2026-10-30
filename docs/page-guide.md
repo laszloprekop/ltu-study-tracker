@@ -191,8 +191,10 @@ the Cards view, a Prepare chip, a card count. Icons inside labels are 12 px.
 12 to 16 px and sit in the text. Actions (a link out, Hide or the row menu, a card drill) are framed
 buttons (`.act`, the same frame as the Cards buttons) at least 32 px square, 40 px on a touch screen
 (`pointer:coarse`). An action never sits inside a line of text, so it cannot push lines apart: a
-row's links go in the bar under its text (`.acts`), its own controls (Open in Canvas, Hide, the ⋯
-menu) in the column at its right (`.rctl`). A "for ..." tag is only a label; the deadline it names is
+row's links go in the bar under its text (`.acts`), its own controls (Hide, the ⋯ menu) in the column
+at its right (`.rctl`). The one exception is a material item's Open in Canvas, right after its name
+and kept on the line of its last word: 24 px tall (the WCAG 2.2 minimum target), so it fits the line
+on any screen. A "for ..." tag is only a label; the deadline it names is
 the target button in the bar. What Canvas tracks for a material item is a word in its meta line
 ("Canvas: view", "done in Canvas"); the Status mark beside a tick box shows nothing for "not done in
 Canvas yet", which is the plain state.
