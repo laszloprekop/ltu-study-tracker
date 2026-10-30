@@ -5,7 +5,9 @@ Back to the [README](../README.md).
 
 ## Header, profile menu, footer and the info views
 
-- Header: text size, theme and palette stay as shortcuts; **?** opens Help; the person icon at the far right
+- Header: beside the study period tabs, **Resources** (books icon) opens the menu of pages outside
+  the tracker (see Resources below); text size, theme and palette stay as shortcuts; **?** opens Help;
+  the person icon at the far right
   opens the profile menu: the account (Sign in with Google, Sign out), display settings (pulse,
   course colours, working hours), the Student's Canvas token and Groups, Calendar Links, progress
   (Import, Go back to a day, Export) and deleting the account. Laid out as a bento grid.
@@ -82,7 +84,7 @@ hover.
 
 ## Header and settings
 
-Row 1: study period tabs, then text size, theme (light, dark, or follow the system; "system"
+Row 1: study period tabs and **Resources** beside them, then text size, theme (light, dark, or follow the system; "system"
 hands control back to the viewer's own theme) and palette (snowflake: Ice, lightning: Neon; kept
 per viewer in `ltu-plan-palette`), **?** (opens Help), and at the far right the
 profile menu (person icon). Every other setting lives in that menu: Sign in or out, the pulse
@@ -91,6 +93,23 @@ Groups, Calendar Links, progress (Import, Go back to a day, Export) and deleting
 Every link into Canvas ends with the external-link mark. Row 2: view, course filter, jump to
 Today, and one progress block (deadlines and tasks, material, and on the hosted app Cards not due
 for review yet). The course filter applies to every view, the Cards view included.
+
+## Resources
+
+The **Resources** menu, beside the study period tabs, lists pages outside the tracker that help study
+the courses (CONTEXT.md, Resource), grouped by course in the course's colour, for the study period on
+screen. Each entry is one link that opens in a new tab: its title, where it leads and a sentence on what
+it is for. "Where it leads" is a **Canvas** tag (the course's own page) or a blue **External site** tag
+with the host's name (claude.ai, a classmate's domain), so nobody follows an outside address unawares.
+An entry may carry a red status line ("Offline at the moment") while a site has a passing problem. The
+list is `resources` per course in `data/plan.mjs`; a study period without any hides the button.
+
+On the hosted app a **Group Link** follows under its Group's heading, with a lock line: a page one Group
+shares with its own members, such as its lab archive. It is never in the page or the repo. The bridge
+(`grouplinks`) asks the database, which returns only the rows of a Group that Canvas confirmed the
+signed-in Student in, in every Course the row names (migration 015). The list is read at start and after
+each Canvas read, since that read is what confirms a Group. Without a Group Link the hosted app says how
+one appears (sign in, add a Canvas token).
 
 ## Glass
 

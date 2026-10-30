@@ -60,7 +60,16 @@ After `npm run update`, publish `ltu-study-tracker.html` to the artifact URL abo
 ## Editing the plan (`data/plan.mjs`)
 
 - **Course:** name, `prefix` (chip label), colour slot 1 to 5, `canvasId` (or `null` before the
-  course exists in Canvas), teachers, quick links, pass rules, optional material blocks.
+  course exists in Canvas), teachers, quick links, pass rules, optional material blocks, and
+  `resources`: the pages outside the tracker that the header's Resources menu lists (`title`, `url`,
+  `summary`, and `status` for a passing problem such as a site being offline; remove it once fixed).
+  Write the summary for any classmate: what the page is and why it helps, no personal notes.
+- **Group Link:** a page only one Group's members should see (its lab archive, say) goes in the
+  database, never in `data/plan.mjs`, since the repo and the page are public. Add it over SSH:
+  `tools/db.sh -v ON_ERROR_STOP=1 -q` with
+  `insert into public.group_link (courses, group_number, title, summary, url) values ('{Z7005E,Z0025E}', 8, '...', '...', 'https://...');`.
+  `courses` lists every Course the page covers: a Student must be confirmed in that Group in each of
+  them. Change or delete it the same way.
 - **Session:** course, date, start, end, kind (`lecture`, `workshop`, `lab`, `interview`,
   `seminar`, `exam`), title, `ref` to its Canvas page, `prep` refs, `status` (`expected` when the
   lecture number is predicted from module order, `confirmed` once an announcement names it).

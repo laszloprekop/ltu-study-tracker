@@ -348,6 +348,27 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backgr
    scrolling panel would carry its content past them onto the page */
 .pop.profile .panel{width:min(760px, calc(100vw - 32px)); padding:0; font-size:13px; line-height:1.5; color:var(--ink)}
 .pop.profile .panel > .pp-grid{max-height:min(82vh, 900px); overflow:auto; overscroll-behavior:contain; padding:14px}
+/* Resources: the header menu of pages outside the tracker, by course, then a Group's own, beside the study
+   period tabs. The inner box scrolls, as in the profile menu. The panel opens to the right of its button and
+   moves left only as far as the window needs (placeResources). */
+.pop.res .panel{left:0; right:auto; width:min(520px, calc(100vw - 32px)); padding:0; font-size:13px; line-height:1.5; color:var(--ink)}
+.rs-in{max-height:min(78vh, 760px); overflow:auto; overscroll-behavior:contain; padding:14px 16px; display:flex; flex-direction:column; gap:14px}
+.rs-in > p{margin:0; color:var(--muted)}
+.rs-c h3{display:flex; align-items:center; gap:6px; font-size:14px; margin:0 0 6px; color:var(--ink)}
+.rs-c h3 .dot{display:inline-block; width:8px; height:8px; background:var(--cc)}
+.rs-c ul{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:6px}
+.rs-item{display:flex; flex-direction:column; gap:3px; padding:8px 10px 8px 13px; text-decoration:none; color:var(--ink); background:var(--surface-2); box-shadow:inset 3px 0 var(--cc, var(--muted)); --bev:8px; clip-path:var(--cut)}
+.rs-item:hover{background:color-mix(in oklch, var(--cc, var(--muted)) 10%, var(--surface-2))}
+.rs-item:focus-visible{outline:2px solid var(--now); outline-offset:-2px}
+.rs-t{display:flex; align-items:center; gap:5px; font-weight:600}
+.rs-meta{display:flex; flex-wrap:wrap; align-items:center; gap:4px 8px}
+.rs-meta .tag{margin-left:0}
+.tag.rs-canvas{color:var(--on-cc-container); background:var(--cc-container)}
+.tag.rs-ext{color:var(--on-ann-container); background:var(--ann-container)}
+.tag.rs-off{color:var(--on-alert-container); background:var(--alert-container); text-transform:none; letter-spacing:0; white-space:normal}
+.rs-host{font-size:12px; color:var(--muted)}
+.rs-sum{color:var(--muted)}
+.rs-c .note{margin:6px 0 0; color:var(--muted); font-size:12.5px}
 .pp-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:var(--gap); grid-auto-flow:dense}
 .pp-grid.inner{margin:0}
 .pp-span{grid-column:1 / -1}
@@ -1252,6 +1273,10 @@ body.colored table.all tr:not(.done) .tt{color:var(--cc)}
     <div class="hrow">
       <h1>LTU Study Tracker</h1>
       <div class="terms" role="tablist" aria-label="Study period" id="terms"></div>
+      <details class="pop res" id="res-pop">
+        <summary title="Pages outside the tracker that help study the courses"><svg class="ic"><use href="#i-books"/></svg><span>Resources</span><svg class="ic sm"><use href="#i-caret-down"/></svg></summary>
+        <div class="panel"><div class="rs-in" id="res-panel"></div></div>
+      </details>
       <div class="settings" role="group" aria-label="Settings">
         <div class="seg tools">
           <button type="button" id="size-down" title="Smaller text" aria-label="Smaller text"><svg class="ic sm"><use href="#i-minus"/></svg></button>
@@ -1352,7 +1377,7 @@ body.colored table.all tr:not(.done) .tt{color:var(--cc)}
 /* ---------- Helpers ---------- */
 const P = DATA.plan, INV = DATA.inventory, COURSES = P.COURSES, TEACHERS = P.TEACHERS, TERMS = P.TERMS, PROGRESS = DATA.progress || null;
 const LS = { hours: "ltu-plan-hours", drillGoal: "ltu-plan-drill-goal", planned: "ltu-plan-planned", openedCounts: "ltu-plan-opened-counts", groups: "ltu-plan-groups", canvasCache: "ltu-plan-canvas-cache", movedFolded: "ltu-plan-moved-folded", exportedAt: "ltu-plan-exported-at", unlocked: "ltu-plan-unlocked", ticks: "ltu-plan-ticks", tickAt: "ltu-plan-tick-at", muted: "ltu-plan-muted", filter: "ltu-plan-filter", term: "ltu-plan-term", view: "ltu-plan-view", open: "ltu-plan-open", weeks: "ltu-plan-weeks", size: "ltu-plan-size", ping: "ltu-plan-ping", colored: "ltu-plan-colored", theme: "ltu-plan-theme", palette: "ltu-plan-palette", cardsHidden: "ltu-plan-cards-hidden-shown", cardTrust: "ltu-plan-card-trust", mapOpen: "ltu-plan-map-open", mapPos: "ltu-plan-map-pos", mapAll: "ltu-plan-map-all", mapHops: "ltu-plan-map-hops", mapMode: "ltu-plan-map-mode", railSlim: "ltu-plan-map-rail", snaps: "ltu-plan-snaps", pins: "ltu-plan-pins", narvaro: "ltu-plan-narvaro", legacy: "lp2-shared-ticks" };
-const state = { weekDay: null, nvOpen: null, nvDraft: null, checked: {}, tickAt: {}, planned: {}, cards: null, cardsLoading: false, drill: null, drillGoal: "event", cal: null, calLinks: null, calErr: null, bookings: null, canvas: null, canvasErr: null, openedCounts: true, groups: {}, exportedAt: null, unlocked: false, muted: {}, filter: "all", term: null, view: "week", day: null, open: {}, weeks: {}, size: 100, ping: true, colored: true, theme: "system", palette: "ice", hours: { start: "09:00", end: "17:00" }, mapOpen: null, mapSel: null, mapSels: [], mapAll: false, mapHops: 5, mapMode: "select", railSlim: false };
+const state = { weekDay: null, nvOpen: null, nvDraft: null, checked: {}, tickAt: {}, planned: {}, cards: null, cardsLoading: false, drill: null, drillGoal: "event", cal: null, calLinks: null, calErr: null, bookings: null, groupLinks: null, canvas: null, canvasErr: null, openedCounts: true, groups: {}, exportedAt: null, unlocked: false, muted: {}, filter: "all", term: null, view: "week", day: null, open: {}, weeks: {}, size: 100, ping: true, colored: true, theme: "system", palette: "ice", hours: { start: "09:00", end: "17:00" }, mapOpen: null, mapSel: null, mapSels: [], mapAll: false, mapHops: 5, mapMode: "select", railSlim: false };
 let store = null, saveTimer = null;
 
 function esc(s){ return String(s == null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
@@ -2873,6 +2898,40 @@ function renderQuick(t){
     return '<a href="' + esc(q[2]) + '" target="_blank" rel="noopener" data-course="' + q[0] + '" style="' + colorVars(q[0]) + '"><span class="k" title="' + esc(COURSES[q[0]].name + " " + q[0]) + '">' + faces(q[0]) + esc(label(q[0])) + '</span>' + esc(q[1]) + ' ' + ext(q[2]) + '</a>';
   }).join("") + '</div></section>';
 }
+/* ---------- Resources ---------- */
+// The header menu of pages outside the tracker (CONTEXT.md, Resource): each course's, from
+// data/plan.mjs, then on the hosted app the Group Links the database lets the Student read. Every
+// address outside Canvas is marked as an external site, with its host.
+function resHost(url){ try { return new URL(url).hostname.replace(/^www\./, ""); } catch (e) { return url; } }
+function resItem(r){
+  var where = isCanvas(r.url) ? '<span class="tag rs-canvas" title="The course\'s own page in Canvas">' + ic("graduation-cap", "sm") + 'Canvas</span>'
+    : '<span class="tag rs-ext" title="Leaves the tracker and Canvas for another site">' + ic("globe", "sm") + 'External site</span><span class="rs-host">' + esc(resHost(r.url)) + '</span>';
+  return '<li><a class="rs-item" href="' + esc(r.url) + '" target="_blank" rel="noopener"><span class="rs-t">' + esc(r.title) + ic("arrow-square-out", "sm ext") + '</span>' +
+    '<span class="rs-meta">' + where + (r.status ? '<span class="tag rs-off">' + ic("warning", "sm") + esc(r.status) + '</span>' : '') + '</span>' +
+    (r.summary ? '<span class="rs-sum">' + esc(r.summary) + '</span>' : '') + '</a></li>';
+}
+function renderResources(){
+  var pop = document.getElementById("res-pop"), t = term();
+  var withRes = t.courses.filter(function(c){ return (COURSES[c].resources || []).length; });
+  // A Group Link shows once per Group and address, in a term that holds one of its courses.
+  var seen = {}, groups = {};
+  (state.groupLinks || []).forEach(function(l){
+    if (!(l.courses || []).some(function(c){ return t.courses.indexOf(c) >= 0; })) return;
+    var k = l.group_number + " " + l.url; if (seen[k]) return; seen[k] = true;
+    (groups[l.group_number] = groups[l.group_number] || []).push(l);
+  });
+  var gnums = Object.keys(groups);
+  pop.hidden = !withRes.length && !gnums.length;
+  if (!pop.open) return;
+  document.getElementById("res-panel").innerHTML = '<p>Pages outside the tracker that help study the courses. Each opens in a new tab, and a page outside Canvas is marked as an external site.</p>' +
+    withRes.map(function(c){ var k = COURSES[c];
+      return '<section class="rs-c" style="' + colorVars(c) + '"><h3><span class="dot"></span>' + esc(k.name) + ' ' + esc(c) + '</h3><ul>' + k.resources.map(resItem).join("") + '</ul></section>'; }).join("") +
+    gnums.map(function(g){
+      return '<section class="rs-c"><h3>' + ic("users-three") + 'Group ' + esc(g) + '</h3><ul>' + groups[g].map(resItem).join("") + '</ul>' +
+        '<p class="note">' + ic("lock-key", "sm") + ' Only members of Group ' + esc(g) + ', as Canvas confirms them, see this.</p></section>';
+    }).join("") +
+    (window.TRACKER_CONFIG && !gnums.length && (!state.signedIn || !state.canvas) ? '<p>A lab group can have pages of its own here, shown only to its members once Canvas has confirmed the group: sign in and add a Canvas token in the profile menu.</p>' : '');
+}
 function renderCourses(t){
   if (!t.courses.length) return "";
   return '<section class="span2"><div class="sechead"><h2>How each course is passed</h2></div><div class="grid2">' + t.courses.map(function(c){
@@ -2928,7 +2987,7 @@ function renderTerm(){
   if (state.view === "map") bindMap(t);
   if (state.nvOpen) nvFitAll();
   if (state.view === "map" && state.routeMap) { var rk = state.routeMap; state.routeMap = null; gotoKey(t, rk); }
-  renderProfile();
+  renderProfile(); renderResources();
   if (!state.cards && !state.cardsLoading) loadCards();
   applyFilter();
   state.inRender = false;
@@ -4037,7 +4096,7 @@ function refreshCanvas(){
       if (changed) lsSet(LS.groups, JSON.stringify(state.groups));
     })
       .catch(function(e){ state.canvasErr = e.code === "token" ? "Canvas did not accept the token. It may have expired: make a new one." : "Canvas could not be reached just now. The marks are from the last read."; });
-  }).then(function(){ state.canvasReading = false; applyState(); renderProfile(); return refreshBookings(); });
+  }).then(function(){ state.canvasReading = false; applyState(); renderProfile(); refreshGroupLinks(); return refreshBookings(); });
 }
 
 /* ---------- Bookings (release 2) ---------- */
@@ -4081,6 +4140,13 @@ function refreshBookings(){
   return window.claude.use("bookings").then(function(bk){ return bk ? bk.read(groups) : null; })
     .then(function(data){ if (data) { state.bookings = data; applyBookings(); } }).catch(function(){});
 }
+// Group Links (hosted app, signed in): the database returns only those of the Student's own Groups,
+// so a Canvas read that confirms a Group can bring new ones.
+function refreshGroupLinks(){
+  if (!window.TRACKER_CONFIG || !window.claude || !window.claude.use) return Promise.resolve();
+  return window.claude.use("grouplinks").then(function(gl){ return gl ? gl.list() : []; })
+    .then(function(rows){ state.groupLinks = rows || []; renderResources(); }).catch(function(){});
+}
 
 /* ---------- The move to the hosted tracker (release 1, step 6) ---------- */
 // Only on the claude.ai page, and only once data/plan.mjs names the new address (MOVED_TO).
@@ -4099,6 +4165,7 @@ var APP_INFO = {
     ["Your Canvas status beside your ticks", "Paste your own Canvas token and each task shows what Canvas has recorded (submitted, posted, marked done or opened) next to your tick, with a warning sign when you ticked a hand-in Canvas has no submission for."],
     ["Lab bookings and their deadlines", "Your group's slot read from the signup sheet, with a warning that grows as the session comes closer and the free slots run out."],
     ["Your own calendar", "Add a calendar link, such as your group's, and its events appear among the sessions, marked with the calendar's name, and count as busy time."],
+    ["Your group's own pages", "A page your lab group shares, such as its lab archive, appears under Resources for the group's members only, once Canvas has confirmed your group."],
     ["Study cards", "The Cards view drills flashcards for every lab and exam, made from the lectures and lab material. Spaced repetition shows each card just before you would forget it and plans the reviews so you know it on the day of the lab or exam. Every card is open to every classmate, who votes whether it is legit or needs a fix; cards voted faulty are left out by default, and your group's answers to graded questions stay within your group."],
     ["Prep chains", "All deadlines opens with every lab session, workshop and exam and the work that leads to it: the booking, the report, the lectures and readings, each with the day the course teaches it, a warning when that is after the event needs it, and a suggested do-by date where the course gives none. The map opens on the next one and steps through them."],
     ["Where sources disagree", "When Canvas, a PDF and a sign-up sheet give different dates, the row says so and the page uses the earliest one that has not passed, so a stale date never makes you late."],
@@ -4117,6 +4184,7 @@ var APP_INFO = {
     ["Nothing about guests is kept", "Without signing in, no ticks or account exist on the server."],
     ["A bug report holds what you write", "A report carries your answers, the page version, the view you were on, your theme, window size and browser, and a reply address only if you give one. Only the maintainer can read reports."],
     ["No ads, analytics or tracking", "The page talks only to the tracker's own server and database, loads its typeface from Google Fonts, and visits Google only while you sign in. A content security policy blocks everything else, and the page cannot be shown inside another site."],
+    ["A group's pages stay in the group", "A group's own pages are kept in the database, not in this page or its public code, and the database shows them only to members Canvas confirmed in that group."],
     ["Graded answers stay in your group", "Release 4: shared flashcards explain concepts and point to the material; written answers to graded questions are visible only to the group that wrote them."],
     ["Hosted in the EU", "On a server at Hetzner in the EU, over HTTPS. The plan is read from Canvas by a job that can only read a short list of course pages and never sees anyone's grades or progress."],
     ["Delete everything yourself", "Signed in, the button below removes your account and your ticks from the server at once. Ticks in your browser stay until you clear them."],
@@ -4539,8 +4607,19 @@ document.getElementById("bug").addEventListener("submit", function(e){ e.prevent
 document.getElementById("bug").addEventListener("input", function(e){ if (e.target.id === "bug-got" && e.target.value.trim()) { e.target.classList.remove("miss"); bugMsg(""); } });
 document.addEventListener("keydown", function(e){ if (e.key === "Escape") closeBug(); });
 // Close the profile menu on a click outside it, or on Escape.
-document.addEventListener("click", function(e){ var pp = document.getElementById("profile-pop"); if (pp && pp.open && !pp.contains(e.target)) pp.open = false; });
-document.addEventListener("keydown", function(e){ if (e.key === "Escape") { var pp = document.getElementById("profile-pop"); if (pp && pp.open) { pp.open = false; pp.querySelector("summary").focus(); } } });
+// The header menus (profile, Resources) close on a click outside them and on Escape.
+var HEADER_POPS = ["profile-pop", "res-pop"];
+document.addEventListener("click", function(e){ HEADER_POPS.forEach(function(id){ var pp = document.getElementById(id); if (pp && pp.open && !pp.contains(e.target)) pp.open = false; }); });
+document.addEventListener("keydown", function(e){ if (e.key === "Escape") HEADER_POPS.forEach(function(id){ var pp = document.getElementById(id); if (pp && pp.open) { pp.open = false; pp.querySelector("summary").focus(); } }); });
+// The Resources panel opens to the right of its button and moves left just enough to keep a 16px margin,
+// since the button sits wherever the header row wraps it.
+function placeResources(){
+  var pop = document.getElementById("res-pop"), panel = pop.querySelector(".panel");
+  panel.style.left = "0px";
+  panel.style.left = Math.min(0, document.documentElement.clientWidth - 16 - panel.getBoundingClientRect().width - pop.getBoundingClientRect().left) + "px";
+}
+document.getElementById("res-pop").addEventListener("toggle", function(){ if (this.open) { renderResources(); placeResources(); } });
+window.addEventListener("resize", function(){ if (document.getElementById("res-pop").open) placeResources(); });
 document.addEventListener("click", function(e){ var rm = document.getElementById("rowmenu"); if (rm && !rm.hidden && !rm.contains(e.target) && !(e.target.closest && e.target.closest("[data-more]"))) closeRowMenu(); });
 document.addEventListener("keydown", function(e){ if (e.key === "Escape") { var rm = document.getElementById("rowmenu"); if (rm && !rm.hidden) { var opener = document.querySelector('[data-more="' + cssq(rm.dataset.for || "") + '"]'); closeRowMenu(); if (opener) opener.focus(); } } });
 window.addEventListener("scroll", closeRowMenu, { passive: true });
@@ -4732,6 +4811,7 @@ renderMoved();
 // The hosted app: show the last Canvas read at once, then read again (and when the tab comes back after a while).
 if (window.TRACKER_CONFIG && window.claude && window.claude.use) window.claude.use("user").then(function(u){ state.signedIn = !!u; renderProfile(); applyPinUi(); if (state.view === "pinned" || state.view === "cards") renderTerm(); });
 if (window.TRACKER_CONFIG && window.claude && window.claude.use) refreshCalendar();
+if (window.TRACKER_CONFIG && window.claude && window.claude.use) refreshGroupLinks();
 if (window.TRACKER_CONFIG && window.claude && window.claude.use) window.claude.use("canvas").then(function(cv){
   if (!cv || !cv.has()) { state.canvas = null; refreshBookings(); return; }
   state.canvasHint = cv.hint(); refreshCanvas();

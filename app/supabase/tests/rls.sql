@@ -211,6 +211,36 @@ select 'a Student reads bug reports (expect 0): ' || count(*) from public.bug_re
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000d","role":"authenticated"}', true);
 select 'the Maintainer reads both test reports (expect 2), one with its sender (expect 1): ' || count(*) || ', ' || count(user_id) from public.bug_report where happened like 'rls test: %';
 
+-- Group Links: only a Group's members read them, in every Course the link names; nobody writes them.
+-- A is in Group 8 in both courses, C only in Z0025E, B is in Group 3.
+reset role;
+insert into public.group_link (courses, group_number, title, url) values
+  ('{Z0025E}', 8, 'rls test: one course', 'https://example.invalid/one'),
+  ('{Z7005E,Z0025E}', 8, 'rls test: both courses', 'https://example.invalid/both');
+do $$ begin
+  begin insert into public.group_link (courses, group_number, title, url) values ('{Z0025E}', 8, 'x', 'http://example.invalid/'); raise notice 'FAIL a plain http Group Link was stored';
+  exception when check_violation then raise notice 'ok a Group Link must be https'; end;
+end $$;
+set local role tracker_sync;
+select public.record_groups('00000000-0000-0000-0000-00000000000a', '{"Z7005E": 8}');
+reset role; set local role authenticated;
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000a","role":"authenticated"}', true);
+select 'A (Group 8 in both) reads Group Links (expect 2): ' || count(*) from public.group_link where title like 'rls test: %';
+do $$ begin
+  begin insert into public.group_link (courses, group_number, title, url) values ('{Z0025E}', 8, 'mine', 'https://example.invalid/mine'); raise notice 'FAIL a Student added a Group Link';
+  exception when insufficient_privilege then raise notice 'ok Group Links come only from the Maintainer'; end;
+end $$;
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000c","role":"authenticated"}', true);
+select 'C (Group 8 in Z0025E only) reads Group Links (expect 1, one course): ' || count(*) || ', ' || coalesce(string_agg(title, ''), '-') from public.group_link where title like 'rls test: %';
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000b","role":"authenticated"}', true);
+select 'B (Group 3) reads Group Links (expect 0): ' || count(*) from public.group_link where title like 'rls test: %';
+reset role; set local role anon;
+select set_config('request.jwt.claims', '{"role":"anon"}', true);
+do $$ begin
+  begin perform 1 from public.group_link; raise notice 'FAIL anon can read Group Links';
+  exception when insufficient_privilege then raise notice 'ok anon cannot read Group Links'; end;
+end $$;
+
 -- Deleting one's own account removes it and its progress, and nobody else's
 reset role; set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000b","role":"authenticated"}', true);

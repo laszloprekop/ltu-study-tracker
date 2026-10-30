@@ -24,6 +24,9 @@ lists everything. The lists live in one place in `src/template.html` (`APP_INFO`
   submission; the Group number from Canvas, overridable.
 - Lab Bookings from the signup sheet (no names kept): the Group's slot, or a stage that grows as
   the session nears and slots run out, on the booking task and in a strip at the top.
+- Group Links (signed in, Group confirmed by Canvas): a Group's own pages, such as its lab archive,
+  under Resources for its members only (`docs/page-guide.md`, Resources). The Resources menu itself
+  works on the claude.ai page too.
 - Calendar Links (signed in, at most five, fetched only from known calendar providers): their
   events among the sessions, marked as the Student's, counted as busy time.
 - The Day Plan in Day Planner: one day in 15-minute slots with the free slots and this week's unplaced
@@ -57,6 +60,8 @@ lists everything. The lists live in one place in `src/template.html` (`APP_INFO`
   server and database, Google Fonts, and Google during sign-in, and forbids framing.
 - Written answers to graded questions stay inside the Group (ADR 0002); privacy is enforced in the
   database, not only in the page (ADR 0003).
+- A Group Link is read only by members Canvas confirmed in its Group in every Course it names; it is
+  kept in the database, not in the public page or repo, and only the Maintainer adds one.
 - Hosted on Hetzner in the EU over HTTPS. The sync reads Canvas with GET requests to a fixed list
   of course paths and stores nothing about any Student.
 - The server takes SSH by key only, no passwords. A Hetzner Cloud Firewall, outside the server so

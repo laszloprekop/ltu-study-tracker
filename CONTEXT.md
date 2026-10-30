@@ -54,7 +54,7 @@ _Avoid_: User data, profile
 
 **Group Layer**:
 What one Group's members share and nobody else sees: claimed Bookings entered by a member,
-and Answer Cards. Membership is confirmed from Canvas while a member is signed in with a token.
+Answer Cards and Group Links. Membership is confirmed from Canvas while a member is signed in with a token.
 _Avoid_: Team space, shared data
 
 **Calendar Link**:
@@ -224,6 +224,18 @@ _Avoid_: Deep link, URL (a URL may point outside the page), share link
 A Link a Student keeps in their Personal Layer, shown in the Pinned view. Only page Links, never
 an outside address.
 _Avoid_: Bookmark, Favourite
+
+**Resource**:
+A page outside the tracker that helps study a Course: the Course's own page in Canvas, a classmate's
+study page, another site. Listed in the Resources menu with where it leads, so an address outside
+Canvas is always marked as an external site. Part of the Course Plan.
+_Avoid_: Gem, extra, Link (a Link is an address inside the page)
+
+**Group Link**:
+A Resource only one Group's members see, such as the Group's lab archive. Part of the Group Layer:
+kept in the database, never in the page or the repo, and read only by a Student whom Canvas confirmed
+in that Group in every Course it names.
+_Avoid_: Private link, group bookmark
 
 ### Progress
 

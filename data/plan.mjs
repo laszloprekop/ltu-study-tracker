@@ -68,7 +68,20 @@ export const COURSES = {
     ],
     note: "The quizzes are the easy points. Take each one in the week its module is covered and the 2 Dec closing date stops mattering.",
     must: [], nice: [],
-    optional: []
+    optional: [],
+    // Resources (CONTEXT.md): pages outside the tracker that help study the course, in the header's
+    // Resources menu. The menu marks every address outside Canvas as an external site. status: a
+    // passing problem worth saying, removed once it is over. A Group Link lives in the database instead.
+    resources: [
+      { title: "Midterm Overview", url: "https://ltuedu.instructure.com/courses/614/pages/10-dot-1-midterm-overview?module_item_id=20016",
+        summary: "The course's own page on the two midterms: what they cover and how they run. The authoritative source: where another page differs, this one counts." },
+      { title: "NET Midterm 1 Preparation", url: "https://claude.ai/artifact/DokcmpC4N586urbFzgxNZJ",
+        summary: "One piece of traffic followed down the layers and back up, animated step by step. A different angle that shows how the layers connect." },
+      { title: "Check Drill", url: "https://claude.ai/artifact/BCspDZjGJKqfADchRmqHhn",
+        summary: "Kurose and Ross's Knowledge Checks and the lectures' Check Your Understanding questions, drilled with spaced repetition. Open-book help sits beside each question, with animations of the idea behind it, and progress is tracked question by question." },
+      { title: "Study Help", url: "https://studyhelp.alexstauch.app/", status: "Offline at the moment: a fix is under way.",
+        summary: "A concise version of the Kurose and Ross material with practice questions. Another way to learn than the Check Drill." }
+    ]
   }
 };
 

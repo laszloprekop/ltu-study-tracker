@@ -119,6 +119,11 @@
             });
           },
         };
+        // Group Links (migration 015): pages one Group shares with its members, listed under Resources.
+        // The database returns a row only to a Student Canvas confirmed in that Group in each of its Courses.
+        if (name === "grouplinks") return {
+          list: function () { return sb.from("group_link").select("courses,group_number,title,summary,url").order("created_at").then(function (r) { if (r.error) throw r.error; return r.data; }); },
+        };
         // Cards (release 4, Votes since migration 012): every rule is in the database (who sees, who votes).
         if (name === "cards") {
           var me = session.user.id, ok = function (r) { if (r.error) throw r.error; return r.data; };
