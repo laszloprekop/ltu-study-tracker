@@ -30,6 +30,7 @@ npm run build           # rebuild ltu-study-tracker.html; fails on any ref that 
 npm run check           # diff the committed inventory against live Canvas (dates, points, new items, announcements)
 npm run palette         # regenerate the Ice and Neon colours in src/template.html (tools/palette.mjs)
 # tools/contrast-scan.js: paste into the browser console on the built page for a WCAG contrast audit of the visible text
+# python3 tools/trace-breakdown.py trace.json.gz: the main thread's work around a click in a saved Chrome performance trace
 npm run announcements   # print the announcements per course
 npm run courses         # list your Canvas courses with ids
 npm run progress        # write data/my-progress.json: what Canvas counts as done for YOUR account (git-ignored)
