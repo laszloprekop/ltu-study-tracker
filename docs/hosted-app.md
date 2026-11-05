@@ -56,7 +56,9 @@ lists everything. The lists live in one place in `src/template.html` (`APP_INFO`
 - A Student's Canvas token (release 2) never reaches server storage; the one stored Canvas token is
   the Maintainer's Sync Token, encrypted in Vault and readable only by the sync role (ADR 0001).
 - Guests leave no ticks or account on the server.
-- No ads, analytics or tracking scripts. A content security policy limits the page to its own
+- No ads, analytics or tracking scripts. The one record of visits is the proxy's access log on the
+  server (since 5 Nov 2026): time, address, page, status and browser name of each request, kept
+  14 days, read only by the Maintainer to count visitors (`npm run usage`). A content security policy limits the page to its own
   server and database, Google Fonts, and Google during sign-in, and forbids framing.
 - Written answers to graded questions stay inside the Group (ADR 0002); privacy is enforced in the
   database, not only in the page (ADR 0003).

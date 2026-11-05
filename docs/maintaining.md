@@ -36,6 +36,7 @@ npm run courses         # list your Canvas courses with ids
 npm run progress        # write data/my-progress.json: what Canvas counts as done for YOUR account (git-ignored)
 npm run build:private   # build ltu-study-tracker.private.html with those Canvas marks filled in (git-ignored, never share)
 npm run bugs            # list the new bug reports sent from the hosted app (needs tools/server.env)
+npm run usage           # accounts active per day and week, and visitors per day from the proxy's access log (needs tools/server.env)
 ```
 
 The page shows its version in the footer and sends it with every bug report. Nobody sets it: the
