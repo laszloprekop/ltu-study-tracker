@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-10-25T18:24:36.167Z",
+ "generatedAt": "2026-11-06T11:42:06.294Z",
  "courses": {
   "Z7005E": {
    "canvasId": 613,
@@ -34,7 +34,7 @@
        "section": null,
        "url": "https://ltuedu.instructure.com/courses/613/modules/items/19613",
        "indent": 0,
-       "words": 878,
+       "words": 874,
        "videos": 0,
        "files": 0,
        "minutes": 5
@@ -1633,7 +1633,7 @@
        "section": null,
        "url": "https://ltuedu.instructure.com/courses/613/modules/items/19738",
        "indent": 1,
-       "words": 19,
+       "words": 20,
        "videos": 3,
        "files": 7,
        "minutes": null
@@ -1647,9 +1647,9 @@
        "section": null,
        "url": "https://ltuedu.instructure.com/courses/613/modules/items/19739",
        "indent": 1,
-       "words": 565,
+       "words": 574,
        "videos": 0,
-       "files": 3,
+       "files": 5,
        "minutes": null
       },
       {
@@ -1727,8 +1727,8 @@
        "assignmentId": 3024,
        "points": 0,
        "submission": "online_upload",
-       "due": "2026-11-25",
-       "dueTime": "17:00",
+       "due": "2026-11-26",
+       "dueTime": "10:00",
        "words": 69,
        "videos": 1,
        "files": 8,
@@ -1849,8 +1849,8 @@
      "title": "Hemtentamen - Boomerang Australia",
      "points": 0,
      "submission": "online_upload",
-     "due": "2026-11-25",
-     "dueTime": "17:00",
+     "due": "2026-11-26",
+     "dueTime": "10:00",
      "url": "https://ltuedu.instructure.com/courses/613/assignments/3024",
      "moduleItemUrl": null,
      "section": null,
@@ -1918,7 +1918,7 @@
        "url": "https://ltuedu.instructure.com/courses/614/modules/items/19877",
        "indent": 0,
        "req": "must_view",
-       "words": 456,
+       "words": 479,
        "videos": 0,
        "files": 5,
        "minutes": 5
@@ -2292,7 +2292,7 @@
        "url": "https://ltuedu.instructure.com/courses/614/modules/items/19908",
        "indent": 1,
        "req": "must_contribute",
-       "words": 2632,
+       "words": 2611,
        "videos": 3,
        "files": 9,
        "minutes": 60
@@ -2747,10 +2747,10 @@
        "url": "https://ltuedu.instructure.com/courses/614/modules/items/19961",
        "indent": 1,
        "req": "must_mark_done",
-       "words": 2081,
-       "videos": 2,
-       "files": 7,
-       "minutes": 45
+       "words": 2104,
+       "videos": 5,
+       "files": 11,
+       "minutes": 80
       },
       {
        "id": 19963,
@@ -2820,10 +2820,10 @@
        "url": "https://ltuedu.instructure.com/courses/614/modules/items/19969",
        "indent": 1,
        "req": "must_mark_done",
-       "words": 2112,
-       "videos": 0,
-       "files": 7,
-       "minutes": 20
+       "words": 2120,
+       "videos": 2,
+       "files": 9,
+       "minutes": 45
       },
       {
        "id": 19971,
@@ -3477,6 +3477,13 @@
      "posted": "2026-10-24",
      "url": "https://ltuedu.instructure.com/courses/614/discussion_topics/4116",
      "text": "Hi Everyone. Due to an unexpected change in my travel schedule, I will be away next week. As a result, all lectures next week will be conducted in a self-paced format , and there will be no live lecture sessions. Please work through the following lectures independently on Canvas under the self-paced section for module 5: 5.3 Lecture 11: The Network Layer – OSPF, BGP and OpenFlow 5.4 Lecture 12: ICMP and Network Management The lecture materials are available in their respective sections on Canvas. Please review the materials, complete the Knowledge Checks, and work through the activities in the"
+    },
+    {
+     "id": 4118,
+     "title": "Weekly Announcement – Lectures 13 & 14 and Lab 5 (2–6 November)",
+     "posted": "2026-11-02",
+     "url": "https://ltuedu.instructure.com/courses/614/discussion_topics/4118",
+     "text": "Hi everyone, This week, we will continue with Lectures 13 and 14, covering the Link Layer and Wireless and Mobile Networks. We will also have Lab 5 on Friday. 🎓 Lectures Monday, 2 November | 09:00–10:30 (Zoom) Lecture 13: The Link Layer Canvas section: 6.2 Lecture 13 – The Link Layer Tuesday, 3 November | 09:00–10:30 (Zoom) Lecture 14: Wireless and Mobile Networks Canvas section: 7.2 Lecture 14 – Wireless and Mobile Networks Please review the lecture materials on Canvas and complete the Knowledge Checks and activities in the To-Do sections to reinforce your understanding. 💻 Lab 5 Friday, 6 N"
     }
    ]
   }

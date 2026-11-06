@@ -131,8 +131,8 @@ const SESSIONS_LP2 = [
   // "Lecture (Self-paced)" and the 30 Oct Lab 4 session cancelled. The announcement names Lectures
   // 11 and 12 as that week's lectures, so the four November slots take Lectures 13 to 16 in module
   // order and no spare slot is left.
-  S("Z0025E", "2026-11-02", "09:00", "10:30", "lecture", "Lecture 13, the link layer", { ref: "6.2", status: "expected", why: "Expected on 27 Oct until week 44 became self-paced." }),
-  S("Z0025E", "2026-11-03", "09:00", "10:30", "lecture", "Lecture 14, wireless and mobile networks", { ref: "7.2", status: "expected", why: "Expected on 2 Nov until week 44 became self-paced." }),
+  S("Z0025E", "2026-11-02", "09:00", "10:30", "lecture", "Lecture 13, the link layer", { ref: "6.2", status: "confirmed", why: "Confirmed by the announcement of 2 Nov; expected on 27 Oct until week 44 became self-paced." }),
+  S("Z0025E", "2026-11-03", "09:00", "10:30", "lecture", "Lecture 14, wireless and mobile networks", { ref: "7.2", status: "confirmed", why: "Confirmed by the announcement of 2 Nov; expected on 2 Nov until week 44 became self-paced." }),
   S("Z0025E", "2026-11-06", "13:00", "15:00", "lab", "Lab 5 session, Packet Tracer skills 11 to 12", { ref: "9.9" }),
   S("Z0025E", "2026-11-09", "09:00", "10:30", "lecture", "Lecture 15, network security and cryptography", { ref: "8.2", status: "expected", why: "Expected on 3 Nov until week 44 became self-paced." }),
   S("Z0025E", "2026-11-10", "09:00", "10:30", "lecture", "Lecture 16, email security, TLS, IPsec, wireless", { ref: "8.3", status: "expected", why: "Expected on 9 Nov until week 44 became self-paced." }),
@@ -332,7 +332,8 @@ export const BOOKINGS = [
 // L00 Course Introduction.pdf were corrected); the Z7005E ones below still stand.
 export const DISAGREEMENTS = [
   { about: "d:Z7005E:3024", fact: "deadline", values: [
-    { source: "Canvas assignment and the Schema", date: "2026-11-25", time: "17:00" },
+    { source: "The Schema", date: "2026-11-25", time: "17:00" },
+    { source: "Canvas assignment (changed from 25 Nov 17:00 by 6 Nov)", date: "2026-11-26", time: "10:00" },
     { source: "HomeExam2025.pdf", date: "2026-12-08", time: "09:00", url: "https://ltuedu.instructure.com/courses/613/files/38058" }] },
   { about: "d:Z7005E:3021", fact: "deadline", values: [
     { source: "Canvas assignment and the Schema", date: "2026-10-21", time: "17:00" },
