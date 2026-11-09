@@ -87,3 +87,14 @@ there are locked until they unlock them.
   Token (step 1); to invalidate the JWT itself, rotate the Supabase JWT secret, which also changes
   the anon key.
 - Database checks after any migration: `app/supabase/README.md`.
+- Every address on `ltu-studytracker-db.dentaku.se` answers 504 after 30 s (sign-in stops on
+  `/auth/v1/authorize`) while the app itself loads: the proxy (`coolify-proxy`, Traefik) has lost
+  the Docker network of the tracker's Supabase, so it cannot reach Kong. Coolify joins the proxy to
+  a stack's network only when that stack is deployed, so a proxy recreated by hand from
+  `/data/coolify/proxy/docker-compose.yml` comes back without it (5 to 9 Nov 2026, after the access
+  log was added). Check: `curl -s -o /dev/null -w '%{http_code}\n'
+  https://ltu-studytracker-db.dentaku.se/auth/v1/health` gives 401 when Kong answers. Fix, without a
+  restart: `. tools/server.env && ssh "$TRACKER_SSH" "docker network connect $SUPABASE_SERVICE
+  coolify-proxy"`. Since 9 Nov the compose file lists both Supabase stacks' networks as `external`,
+  so a recreated proxy joins them again; if a stack is deleted in Coolify, remove its lines there
+  first, or the proxy will not start.
