@@ -134,8 +134,8 @@ const SESSIONS_LP2 = [
   S("Z0025E", "2026-11-02", "09:00", "10:30", "lecture", "Lecture 13, the link layer", { ref: "6.2", status: "confirmed", why: "Confirmed by the announcement of 2 Nov; expected on 27 Oct until week 44 became self-paced." }),
   S("Z0025E", "2026-11-03", "09:00", "10:30", "lecture", "Lecture 14, wireless and mobile networks", { ref: "7.2", status: "confirmed", why: "Confirmed by the announcement of 2 Nov; expected on 2 Nov until week 44 became self-paced." }),
   S("Z0025E", "2026-11-06", "13:00", "15:00", "lab", "Lab 5 session, Packet Tracer skills 11 to 12", { ref: "9.9" }),
-  S("Z0025E", "2026-11-09", "09:00", "10:30", "lecture", "Lecture 15, network security and cryptography", { ref: "8.2", status: "expected", why: "Expected on 3 Nov until week 44 became self-paced." }),
-  S("Z0025E", "2026-11-10", "09:00", "10:30", "lecture", "Lecture 16, email security, TLS, IPsec, wireless", { ref: "8.3", status: "expected", why: "Expected on 9 Nov until week 44 became self-paced." }),
+  S("Z0025E", "2026-11-09", "09:00", "10:30", "lecture", "Lecture 15, network security and cryptography", { ref: "8.2", status: "confirmed", why: "Confirmed by the announcement of 9 Nov; expected on 3 Nov until week 44 became self-paced." }),
+  S("Z0025E", "2026-11-10", "09:00", "10:30", "lecture", "Lecture 16, email security, TLS, IPsec, wireless", { ref: "8.3", status: "confirmed", why: "Confirmed by the announcement of 9 Nov; expected on 9 Nov until week 44 became self-paced." }),
   S("Z0025E", "2026-11-13", "13:00", "15:00", "lab", "Lab 6 session, Packet Tracer skills 13 to 14", { ref: "9.10" })
 ];
 
