@@ -76,7 +76,7 @@ export const COURSES = {
       { title: "Midterm Overview", url: "https://ltuedu.instructure.com/courses/614/pages/10-dot-1-midterm-overview?module_item_id=20016",
         summary: "The course's own page on the two midterms: what they cover and how they run. The authoritative source: where another page differs, this one counts." },
       { title: "NET visualizer", url: "https://claude.ai/artifact/DokcmpC4N586urbFzgxNZJ",
-        summary: "One piece of traffic followed down the layers and back up, animated step by step. A different angle that shows how the layers connect." },
+        summary: "One piece of traffic followed down the layers and back up, animated step by step. A different angle that shows how the layers connect. Its last part is an interactive map of IPv4 addresses, subnets and CIDR." },
       { title: "Check Drill", url: "https://claude.ai/artifact/BCspDZjGJKqfADchRmqHhn",
         summary: "Kurose and Ross's Knowledge Checks and the lectures' Check Your Understanding questions, drilled with spaced repetition. Open-book help sits beside each question, with animations of the idea behind it, and progress is tracked question by question." },
       { title: "Study Help", url: "https://studyhelp.alexstauch.app/", status: "Offline at the moment: a fix is under way.",
