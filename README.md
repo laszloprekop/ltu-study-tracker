@@ -1,8 +1,9 @@
 # LTU Study Tracker
 
 A study planner for students of LTU courses: what is on today, what is due, what to study before
-it, and what has been done. Built for the classmates of Z7005E Programvaruteknik and Z0025E
-Computer Networks, autumn 2026; courses are data, so more can be added.
+it, and what has been done. Built for the classmates of Z7005E Programvaruteknik, Z0025E
+Computer Networks and Z0026E Computer and Network Security, 2026 to 2027; courses are data, so more
+can be added.
 
 ![The Day Planner view in dark mode: the day plan in 15-minute slots with free time and the week's unplaced work](docs/images/hero.png)
 
@@ -14,7 +15,7 @@ Unofficial, made by a student. Not an LTU service; Canvas is always right when t
 ## What it does
 
 - **Week by week, Day, All deadlines, Map**: every session, deadline and piece of Canvas material
-  of both courses, with links; Day is a day plan in 15-minute slots with free time to place work.
+  of every course, with links; Day is a day plan in 15-minute slots with free time to place work.
 - **Ticks that follow you**: sign in with Google, or stay a guest and keep them in the browser.
 - **Your own Canvas status** beside each tick, read with your own Canvas token (never stored).
 - **Lab bookings** from the signup sheet, with a warning that grows as the session comes closer.

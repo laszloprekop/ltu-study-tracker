@@ -109,6 +109,15 @@ Add a term to `TERMS` with `start`, `end`, `courses` and empty `sessions`, `stud
 fill in sessions from its schedule page. `docs/canvas-data-map.md` records where the data lives
 in Canvas and what is and is not machine-readable.
 
+A course that crosses two study periods (Z0026E: 23 Nov to 5 Feb) is listed in both terms'
+`courses`. Its deadlines come from Canvas and each term shows those inside its own `start` and
+`end`. Its sessions, study weeks and tasks are written once (`SEC_SESSIONS`, `SEC_STUDY`,
+`SEC_TASKS`) and split between the terms by date. The build fails on a session, task or study week
+outside its term's dates, since the page would never show it.
+
+A session takes `zoom` when it meets in another room than the course's (the Z0026E labs), and a
+`ref` may be a title (`"#Lecture 1:"`) when two items share a number (Z0026E's 1.1).
+
 ## MUST and NICE
 
 Every item carries a level, and every MUST item has a red stripe on its left edge. By rule: hand-ins, quizzes, exams, items Canvas requires a post or

@@ -1454,7 +1454,8 @@ function expand(code, ref){
     return i.number.indexOf(num + ".") === 0 && i.kind !== "handin" && i.kind !== "session" && i.kind !== "link";
   });
 }
-function itemByNumber(code, num){ return items(code).find(function(i){ return i.number === num; }); }
+// A number, or any ref (a "#Title" when a number is shared: Z0026E's 1.1 is both an overview and Lecture 1).
+function itemByNumber(code, num){ return /[#@]/.test(num) ? expand(code, num)[0] : items(code).find(function(i){ return i.number === num; }); }
 function assignments(code){ var c = INV.courses[code]; return c ? c.assignments : []; }
 function announcements(code){ var c = INV.courses[code]; return c ? c.announcements : []; }
 function inList(code, listName, item){ var k = COURSES[code]; return (k && k[listName] || []).some(function(r){ return expand(code, r).some(function(x){ return x.id === item.id; }); }); }
@@ -1488,15 +1489,16 @@ function assessmentItem(code, aid){ return items(code).find(function(i){ return 
 function isMaterial(i){ return i.kind !== "handin" && i.kind !== "exam" && i.kind !== "link"; }
 // Rule: the other items in its own section; when it sits alone under its heading (every Z0025E
 // quiz does), the items before it in the module, minus those under a heading that holds another
-// assessment (Lab 3's subnet page is not Lab 4's). Then the plan's NEEDS refs. The rule is only for
-// dated assessments: an ungraded practice quiz, or an item Canvas lists in no module (the home
-// exam), gets only the refs. Hand-ins, exams and links are never material.
+// assessment (Lab 3's subnet page is not Lab 4's). Other dated assessments under the same heading
+// do not count as its material (Z0026E's two Module 4 quizzes share one). Then the plan's NEEDS
+// refs. The rule is only for dated assessments: an ungraded practice quiz, or an item Canvas lists
+// in no module (the home exam), gets only the refs. Hand-ins, exams and links are never material.
 function needsOf(t, code, aid){
   var it = assessmentItem(code, aid); if (!it) return [];
   var mod = INV.courses[code].modules.find(function(m){ return m.items.indexOf(it) >= 0; }), at = mod.items.indexOf(it), seen = {}, out = [];
   var add = function(i){ if (i !== it && isMaterial(i) && !seen[i.id]) { seen[i.id] = 1; out.push(i); } };
   if (it.due && !it.unlisted) {
-    var same = it.section ? mod.items.filter(function(i){ return i !== it && i.section === it.section; }) : [];
+    var same = it.section ? mod.items.filter(function(i){ return i !== it && i.section === it.section && !(i.assignmentId && i.due); }) : [];
     if (same.length) same.forEach(add);
     else mod.items.forEach(function(i, k){ if (k < at && !(i.section && mod.items.some(function(x){ return x !== it && x.assignmentId && x.section === i.section; }))) add(i); });
   }
@@ -1624,25 +1626,31 @@ function refreshPrep(){
 }
 
 /* ---------- Building the term's timeline ---------- */
+// A course can run in two study periods (Z0026E: 23 Nov to 5 Feb), so a term shows only the
+// deadlines inside its own dates. Quizzes that close together share one row; a quiz alone is a row of its own.
 function deadlineRows(t){
   var rows = [];
   t.courses.forEach(function(code){
-    var groups = {};
-    assignments(code).forEach(function(a){
-      if (!a.due) return;
-      if (a.kind === "quiz") { var g = code + ":quizzes:" + a.due; (groups[g] = groups[g] || { code: code, due: a.due, dueTime: a.dueTime, list: [] }).list.push(a); return; }
+    var groups = {}, dated = assignments(code).filter(function(a){ return a.due && a.due >= t.start && a.due <= t.end; });
+    var one = function(a){
       var use = disagreedDeadline("d:" + code + ":" + a.id, a.due, a.dueTime);
       rows.push({ kind: "deadline", level: "must", id: "d:" + code + ":" + a.id, code: code, date: use.date, time: use.time, disagree: disagreementOf("d:" + code + ":" + a.id),
         title: shortTitle(a.title) + " due " + use.time, pts: a.points ? a.points + " p" : "", why: t.notes[code + ":" + a.id] || "", akind: a.kind,
         est: (itemByNumber(code, a.number) || {}).statedMinutes || null,
         links: [["Submit", a.url]].concat(a.moduleItemUrl ? [["In the module", a.moduleItemUrl]] : []) });
+    };
+    dated.forEach(function(a){
+      if (a.kind === "quiz") { var g = code + ":quizzes:" + a.due; (groups[g] = groups[g] || { code: code, due: a.due, dueTime: a.dueTime, list: [] }).list.push(a); return; }
+      one(a);
     });
+    var quizzes = assignments(code).filter(function(a){ return a.kind === "quiz" && a.due; }).length;
     Object.keys(groups).forEach(function(g){
-      var q = groups[g]; q.list.sort(function(x, y){ return (x.number || "").localeCompare(y.number || "", undefined, { numeric: true }); });
+      var q = groups[g]; if (q.list.length === 1) { one(q.list[0]); return; }
+      q.list.sort(function(x, y){ return (x.number || "").localeCompare(y.number || "", undefined, { numeric: true }); });
       var total = q.list.reduce(function(s, a){ return s + (a.points || 0); }, 0);
       rows.push({ kind: "deadline", level: "must", id: "d:" + g, code: q.code, date: q.due, time: q.dueTime, akind: "quiz", aids: q.list.map(function(a){ return a.id; }),
-        title: "All " + q.list.length + " module quizzes close " + q.dueTime, pts: total ? total + " p" : "", why: t.notes[q.code + ":quizzes"] || "",
-        links: q.list.map(function(a){ return [a.title.replace(/module (\d+) quiz/i, "Quiz $1"), a.url]; }) });
+        title: (q.list.length === quizzes ? "All " : "") + q.list.length + " module quizzes close " + q.dueTime, pts: total ? total + " p" : "", why: t.notes[q.code + ":quizzes"] || "",
+        links: q.list.map(function(a){ return [a.title.replace(/module (\d+) quiz(?: \d+\b)?/i, "Quiz $1"), a.url]; }) });
     });
   });
   return rows;
@@ -1650,7 +1658,7 @@ function deadlineRows(t){
 function sessionRows(t){
   return t.sessions.filter(function(s){ return t.courses.indexOf(s.course) >= 0; }).map(function(s){
     var links = [], k = COURSES[s.course];
-    if (k && k.zoom && s.kind !== "exam") links.push(["Zoom", k.zoom]);
+    if (k && (s.zoom || k.zoom) && s.kind !== "exam") links.push(["Zoom", s.zoom || k.zoom]);   // a session's own room (Z0026E labs) before the course's
     var it = s.ref ? itemByNumber(s.course, s.ref) : null;
     if (it) links.push([it.kind === "session" ? "Recording and slides" : "Page", it.url]);
     (s.also || []).forEach(function(r){ var x = itemByNumber(s.course, r); if (x) links.push([x.number + " " + x.title.slice(0, 28), x.url]); });
@@ -2903,7 +2911,7 @@ function renderAllView(t){
       '<td class="n"><label for="' + esc(r.id) + '">' + rowIcon(r) + '<span class="tt">' + esc(r.title.replace(/ due \d\d:\d\d$/, "").replace(/ close \d\d:\d\d$/, " close")) + '</span></label>' + (r.why ? '<div class="why" style="color:var(--muted);font-size:12.5px">' + esc(r.why) + '</div>' : '') + '</td>' +
       '<td>' + esc(r.pts) + (r.est ? '<br><small class="est">' + fmtMin(r.est) + '</small>' : '') + '</td><td>' + links(r.links) + '</td></tr>';
   }).join("");
-  return renderChains(t) + '<section><div class="sechead"><h2>All deadlines</h2><span class="note">Both courses, in date order, straight from Canvas.</span></div><div class="card tablewrap"><table class="all"><thead><tr><th></th><th>Due</th><th>Course</th><th>What</th><th>Points</th><th>Links</th></tr></thead><tbody>' + tr + '</tbody></table></div></section>' + renderDisagreements(t);
+  return renderChains(t) + '<section><div class="sechead"><h2>All deadlines</h2><span class="note">Every course of the study period, in date order, straight from Canvas.</span></div><div class="card tablewrap"><table class="all"><thead><tr><th></th><th>Due</th><th>Course</th><th>What</th><th>Points</th><th>Links</th></tr></thead><tbody>' + tr + '</tbody></table></div></section>' + renderDisagreements(t);
 }
 function renderQuick(t){
   var out = [];
@@ -3597,7 +3605,9 @@ function detailFor(t, key){
 function hopsLabel(){ return state.mapHops >= 5 ? "all" : state.mapHops + (state.mapHops === 1 ? " hop" : " hops"); }
 function renderMapView(t){
   // Nothing chosen yet: start on today's first event, or the next one coming up.
-  // Opens on the next Key Event (release 5); its chain lights up.
+  // Opens on the next Key Event (release 5); its chain lights up. A session or deadline chosen in
+  // another term (Z0026E runs in two) is let go, so the map opens on this term's own.
+  if (/^[sd]:/.test(state.mapSel || "") && !timeline(t).some(function(r){ return (r.id || r.key) === state.mapSel; })) { state.mapSel = null; state.mapSels = []; }
   if (!state.mapSel) { var today = todayIso(), ke = keyEvents(t).find(function(k){ return k.date >= today; }), first = ke ? { key: ke.key } : timeline(t).find(function(r){ return r.date >= today; }); if (first) selectKey(first.id || first.key, false); }
   return '<section><div class="map' + (state.railSlim ? ' rail-slim' : '') + '">' + railCard(t) + '<div class="rail-tip" id="rail-tip" hidden></div>' +
     '<div class="card mapcard"><h3>' + ic("tree-structure") + '<span class="t">Canvas map</span><span class="why" style="display:inline;text-transform:none;letter-spacing:0;font-weight:400">material inside, sessions, deadlines and tasks around the ring in date order. Hover or click a node to see its links, shift-click to select several, drag to pan, scroll to zoom</span></h3>' +
@@ -4205,7 +4215,7 @@ var APP_INFO = {
     ["Study cards", "The Cards view drills flashcards for every lab and exam, made from the lectures and lab material. Spaced repetition shows each card just before you would forget it and plans the reviews so you know it on the day of the lab or exam. Every card is open to every classmate, who votes whether it is legit or needs a fix; cards voted faulty are left out by default, and your group's answers to graded questions stay within your group."],
     ["Prep chains", "All deadlines opens with every lab session, workshop and exam and the work that leads to it: the booking, the report, the lectures and readings, each with the day the course teaches it, a warning when that is after the event needs it, and a suggested do-by date where the course gives none. The map opens on the next one and steps through them."],
     ["Where sources disagree", "When Canvas, a PDF and a sign-up sheet give different dates, the row says so and the page uses the earliest one that has not passed, so a stale date never makes you late."],
-    ["A day in 15-minute slots", "Day shows both courses in one day plan: sessions, your calendar, your lab slot and deadlines, the free slots between them, and this week's unplaced work with a suggested slot. Place it with one press or drag it, and the plan follows you to your other devices."]
+    ["A day in 15-minute slots", "Day shows every course in one day plan: sessions, your calendar, your lab slot and deadlines, the free slots between them, and this week's unplaced work with a suggested slot. Place it with one press or drag it, and the plan follows you to your other devices."]
   ],
   planned: [
     ["Free time for the whole group", "Later: the free slots every member of a group has, from the calendars they link."],
@@ -4403,7 +4413,7 @@ function renderProfile(){
 function renderInfoView(name){
   var hosted = !!window.TRACKER_CONFIG, cards = [];
   if (name === "about") {
-    cards.push(infoCard("info", "What this is", "One page for **both courses**: what is on today, what is due, and what to study before it.\n- Made by a student, for classmates.\n- Not an LTU service.\nKey: Canvas stays the place that counts; this page helps you find your way in it."));
+    cards.push(infoCard("info", "What this is", "One page for **all the courses**: what is on today, what is due, and what to study before it.\n- Made by a student, for classmates.\n- Not an LTU service.\nKey: Canvas stays the place that counts; this page helps you find your way in it."));
     if (!hosted) cards.push(infoCard("arrow-right", "It has moved", "The same tracker now runs as its own site: " + (P.MOVED_TO || "") + ".\nKey: the steps to bring your ticks along are in the orange banner at the top.") );
     cards.push('<div class="card infocard span2"><h3>' + ic("check-circle") + 'What it does today' + (hosted ? '<span class="here">here</span>' : '') + '</h3>' + infoList(APP_INFO.now, "ul") + '</div>');
     cards.push('<div class="card infocard"><h3>' + ic("flag-checkered") + 'Coming later</h3>' + infoList(APP_INFO.planned, "ul") + '</div>');

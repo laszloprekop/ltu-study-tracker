@@ -44,6 +44,10 @@ export function checkPlan(inventory) {
   const isAssignment = (code, id) => (inventory.courses[code]?.assignments || []).some(a => String(a.id) === id);
   const problems = [];
   for (const term of TERMS) {
+    // The page shows a term's weeks from start to end only, so anything outside them would be lost.
+    const outside = d => d && (d < term.start || d > term.end);
+    for (const x of [...term.sessions, ...term.tasks]) if (outside(x.date)) problems.push(`${term.id} ${x.title} on ${x.date} is outside the term (${term.start} to ${term.end})`);
+    for (const s of term.study) if (outside(s.week)) problems.push(`${term.id} study week ${s.week} ${s.course} is outside the term`);
     for (const s of term.study) for (const r of s.refs) if (!refMatches(s.course, r).length) problems.push(`${term.id} study ${s.week} ${s.course} ref "${r}" matches nothing`);
     for (const s of term.sessions) {
       for (const r of [s.ref, ...(s.also || []), ...(s.prep || [])].filter(Boolean)) if (!refMatches(s.course, r).length) problems.push(`${term.id} session ${s.date} ${s.course} ref "${r}" matches nothing`);

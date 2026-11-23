@@ -9,7 +9,8 @@ and what has been done.
 
 **Course**:
 One Canvas course the tracker knows, together with its hand-written plan. Courses are data: adding
-one adds a record, not new behaviour. Today: Z7005E and Z0025E.
+one adds a record, not new behaviour. Today: Z7005E, Z0025E and Z0026E. A Course may run in two
+study periods (Z0026E, 23 Nov to 5 Feb); each period shows the part of it that falls inside its dates.
 _Avoid_: Class, subject
 
 **Course Plan**:

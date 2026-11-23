@@ -186,3 +186,35 @@ event springs were strengthened; layering then held it at 19°.
 Per-course catalogues of every dated, booked or "do this before" thing, and the Canvas completion
 signals: `docs/scan/z7005e.md`, `docs/scan/z0025e.md`, `docs/scan/completion.md`. Scripts in
 `tools/scan/`. The glossary for the hosted app design is `CONTEXT.md`.
+
+## Course 622, Z0026E Computer and Network Security (scanned 2026-11-23)
+
+Read with `node tools/scan/dump-course.mjs 622 <dir>`, student token, read-only. Canvas names it
+"Lp3 V27", but the first lecture is on 23 Nov 2026 and the last lab on 5 Feb 2027, so the page lists
+it in both LP2 and LP3 (`docs/maintaining.md`, Adding a study period).
+
+- **Sessions:** the Homepage's "Important dates" table (front page), a real HTML table:
+  Date | Time | Activity | Location. It names every lecture by number and title, so no session is
+  `expected`. Lecture 4 is marked "Self-paced" with no time. Lectures in the Lecture Zoom room, lab
+  presentations in a separate Lab Zoom room (the session's `zoom` in the plan).
+- **Quizzes are classic Canvas quizzes:** module items of type `Quiz` whose `content_id` is the quiz
+  id. The assignment carries `quiz_id`, which is how the sync ties the two. `GET /courses/622/quizzes`
+  answers 404 for a student. Module 4 has two quizzes under one heading, both numbered 4.4 and both
+  titled "Module 4 Quiz 1: ..."; the Homepage calls the four quizzes Quiz 1 to 4.
+- **Repeat listings:** every lab sits in its subject module and again in "Module 5: Labs"; every
+  quiz again in "Module 6: Quizzes". The sync keeps the first listing only and drops a module left
+  empty, so Module 6 is not in the inventory.
+- **Undated assignments in no module:** placeholders (`Assignment "title"`, numbered 1.8, 1.13,
+  3.6) and gradebook columns ("ALL LABS DONE", "Quiz Total"). They stay in the assignment list but
+  are not placed into the module tree.
+- **Shared numbers:** 1.1 is both "Module 1 Overview" and "Lecture 1"; refs name Lecture 1 by title.
+- **Completion:** every item has a rule (`must_view`, `must_submit`), like 614.
+- **Groups:** ten Canvas groups "Lab Groups 1" to "Lab Groups 10", empty on the day of the scan.
+  Files and group categories answer 403.
+- **Lab sign-up sheet:** a Google Doc (module item 20558). Headings read
+  `1. Lab 1 (Cryptography - Symmetric Key Crypto) 2026-12-14; 13.00-15.00`, slots read
+  `16 - 30 minutes` with no clock time, six 15-minute slots per session from 13:00. The app's
+  reader (`app/src/lib/signup-sheet.ts`) takes both this layout and Z0025E's.
+- **Grade limits disagree by one point:** the Syllabus gives 100 to 120 quiz points for a 5, the
+  "Assessments and examination" page 101 to 120 (and 80 to 100 for a 4). Not tied to a date, so
+  it is in the course's rules rather than in `DISAGREEMENTS`.

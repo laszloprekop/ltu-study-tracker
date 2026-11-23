@@ -7,8 +7,13 @@ export type Section = { section: string; date: string; headingTime: string | nul
 
 const MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
 const HEADING = /^\s*(?:\d+\.\s*)?(lab\s*\d+)\s*[-:]\s*([a-z]{3,9})\.?\s+(\d{1,2})(?:st|nd|rd|th)?\s*(?:[-:,]\s*(\d{1,2})[:.](\d{2})\s*(am|pm)?)?/i;
+// Z0026E's sheet: "1. Lab 1 (Cryptography - Symmetric Key Crypto) 2026-12-14; 13.00-15.00".
+const ISO_HEADING = /^\s*(?:\d+\.\s*)?(lab\s*\d+)\b.*?\b(\d{4})-(\d{2})-(\d{2})\b(?:\s*[;,]?\s*(\d{1,2})[:.](\d{2}))?/i;
 const SLOT = /\((\d{1,2})[:.](\d{2})\)\s*$/;
-const GROUP = /^\s*(?:lab\s*)?(?:grupp|group|g)\s*(?:#|nr\.?|no\.?)?\s*(\d{1,3})\b/i;
+// A slot without its clock time ("16 - 30 minutes"): minutes after the heading's time. The sheets
+// start each slot a minute after the last one ends, so 16 means 15.
+const MINUTES_SLOT = /^(\d{1,3})\s*-\s*\d{1,3}\s*min(?:utes)?\s*$/i;
+const GROUP = /^\s*(?:lab\s*)?(?:grupp|groups?|g)\s*(?:#|nr\.?|no\.?)?\s*(\d{1,3})\b/i;
 
 const two = (n: number) => String(n).padStart(2, "0");
 
@@ -36,9 +41,20 @@ export function parseSheet(text: string, today = new Date()): Section[] {
         out.push(cur); open = null; continue;
       }
     }
+    const iso = !h && ISO_HEADING.exec(line);
+    if (iso) {
+      cur = { section: iso[1].replace(/\s+/g, "").replace(/^lab/i, "Lab"), date: `${iso[2]}-${iso[3]}-${iso[4]}`, headingTime: iso[5] ? `${two(Number(iso[5]))}:${iso[6]}` : null, slots: [] };
+      out.push(cur); open = null; continue;
+    }
     if (!cur) continue;
     const s = SLOT.exec(line);
     if (s) { open = { time: `${two(Number(s[1]))}:${s[2]}`, group: null }; cur.slots.push(open); continue; }
+    const rel = cur.headingTime ? MINUTES_SLOT.exec(line) : null;
+    if (rel) {
+      const after = Number(rel[1]) % 5 === 1 ? Number(rel[1]) - 1 : Number(rel[1]);
+      const [hh, mm] = cur.headingTime!.split(":").map(Number), at = hh * 60 + mm + after;
+      open = { time: `${two(Math.floor(at / 60))}:${two(at % 60)}`, group: null }; cur.slots.push(open); continue;
+    }
     if (open && open.group === null) { const g = GROUP.exec(line); if (g) open.group = Number(g[1]); }
   }
   return out;

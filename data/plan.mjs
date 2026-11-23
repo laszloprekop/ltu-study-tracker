@@ -21,6 +21,10 @@ const ZOOM_SE = "https://ltu-se.zoom.us/j/3024506121";
 const ZOOM_NET = "https://ltu-se.zoom.us/j/66123226809";
 const BOOKING = "https://doodle.com/sign-up-sheet/participate/b49a3fa3-19ad-4030-92d4-04c1ccfd2767/select";
 const SIGNUP = "https://ltuedu.instructure.com/courses/614/modules/items/19985";
+const ZOOM_SEC = "https://ltu-se.zoom.us/j/67959646442";
+const ZOOM_SEC_LAB = "https://ltu-se.zoom.us/my/timufer";
+const SIGNUP_SEC = "https://ltuedu.instructure.com/courses/622/modules/items/20558";
+const SEED_VM = "https://github.com/seed-labs/seed-labs/blob/master/manuals/vm/seedvm-manual.md";
 
 // prefix: label before the code on chips. color: slot 1 to 5. canvasId: null until the course exists in Canvas.
 // sv: the course's Swedish name, as the programme knows it; the Närvaro Report uses it.
@@ -82,12 +86,72 @@ export const COURSES = {
       { title: "Study Help", url: "https://studyhelp.alexstauch.app/", status: "Offline at the moment: a fix is under way.",
         summary: "A concise version of the Kurose and Ross material with practice questions. Another way to learn than the Check Drill." }
     ]
+  },
+  // Canvas calls it Lp3 V27, but it starts on 23 Nov 2026: its sessions sit in both study periods.
+  Z0026E: {
+    name: "Computer and Network Security", sv: "Dator och nätverkssäkerhet", prefix: "SEC", color: 3, canvasId: 622, zoom: ZOOM_SEC,
+    teachers: ["chen-wei-yang"],
+    quick: [
+      ["Course home", "https://ltuedu.instructure.com/courses/622"],
+      ["Lecture Zoom room", ZOOM_SEC],
+      ["Lab Zoom room", ZOOM_SEC_LAB],
+      ["Lab sign-up sheet", SIGNUP_SEC],
+      ["Assessment rules", "https://ltuedu.instructure.com/courses/622/pages/assessments-and-examination"]
+    ],
+    rules: [
+      "Continuous assessment, no final exam, graded U, 3, 4 or 5",
+      "Four quizzes, 120 points: at least 60 in total and at least 10 on each",
+      "The grade comes from quiz points: 60 for a 3, 80 for a 4, 100 for a 5 (the Syllabus; the Assessments page says 101)",
+      "Four SEED labs in groups of 3 to 4: a report and a booked group presentation on Zoom each, all four must pass"
+    ],
+    note: "Every lab runs in the SEED Ubuntu virtual machine. Have it installed and booting before Lab 1, so the lab time goes to the lab.",
+    must: [], nice: [],
+    optional: [],
+    resources: [
+      { title: "SEED VM setup", url: SEED_VM,
+        summary: "The SEED project's manual for the Ubuntu 20.04 virtual machine all four labs run in. The course's Lab Overview links it and asks for the machine to work before the first lab." }
+    ]
   }
 };
 
 // Sessions: things you attend. status "expected" means the date comes from the Homepage slot
 // table and the lecture number from module order; an announcement makes it "confirmed".
 const S = (course, date, start, end, kind, title, extra) => Object.assign({ course, date, start, end, kind, title }, extra);
+
+// Z0026E runs from 23 Nov to 5 Feb, so its lists are written once and split between LP2 and LP3 by date.
+const SEC_LAB = "Each group presents and demonstrates its results in the Lab Zoom room at its booked slot; every member attends and waits in the waiting room until called.";
+const SEC_SESSIONS = [
+  S("Z0026E", "2026-11-23", "09:00", "10:30", "lecture", "Lecture 1, course introduction and security concepts", { ref: "#Lecture 1:" }),
+  S("Z0026E", "2026-11-24", "09:00", "10:30", "lecture", "Lecture 2, secure hashes", { ref: "1.2" }),
+  S("Z0026E", "2026-11-26", "09:00", "10:30", "lecture", "Lecture 3, symmetric key cryptography", { ref: "1.3" }),
+  S("Z0026E", "2026-12-14", "13:00", "15:00", "lab", "Lab 1 presentations, symmetric key encryption", { ref: "1.5", zoom: ZOOM_SEC_LAB, why: SEC_LAB }),
+  S("Z0026E", "2026-12-18", "13:00", "15:00", "lab", "Lab 2 presentations, SQL injection attack", { ref: "2.3", zoom: ZOOM_SEC_LAB, why: SEC_LAB }),
+  S("Z0026E", "2027-01-11", "09:00", "10:30", "lecture", "Lecture 5, public key cryptography", { ref: "3.2" }),
+  S("Z0026E", "2027-01-12", "09:00", "10:30", "lecture", "Lecture 6, elliptic curve cryptography", { ref: "3.3" }),
+  S("Z0026E", "2027-01-22", "13:00", "15:00", "lab", "Lab 3 presentations, public-key encryption", { ref: "3.5", zoom: ZOOM_SEC_LAB, why: SEC_LAB }),
+  S("Z0026E", "2027-01-25", "09:00", "10:30", "lecture", "Lecture 7, authentication", { ref: "4.2" }),
+  S("Z0026E", "2027-01-26", "09:00", "10:30", "lecture", "Lecture 8, network security", { ref: "4.3" }),
+  S("Z0026E", "2027-02-05", "13:00", "15:00", "lab", "Lab 4 presentations, TCP vulnerabilities", { ref: "4.5", zoom: ZOOM_SEC_LAB, why: SEC_LAB })
+];
+const SEC_STUDY = [
+  { week: "2026-11-23", course: "Z0026E", refs: ["#Syllabus", "#Assessments and examination", "#Lab Overview", "#Required Software", "0.1", "0.2", "1.1", "1.2", "1.3"],
+    why: "The course starts with three lectures. The Welcome pages and the two-minute pre-knowledge quiz set it up; the Lab Overview says what each lab asks for." },
+  { week: "2026-11-30", course: "Z0026E", refs: ["1.4", "1.6"], why: "The Module 1 quiz closes on Saturday 5 Dec. Open book: course literature and lecture notes may be used." },
+  { week: "2026-12-07", course: "Z0026E", refs: ["2.1"], why: "Lab 1 is presented on Monday 14 Dec, so this is the group's lab week. The Module 2 overview leads into Lab 2." },
+  { week: "2026-12-14", course: "Z0026E", refs: ["2.2", "2.4"], why: "Lecture 4 is self-paced (recorded, listed for 15 Dec). It covers web security, which Lab 2 on Friday puts into practice." },
+  { week: "2027-01-11", course: "Z0026E", refs: ["3.1", "3.2", "3.3", "3.4"], why: "Module 3 in one week: two lectures, and its quiz closes on Saturday 16 Jan." },
+  { week: "2027-01-18", course: "Z0026E", refs: ["3.6"], why: "Lab 3 on Friday is public-key encryption, built on this week's lectures." },
+  { week: "2027-01-25", course: "Z0026E", refs: ["4.1", "4.2", "4.3", "4.4", "4.6"], why: "Module 4: two lectures, and both its quizzes close on Saturday 30 Jan." }
+];
+const SEC_NOTES = {
+  "Z0026E:3087": "40 points, open book. At least 10 needed on each of the four quizzes.",
+  "Z0026E:3099": "Presented at the session the same afternoon; the report is due at 23:59.",
+  "Z0026E:3102": "Presented at the session the same afternoon; the report is due at 23:59.",
+  "Z0026E:3095": "40 points, open book. At least 10 needed here.",
+  "Z0026E:3101": "Presented at the session the same afternoon; the report is due at 23:59.",
+  "Z0026E:quizzes": "Two quizzes of 20 points on Module 4, with at least 10 needed on each. After these, all 120 quiz points are in.",
+  "Z0026E:3104": "Last lab. All four labs must pass for the course, whatever the quiz points."
+};
 
 const SESSIONS_LP2 = [
   // Z7005E, from the Schema page
@@ -136,7 +200,11 @@ const SESSIONS_LP2 = [
   S("Z0025E", "2026-11-06", "13:00", "15:00", "lab", "Lab 5 session, Packet Tracer skills 11 to 12", { ref: "9.9" }),
   S("Z0025E", "2026-11-09", "09:00", "10:30", "lecture", "Lecture 15, network security and cryptography", { ref: "8.2", status: "confirmed", why: "Confirmed by the announcement of 9 Nov; expected on 3 Nov until week 44 became self-paced." }),
   S("Z0025E", "2026-11-10", "09:00", "10:30", "lecture", "Lecture 16, email security, TLS, IPsec, wireless", { ref: "8.3", status: "confirmed", why: "Confirmed by the announcement of 9 Nov; expected on 9 Nov until week 44 became self-paced." }),
-  S("Z0025E", "2026-11-13", "13:00", "15:00", "lab", "Lab 6 session, Packet Tracer skills 13 to 14", { ref: "9.10" })
+  S("Z0025E", "2026-11-13", "13:00", "15:00", "lab", "Lab 6 session, Packet Tracer skills 13 to 14", { ref: "9.10" }),
+
+  // Z0026E, from the Homepage's Important dates table. It names every lecture, so none is expected.
+  // Lectures in the Lecture Zoom room, lab presentations in the Lab Zoom room (zoom overrides the course's).
+  ...SEC_SESSIONS.filter(s => s.date <= "2026-12-20")
 ];
 
 // Material placed into weeks. week: the Monday. refs expand against the inventory.
@@ -158,7 +226,8 @@ const STUDY_LP2 = [
   { week: "2026-11-02", course: "Z0025E", refs: ["6.3", "6.4", "7.1"] },
   { week: "2026-11-09", course: "Z0025E", refs: ["7.3", "7.4", "8.1"] },
   { week: "2026-11-16", course: "Z0025E", refs: ["8.4", "8.5", "10.4"], why: "Midterm 2 on Friday covers modules 5 to 8." },
-  { week: "2026-11-16", course: "Z7005E", refs: ["5.3", "5.4"], why: "The Schema asks for these two videos before starting the home exam." }
+  { week: "2026-11-16", course: "Z7005E", refs: ["5.3", "5.4"], why: "The Schema asks for these two videos before starting the home exam." },
+  ...SEC_STUDY.filter(s => s.week <= "2026-12-20")
 ];
 
 // Hand-written to-dos that Canvas does not list. id must stay stable: it is the tick box key.
@@ -167,6 +236,17 @@ const T = (id, course, date, title, why, links, level) => ({ id, course, date, t
 // The textbook's (Kurose and Ross) Knowledge Checks and interactive problems, which the Z0025E lecture pages link.
 const KC = (chapter, section) => `https://gaia.cs.umass.edu/kurose_ross/knowledgechecks/problem.php?c=${chapter}&s=${section}`;
 const IA = name => `https://gaia.cs.umass.edu/kurose_ross/interactive/${name}.php`;
+const SEC_TASKS = [
+  T("sec-vm", "Z0026E", "2026-11-23", "Install VirtualBox and the SEED Ubuntu 20.04 VM", "Every lab runs in it. The Lab Overview asks for it to be installed and working before the first lab.",
+    [["VirtualBox", "https://www.virtualbox.org/"], ["SEED VM", "https://seedsecuritylabs.org/labsetup.html"], ["Setup manual", SEED_VM]], "must"),
+  T("sec-group", "Z0026E", "2026-11-23", "Form a lab group of 3 to 4", "All four labs are group work with a group presentation. The sign-up sheet asks for the group number and every name.", [["Lab sign-up sheet", SIGNUP_SEC]], "must"),
+  T("sec-book1", "Z0026E", "2026-12-07", "Book a Lab 1 presentation slot on the sign-up sheet", "Session Monday 14 Dec from 13:00, slots of 15 minutes. The sheet asks to take the next free slot, with no gaps.", [["Sign-up sheet", SIGNUP_SEC]], "must"),
+  T("sec-book2", "Z0026E", "2026-12-14", "Book a Lab 2 presentation slot on the sign-up sheet", "Session Friday 18 Dec from 13:00, slots of 15 minutes, the next free one.", [["Sign-up sheet", SIGNUP_SEC]], "must"),
+  T("sec-book3", "Z0026E", "2027-01-18", "Book a Lab 3 presentation slot on the sign-up sheet", "Session Friday 22 Jan from 13:00, slots of 15 minutes, the next free one.", [["Sign-up sheet", SIGNUP_SEC]], "must"),
+  T("sec-book4", "Z0026E", "2027-02-01", "Book a Lab 4 presentation slot on the sign-up sheet", "Session Friday 5 Feb from 13:00, slots of 15 minutes, the next free one.", [["Sign-up sheet", SIGNUP_SEC]], "must")
+];
+const SEC_TASK_FOR = { "sec-vm": "Z0026E:3099", "sec-book1": "Z0026E:3099", "sec-book2": "Z0026E:3102", "sec-book3": "Z0026E:3101", "sec-book4": "Z0026E:3104" };
+SEC_TASKS.forEach(t => { if (SEC_TASK_FOR[t.id]) t.for = SEC_TASK_FOR[t.id]; });
 const TASKS_LP2 = [
   T("t-tools", "Z0025E", "2026-09-14", "Install Wireshark and Cisco Packet Tracer 8.0", "Packet Tracer 6.3, 7.2 and 8.0 are the confirmed versions, newer builds have broken the lab files before. Needed from Lab 2.",
     [["Wireshark", "https://www.wireshark.org/"], ["Packet Tracer versions", "https://www.computernetworkingnotes.com/ccna-study-guide/download-packet-tracer-for-windows-and-linux.html"]], "must"),
@@ -183,7 +263,8 @@ const TASKS_LP2 = [
   T("w43-rev", "Z0025E", "2026-10-19", "Revise for Midterm 1 with the quizzes already taken", "At least 75 points needed."),
   T("w44-pull", "Z7005E", "2026-10-26", "Free week: pull Lab 6 and Lab 7 forward", "Week 45 is the worst week of the course. Work done here is work you will not do then."),
   T("w46-exam", "Z7005E", "2026-11-09", "Start the home exam", "Two free weeks. Watch the two AI videos first, the Schema asks for that."),
-  T("w48-book", "Z7005E", "2026-11-26", "Book the oral examination slot", "The booking link is published after the home exam deadline.", [["Schema page", "https://ltuedu.instructure.com/courses/613/pages/schema"]], "must")
+  T("w48-book", "Z7005E", "2026-11-26", "Book the oral examination slot", "The booking link is published after the home exam deadline.", [["Schema page", "https://ltuedu.instructure.com/courses/613/pages/schema"]], "must"),
+  ...SEC_TASKS.filter(t => t.date <= "2026-12-20")
 ];
 
 // Which deadline a task feeds, keyed by task id. A task that feeds a deadline inherits MUST.
@@ -205,7 +286,8 @@ const NOTES_LP2 = {
   "Z0025E:3030": "Open all day in the Midterms module, open book. At least 75 points needed here. Z7005E has no sessions this week: it moved them to week 45 to leave time for this.",
   "Z0025E:3040": "Last lab. After this, only quizzes and the second midterm remain in Z0025E.",
   "Z0025E:3031": "Again a 75 point minimum, and the combined 150 has to be there.",
-  "Z0025E:quizzes": "150 of 300 points needed. With the weekly rhythm, these points are already in the bag."
+  "Z0025E:quizzes": "150 of 300 points needed. With the weekly rhythm, these points are already in the bag.",
+  ...SEC_NOTES
 };
 
 // What an assessment tests, keyed "course:assignmentId", as refs. The page already applies a rule
@@ -292,25 +374,33 @@ const PREP_LP2 = [
 
 export const TERMS = [
   {
-    id: "ht26-lp2", label: "LP2", period: "Autumn 2026, week 38 to week 49",
-    start: "2026-09-14", end: "2026-12-06",
-    courses: ["Z7005E", "Z0025E"],
-    extra: "Z0025E lab deadlines fall at 23:59, Z7005E deadlines at 17:00.",
+    id: "ht26-lp2", label: "LP2", period: "Autumn 2026, week 38 to week 51",
+    start: "2026-09-14", end: "2026-12-20",
+    courses: ["Z7005E", "Z0025E", "Z0026E"],
+    extra: "Z0025E and Z0026E deadlines fall at 23:59, Z7005E deadlines at 17:00. Z0026E carries on in LP3.",
     weekFlags: { "2026-09-14": "set up", "2026-10-05": "tight", "2026-10-19": "crunch", "2026-11-02": "worst week" },
     rhythm: [
-      { html: "<strong>Mornings follow the schedule.</strong> Both courses teach in the morning and rarely collide, so keep 09:00 to 12:00 free for whichever has a session." },
+      { html: "<strong>Mornings follow the schedule.</strong> All three courses teach in the morning and rarely collide, so keep 09:00 to 12:00 free for whichever has a session." },
       { c: "Z7005E", html: "<strong>Tuesday and Wednesday are Z7005E group days.</strong> The lectures and workshops sit there, so hold the group meeting straight after." },
       { c: "Z0025E", html: "<strong>Watch one Z0025E self-paced lecture and take its quiz in the same sitting.</strong> Never watch without taking the quiz, and post in the forum while it is fresh." },
       { html: "<strong>Friday is report day</strong> in whichever course has one due." },
       { c: "Z7005E", html: "<strong>Two hours of exercise a week.</strong> The Z7005E Schema puts it in the plan, so treat it as scheduled." },
-      { html: "<strong>Check the Canvas calendar every Monday.</strong> Z7005E lists weeks 44, 46 and 47 as empty and Z0025E says to expect changes, so sessions can appear in either course." }
+      { html: "<strong>Check the Canvas calendar every Monday.</strong> Z7005E lists weeks 44, 46 and 47 as empty and Z0025E says to expect changes, so sessions can appear in either course." },
+      { c: "Z0026E", html: "<strong>Take each Z0026E quiz in the week its module ends.</strong> They are open book, and every quiz needs at least 10 points of its own." }
     ],
     sessions: SESSIONS_LP2, study: STUDY_LP2, tasks: TASKS_LP2, notes: NOTES_LP2, needs: NEEDS_LP2, prep: PREP_LP2
   },
   {
-    id: "vt27-lp3", label: "LP3", period: "Spring 2027", start: "2027-01-11", end: "2027-03-21",
-    courses: [], upcoming: "The courses for this study period are not in Canvas yet. They will be added here once their schedules are published.",
-    weekFlags: {}, rhythm: [], sessions: [], study: [], tasks: [], notes: {}, needs: {}, prep: []
+    id: "vt27-lp3", label: "LP3", period: "Spring 2027, week 2 to week 5", start: "2027-01-11", end: "2027-02-07",
+    courses: ["Z0026E"],
+    extra: "Z0026E deadlines fall at 23:59. Its first weeks, from 23 Nov, are in LP2.",
+    weekFlags: {},
+    rhythm: [
+      { c: "Z0026E", html: "<strong>Lectures on Monday and Tuesday mornings, labs on Friday afternoons.</strong> Each module's quiz closes on the Saturday after its lectures." },
+      { c: "Z0026E", html: "<strong>Book the lab slot as soon as the week starts.</strong> The sheet fills from 13:00 with no gaps, so an early booking is an early slot." }
+    ],
+    sessions: SEC_SESSIONS.filter(s => s.date >= "2027-01-11"), study: SEC_STUDY.filter(s => s.week >= "2027-01-11"),
+    tasks: SEC_TASKS.filter(t => t.date >= "2027-01-11"), notes: SEC_NOTES, needs: {}, prep: []
   }
 ];
 
@@ -318,10 +408,16 @@ export const TERMS = [
 // sheet's slots at request time, keeps no names, and shows the Booking's stage on its task row.
 // section is the sheet's heading prefix ("Lab3 - Oct 16th - ..."); task is the TASKS_LP2 id.
 const SIGNUP_DOC = "1S9Bi-W6wMoTd7FH7IqcS04B09B25Hml7PrTGBL33xuM";
+const SIGNUP_DOC_SEC = "1_ZmXei3U8hFPzQbvSFR5z_lXmorprVTnW2lIL9hhBLQ";
 export const BOOKINGS = [
   { id: "Z0025E:lab3", course: "Z0025E", for: "Z0025E:3043", sheet: SIGNUP_DOC, section: "Lab3", task: "w42-book3" },
   { id: "Z0025E:lab5", course: "Z0025E", for: "Z0025E:3045", sheet: SIGNUP_DOC, section: "Lab5", task: "w45-book5" },
-  { id: "Z0025E:lab6", course: "Z0025E", for: "Z0025E:3040", sheet: SIGNUP_DOC, section: "Lab6", task: "w46-book6" }
+  { id: "Z0025E:lab6", course: "Z0025E", for: "Z0025E:3040", sheet: SIGNUP_DOC, section: "Lab6", task: "w46-book6" },
+  // Z0026E's sheet: headings "1. Lab 1 (...) 2026-12-14; 13.00-15.00", slots without clock times.
+  { id: "Z0026E:lab1", course: "Z0026E", for: "Z0026E:3099", sheet: SIGNUP_DOC_SEC, section: "Lab1", task: "sec-book1" },
+  { id: "Z0026E:lab2", course: "Z0026E", for: "Z0026E:3102", sheet: SIGNUP_DOC_SEC, section: "Lab2", task: "sec-book2" },
+  { id: "Z0026E:lab3", course: "Z0026E", for: "Z0026E:3101", sheet: SIGNUP_DOC_SEC, section: "Lab3", task: "sec-book3" },
+  { id: "Z0026E:lab4", course: "Z0026E", for: "Z0026E:3104", sheet: SIGNUP_DOC_SEC, section: "Lab4", task: "sec-book4" }
 ];
 
 // Disagreements (CONTEXT.md): two sources in a Course giving different values for one fact. Each is

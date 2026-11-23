@@ -32,6 +32,7 @@ function parseTitle(raw) {
 
 function kindOf(item, a) {
   const t = item.title;
+  if (item.type === "Quiz") return "quiz";     // a classic Canvas quiz (Z0026E), tied to its assignment by quiz_id
   if (item.type === "Assignment") {
     if (/quiz/i.test(t)) return "quiz";
     if (/midterm|tenta|exam/i.test(t)) return "exam";
@@ -46,7 +47,7 @@ function kindOf(item, a) {
     if (/🖥/.test(t)) return "session";       // a scheduled Zoom lecture or workshop, page holds recording and slides
     if (/🏋/.test(t) || /exercise|övning/i.test(t)) return "exercise";
     if (/solution/i.test(t)) return "solutions";
-    if (/🎓/.test(t) || /^lecture \d/i.test(t)) return "lecture";
+    if (/🎓|🧠/.test(t) || /^lecture \d/i.test(t)) return "lecture";   // 🧠: a self-paced lecture page (Z0026E), no post asked
     if (/📖/.test(t) || /overview/i.test(t)) return "overview";
     if (/🏁/.test(t) || /^end of/i.test(t) || /summary|wrap-up/i.test(t)) return "wrapup";
     if (/📋/.test(t) || /instructions/i.test(t)) return "instructions";
@@ -83,6 +84,8 @@ async function courseInventory(code, course) {
   const modules = await getAll(`/courses/${id}/modules?include[]=items`);
   const assignments = await getAll(`/courses/${id}/assignments`);
   const byAssignment = new Map(assignments.map(a => [a.id, a]));
+  // A classic quiz module item carries the quiz's id, not the assignment's; the assignment names its quiz.
+  const byQuiz = new Map(assignments.filter(a => a.quiz_id).map(a => [a.quiz_id, a]));
   const out = { canvasId: id, url: `https://ltuedu.instructure.com/courses/${id}`, modules: [], assignments: [], announcements: [] };
 
   for (const m of modules) {
@@ -90,6 +93,10 @@ async function courseInventory(code, course) {
     let section = null;
     for (const it of m.items || []) {
       if (it.type === "SubHeader") { section = parseTitle(it.title).title; continue; }
+      // Z0026E lists every lab and quiz twice: in its subject module and again in a "Labs" or
+      // "Quizzes" module. The first listing is the one kept, so each assessment is one item.
+      const graded = it.type === "Assignment" ? byAssignment.get(it.content_id) : it.type === "Quiz" ? byQuiz.get(it.content_id) : null;
+      if (graded && graded.__moduleItem) continue;
       const { number, title } = parseTitle(it.title);
       const row = { id: it.id, number, title, type: it.type, kind: kindOf(it), section, url: it.html_url, indent: it.indent || 0 };
       if (it.type === "ExternalUrl") row.external = it.external_url;
@@ -97,8 +104,8 @@ async function courseInventory(code, course) {
       let body = null;
       if (it.type === "Page") body = (await get(`/courses/${id}/pages/${it.page_url}`)).body;
       else if (it.type === "Discussion") body = (await get(`/courses/${id}/discussion_topics/${it.content_id}`)).message;
-      else if (it.type === "Assignment") {
-        const a = byAssignment.get(it.content_id);
+      else if (it.type === "Assignment" || it.type === "Quiz") {
+        const a = graded;
         if (a) {
           body = a.description; row.assignmentId = a.id; row.points = a.points_possible;
           row.submission = (a.submission_types || []).join("/");
@@ -111,13 +118,14 @@ async function courseInventory(code, course) {
         row.words = text.split(" ").filter(Boolean).length;
         row.videos = countVideos(body);
         row.files = new Set([...body.matchAll(/\/files\/(\d+)/g)].map(x => x[1])).size;
-        const est = /(?:tidsåtgång|estimated time)[:\s~]*(\d+)\s*(h|timmar|hours|min)/i.exec(text) || /\[(\d+)\s*(min|h)\]/i.exec(it.title);
+        const est = /(?:tidsåtgång|estimated time)[:\s~]*(\d+)\s*(h|timmar|hours|min)/i.exec(text) || /\[(\d+)\s*(min|minutes|h)\]/i.exec(it.title);
         if (est) row.statedMinutes = /^h|timmar|hours/i.test(est[2]) ? Number(est[1]) * 60 : Number(est[1]);
       }
       row.minutes = row.statedMinutes || minutes(row.kind, row.words, row.videos);
       mod.items.push(row);
     }
-    out.modules.push(mod);
+    // A module that held only repeat listings (Z0026E's "Quizzes") is left out.
+    if (mod.items.length || !(m.items || []).some(i => i.type !== "SubHeader")) out.modules.push(mod);
   }
 
   // An assignment that sits in no module (613's home exam) still needs a place in the map, or nothing
@@ -125,6 +133,9 @@ async function courseInventory(code, course) {
   // flagged unlisted so the page can say Canvas does not show it in the module.
   for (const a of assignments) {
     if (a.__moduleItem) continue;
+    // Undated and in no module: a gradebook column ("Quiz Total") or a placeholder (Z0026E's
+    // 'Assignment "title"'), nothing to study or hand in.
+    if (!a.due_at) continue;
     const { number, title } = parseTitle(a.name);
     const top = number ? number.split(".")[0] : null;
     const mod = top && out.modules.find(m => m.items.some(i => i.number && i.number.split(".")[0] === top));
@@ -235,7 +246,7 @@ async function calendar() {
   const events = await getAll(`/calendar_events?type=event&all_events=true&${contexts.map(c => `context_codes[]=${c}`).join("&")}`);
   events.sort((a, b) => String(a.start_at).localeCompare(String(b.start_at)));
   console.log(`\nCalendar events`);
-  if (!events.length) { console.log("  ok  none in either course or your own calendar"); return; }
+  if (!events.length) { console.log("  ok  none in any course or your own calendar"); return; }
   for (const e of events) {
     const s = e.start_at ? local(e.start_at) : null, end = e.end_at ? local(e.end_at) : null;
     const where = codeOf[e.context_code] || "your calendar";

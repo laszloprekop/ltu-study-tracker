@@ -37,4 +37,33 @@ assert.deepEqual(lab3.slots.map(s => [s.time, s.group]), [["09:00", null], ["09:
 assert.ok(!JSON.stringify(parseSheet(text, today)).includes("Example"), "no names in the result");
 // a sheet read in late December still dates a January session in the next year
 assert.equal(parseSheet("Lab1 - Jan 9th - 10:00\n0 - 15 minutes (10:00)", new Date("2026-12-20T00:00:00Z"))[0].date, "2027-01-09");
-console.log("signup sheet: 9 checks passed");
+
+// Z0026E's sheet: an ISO date and the session's hours in the heading, slots in minutes only,
+// cells after a tab, and slot starts one minute past the last slot's end.
+const sec = `﻿Lab Assessment signup sheet\r
+do not leave empty slots. Pls. book subsequent slots.\r
+Enter your group number and names!\r
+https://ltu-se.zoom.us/my/1\r
+1. Lab 1 (Cryptography - Symmetric Key Crypto) 2026-12-14; 13.00-15.00\r
+Time\r
+\tName(s)\r
+\t0 - 15 minutes\r
+\tGroup 3: Ada Example, Bo Example\r
+\t16 - 30 minutes\r
+\tLab Groups 7 Cy Example\r
+\t31 - 45 minutes\r
+\t\r
+\t76 - 90 minutes\r
+\t\r
+2. Lab 2 (Web Security) 2026-12-18; 13.00-15.00\r
+Time\r
+\t0 - 15 minutes\r
+\t\r
+`;
+const [s1, s2] = parseSheet(sec, today);
+assert.equal(s1.section, "Lab1"); assert.equal(s1.date, "2026-12-14"); assert.equal(s1.headingTime, "13:00");
+assert.deepEqual(s1.slots.map(s => [s.time, s.group]), [["13:00", 3], ["13:15", 7], ["13:30", null], ["14:15", null]]);
+assert.equal(s2.section, "Lab2"); assert.equal(s2.date, "2026-12-18");
+assert.deepEqual(s2.slots.map(s => [s.time, s.group]), [["13:00", null]]);
+assert.ok(!JSON.stringify(parseSheet(sec, today)).includes("Example"), "no names in the result");
+console.log("signup sheet: 16 checks passed");
