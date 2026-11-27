@@ -41,7 +41,7 @@ export const COURSES = {
     rules: [
       "Seven group labs, one shared project portfolio, deadlines at 17:00",
       "Individual home exam, Boomerang Australia, 25 Nov",
-      "Oral examination in week 49: a 15 minute slot on Zoom, booked through the Doodle link in the Canvas message of 26 Nov",
+      "Oral examination on 1 or 2 Dec: a 15 minute slot on Zoom, booked through the Doodle link in the Canvas message of 26 Nov",
       "Re-exam (Omtentamen, Apples2Apples) for anyone who did not hand in or does not pass: no deadline, in Canvas since 26 Nov"
     ],
     note: "Almost everything is group work. The group moves at the pace of its slowest hand-off, so agree early who owns which diagram.",
@@ -180,7 +180,7 @@ const SESSIONS_LP2 = [
   S("Z7005E", "2026-11-05", "15:10", "16:00", "lecture", "Lecture 17, the software development life cycle", { ref: "5.5" }),
   S("Z7005E", "2026-11-06", "09:15", "10:25", "workshop", "Workshop 6, refactoring a multi-user game", { ref: "5.7" }),
   S("Z7005E", "2026-11-06", "10:30", "12:00", "workshop", "Workshop 2, sustainable system development", { ref: "3.3", why: "Moved from 22 Oct." }),
-  S("Z7005E", "2026-11-30", null, null, "exam", "Oral examination, individual, booked slot", { ref: "6.3", status: "expected", why: "Each student has an own 15 minute slot on Zoom, booked through the Doodle link that Josef Hallberg sent as a Canvas message on 26 Nov. The day shown here is only the Monday of week 49: go by the slot in the Doodle confirmation email." }),
+  S("Z7005E", "2026-12-01", "09:15", "15:45", "exam", "Oral examination, individual, booked slot", { ref: "6.3", why: "Each student has an own 15 minute slot on Zoom, booked through the Doodle link that Josef Hallberg sent as a Canvas message on 26 Nov. The slots run on Tuesday 1 and Wednesday 2 Dec, from 09:15 to 15:45 on both days. This entry shows the first day: go by the slot in the Doodle confirmation email." }),
 
   // Z0025E, from the Homepage slot table. Lecture numbers by module order until an announcement confirms them.
   S("Z0025E", "2026-09-17", "14:30", "16:00", "lecture", "Lecture 1, computer networks and the Internet", { ref: "1.3", status: "confirmed" }),
