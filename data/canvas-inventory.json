@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-23T07:51:24.211Z",
+ "generatedAt": "2026-11-27T07:41:56.353Z",
  "courses": {
   "Z7005E": {
    "canvasId": 613,
@@ -1715,6 +1715,23 @@
        "minutes": null
       },
       {
+       "id": 19743,
+       "number": null,
+       "title": "Omtentamen - Apples2Apples",
+       "type": "Assignment",
+       "kind": "exam",
+       "section": null,
+       "url": "https://ltuedu.instructure.com/courses/613/modules/items/19743",
+       "indent": 1,
+       "assignmentId": 3025,
+       "points": 0,
+       "submission": "online_upload",
+       "words": 75,
+       "videos": 1,
+       "files": 7,
+       "minutes": null
+      },
+      {
        "id": "a3024",
        "number": "6.2",
        "title": "Hemtentamen - Boomerang Australia",
@@ -1853,6 +1870,19 @@
      "dueTime": "10:00",
      "url": "https://ltuedu.instructure.com/courses/613/assignments/3024",
      "moduleItemUrl": null,
+     "section": null,
+     "kind": "exam"
+    },
+    {
+     "id": 3025,
+     "number": null,
+     "title": "Omtentamen - Apples2Apples",
+     "points": 0,
+     "submission": "online_upload",
+     "due": null,
+     "dueTime": null,
+     "url": "https://ltuedu.instructure.com/courses/613/assignments/3025",
+     "moduleItemUrl": "https://ltuedu.instructure.com/courses/613/modules/items/19743",
      "section": null,
      "kind": "exam"
     },
@@ -3501,6 +3531,13 @@
      "posted": "2026-11-16",
      "url": "https://ltuedu.instructure.com/courses/614/discussion_topics/4140",
      "text": "Dear all, This week is dedicated to Midterm 2 , which will take place on Friday, 20 November . 📝 Midterm 2 Date: Friday, 20 November 2026 (All day) Platform: Canvas Focus: Review the lecture materials and prepare for the examination. There will be no scheduled lectures or lab sessions this week. Please use this time to revise the course materials and prepare for Midterm 2. Good luck with your preparation! Best regards, Chen-Wei Yang"
+    },
+    {
+     "id": 4144,
+     "title": "Course Completion",
+     "posted": "2026-11-25",
+     "url": "https://ltuedu.instructure.com/courses/614/discussion_topics/4144",
+     "text": "Dear all Just a quick reminder on the requirement for course completion. To complete the course, you need to pass the following 1. Complete all labs 2. Achieve 150 points across 2 midterms (with 75 points per midterm) 3. Achieve at least 150 points across the 8 quizzes. Please make sure you have completed these requirements before the end of next week. Kind Regards Chen-Wei Yang"
     }
    ]
   },

@@ -41,7 +41,8 @@ export const COURSES = {
     rules: [
       "Seven group labs, one shared project portfolio, deadlines at 17:00",
       "Individual home exam, Boomerang Australia, 25 Nov",
-      "Oral examination in week 49, booking link appears after 25 Nov"
+      "Oral examination in week 49: a 15 minute slot on Zoom, booked through the Doodle link in the Canvas message of 26 Nov",
+      "Re-exam (Omtentamen, Apples2Apples) for anyone who did not hand in or does not pass: no deadline, in Canvas since 26 Nov"
     ],
     note: "Almost everything is group work. The group moves at the pace of its slowest hand-off, so agree early who owns which diagram.",
     // MUST/NICE: graded work, required posts, labs, seminars and exams are MUST by rule (see the page).
@@ -179,7 +180,7 @@ const SESSIONS_LP2 = [
   S("Z7005E", "2026-11-05", "15:10", "16:00", "lecture", "Lecture 17, the software development life cycle", { ref: "5.5" }),
   S("Z7005E", "2026-11-06", "09:15", "10:25", "workshop", "Workshop 6, refactoring a multi-user game", { ref: "5.7" }),
   S("Z7005E", "2026-11-06", "10:30", "12:00", "workshop", "Workshop 2, sustainable system development", { ref: "3.3", why: "Moved from 22 Oct." }),
-  S("Z7005E", "2026-11-30", null, null, "exam", "Oral examination, individual, booked slot", { ref: "6.3", status: "expected", why: "Some time in week 49. The booking link is published after 25 Nov." }),
+  S("Z7005E", "2026-11-30", null, null, "exam", "Oral examination, individual, booked slot", { ref: "6.3", status: "expected", why: "Each student has an own 15 minute slot on Zoom, booked through the Doodle link that Josef Hallberg sent as a Canvas message on 26 Nov. The day shown here is only the Monday of week 49: go by the slot in the Doodle confirmation email." }),
 
   // Z0025E, from the Homepage slot table. Lecture numbers by module order until an announcement confirms them.
   S("Z0025E", "2026-09-17", "14:30", "16:00", "lecture", "Lecture 1, computer networks and the Internet", { ref: "1.3", status: "confirmed" }),
@@ -263,7 +264,9 @@ const TASKS_LP2 = [
   T("w43-rev", "Z0025E", "2026-10-19", "Revise for Midterm 1 with the quizzes already taken", "At least 75 points needed."),
   T("w44-pull", "Z7005E", "2026-10-26", "Free week: pull Lab 6 and Lab 7 forward", "Week 45 is the worst week of the course. Work done here is work you will not do then."),
   T("w46-exam", "Z7005E", "2026-11-09", "Start the home exam", "Two free weeks. Watch the two AI videos first, the Schema asks for that."),
-  T("w48-book", "Z7005E", "2026-11-26", "Book the oral examination slot", "The booking link is published after the home exam deadline.", [["Schema page", "https://ltuedu.instructure.com/courses/613/pages/schema"]], "must"),
+  T("w48-book", "Z7005E", "2026-11-26", "Book the oral examination slot", "The Doodle link came as a Canvas message from Josef Hallberg on 26 Nov (Canvas Inbox, also sent by email), for those who handed in the home exam. Slots are 15 minutes on Zoom. Doodle confirms the slot by email.", [["Canvas Inbox", "https://ltuedu.instructure.com/conversations"], ["Schema page", "https://ltuedu.instructure.com/courses/613/pages/schema"]], "must"),
+  T("w49-reexam", "Z7005E", "2026-11-30", "Only without a passed home exam: do the re-exam, Apples2Apples", "For anyone who did not hand in the home exam or does not pass it. Canvas sets no deadline: hand in whenever. The teacher's message of 26 Nov says grading may be slow, and that helping and supporting each other is fine.", [["Omtentamen - Apples2Apples", "https://ltuedu.instructure.com/courses/613/assignments/3025"]]),
+  T("w49-complete", "Z0025E", "2026-11-30", "Check the three requirements for completing the course", "Announcement of 25 Nov: complete all labs, reach 150 points across the two midterms with at least 75 on each, and reach at least 150 points across the eight quizzes. It asks for all of this to be done before the end of this week (4 Dec). The quizzes close on 2 Dec.", [["Announcement", "https://ltuedu.instructure.com/courses/614/discussion_topics/4144"], ["Grades", "https://ltuedu.instructure.com/courses/614/grades"]], "must"),
   ...SEC_TASKS.filter(t => t.date <= "2026-12-20")
 ];
 
