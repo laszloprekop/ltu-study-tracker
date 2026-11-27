@@ -180,7 +180,8 @@ const SESSIONS_LP2 = [
   S("Z7005E", "2026-11-05", "15:10", "16:00", "lecture", "Lecture 17, the software development life cycle", { ref: "5.5" }),
   S("Z7005E", "2026-11-06", "09:15", "10:25", "workshop", "Workshop 6, refactoring a multi-user game", { ref: "5.7" }),
   S("Z7005E", "2026-11-06", "10:30", "12:00", "workshop", "Workshop 2, sustainable system development", { ref: "3.3", why: "Moved from 22 Oct." }),
-  S("Z7005E", "2026-12-01", "09:15", "15:45", "exam", "Oral examination, individual, booked slot", { ref: "6.3", why: "Each student has an own 15 minute slot on Zoom, booked through the Doodle link that Josef Hallberg sent as a Canvas message on 26 Nov. The slots run on Tuesday 1 and Wednesday 2 Dec, from 09:15 to 15:45 on both days. This entry shows the first day: go by the slot in the Doodle confirmation email." }),
+  S("Z7005E", "2026-12-01", "09:15", "15:45", "exam", "Oral examination, individual, booked slot", { ref: "6.3", why: "Each student has an own 15 minute slot on Zoom, booked through the Doodle link that Josef Hallberg sent as a Canvas message on 26 Nov. The slots run on Tuesday 1 and Wednesday 2 Dec, from 09:15 to 15:45 on both days. Only one of the two days is yours: go by the slot in your own Doodle confirmation email." }),
+  S("Z7005E", "2026-12-02", "09:15", "15:45", "exam", "Oral examination, individual, booked slot", { ref: "6.3", why: "Each student has an own 15 minute slot on Zoom, booked through the Doodle link that Josef Hallberg sent as a Canvas message on 26 Nov. The slots run on Tuesday 1 and Wednesday 2 Dec, from 09:15 to 15:45 on both days. Only one of the two days is yours: go by the slot in your own Doodle confirmation email." }),
 
   // Z0025E, from the Homepage slot table. Lecture numbers by module order until an announcement confirms them.
   S("Z0025E", "2026-09-17", "14:30", "16:00", "lecture", "Lecture 1, computer networks and the Internet", { ref: "1.3", status: "confirmed" }),
